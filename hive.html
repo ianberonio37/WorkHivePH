@@ -606,6 +606,7 @@
              real hands: Copy always; the system share sheet where the device offers one. -->
         <div class="flex gap-2 justify-center mb-4">
           <button id="btn-copy-code" class="btn-ghost text-xs" style="min-height:44px;" data-i="copycode">Copy code</button>
+          <button id="btn-copy-code-link" class="btn-ghost text-xs" style="min-height:44px;">Copy invite link</button>
           <button id="btn-share-code" class="btn-ghost text-xs hidden" style="min-height:44px;" data-i="share">Share…</button>
         </div>
         <script>
@@ -613,6 +614,16 @@
             var copyBtn = document.getElementById('btn-copy-code');
             var shareBtn = document.getElementById('btn-share-code');
             function code() { return (document.getElementById('code-value').textContent || '').trim(); }
+            // GJ M9 J1: the link carries the code, so a joiner taps it instead of typing six characters read aloud
+            function link() { var c = code(); return c ? new URL('hive.html?join=' + encodeURIComponent(c.toUpperCase()), location.href).href : ''; }
+            var linkBtn = document.getElementById('btn-copy-code-link');
+            function showLink(l) { window.whPrompt('Copy this invite link:', { inputLabel: 'Invite link', defaultValue: l, okLabel: 'Done', cancelLabel: '' }); }
+            linkBtn.addEventListener('click', function () {
+              var l = link(); if (!l) return;
+              var done = function () { linkBtn.textContent = 'Link copied ✓'; setTimeout(function () { linkBtn.textContent = 'Copy invite link'; }, 2500); };
+              if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(l).then(done, function () { showLink(l); }); }
+              else { showLink(l); }
+            });
             copyBtn.addEventListener('click', function () {
               var c = code(); if (!c) return;
               var done = function () { copyBtn.textContent = 'Copied ✓'; setTimeout(function () { copyBtn.textContent = 'Copy code'; }, 2500); };
@@ -624,7 +635,7 @@
               shareBtn.classList.remove('hidden');
               shareBtn.addEventListener('click', function () {
                 var c = code(); if (!c) return;
-                navigator.share({ text: 'Join our WorkHive: enter code ' + c + ' at workhiveph.com (Join with Code).' })
+                navigator.share({ text: 'Join our hive on WorkHive (code ' + c + ').', url: link() })
                   .catch(function () { /* empty-catch-allow: user dismissed the sheet */ });
               });
             }
@@ -644,6 +655,7 @@
         </button>
         <h2 data-i="p_joinahive_6c7a" class="text-xl font-black text-white mb-1">Join a Hive</h2>
         <p data-i="p_enterthecharactercodeyoursup_c7b7" class="text-xs text-white/80 mb-6 leading-relaxed">Enter the 6-character code your supervisor gave you.</p>
+        <p id="join-invite-note" role="status" class="hidden text-sm text-white mb-4 leading-relaxed"></p>
         <label data-i="p_invitecode_6929" for="join-code-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Invite Code</label>
         <input id="join-code-input" type="text" placeholder="ABC123" maxlength="6" autocomplete="off" autocapitalize="characters"
           class="wh-input mb-2 text-center font-black tracking-widest uppercase"
@@ -670,6 +682,7 @@
         </div>
         <p data-i="p_yourein_3637" class="text-xs font-semibold text-white/80 uppercase tracking-widest mb-1">You're In</p>
         <h2 id="welcome-hive-name" class="text-xl font-black text-white mb-2"></h2>
+        <p id="welcome-led-by" class="text-sm text-white/90 mb-4 hidden"></p>
         <p data-i="p_yourrecordsarenowvisibletoyo_7456" class="text-xs text-white/80 mb-6 leading-relaxed">Your records are now visible to your team:</p>
 
         <div class="flex gap-3 mb-6">
@@ -805,6 +818,7 @@
         <p data-i="p_sharethiscodewithyourteam_b16b" class="text-xs text-white/80 mb-2">Share this code with your team:</p>
         <div class="code-display" id="code-strip-value" style="font-size:var(--wh-fs-xl, 1.5rem); padding:0.75rem 1rem;"></div>
         <p data-i="p_anyonewiththiscodecanjoinyou_fb25" class="text-xs text-white/80 mt-2">Anyone with this code can join your hive.</p>
+        <button type="button" id="btn-copy-invite" class="btn-ghost" style="width:auto; min-height:44px; margin-top:0.75rem;">Copy invite link</button>
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
@@ -2473,6 +2487,9 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
   // Stale WORKER_NAME without _authUid means the worker would 401 once Phase E flips
   // the L3 permissive policies. See PRODUCTION_FIXES.md #37.
   if (!_authUid) { whSignInWall(); return; }
+  // GJ M9 J1 / G-ONB: an invite link (hive.html?join=<code>) seats a member of that hive in it, and gives anyone else
+  // the join form with the code filled in. Signed out, whSignInWall above kept the link through sign-in or sign-up.
+  { const _inv = _whInviteCode(); if (_inv && (await _whHonourInvite(_inv)) === 'join') return; }
 
   if (HIVE_ID) {
     // Re-validate against DB. Canonical: v_worker_truth wraps hive_members.
@@ -2699,7 +2716,10 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
 document.getElementById('btn-go-create').addEventListener('click', () => showView('create'));
 document.getElementById('btn-go-join').addEventListener('click', () => showView('join'));
 document.getElementById('btn-back-from-create').addEventListener('click', () => showView('onboard'));
-document.getElementById('btn-back-from-join').addEventListener('click', () => showView('onboard'));
+document.getElementById('btn-back-from-join').addEventListener('click', () => {
+  if (HIVE_ID) { location.replace('hive.html'); return; }   // a member who opened an invite goes back to their own board
+  showView('onboard');
+});
 
 // ── CREATE HIVE ──
 // a held Enter repeats about 30 times a second; one press creates, joins or asks once (SL RL3, 2026-10-22)
@@ -3028,6 +3048,23 @@ async function submitJoin() {
 
 async function showWelcome(hive) {
   document.getElementById('welcome-hive-name').textContent = hive.name || '';  // textContent is XSS-safe; escHtml would double-escape (P4-01 fix)
+  // ★WHOSE HIVE (2026-11-05, GJ M9 J1 hand-off 1): a joiner landed on "You're In · <hive name>" and nothing said who runs
+  // it - someone who followed a link cannot tell a colleague's hive from a stranger's. The supervisors are named; a
+  // member may read their own hive's roster, so this is the joiner's own read.
+  try {
+    const _led = document.getElementById('welcome-led-by');
+    if (_led && hive.id) {
+      // canonical-allow: the roster's own source - a member reads their hive's members here, while v_worker_truth shows
+      // a worker only their OWN row (measured: a Baguio worker read 0 supervisors through it, 2 through hive_members)
+      const { data: _sups } = await db.from('hive_members').select('worker_name')
+        .eq('hive_id', hive.id).eq('role', 'supervisor').eq('status', 'active').order('worker_name').limit(6);   // a hive's supervisors are a handful by nature
+      const _names = (_sups || []).map((x) => x.worker_name).filter(Boolean);
+      if (_names.length) {
+        _led.textContent = (_names.length === 1 ? 'Supervisor: ' : 'Supervisors: ') + _names.join(', ') + '. You joined just now.';
+        _led.classList.remove('hidden');
+      }
+    }
+  } catch (_) { /* empty-catch-allow: the welcome stands without the line; joining already happened */ }
 
   const [logRes, closedRes] = await Promise.all([
     db.from('v_logbook_truth').select('*', { count: 'exact', head: true }).or(_MINE()),
@@ -3422,6 +3459,55 @@ async function renderHiveSwitcher() {
   applyHiveRole(membership.role);   // server-verified role above
   initBoard();
 }
+
+// ★AN INVITE WAS A CODE READ ALOUD (2026-11-05, GJ M9 J1 / G-ONB). No page read an invite parameter, so a supervisor
+// read six characters to each new worker and each one typed them. The strip now copies a link that carries the code,
+// and this page honours it: a member of that hive is seated in it; anyone else gets the join form filled in and one
+// press to join (join_hive_by_code still decides - a removed member's ban, a wrong code, a namesake all say so there).
+function _whInviteCode() {
+  try {
+    const c = (new URLSearchParams(location.search).get('join') || '').trim().toUpperCase();
+    return /^[A-Z0-9]{6}$/.test(c) ? c : '';
+  } catch (_) { return ''; }   // empty-catch-allow: no readable query string is no invite
+}
+async function _whHonourInvite(code) {
+  try { history.replaceState(null, '', location.pathname + location.hash); } catch (_) { /* empty-catch-allow: a reload re-offering the form is harmless */ }
+  let mine = null;
+  try {
+    // v_hives_truth is member-scoped: a row carrying this code is one of this person's own hives
+    const { data } = await db.from('v_hives_truth').select('id, name').eq('invite_code', code).limit(1);
+    mine = (data && data[0]) || null;
+  } catch (_) { mine = null; }   // empty-catch-allow: unknown membership falls to the join form, where the server decides
+  if (mine && mine.id) {
+    if (mine.id !== HIVE_ID) {
+      localStorage.setItem('wh_active_hive_id', mine.id); localStorage.setItem('wh_hive_id', mine.id);
+      localStorage.setItem('wh_hive_name', mine.name);
+      HIVE_ID = mine.id; HIVE_NAME = mine.name;   // the membership check below re-reads the role for this hive
+    }
+    showToast('You are already a member of ' + mine.name + '. This is its board.');
+    return 'member';
+  }
+  showView('join');
+  const inp = document.getElementById('join-code-input');
+  if (inp) inp.value = code;
+  const note = document.getElementById('join-invite-note');
+  if (note) { note.textContent = 'You were invited to join a hive. The code is filled in - press Join Hive.'; note.classList.remove('hidden'); }
+  const go = document.getElementById('btn-submit-join');
+  if (go) go.focus();
+  return 'join';
+}
+document.getElementById('btn-copy-invite').addEventListener('click', async () => {
+  const code = (document.getElementById('code-strip-value').textContent || '').trim().toUpperCase();
+  if (!/^[A-Z0-9]{6}$/.test(code)) { showToast('The code has not loaded yet. Try again in a moment.'); return; }
+  const link = new URL('hive.html?join=' + encodeURIComponent(code), location.href).href;
+  try {
+    await navigator.clipboard.writeText(link);
+    showToast('Invite link copied. Anyone who opens it can join ' + (HIVE_NAME || 'your hive') + '.');
+  } catch (_) {
+    // no clipboard (an older phone, a denied permission): the link is shown to copy by hand
+    await window.whPrompt('Copy this invite link and send it to your team:', { inputLabel: 'Invite link', defaultValue: link, okLabel: 'Done', cancelLabel: '' });   // whPrompt reads defaultValue
+  }
+});
 
 // ── SHOW INVITE CODE (supervisor) ──
 document.getElementById('btn-show-code').addEventListener('click', async () => {
@@ -5063,7 +5149,7 @@ async function loadMembers() {
   } else {
     const [membersRes, openJobsRes] = await Promise.all([
       db.from('hive_members')
-        .select('id, auth_uid, worker_name, role, status')   // id + auth_uid: member actions act on ONE row and know who "me" is (2026-10-14)
+        .select('id, auth_uid, worker_name, role, status, joined_at')   // id + auth_uid: member actions act on ONE row and know who "me" is (2026-10-14); joined_at: the roster says when (GJ M9 J1)
         .eq('hive_id', HIVE_ID)
         .neq('status', 'kicked')
         .order('joined_at')
@@ -5182,6 +5268,7 @@ async function renderRoster() {
       <div class="flex-1 min-w-0">
         <p class="text-sm font-semibold text-white break-words">${escHtml(m.worker_name)}${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(m.worker_name) : '')}${isMe ? ` <span style="color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: var(--wh-fs-2xs, 0.75rem);">${_t('(you)','(ikaw)')}</span>` : ''}</p>
         ${isSup ? `<span class="supervisor-tag" style="font-size: var(--wh-fs-2xs, 0.75rem); padding:1px 6px; margin-top:2px; display:inline-flex;">${_t('Supervisor','Superbisor')}</span>` : ''}
+        ${m.joined_at && typeof whFmtAgo === 'function' ? `<p class="text-xs" style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:2px;" data-wh-joined>joined ${escHtml(whFmtAgo(m.joined_at))}</p>` : ''}
       </div>
       ${workloadBadge}
       ${canReset ? `<button onclick="resetMemberPassword('${escJsAttr(m.worker_name)}')" style="font-size: var(--wh-fs-2xs, 0.75rem); padding:0.3rem 0.75rem; min-height:44px; border-radius:0.5rem; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange-text); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">${_t('Reset PW','I-reset PW')}</button>` : ''}

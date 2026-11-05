@@ -66,8 +66,14 @@ try {
         .filter((e) => e.offsetParent !== null && e.children.length === 0
                     && e.innerText && e.innerText.trim().length > 40)
         .map((e) => e.innerText.replace(/\s+/g, ' ').trim());
+      // ★THE PROMPT'S OWN WORDS, NOT THE LONGEST ON THE SCREEN (2026-11-05, GJ M9 J19): the control now opens the
+      // in-place change ("Choose your new password (at least 8 characters):"), shorter than the consent banner's
+      // sentence, so "the longest visible text" read the banner as the prompt. The dialog the control opened is read.
+      const ok = document.querySelector('[data-wh-modal-ok]');
+      const card = ok && ok.parentElement && ok.parentElement.parentElement;
+      const own = card ? (card.querySelector('p') || card).innerText.replace(/\s+/g, ' ').trim() : '';
       return { modalInput: inputs.some((i) => /wh-modal-ov/.test(i.id || '')),
-               longest: texts.sort((a, b) => b.length - a.length)[0] || '' };
+               longest: own || texts.sort((a, b) => b.length - a.length)[0] || '' };
     });
     if (!r.modalInput) {
       fails.push('clicking change-password opened no prompt to type into - the remedy is named but '

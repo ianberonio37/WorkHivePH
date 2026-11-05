@@ -71,6 +71,9 @@ const HIVE_ID = psql(`select id from hives where name = '${q(HOME)}'`);
 
 function member(key) {
   const c = CAST[key];
+  // ★A PERSON WHO DOES NOT EXIST YET (2026-11-06, GJ M9 J1 / G-ONB): the census casts a new user as "minted" - the walk
+  // signs them up through the front door, so they have no account, no name and no seat until their recipe makes them
+  if (c.user === 'minted') return { key, ...c, user: null, uid: null, name: null, role: null, seatId: null, seatName: null, minted: true };
   const [uid, name] = psql(`select auth_uid, display_name from worker_profiles where username = '${q(c.user)}'`).split('|');
   // ★EACH PERSON STANDS IN THE HIVE THEY WERE DRAWN FROM (2026-11-05, G-MULTI): every session was seated in the home
   // hive, so G-MULTI's second supervisor - a member of the contractor's OTHER hive only - opened pages in a hive that
@@ -103,6 +106,9 @@ const H = (page) => ({
 async function session(browser, m, vpName) {
   const ctx = await browser.newContext({ ...VP[vpName], timezoneId: 'Asia/Manila', serviceWorkers: 'block' });
   await ctx.addInitScript(ALL_ROWS_DRAWN);
+  // the invite link travels by the clipboard, as a supervisor's does
+  await ctx.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(ORIGIN).origin }).catch(() => {});
+  if (m.minted) return mintedSession(ctx, m, vpName);
   const tok = await (await fetch(`${SB}/auth/v1/token?grant_type=password`, { method: 'POST',
     headers: { apikey: KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: `${m.user}@auth.workhiveph.com`, password: 'test1234' }) })).json();
@@ -140,6 +146,39 @@ async function session(browser, m, vpName) {
   page.on('dialog', (d) => d.accept().catch(() => {}));
   return { ctx, page, m, vp: vpName, token: tok.access_token };
 }
+// a minted person's browser: the same model-call routes, no account and no seat - their recipe signs them up
+async function mintedSession(ctx, m, vpName) {
+  for (const fn of ['shift-planner-orchestrator', 'analytics-orchestrator']) {
+    await ctx.route(`**/functions/v1/${fn}**`, async (route) => {
+      if (route.request().method() !== 'POST') return route.continue();
+      let body = {};
+      try { body = JSON.parse(route.request().postData() || '{}'); } catch (_) { /* not JSON: sent as it was */ }
+      await route.continue({ postData: JSON.stringify({ ...body, debug_fault_inject: true }) });
+    });
+  }
+  const page = await ctx.newPage();
+  page.on('dialog', (d) => d.accept().catch(() => {}));
+  return { ctx, page, m, vp: vpName, token: null };
+}
+// sign a minted person up through index.html's own form (from wherever the page has put them: the landing's
+// "Sign Up", or the sign-in wall a link sent them to) and bind them to the walk: account id, name, user
+async function signUpHere(P, who, pw) {
+  if (!/index\.html/.test(P.page.url())) await go(P, 'index.html?signup=1');
+  await P.page.evaluate(() => { if (typeof switchAuthTab === 'function') switchAuthTab('signup'); else if (typeof openSignUp === 'function') openSignUp(); });
+  await sleep(700);
+  await P.page.fill('#su-username', who.user).catch(() => {});
+  await P.page.fill('#su-password', pw).catch(() => {});
+  await P.page.fill('#su-confirm', pw).catch(() => {});
+  await P.page.fill('#su-displayname', who.name).catch(() => {});
+  await P.page.click('#su-btn').catch(() => P.page.evaluate(() => submitSignUp()));
+  let uid = '';
+  for (let t = 0; t < 30000 && !uid; t += 1000) { await sleep(1000); uid = psql(`select auth_uid from worker_profiles where username = '${q(who.user)}'`); }
+  await sleep(3000);   // the success path then routes the person (their dashboard, or back to the link that sent them)
+  Object.assign(P.m, { user: who.user, name: who.name, uid: uid || null });
+  const err = await P.page.evaluate(() => { const e = document.getElementById('su-error'); return e && !e.classList.contains('hidden') ? e.textContent.trim() : ''; }).catch(() => '');
+  return { ok: !!uid, err };
+}
+
 async function go(s, path) {
   // under 3G a heavy page needs longer than a minute to reach DOMContentLoaded (analytics.html: ~60 s at 390) - the A
   // reading sets s.gotoTimeout and records how long it took; everywhere else a minute is the page failing to load
@@ -1595,6 +1634,311 @@ RECIPES.J19 = {
   },
 };
 
+// ── J1 · onboard to first value: a hive is born, a colleague joins by its link, the first machine and entry are real
+// (cast: n = a new person who will be the supervisor, i = a new person invited; both MINTED through the real sign-up form)
+// Everything the walk makes is the walk's own and is removed after: the hive (and every row in it), the two accounts,
+// their profiles, and anything else keyed on them - a re-count of each proves it.
+function j1People(X) {
+  if (X.rec.people) return X.rec.people;
+  const stamp = Date.now().toString(36).slice(-6);
+  const sfx = stamp.replace(/[0-9]/g, (d) => 'ABCDEFGHIJ'[Number(d)]).toUpperCase().slice(-3);
+  X.rec.people = {
+    pw: `Wh!${stamp}Qz9#`,
+    n: { user: `gjn${stamp}`, name: `Lorna Villamor ${sfx}` },
+    i: { user: `gji${stamp}`, name: `Dante Pascual ${sfx}` },
+    // the hive is named WITHOUT the walk's tag: a page header carrying the hive's name would otherwise match the tag the
+    // entry's reading looks for, before the entry's own card does
+    hive: `Villamor Plant ${stamp}`,
+  };
+  const P = X.rec.people;
+  // the cleanup is registered BEFORE anything is made, and resolves by name at cleanup time, so a walk that dies
+  // halfway leaves nothing behind either
+  const users = `('${q(P.n.user)}','${q(P.i.user)}')`;
+  const uids = `(select auth_uid from worker_profiles where username in ${users})`;
+  const hive = `(select id from hives where name = '${q(P.hive)}')`;
+  // ★A CASCADE DOES NOT REACH EVERY ROW (2026-11-06): 25 tables keep their rows with hive_id NULLED when a hive goes
+  // (logbook, pm_completions, auth_session_events, ai_cost_log, ...) and 24 do the same for an account - a list of
+  // named deletes would leave the walk's rows behind, unowned. The sweep reads those foreign keys from the catalog and
+  // removes the walk's rows from each by the hive and by the two accounts, then the hive and the accounts themselves.
+  X.restores = [...(X.restores || []), [`the walk's hive (${P.hive}) and its two new people, everything they wrote`,
+    `DO $gj$
+     DECLARE r record; h uuid; u uuid[]; pass int;
+     BEGIN
+       SELECT id INTO h FROM public.hives WHERE name = '${q(P.hive)}';
+       SELECT array_agg(auth_uid) INTO u FROM public.worker_profiles WHERE username IN ${users};
+       FOR pass IN 1..3 LOOP
+         IF h IS NOT NULL THEN
+           FOR r IN SELECT c.conrelid::regclass AS t, a.attname AS col FROM pg_constraint c
+                      JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1]
+                     WHERE c.confrelid = 'public.hives'::regclass AND c.contype = 'f' LOOP
+             BEGIN EXECUTE format('DELETE FROM %s WHERE %I = %L', r.t, r.col, h); EXCEPTION WHEN others THEN NULL; END;
+           END LOOP;
+         END IF;
+         IF u IS NOT NULL THEN
+           FOR r IN SELECT c.conrelid::regclass AS t, a.attname AS col FROM pg_constraint c
+                      JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1]
+                     WHERE c.confrelid = 'auth.users'::regclass AND c.contype = 'f' AND c.conrelid <> 'public.worker_profiles'::regclass LOOP
+             BEGIN EXECUTE format('DELETE FROM %s WHERE %I = ANY(%L::uuid[])', r.t, r.col, u); EXCEPTION WHEN others THEN NULL; END;
+           END LOOP;
+         END IF;
+       END LOOP;
+       IF h IS NOT NULL THEN DELETE FROM public.hives WHERE id = h; END IF;
+       DELETE FROM public.achievement_xp_log WHERE worker_name IN ('${q(P.n.name)}', '${q(P.i.name)}');
+       DELETE FROM public.early_access_emails WHERE lower(email) LIKE '${q(P.n.user)}%' OR lower(email) LIKE '${q(P.i.user)}%';
+       IF u IS NOT NULL THEN
+         DELETE FROM public.worker_profiles WHERE auth_uid = ANY(u);
+         DELETE FROM auth.users WHERE id = ANY(u);
+       END IF;
+     END $gj$;`]];
+  return P;
+}
+async function readClipboard(P) {
+  return P.page.evaluate(() => navigator.clipboard.readText().catch(() => '')).catch(() => '');
+}
+
+RECIPES.J1 = {
+  1: async (X) => {   // the new supervisor's invite link lands the new worker in the hive
+    const { n, i } = X.S;
+    const P = j1People(X);
+    // n: signs up, then creates the hive
+    const nUp = await signUpHere(n, P.n, P.pw);
+    await go(n, 'hive.html');
+    await n.page.evaluate(() => { const b = document.getElementById('btn-go-create'); if (b) b.click(); });
+    await sleep(800);
+    await n.page.fill('#hive-name-input', P.hive).catch(() => {});
+    await n.page.evaluate(() => { const b = document.getElementById('btn-submit-create'); if (b) b.click(); });
+    let code = '';
+    for (let t = 0; t < 20000 && !/^[A-Z0-9]{6}$/.test(code); t += 1000) {
+      await sleep(1000);
+      code = await n.page.evaluate(() => (document.getElementById('code-value') || {}).textContent || '').catch(() => '');
+      code = (code || '').trim();
+    }
+    const hid = psql(`select id from hives where name = '${q(P.hive)}'`);
+    X.rec.hive = { id: hid, name: P.hive, code };
+    // the link, the way the supervisor sends it: "Copy invite link" on the screen that just showed the code
+    await n.page.evaluate(() => { const b = document.getElementById('btn-copy-code-link'); if (b) b.click(); });
+    await sleep(1200);
+    const link = (await readClipboard(n)).trim();
+    // i: never signed up, opens the link - the wall, then "create a free account", then back to the link
+    await i.page.goto(link || `${ORIGIN}/hive.html?join=${code}`, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
+    await sleep(4000);
+    const wallSaid = await i.page.evaluate(() => { const r = document.getElementById('si-reason'); return r && !r.classList.contains('hidden') ? r.textContent.trim() : ''; }).catch(() => '');
+    const iUp = await signUpHere(i, P.i, P.pw);
+    let note = '';
+    for (let t = 0; t < 20000 && !note; t += 1000) {
+      await sleep(1000);
+      note = await i.page.evaluate(() => { const e = document.getElementById('join-invite-note'); return e && !e.classList.contains('hidden') ? e.textContent.trim() : ''; }).catch(() => '');
+    }
+    const filled = await i.page.evaluate(() => (document.getElementById('join-code-input') || {}).value || '').catch(() => '');
+    await i.page.evaluate(() => { const b = document.getElementById('btn-submit-join'); if (b) b.click(); });
+    let welcome = '';
+    for (let t = 0; t < 20000 && !/You're In/i.test(welcome); t += 1000) {
+      await sleep(1000);
+      welcome = await i.page.evaluate(() => { const v = document.getElementById('view-welcome'); return v && !v.classList.contains('hidden') ? v.innerText : ''; }).catch(() => '');
+    }
+    const mid = i.m.uid ? psql(`select id from hive_members where hive_id = '${q(hid)}' and auth_uid = '${i.m.uid}' and status = 'active'`) : '';
+    X.rec.member = mid;
+    return { act: { ok: nUp.ok && !!hid && /^[A-Z0-9]{6}$/.test(code) && /join=/.test(link) && iUp.ok && filled === code && !!mid,
+        detail: `${P.n.name} signed up (${nUp.ok}${nUp.err ? ': ' + nUp.err : ''}) and created "${P.hive}" (code ${code || 'NONE'}); "Copy invite link" gave ${link || 'NOTHING'}; `
+          + `${P.i.name}, signed out, opened it - the wall said "${wallSaid || 'nothing about an invite'}" - signed up (${iUp.ok}${iUp.err ? ': ' + iUp.err : ''}), `
+          + `came back to the join form with the code filled in (${filled || 'empty'}; "${note || 'no invite line'}") and joined: membership ${mid || 'NONE'}` },
+      preRead: welcome ? { card: welcome } : null,
+      marker: P.hive, path: 'hive.html', rec: { table: 'hive_members', id: mid } };
+  },
+  2: async (X) => {   // the joiner is on the new supervisor's roster, with when they joined
+    const { i } = X.S;
+    // the ROSTER's row, not the smallest thing on the page bearing the name (the "on shift now" strip names them too)
+    const rosterRow = async (R2, ms) => {
+      await go(R2, 'hive.html');
+      await R2.page.evaluate(() => { const b = document.getElementById('btn-toggle-members'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click(); });
+      for (let t = 0; t < ms; t += 500) {
+        const card = await R2.page.evaluate((nm) => {
+          const list = document.getElementById('members-list'); if (!list) return null;
+          const row = [...list.querySelectorAll('div')].filter((d) => (d.innerText || '').includes(nm) && d.querySelector('[data-wh-joined], .text-sm'))
+            .sort((a, b) => (a.innerText || '').length - (b.innerText || '').length)[0];
+          return row ? row.innerText.trim() : null;
+        }, i.m.name).catch(() => null);
+        if (card) return { text: i.m.name, card };
+        await sleep(500);
+      }
+      return null;
+    };
+    return { act: { ok: !!X.rec.member, detail: `${i.m.name} joined at hand-off 1 (membership ${X.rec.member || 'NONE'})` },
+      marker: i.m.name, markerRx: /joined/i, path: 'hive.html', reach: rosterRow,
+      rec: { table: 'hive_members', id: X.rec.member } };
+  },
+  3: async (X) => {   // the first machine the supervisor registered (and approved) is in the worker's list
+    const { n } = X.S;
+    const name = `${X.tag} air compressor`;
+    const hid = (X.rec.hive || {}).id || '';
+    // registered where a machine is registered - logbook's "Register Asset" - which in a hive lands for approval
+    await go(n, 'logbook.html');
+    await n.page.evaluate(() => { if (typeof openAssetModal === 'function') openAssetModal('register'); });
+    await sleep(900);
+    await n.page.fill('#a-asset-id', `CMP-${X.tag.slice(-4)}`).catch(() => {});
+    await n.page.fill('#a-name', name).catch(() => {});
+    await n.page.evaluate(() => { const sel = document.getElementById('a-type'); if (!sel) return; const o = [...sel.options].find((x) => x.value); if (o) { sel.value = o.value; sel.dispatchEvent(new Event('change', { bubbles: true })); } });
+    await n.page.fill('#a-location', 'Compressor room').catch(() => {});
+    await n.page.evaluate(() => { const b = document.getElementById('asset-submit-btn'); if (b) b.click(); });
+    await sleep(3000);
+    const before = psql(`select id || '|' || coalesce(status,'') from asset_nodes where hive_id = '${q(hid)}' and name = '${q(name)}' limit 1`);
+    const nid = before ? before.split('|')[0] : '';
+    const was = before ? before.split('|')[1] : '-';
+    // ...and approved in asset-hub's queue, by the supervisor's own Approve
+    await go(n, 'asset-hub.html');
+    const pressed = nid ? await n.page.evaluate((id) => { const b = document.querySelector(`button[data-action="asset-approve"][data-id="${id}"]`); if (b) { b.scrollIntoView({ block: 'center' }); b.click(); return true; } return false; }, nid) : false;
+    if (pressed) await modalOk(n, 3000);
+    await sleep(2500);
+    const st = nid ? psql(`select coalesce(status,'') from asset_nodes where id = '${q(nid)}'`) : '';
+    X.rec.node = nid;
+    return { act: { ok: !!nid && st === 'approved', detail: `"Register Asset" in logbook as ${n.m.name} -> asset_nodes ${nid || 'NO ROW'} (${was}); "Approve" in asset-hub (pressed ${pressed}) -> ${st || '-'}` },
+      marker: name, path: 'asset-hub.html', rec: { table: 'asset_nodes', id: nid } };
+  },
+  4: async (X) => {   // the worker's first entry is in the supervisor's logbook
+    const { i } = X.S;
+    await go(i, 'logbook.html');
+    const r = await logWizard(i.page, H(i.page), { tag: X.tag, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'compressor tripping on high temperature' });
+    const hid = (X.rec.hive || {}).id || '';
+    const id = psql(`select id from logbook where problem like '${q(X.tag)}%' and hive_id = '${q(hid)}' order by created_at limit 1`);
+    // an entry saved anywhere else says where (no hive, another hive) - the receipt explains itself
+    const elsewhere = id ? '' : psql(`select coalesce(hive_id::text, 'no hive') || ' / ' || coalesce(machine, 'no machine') from logbook where problem like '${q(X.tag)}%' order by created_at limit 1`);
+    X.rec.entry = { id };
+    const where = id ? ` -> entry ${id}` : (elsewhere ? ` -> NOT in the hive (saved under ${elsewhere})` : ' -> NOT in the hive, and nowhere else');
+    return { act: { ok: !!id, detail: `logbook wizard as ${i.m.name} (machine picked: ${r.machineSet}): ${r.toast || 'no toast'}${where}` },
+      marker: X.tag, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id } };
+  },
+  5: async (X) => {   // the first PM the supervisor set is the worker's
+    const { n } = X.S;
+    const name = `${X.tag} cooling pump`;
+    await go(n, 'pm-scheduler.html');
+    await n.page.evaluate(() => { const b = document.getElementById('tab-add'); if (b) b.click(); });
+    await sleep(1500);
+    await n.page.fill('#w-name', name).catch(() => {});
+    await n.page.fill('#w-tag', `PMP-${X.tag.slice(-4)}`).catch(() => {});
+    await n.page.fill('#w-location', 'Cooling tower').catch(() => {});
+    const cat = await n.page.evaluate(() => {
+      const sel = document.getElementById('w-category'); if (!sel) return null;
+      const opt = [...sel.options].find((o) => o.value); if (!opt) return null;
+      sel.value = opt.value; sel.dispatchEvent(new Event('change', { bubbles: true })); return opt.value;
+    });
+    await sleep(1500);
+    for (const st of [2, 3]) { await n.page.evaluate((k) => { if (typeof goStep === 'function') goStep(k); }, st); await sleep(900); }
+    const anchor = new Date(Date.now() + 8 * 3600e3 - 400 * 86400e3).toISOString().slice(0, 10);
+    await n.page.evaluate((d) => { const a = document.getElementById('w-anchor'); if (a) { a.value = d; a.dispatchEvent(new Event('change', { bubbles: true })); } }, anchor);
+    await n.page.evaluate(() => { if (typeof goStep === 'function') goStep(4); });
+    await sleep(900);
+    await n.page.evaluate(() => { const b = document.getElementById('btn-save-asset'); if (b) b.click(); });
+    await sleep(4000);
+    const hid = (X.rec.hive || {}).id || '';
+    const row = psql(`select a.id || '|' || (select count(*) from pm_scope_items p where p.asset_id = a.id) from pm_assets a
+      where a.hive_id = '${q(hid)}' and a.asset_name = '${q(name)}' and a.deleted_at is null limit 1`);
+    const pm = row ? row.split('|')[0] : '';
+    const ntasks = row ? row.split('|')[1] : '0';
+    return { act: { ok: !!pm && Number(ntasks) > 0, detail: `PM Scheduler's Add Asset as ${n.m.name}: category ${cat || 'none'}, anchor ${anchor} -> pm_assets ${pm || 'NO ROW'} with ${ntasks} task(s)` },
+      marker: name, path: 'pm-scheduler.html', reach: (R2, ms) => findPmAsset(R2, name, ms), rec: { table: 'pm_assets', id: pm } };
+  },
+};
+
+// ── J31 · the portable portfolio: what the worker chose to share, read by a stranger, and nothing more
+// (cast: w = the worker who shares, x = a stranger with no account - a signed-out browser that READS)
+const anonGet = async (path) => {
+  const res = await fetch(`${SB}/rest/v1/${path}`, { headers: { apikey: KEY } }).catch(() => null);
+  if (!res) return { status: 0, rows: null };
+  const body = await res.json().catch(() => null);
+  return { status: res.status, rows: Array.isArray(body) ? body : null, body };
+};
+RECIPES.J31 = {
+  1: async (X) => {   // the shared post shows only what the owner chose - nothing of the hive, nothing private
+    const { w } = X.S;
+    const post = psql(`select id || '|' || left(regexp_replace(content, '\\s+', ' ', 'g'), 40) from community_posts
+      where auth_uid = '${w.m.uid}' and public and not flagged and deleted_at is null order by created_at desc limit 1`);
+    const pid = post ? post.split('|')[0] : '';
+    const words = post ? post.split('|').slice(1).join('|').trim() : '';
+    // the worker reaches their own post in the feed and copies its public link from the post's own menu
+    await go(w, 'community.html');
+    for (let k = 0; k < 14; k++) {
+      const drawn = await w.page.evaluate((id) => !!document.getElementById('post-' + id), pid);
+      if (drawn) break;
+      await w.page.evaluate(() => window.scrollBy(0, Math.round(window.innerHeight * 0.9)));
+      await sleep(600);
+    }
+    await w.page.evaluate((id) => { const c = document.getElementById('post-' + id); if (c) c.scrollIntoView({ block: 'center' }); }, pid);
+    await sleep(400);
+    const opened = await w.page.evaluate((id) => {
+      const card = document.getElementById('post-' + id);
+      const b = card && card.querySelector('button[aria-haspopup="menu"]');
+      if (!b) return false; b.click(); return true;
+    }, pid);
+    await sleep(600);
+    const tapped = opened ? await w.page.evaluate(() => {
+      const it = [...document.querySelectorAll('[role="menuitem"]')].find((b) => /copy public link/i.test(b.innerText || '') && b.checkVisibility && b.checkVisibility());
+      if (it) { it.click(); return true; } return false;
+    }) : false;
+    await sleep(1200);
+    const link = (await readClipboard(w)).trim();
+    X.rec.post = { id: pid, words };
+    // F and I, as the stranger: the post through the public read, and nothing behind it
+    const pub = await anonGet(`v_community_posts_truth?id=eq.${pid}&public=eq.true&flagged=eq.false&deleted_at=is.null&select=id,author_name,content,category,created_at`);
+    const hidden = await anonGet(`v_community_posts_truth?id=eq.${pid}&select=hive_id,auth_uid`);
+    const priv = psql(`select id from community_posts where auth_uid = '${w.m.uid}' and not public and deleted_at is null limit 1`);
+    const privRead = priv ? await anonGet(`v_community_posts_truth?id=eq.${priv}&select=id`) : { rows: [] };
+    const hiddenLeak = (hidden.rows || []).some((r) => r.hive_id || r.auth_uid);
+    return { act: { ok: !!pid && tapped && new RegExp(`public-feed\\.html\\?post=${pid}`).test(link),
+        detail: `${w.m.name}'s public post ${pid || 'NONE'}, its menu's "Copy public link" (menu ${opened}, item ${tapped}) gave ${link || 'NOTHING'}` },
+      reach: async (R2, ms) => {
+        await R2.page.goto(link || `${ORIGIN}/public-feed.html?post=${pid}`, { waitUntil: 'domcontentloaded', timeout: R2.gotoTimeout || 60000 });
+        await sleep(4000);
+        // the post the link opened, first and labelled - not the same words found further down the feed
+        for (let t = 0; t < ms; t += 500) {
+          const card = await R2.page.evaluate(() => { const b = document.getElementById('shared-post'); const c = b && b.querySelector('.post-card'); return c ? (b.innerText || '').trim() : null; }).catch(() => null);
+          if (card) return { text: card, card };
+          await sleep(500);
+        }
+        return null;
+      },
+      marker: words.slice(0, 30), path: `public-feed.html?post=${pid}`,
+      // nothing of the hive on a stranger's screen
+      mustNotSay: new RegExp(reEsc(HOME), 'i'),
+      rec: { table: 'v_community_posts_truth', id: pid },
+      F: () => ({ ok: (pub.rows || []).length === 1, detail: `as a stranger (anon key, no session) the public read of post ${pid}: ${(pub.rows || []).length} row(s), columns ${pub.rows && pub.rows[0] ? Object.keys(pub.rows[0]).join(',') : '-'}` }),
+      I: () => ({ ok: !hiddenLeak && ((privRead.rows || []).length === 0), stranger_reads_hive_or_account: hiddenLeak,
+        hidden_read_status: hidden.status, private_post_rows: (privRead.rows || []).length, private_post: priv || null }) };
+  },
+  2: async (X) => {   // the public profile a stranger reads
+    const { w } = X.S;
+    const pub = await anonGet(`v_marketplace_sellers_public?worker_name=eq.${encodeURIComponent(w.m.name)}&select=worker_name`);
+    // ★THE BOUNDARY IS THE CONTACT, NOT THE ROW (2026-11-06): a stranger may read a seller who has a published listing - a
+    // public marketplace shows who sells (policy mkt_sellers_read_anon). What they must never read is the contact the
+    // public view masks; the first walk found the table handing it over underneath the view (fixed: mig 20261106000002)
+    const contact = await anonGet(`marketplace_sellers?worker_name=eq.${encodeURIComponent(w.m.name)}&select=messenger_username`);
+    const viewContact = await anonGet(`v_marketplace_sellers_public?worker_name=eq.${encodeURIComponent(w.m.name)}&select=messenger_username`);
+    const contactLeaks = (contact.rows || []).some((r) => r.messenger_username) || (viewContact.rows || []).some((r) => r.messenger_username);
+    const path = `marketplace-seller-profile.html?worker=${encodeURIComponent(w.m.name)}`;
+    return { act: { ok: true, detail: `${w.m.name}'s seller profile, opened by its own link (${path})` },
+      // a stranger is shown no join date (masked by design); what is dated on their screen is the seller's listings
+      reach: async (R2, ms) => {
+        await go(R2, path);
+        for (let t = 0; t < ms; t += 500) {
+          const card = await R2.page.evaluate((nm) => {
+            const hero = document.getElementById('hero-name');
+            if (!hero || !(hero.textContent || '').includes(nm)) return null;
+            const head = (hero.closest('section, header, .card, div') || hero).innerText.trim();
+            const listed = (document.body.innerText || '').split('\n').map((l) => l.trim()).find((l) => /^listed \d+\s*\w+ ago$|^listed (today|yesterday|just now)$/i.test(l)) || '';
+            return head + (listed ? ' || newest listing: ' + listed : '');
+          }, w.m.name).catch(() => null);
+          if (card) return { text: w.m.name, card };
+          await sleep(500);
+        }
+        return null;
+      },
+      marker: w.m.name, path,
+      rec: { table: 'v_marketplace_sellers_public', idCol: 'worker_name', id: w.m.name },
+      F: () => ({ ok: (pub.rows || []).length >= 1, detail: `as a stranger, the public profile read: ${(pub.rows || []).length} row(s)` }),
+      I: () => ({ ok: !contactLeaks && contact.status !== 200, stranger_reads_contact: contactLeaks, table_contact_status: contact.status,
+        view_contact: (viewContact.rows || []).map((r) => r.messenger_username) }) };
+  },
+};
+
 // ── G-ADV · the record reached for from outside: the hand-off stays inside its hive, refused in words
 RECIPES['G-ADV'] = {
   1: (X) => RECIPES.J2[1](X),
@@ -1848,8 +2192,14 @@ async function walkPass(browser, pass, foreign) {
   const S = {};
   for (let i = 0; i < keys.length; i++) {
     const c = CAST[keys[i]];
-    // a machine (the plant bridge) and a stranger have no account and no screen of the walk's: they act, they do not read
-    if (String(c.user).startsWith('api-key@') || c.user === 'anon') {
+    // ★A STRANGER WHO READS (2026-11-06, GJ M9 J31): a stranger has no account, but J31's stranger is the one who READS the
+    // shared post - so they get a signed-out browser of their own (a machine still only acts)
+    if (c.user === 'anon') {
+      S[keys[i]] = await session(browser, { key: keys[i], ...c, user: null, uid: null, name: 'a stranger', role: null, minted: true, anon: true }, vps[(i + (pass === 'b' ? 1 : 0)) % 2]);
+      continue;
+    }
+    // a machine (the plant bridge) has no account and no screen of the walk's: it acts, it does not read
+    if (String(c.user).startsWith('api-key@')) {
       S[keys[i]] = { m: { key: keys[i], ...c, uid: null, name: c.user === 'anon' ? 'a stranger' : `the plant bridge (${c.hive})` },
         vp: 'n/a', page: null, ctx: { close: async () => {} } };
       continue;
@@ -1871,6 +2221,8 @@ async function walkPass(browser, pass, foreign) {
       let r;
       try { r = await recipe(X); } catch (e) { out.push({ ...res, act: { ok: false, detail: String(e.message || e).slice(0, 200) } }); continue; }
       res.act = r.act;
+      res.sender = `${hop.sender}:${S[hop.sender].m.name}@${S[hop.sender].vp}`;
+      res.receiver = `${hop.receiver}:${R.m.name}@${R.vp}`;
       if (r.refused || r.absent) {
         // a hand-off that must not arrive: U reads the refusal (or the absence), F and I read that the receiver's own
         // session gets NO row, A asks the same on 3G
@@ -1926,7 +2278,8 @@ async function walkPass(browser, pass, foreign) {
       }
       // F - psql as the receiver finds the sender's record (or the recipe's own F, e.g. the push)
       const idCol = r.rec.idCol || 'id';
-      const recvRows = r.rec.id ? Number(asUser(R.m.uid, `select count(*) from ${r.rec.table} where ${idCol}::text = '${q(r.rec.id)}' ${r.rec.where || ''}`)) : 0;
+      // a receiver with no account (a stranger) is read by the recipe's own F, through the public key
+      const recvRows = (r.rec.id && R.m.uid) ? Number(asUser(R.m.uid, `select count(*) from ${r.rec.table} where ${idCol}::text = '${q(r.rec.id)}' ${r.rec.where || ''}`)) : 0;
       res.F = r.F ? r.F() : { ok: recvRows >= 1, detail: `${r.rec.table} ${r.rec.id || '(none)'} read as ${R.m.name} through RLS: ${recvRows} row(s)` };
       // I - the receiver may, a member of another hive may not
       const witness = X.faults.has('foreign-let-in') ? { user: R.m.user, uid: R.m.uid } : foreign;

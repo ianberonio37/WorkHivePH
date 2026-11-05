@@ -427,7 +427,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   function renderCard(p) {
     const cc = catClass(p.category);
-    return `<div class="post-card${p.category === 'safety' ? ' post-safety' : ''}">
+    return `<div class="post-card${p.category === 'safety' ? ' post-safety' : ''}" data-post-id="${escHtml(p.id || '')}">
       <div class="post-meta">
         <span class="post-author">${escHtml(p.author_name)}</span>
         <span class="cat-badge ${cc}">${escHtml(catLabel(p.category))}</span>
@@ -477,7 +477,44 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return q;
   }
 
+  // ★GJ M9 J31: public-feed.html?post=<id> opens with the post that was shared. It is read under the feed's own filters
+  // (public, not flagged, not deleted) and the feed's own five columns, so a link can never show more than the feed
+  // does - and a post since made private, flagged or removed says so and shows nothing of itself.
+  let _sharedId = '';
+  try {
+    const _p = new URLSearchParams(location.search).get('post') || '';
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(_p)) _sharedId = _p.toLowerCase();
+  } catch (_) { _sharedId = ''; }   // empty-catch-allow: no readable query string is no shared post
+  async function loadShared() {
+    if (!_sharedId) return;
+    const list = document.getElementById('feed-list');
+    if (!list || !list.parentNode) return;
+    let box = document.getElementById('shared-post');
+    if (!box) {
+      box = document.createElement('section');
+      box.id = 'shared-post';
+      box.setAttribute('aria-label', 'The post you were sent');
+      box.style.marginBottom = '1.25rem';
+      list.parentNode.insertBefore(box, list);
+    }
+    const { data, error } = await _DB.from('v_community_posts_truth')
+      .select('id, author_name, content, category, created_at')
+      .eq('id', _sharedId).eq('public', true).eq('flagged', false).is('deleted_at', null)
+      .limit(1);
+    if (error) {
+      box.innerHTML = '<p class="empty-state" role="status">' + escHtml(typeof whReadError === 'function' ? whReadError(error, 'the post you were sent') : 'The post you were sent could not be loaded. Try again in a moment.') + '</p>';
+      return;
+    }
+    if (!data || !data.length) {
+      box.innerHTML = '<p class="empty-state" role="status">The post you were sent is not public any more, or the link is incomplete. The public posts are below.</p>';
+      return;
+    }
+    box.innerHTML = '<p class="post-time" style="margin:0 0 0.5rem;">The post you were sent</p>' + renderCard(data[0])
+      + '<p class="post-time" style="margin:0.75rem 0 0;">More public posts</p>';
+  }
+
   async function loadInitial() {
+    loadShared();
     /* INITIAL MEANS INITIAL, and it did not. fetchPage applies _lastCreatedAt as a keyset cursor
        unconditionally, and this function never cleared it — so the FIRST load set the cursor to the
        oldest post on screen and every load after asked for posts OLDER THAN THAT. Zero rows, and the
@@ -549,7 +586,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return;
     }
 
-    document.getElementById('feed-list').innerHTML = data.map(renderCard).join('');
+    // the post a link opened is shown first (above) and not again in the list
+    document.getElementById('feed-list').innerHTML = data.filter((p) => p.id !== _sharedId).map(renderCard).join('');
     if (data.length > 0) {
       _lastCreatedAt = data[data.length - 1].created_at;
       _lastId = data[data.length - 1].id;

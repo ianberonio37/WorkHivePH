@@ -4675,6 +4675,17 @@
       (function _siReturnIntent() {
         if (_entry.get('reason')) return;   // T8's copy owns the slot when a sign-out reason is present
         const _file = _ret.split(/[?#]/)[0].split('/').pop();
+        // GJ M9 J1: a hive invite link - the person may have no account yet, so both doors are named
+        if (/^hive\.html\?(?:.*&)?join=[A-Za-z0-9]{6}\b/.test(_ret)) {
+          const _inv = function () {
+            const _el = document.getElementById('si-reason');
+            if (!_el) return;
+            _el.textContent = 'You were invited to join a hive. Sign in, or create a free account, and the invite opens.';
+            _el.classList.remove('hidden');
+          };
+          if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _inv); else _inv();
+          return;
+        }
         const _paint = function () {
           const _tool = (window.WHNavTools || []).find(function (t) { return String(t.href || '').split(/[?#]/)[0].split('/').pop() === _file; });
           const _label = (_tool && _tool.label) || _file.replace(/\.html$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });

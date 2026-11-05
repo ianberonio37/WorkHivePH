@@ -2113,9 +2113,11 @@ function _isMinePost(p) {
         icon: 'ic-globe', on: !!p.public, act: 'togglePublic', args: [p.id, !!p.public] },
       { label: p.flagged ? _t('Unflag post', 'Alisin ang flag sa post') : _t('Flag post', 'I-flag ang post'), icon: 'ic-flag', on: !!p.flagged,
         act: 'toggleFlag', args: [p.id, !!p.flagged] },
+      ...(p.public ? [{ label: 'Copy public link', icon: 'ic-globe', act: 'copyPublicLink', args: [p.id] }] : []),
       { label: _t('Delete post', 'Burahin ang post'), icon: 'ic-delete', danger: true, act: 'deletePost', args: [p.id] },
     ] : isMine ? [
       { label: _t('Edit my post', 'I-edit ang post ko'), icon: 'ic-edit', act: 'openEditor', args: [p.id] },
+      ...(p.public ? [{ label: 'Copy public link', icon: 'ic-globe', act: 'copyPublicLink', args: [p.id] }] : []),
       { label: _t('Delete my post', 'Burahin ang post ko'), icon: 'ic-delete', danger: true, act: 'deletePost', args: [p.id] },
     ] : [
       { label: _t('Report this post', 'I-report ang post na ito'), icon: 'ic-warning', act: 'openReport', args: [p.id] },
@@ -3196,6 +3198,21 @@ function _isMinePost(p) {
       if (url.searchParams.has('post')) { url.searchParams.delete('post'); history.replaceState(null, '', url); }
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
+
+  // ★A SHARED POST LANDED ON THE WHOLE LIST (2026-11-05, GJ M9 J31). A public post had no link of its own: the public
+  // feed read no post parameter, so whoever was sent "the post" got every public post and had to find it. A public
+  // post's menu now copies public-feed.html?post=<id>, which opens with that post first and nothing more of it than
+  // the feed already shows - the name, the words, the date; never the hive.
+  async function copyPublicLink(postId) {
+    const url = new URL('public-feed.html?post=' + encodeURIComponent(postId), location.href).href;
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('Public link copied. Anyone with it can read this post: the name, the words and the date - never your hive.');
+    } catch (_) {
+      await window.whPrompt('Copy this public link:', { inputLabel: 'Public link', defaultValue: url, okLabel: 'Done', cancelLabel: '' });
+    }
+  }
+  window.copyPublicLink = copyPublicLink;
 
   async function copyThreadLink() {
     if (!activeThreadId) return;

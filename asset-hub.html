@@ -2049,6 +2049,7 @@
             <div class="asset-card-tag">${e(n.tag || n.name || 'Untitled')}</div>
             <div class="asset-card-name">${e(n.name || '')}</div>
             <div class="asset-card-meta">${e(n.iso_class || n.level || '')}${n.location ? ' &middot; ' + e(n.location) : ''}</div>
+            ${(n.submitted_by || n.worker_name) && n.created_at && typeof whFmtAgo === 'function' ? `<div class="asset-card-meta" data-wh-added-by>Added by ${e(n.submitted_by || n.worker_name)} &middot; ${e(whFmtAgo(n.created_at))}</div>` : ''}
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;flex-shrink:0;">
             ${riskChip(n)}
