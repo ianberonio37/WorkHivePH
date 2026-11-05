@@ -564,8 +564,8 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "automation_log",
-          "line": 418,
-          "evidence": "functions/failure-signature-scan/index.ts:418",
+          "line": 430,
+          "evidence": "functions/failure-signature-scan/index.ts:430",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -575,8 +575,8 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "failure_signature_alerts",
-          "line": 301,
-          "evidence": "functions/failure-signature-scan/index.ts:301",
+          "line": 313,
+          "evidence": "functions/failure-signature-scan/index.ts:313",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -939,8 +939,8 @@
         {
           "fn": "shift-planner-orchestrator",
           "to_table": "shift_plans",
-          "line": 309,
-          "evidence": "functions/shift-planner-orchestrator/index.ts:309",
+          "line": 332,
+          "evidence": "functions/shift-planner-orchestrator/index.ts:332",
           "downstream_pages": [
             "shift-brain"
           ],

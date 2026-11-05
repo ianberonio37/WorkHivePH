@@ -5833,7 +5833,7 @@
       // carries the machine (mig 20261105000002); the legacy path reads its name; the link opens that machine.
       if (sensorAnomaly && !sensorAnomaly.machine && sensorAnomaly.asset_id) {
         try {
-          const { data: _sn } = await db.from('asset_nodes').select('name').eq('id', sensorAnomaly.asset_id).maybeSingle();
+          const { data: _sn } = await db.from('v_asset_truth').select('name').eq('asset_id', sensorAnomaly.asset_id).maybeSingle();
           if (_sn && _sn.name) sensorAnomaly.machine = _sn.name;
         } catch (_) { /* empty-catch-allow: the card still says the reading; only the machine's name is missing */ }
       }

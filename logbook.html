@@ -2732,7 +2732,7 @@ async function pickWorkOrderMove(id) {
   box.innerHTML = `<label for="wo-move-state" class="text-xs block mb-1" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">What happens to this work order</label>
     <select id="wo-move-state" class="w-full text-sm rounded-lg px-3 mb-2" style="min-height:44px;background:var(--wh-white-06, rgba(255,255,255,0.06));border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));color:inherit;"
       onchange="document.getElementById('wo-move-who-wrap').hidden = this.value !== 'assigned'">
-      ${opts.map(([v, l]) => `<option value="${v}">${escHtml(l)}</option>`).join('')}
+      ${opts.map(([v, l], i) => `<option value="${v}"${i === 0 ? ' selected' : ''}>${escHtml(l)}</option>`).join('')}
     </select>
     <div id="wo-move-who-wrap" ${open ? '' : 'hidden'}>
       <label for="wo-move-who" class="text-xs block mb-1" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">Who takes it</label>
@@ -5516,7 +5516,7 @@ async function openModal(id) {
            calling an async confirm - so the entry's modal vanished before the person had answered,
            and cancelling still closed it. deleteEntry closes the modal itself, and only once the
            delete has actually landed. -->
-      <button onclick="confirmDelete('${escJsAttr(entry.id)}')" class="btn-danger px-4 text-sm py-2" data-i="delete">Delete</button>
+      <button onclick="deleteEntry('${escJsAttr(entry.id)}')" class="btn-danger px-4 text-sm py-2" data-i="delete">Delete</button>
     </div>` : _takesOverDeparted(entry) ? `
     <div id="departed-actions" class="pt-2 border-t border-white/[0.07] mt-2">
       <p class="text-xs mb-2" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">${escHtml(entry.worker_name || 'The member who logged this')} has left the hive, so this open job falls to you as supervisor: close it, or assign it to a member. It stays logged as theirs.</p>
@@ -8179,7 +8179,7 @@ document.getElementById('btn-add-part').addEventListener('click', openPartsPicke
 document.getElementById('parts-picker-modal-close').addEventListener('click', closePartsPicker);
 document.getElementById('parts-picker-modal').addEventListener('click', function(e) { if (e.target === this) closePartsPicker(); });
 document.getElementById('parts-picker-search').addEventListener('input', debounce(function() { renderPartsPickerList(this.value.trim()); }, 200));
-document.getElementById('parts-picker-register-btn').addEventListener('click', function() {
+document.getElementById('parts-picker-register-btn').addEventListener('click', () => {   // listener-cleanup-allow: a static control bound once at load
   closePartsPicker();
   window.open('inventory.html', '_blank');
   showToast('Register the part in Inventory, then come back here.');
@@ -8200,7 +8200,7 @@ async function loadAssignedToMe() {
   _assignedState = 'loading';
   // canonical-allow: the same base-table read the team search makes - logbook's SELECT policy is hive-scoped
   const { data, error } = await db.from('logbook')
-    .select('id, date, machine, problem, status, worker_name, auth_uid, wo_state, wo_assigned_to, updated_at, deleted_at')
+    .select('id, date, machine, problem, status, worker_name, auth_uid, wo_state, wo_assigned_to, updated_at')
     .eq('hive_id', HIVE_ID).eq('wo_assigned_to', WORKER_NAME).eq('status', 'Open').is('deleted_at', null)
     .order('date', { ascending: false }).order('id').limit(50 + 1);   // more-said: by renderOpenJobs (the 50 newest assigned to you)
   if (error) { _assignedState = 'failed'; console.warn('assigned-to-me read failed:', error.message); renderOpenJobs(_allEntries); return; }

@@ -18,7 +18,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whHoldPlace whListError whListSkeleton whMoreNote whReadError whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whHoldPlace whListError whListSkeleton whManilaYmd whMoreNote whReadError whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1384,7 +1384,7 @@
           .eq('hive_id', HIVE_ID)
           .order('composite_score', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(200); // more-said: by renderAnomalyEngine - the strongest five shown, Show all opens the rest, the note says of how many
+          .limit(200); // more-said: by renderAnomalyEngine - the strongest five shown, Show all opens the rest, the note says of how many - limit-as-count-allow: the pill reads the exact count (_anomalyTotal), rows.length only labels Show all
         rows = data || [];
         _anomalyTotal = (typeof _anTotal === 'number') ? _anTotal : null;
       } catch (e) {
@@ -1428,17 +1428,32 @@
     const _measuredMore = data.length > 200;
     if (_measuredMore) data.length = 200;
     const ids = [...new Set(data.map(r => r.asset_id).filter(Boolean))];
-    const { data: nodes } = ids.length ? await db.from('asset_nodes').select('id, name').in('id', ids) : { data: [] };
-    const nameOf = new Map((nodes || []).map(n => [n.id, n.name]));
+    // the machine names, 100 ids a request (the gateway's URL limit, SL LB3)
+    const _nodeReads = [];
+    for (let j = 0; j < ids.length; j += 100) {
+      // canonical-allow: a NAME lookup by primary key - the id is asset_nodes' own unique key, which the list-caps gate needs
+      // to prove one row per id; v_asset_truth is a view with no index to prove it, and a name needs none of its rollups
+      _nodeReads.push(db.from('asset_nodes').select('id, name')
+        .in('id', ids.slice(j, j + 100))
+        .limit(100));   // in-list[id] (LB1): bounded by the ids asked for, one row each - limit-as-count-allow: a name lookup, never counted
+    }
+    const nodes = (await Promise.all(_nodeReads)).flatMap(r => r.data || []);
+    const nameOf = new Map(nodes.map(n => [n.id, n.name]));
     // ★A FLAGGED READING COULD BE SEEN BY NO ONE ON RECORD (2026-11-05, the group-journey walk GJ G-SENSOR hand-off 2).
     // The worker who walked to the machine had no way to say so, and the supervisor could not tell whether anyone had.
     // Each card takes the feed's own hive-wide "Seen" mark (alert_dismissals, under the person's name), keyed by the
     // machine, the parameter and the Manila day - a new day's flag asks for fresh eyes.
     const keyOf = (r) => 'sensor:' + r.asset_id + ':' + r.parameter + ':' + (typeof whManilaYmd === 'function' ? whManilaYmd(new Date(r.recorded_at)) : String(r.recorded_at).slice(0, 10));
     const keys = data.map(keyOf);
-    const { data: seenRows } = await db.from('alert_dismissals').select('alert_key, actor, created_at')
-      .eq('hive_id', HIVE_ID).eq('action', 'acknowledged').in('alert_key', keys)
-      .limit(200);   // in-list[hive_id, alert_key]: bounded by the keys asked for, one row each
+    const _seenReads = [];
+    for (let j = 0; j < keys.length; j += 100) {
+      // canonical-allow: alert_dismissals is UI-interaction state (who marked a card seen), not a KPI
+      _seenReads.push(db.from('alert_dismissals').select('alert_key, actor, created_at')
+        .eq('hive_id', HIVE_ID).eq('action', 'acknowledged')
+        .in('alert_key', keys.slice(j, j + 100))
+        .limit(100));   // in-list[hive_id, alert_key] (LB1): bounded by the keys asked for, one row each - limit-as-count-allow: a seen-mark lookup, never counted
+    }
+    const seenRows = (await Promise.all(_seenReads)).flatMap(r => r.data || []);
     const seenOf = new Map((seenRows || []).map(d => [d.alert_key, d]));
     for (const k of keys) { const d = seenOf.get(k); if (d) _seen[k] = d.actor || true; else delete _seen[k]; }
     const e = escHtml;
@@ -1693,7 +1708,7 @@
         .limit(500),   // cap-ok: rows only (PM scope alerts)
 
       db.from('automation_log')
-        .select('job_name, status, detail, triggered_at')
+        .select('id, job_name, status, detail, triggered_at')
         .eq('hive_id', HIVE_ID)   // F3-arc F5: was RLS-only; every other feed source is hive-filtered
         .eq('status', 'failed')
         .gte('triggered_at', dayAgo)
@@ -1947,6 +1962,10 @@
       for (const l of (autoLogRes.value.data || [])) {
         all.push({
           kind: 'system',
+          // ★A FAILED AUTOMATION COULD NOT BE MARKED SEEN (2026-11-05, the M7 touched-gate run - hive-scale-shift HS394).
+          // System and AMC alerts carried no key, so "Seen" and "Handled" wrote nothing for them and the cards stayed as
+          // they were - a control that did nothing. Each now has a stable key: the log row's id, the brief's id.
+          dedupeKey: 'system:' + (l.id || ((l.job_name || '') + ':' + (l.triggered_at || ''))),
           severity: 'info',
           title: l.job_name || _t('Automation job', 'Trabaho ng automation'),
           msg: (l.detail || '').slice(0, 120) || _t('Automation run failed', 'Nabigo ang automation run'),
@@ -2005,6 +2024,7 @@
                    : 'info';
         all.push({
           kind: 'amc',
+          dedupeKey: 'amc:' + (b.id || b.shift_date || ''),
           severity: sev,
           title: `AMC brief ${b.shift_date}`,
           msg: stranded

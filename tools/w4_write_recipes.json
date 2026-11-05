@@ -2026,7 +2026,7 @@
      "click": "#entries-list [onclick^=\"openModal('w4-{MARK}\"]"
     },
     {
-     "click": "button[onclick^=\"confirmDelete('w4-{MARK}\"]"
+     "click": "button[onclick^=\"deleteEntry('w4-{MARK}\"]"
     },
     {
      "click": "[data-wh-modal-ok]"

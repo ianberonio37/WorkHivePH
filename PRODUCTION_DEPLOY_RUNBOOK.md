@@ -60,6 +60,79 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
+# M7 release (2026-11-05) - the shift's hand-offs (IN PROGRESS)
+
+> **Prepared and verified locally on 2026-11-05.** M7 is the first group-journey milestone (§GJ): the shift's hand-offs
+> between two or three real people - J2 J3 J9 J22 J23 J29 J17 G-SHIFT G-SENSOR G-MULTI - each walked at both viewports,
+> per layer, per UFAI pillar and per member. **All 4,323 M7 rows are banked** (the priority queue reads M7 @ 54, the
+> same as M6: the block adds nothing open). It ships what has landed since M6 (`d4f73189`, production serves
+> `workhive-shell-v589`) up to `d96493e2` and the commit that carries this section.
+>
+> | Leg | Payload | Measured how |
+> |---|---|---|
+> | **A · DB** | **6 migrations**: `20261104000001` a supervisor can move a work order, `...02` the assignee moves their job forward, `...03` a decision says who and where, `20261105000001` a machine that reports is not an anomaly, `...02` a sensor anomaly names its machine, `...03` a push opens in its hive | production ledger read 2026-11-05 (Supabase MCP `list_migrations`): 746 versions, newest `20261103000001`; local 752; the six are exactly local-minus-production, nothing the other way |
+> | **B · Edge** | **2 functions**: `failure-signature-scan`, `shift-planner-orchestrator` | `git diff d4f73189..HEAD -- supabase/functions`: those two files, no `_shared` change |
+> | **Render (python-api)** | no redeploy | `python-api/` unchanged since `d4f73189` |
+> | **C · Frontend** | logbook, dayplanner, alert-hub, asset-hub, index, hive, analytics, shift-brain, `utils.js`, `sw.js` -> **`workhive-shell-v590`** | `git diff --name-only d4f73189..HEAD` |
+>
+> **Order: A -> B -> C.** The pages call `set_logbook_wo` / `advance_assigned_wo` and read the dashboard's machine name
+> (Leg A), and the start-up that seats a linked hive must not ship before the pushes that name one (A, then C).
+
+### What a person using WorkHive will notice (release notes)
+
+> - A supervisor can hand a teammate's job on from the entry itself ("Move the work order"); the person it is handed
+>   to sees it under "Assigned to you" in their logbook and their day, can say Started or Work done, and the supervisor
+>   sees who is on it by name.
+> - A decision on a submitted machine or part tells the submitter who decided and opens where it can be read.
+> - The crew can see who released the shift plan and when.
+> - The shift handover now carries the jobs the outgoing shift left open (it used to leave out the last 8 hours),
+>   newest first.
+> - A machine's history names the parts each job used.
+> - A machine on a live sensor bridge is no longer raised as an anomaly just for reporting; only readings 3-sigma off
+>   their own baseline count. The alert hub lists those measured readings (with "Mark seen" under your name and a way to
+>   the machine); a hive's fused anomaly panel opens all its signals and says when each was seen.
+> - The home's Today card names the machine behind a sensor anomaly and opens it, and lists the next two things that
+>   also need attention.
+> - A push from one hive opens in that hive for a person who belongs to two, and says so.
+> - The Hive Board no longer answers a "too many requests" by asking again; Analytics no longer says "Recomputed just
+>   now" when the analysis could not run.
+
+### Leg A - DB: 6 migrations
+From `Z:` (subst): `npx supabase db push --dry-run`, then `npx supabase db push`; read back with `list_migrations`.
+
+### Leg B - Edge: 2 functions
+- `failure-signature-scan`: a standing pattern keeps its written detail while its evidence is unchanged (no daily model
+  call per pattern).
+- `shift-planner-orchestrator`: carry-forward = open entries opened before this shift began, newest first; a
+  LOCAL-ONLY `debug_fault_inject` (dead in production - gate `debug-hooks-prod-dead`).
+Deploy each from `Z:`; `verify_function_builds.py --target prod` before and after.
+
+### Leg C - Frontend
+`git push origin master` (the full board runs in the pre-push hook); then the public smoke at `EXPECT_SW=v590`. No
+sitemap page changed except `index.html`, so IndexNow is sent the home URL alone.
+
+### The touched-gate check (2026-11-05) - 17 reds, each at its cause
+`--rerun-failed --fast` (660 gates; the full mode was stopped after 85 min on the board-only browser gates, which the
+push runs anyway) gave 17 reds. None was a product defect the walks had missed; each was a registry, a ratchet or an
+instrument the release's own changes had moved:
+- **Regenerated:** the markdown twin of index.html, `canonical_registry.json` (set_logbook_wo / advance_assigned_wo),
+  `tools/ai_call_sinks.json` (the two edge functions), the destructive-control roster, alert-hub's skew-heal block
+  (`whManilaYmd`).
+- **Fixed in the pages:** the sensor cards' name and seen-mark lookups are sliced `.in()` reads by unique key (the
+  name by `asset_nodes`' primary key, declared); a select that never needed `logbook.deleted_at`; the work-order picker
+  marks its first option selected; the logbook's Delete calls `deleteEntry` (whose `whConfirm` the UX contract can see)
+  - the two tools that clicked `confirmDelete` follow it; an unrelated listener became an arrow function (the
+  logbook validator's await heuristic); two trail actions (`set_work_order`, `advance_work_order`) have words in
+  utils.js's vocabulary; shift-brain's inline-script override 91 -> 92 KB with its reason (the crew reads who published
+  the plan).
+- **Instrument (hive-scale-shift, board-only):** HS454 counted HS428's completions as its own (`<MARK> pm %` matched
+  both) - it has its own marker now (and reads it); HS394 presses the feed's Load more as a person does (the feed pages
+  30 at a time since J2) - and it found a **product** gap: failed-automation and AMC-brief cards carried no key, so
+  "Seen" and "Handled" recorded nothing for them. Both now have stable keys (the log row's id, the brief's id).
+  `hive-scale-shift` 37/37 after.
+
+---
+
 # M6 release (2026-11-04) ✅ DEPLOYED
 
 > **✅ M6 DEPLOYED 2026-11-04: T6 has nothing left to build.** Production serves `workhive-shell-v589` from `d4f73189`

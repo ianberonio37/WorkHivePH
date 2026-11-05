@@ -8,11 +8,11 @@
       "diagnostic": 17,
       "prescriptive": 2
     },
-    "grounded": 67,
-    "grounded_pct": 74.4,
+    "grounded": 66,
+    "grounded_pct": 73.3,
     "grounded_by_rung": {
       "predictive": 6,
-      "descriptive": 42,
+      "descriptive": 41,
       "diagnostic": 17,
       "prescriptive": 2
     },
@@ -368,8 +368,8 @@
       "id": "sidebar-rail-count",
       "token": "count",
       "rung": "descriptive",
-      "grounded": true,
-      "source_via": "js_parse_heuristic"
+      "grounded": false,
+      "source_via": null
     },
     {
       "page": "assistant.html",

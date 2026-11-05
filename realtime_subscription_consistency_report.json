@@ -9,6 +9,7 @@
     {
       "page": "index.html",
       "reads": [
+        "asset_nodes",
         "early_access_emails",
         "pm_assets",
         "pm_completions",
@@ -63,62 +64,62 @@
         {
           "table": "hive_adoption_score",
           "allowed": true,
-          "offset": 271416
+          "offset": 271979
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 379834
+          "offset": 380397
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 380251
+          "offset": 380814
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 381376
+          "offset": 381939
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 382331
+          "offset": 382894
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 384272
+          "offset": 384835
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 433103
+          "offset": 433666
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 433558
+          "offset": 434121
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 434552
+          "offset": 435115
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 435015
+          "offset": 435578
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 436609
+          "offset": 437172
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 437136
+          "offset": 437699
         }
       ],
       "drift": []
@@ -358,7 +359,7 @@
         {
           "table": "schedule_items",
           "allowed": false,
-          "offset": 226897
+          "offset": 227716
         }
       ],
       "drift": []
@@ -556,42 +557,42 @@
         {
           "table": "sensor_readings",
           "allowed": false,
-          "offset": 210215
+          "offset": 211464
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 308964
+          "offset": 310213
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 309514
+          "offset": 310763
         },
         {
           "table": "rcm_fmea_modes",
           "allowed": false,
-          "offset": 310187
+          "offset": 311436
         },
         {
           "table": "asset_risk_scores",
           "allowed": false,
-          "offset": 311363
+          "offset": 312612
         },
         {
           "table": "rcm_strategies",
           "allowed": false,
-          "offset": 312046
+          "offset": 313295
         },
         {
           "table": "weibull_fits",
           "allowed": true,
-          "offset": 312908
+          "offset": 314157
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 331296
+          "offset": 332545
         }
       ],
       "drift": []
@@ -611,6 +612,7 @@
         "alert_dismissals",
         "amc_briefings",
         "anomaly_signals",
+        "asset_nodes",
         "automation_log",
         "hive_audit_log",
         "parts_staging_recommendations",
@@ -618,18 +620,19 @@
         "v_anomaly_truth",
         "v_inventory_items_truth",
         "v_pm_scope_items_truth",
-        "v_risk_truth"
+        "v_risk_truth",
+        "v_sensor_truth"
       ],
       "subscriptions": [
         {
           "table": "amc_briefings",
           "allowed": false,
-          "offset": 87115
+          "offset": 87380
         },
         {
           "table": "anomaly_signals",
           "allowed": false,
-          "offset": 103424
+          "offset": 112111
         }
       ],
       "drift": []

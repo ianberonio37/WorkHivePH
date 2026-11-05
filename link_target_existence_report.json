@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 38,
-    "total_links": 334,
+    "total_links": 335,
     "total_broken": 0,
     "baseline": 0
   },
@@ -23,7 +23,7 @@
     },
     {
       "page": "alert-hub.html",
-      "link_count": 7,
+      "link_count": 8,
       "broken": []
     },
     {

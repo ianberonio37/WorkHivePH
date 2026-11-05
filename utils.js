@@ -7161,6 +7161,8 @@ const WH_AUDIT_ACTIONS = {
   assign_project_role:         { icon: '→',  label: 'Assigned project role' },
   // HS L5 (2026-10-30): a supervisor hands on an open job whose author has left the hive (logbook.html)
   assign_departed_job:         { icon: '→',  label: "Assigned a departed member's open job" },
+  set_work_order:              { icon: '→',  label: 'Moved a work order' },   // a supervisor's move (set_logbook_wo, GJ M7)
+  advance_work_order:          { icon: '▸',  label: 'Moved their assigned job forward' },   // the assignee's Started / Work done (advance_assigned_wo, GJ M7)
   remove_project_role:         { icon: '⊘',  label: 'Removed project role', tone: 'neg' },
   recover_project_role:        { icon: '↺',  label: 'Restored project role' },
   acknowledge_progress_log:    { icon: '✓',  label: 'Acknowledged progress report', tone: 'pos' },

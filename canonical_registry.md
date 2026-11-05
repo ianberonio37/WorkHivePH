@@ -7,8 +7,8 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **184**
 - Views:         **69**
-- RPCs:          **406**
-- HTML surfaces: **60**
+- RPCs:          **408**
+- HTML surfaces: **59**
 - Edge fns:      **114**
 - Phantom tables (referenced in code, not in migrations): **0**
 - Duplicate signals: **86**
@@ -213,6 +213,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `acknowledge_alert` | p_alert_id bigint | yes | — | — |
 | `adjudicate_service_dispute` | p_request_id uuid, p_note text default null,                 | yes | platform-actions.html | — |
 | `admin_disputed_jobs` |  | yes | platform-actions.html | — |
+| `advance_assigned_wo` | p_entry_id text, p_state text | yes | logbook.html | — |
 | `ai_cache_bump` | p_key TEXT | yes | — | _shared/cache.ts |
 | `ai_cache_sweep_expired` |  | yes | — | — |
 | `ai_eval_bench_ensure` | p_auth_uid uuid, p_force boolean DEFAULT false | no | — | ai-eval-runner |
@@ -542,6 +543,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `set_community_best_answer` | p_reply_id uuid, p_accepted boolean | yes | community.html | — |
 | `set_federated_benchmark_opt_in` | p_hive_id uuid, p_opt_in boolean | yes | hive.html | — |
 | `set_hive_retention` | p_hive_id          uuid,   p_soft_delete_days integer | yes | plant-connections.html | — |
+| `set_logbook_wo` | p_entry_id text, p_state text, p_assignee text DEFAULT NULL | yes | logbook.html | — |
 | `set_project_budget` | p_project_id uuid,   p_budget_php numeric | yes | project-manager.html | — |
 | `set_projects_updated_at` |  | no | — | — |
 | `set_worker_display_name` | p_name text | yes | hive.html | — |
@@ -631,7 +633,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `audit-log.html` | ai_audit_log, hive_audit_log | — | audit_filter_vocab | — |
 | `community.html` | community_posts, community_reactions, community_replies, community_xp ... | community_posts, community_reactions, community_replies ... | get_community_reputation, get_hive_trade_peers, notify_post_mentions | — |
 | `dayplanner.html` | logbook, schedule_items, v_logbook_truth, v_pm_scope_items_truth | logbook, schedule_items | — | — |
-| `design-system.html` | — | — | — | — |
 | `engineering-design.html` | — | — | — | — |
 | `export-truthful-teeth.html` | — | — | — | — |
 | `findings.html` | — | — | — | — |
@@ -643,7 +644,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `ipython_inline_figure.html` | — | — | — | — |
 | `lineage.html` | — | — | — | — |
 | `llm-observability.html` | ai_cost_log | — | — | — |
-| `logbook.html` | achievement_xp_log, asset_nodes, equipment_reading_templates, fault_knowledge ... | asset_nodes, hive_audit_log, logbook ... | inventory_deduct, logbook_synced_machines, notify_wo_assigned | cmms-push-completion, equipment-label-ocr, visual-defect-capture |
+| `logbook.html` | achievement_xp_log, asset_nodes, equipment_reading_templates, fault_knowledge ... | asset_nodes, hive_audit_log, logbook ... | advance_assigned_wo, inventory_deduct, logbook_synced_machines | cmms-push-completion, equipment-label-ocr, visual-defect-capture |
 | `marketplace-admin.html` | hive_audit_log, marketplace_disputes, marketplace_listings, marketplace_orders ... | hive_audit_log, marketplace_disputes, marketplace_listings ... | — | — |
 | `marketplace-seller-profile.html` | marketplace_reviews, v_marketplace_listings_public, v_marketplace_sellers_public | — | get_marketplace_seller_public, get_seller_community_reputation, marketplace_seller_reply_stats | — |
 | `marketplace-seller.html` | hive_audit_log, hive_members, marketplace_inquiries, marketplace_listings ... | hive_audit_log, marketplace_inquiries, marketplace_listings ... | accept_service_request, claim_starter_grant, listing_reservation_amount | — |

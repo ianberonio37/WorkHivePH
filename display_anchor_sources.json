@@ -4,13 +4,13 @@
     "anchors": 127,
     "chrome_excluded": 37,
     "data_anchors": 90,
-    "resolved": 67,
-    "resolved_pct": 74.4,
-    "resolved_pct_of_all": 52.8,
+    "resolved": 66,
+    "resolved_pct": 73.3,
+    "resolved_pct_of_all": 52.0,
     "resolved_by_formula_or_kpi": 0,
-    "resolved_by_js_heuristic": 9,
+    "resolved_by_js_heuristic": 8,
     "resolved_by_verified_bind": 58,
-    "needs_js_parse": 23
+    "needs_js_parse": 24
   },
   "anchors": [
     {
@@ -1082,13 +1082,8 @@
       "id": "sidebar-rail-count",
       "token": "count",
       "bucket": "raw",
-      "status": "RESOLVED_JS",
-      "source": {
-        "via": "js_parse_heuristic",
-        "source": "v_logbook_truth",
-        "source_kind": "table/view",
-        "confidence": "medium"
-      }
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
     },
     {
       "page": "engineering-design.html",

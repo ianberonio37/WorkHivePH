@@ -17,9 +17,9 @@
    "status": "resolved"
   },
   {
-   "id": "gate-memory_health_gate",
+   "id": "gate-logbook",
    "source": "gate",
-   "title": "memory_health_gate",
+   "title": "logbook",
    "severity": "major",
    "started_at": "2026-11-04T06:59:44.438292+00:00",
    "ended_at": null,

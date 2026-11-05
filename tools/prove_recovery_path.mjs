@@ -118,7 +118,7 @@ const REACH = {
     // the registry list lives in the asset modal's "manage" view (openAssetModal(tab)); the button opens "register"
     { steps: ['#open-asset-modal-btn', 'js:openAssetModal("manage")'], trigger: 'button[onclick^="deleteAsset"]', heads: ['Remove this asset from the registry?'] },
     // an entry's Delete lives in its modal (openModal on the row); the button shows only on the person's own entry
-    { steps: ['text=^My Entries', '[onclick^="openModal"]'], trigger: 'button[onclick^="confirmDelete"]', heads: ['Delete this entry? This cannot be undone'] },
+    { steps: ['text=^My Entries', '[onclick^="openModal"]'], trigger: 'button[onclick^="deleteEntry"]', heads: ['Delete this entry? This cannot be undone'] },
   ],
   'marketplace-admin.html': [
     // each queue is a tab (#tab-published / #tab-sellers / #tab-disputes); the buttons are delegated data-action

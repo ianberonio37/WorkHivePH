@@ -1,8 +1,8 @@
 {
   "summary": {
     "pages_scanned": 29,
-    "risky_pages": 5,
-    "baseline": 5
+    "risky_pages": 4,
+    "baseline": 4
   },
   "per_page": [
     {
@@ -23,11 +23,9 @@
     },
     {
       "page": "logbook.html",
-      "add": 78,
+      "add": 0,
       "remove": 0,
-      "add_raw": 80,
-      "rebuild_scoped": 2,
-      "risky": true
+      "allowed": true
     },
     {
       "page": "inventory.html",

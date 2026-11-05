@@ -367,17 +367,20 @@ const SHIFTS = [
     // a PM program is a supervisor's write (pm_assets_insert_guard): the shift's writers are the supervisors
     body: (p, i) => ({ hive_id: HIVE, worker_name: p.name, asset_name: `${MARK} asset ${i}`, category: 'Pump' }), supervisorsOnly: true,
     mine: `asset_name like '${MARK} asset %'` },
-  { id: 'HS454', table: 'pm_completions', page: 'pm-scheduler.html', word: 'pm', readers: ['Joel Cruz', 'Ernesto Villareal'],
+  // ★ITS OWN MARKER (2026-11-05, the M7 touched-gate run): HS428 writes "<MARK> pm N - Logged via Logbook", which this row's
+  // `notes like '<MARK> pm %'` also matched - so HS454 read "29 of the shift's 87" (its 29 + HS428's) and failed on a
+  // count it had never written. Each row's marker must not be a prefix of another's.
+  { id: 'HS454', table: 'pm_completions', page: 'pm-scheduler.html', word: 'pma', readers: ['Joel Cruz', 'Ernesto Villareal'],
     // the shift each checks off the same task on one machine (one per task, person and day - pm_completions_dedup_uidx)
     body: (p, i) => ({ asset_id: PMA, scope_item_id: PMA_TASK, hive_id: HIVE, worker_name: p.name, auth_uid: p.tok.user.id, status: 'done',
-      notes: `${MARK} pm ${i}`, completed_at: new Date().toISOString() }),
+      notes: `${MARK} pma ${i}`, completed_at: new Date().toISOString() }),
     held: `select worker_name from pm_completions where scope_item_id = '${PMA_TASK}' and (completed_at at time zone 'UTC')::date = (now() at time zone 'UTC')::date`,
-    mine: `notes like '${MARK} pm %'`, stamp: false,   // the time is the device's (its clock is not the database's); the marker alone counts them
+    mine: `notes like '${MARK} pma %'`, stamp: false,   // the time is the device's (its clock is not the database's); the marker alone counts them
     order: 'newest first',
-    plant: pmSnap, restore: pmClean(`notes like '${MARK} pm %'`), unplant: pmUnsnap,
+    plant: pmSnap, restore: pmClean(`notes like '${MARK} pma %'`), unplant: pmUnsnap,
     // the machine's history, five a page behind its own Load more
     open: async (s) => { await s.page.evaluate((a) => openDetail(a), PMA); await sleep(2500); },
-    loadMore: '#det-history-more', collect: async (s) => readCards(s, '#det-history .history-row', 'pm') },
+    loadMore: '#det-history-more', collect: async (s) => readCards(s, '#det-history .history-row', 'pma') },
   { id: 'HS428', table: 'pm_completions', page: 'logbook.html', readers: ['Joel Cruz', 'Ernesto Villareal'], count: true,
     // the logbook's own PM write: each member logs the overdue task on the tank as done
     body: (p, i) => ({ asset_id: psql(`select asset_id from pm_scope_items where id = '${PMB_TASK}'`), scope_item_id: PMB_TASK, hive_id: HIVE, worker_name: p.name,
@@ -454,13 +457,19 @@ const SHIFTS = [
     plant: async () => {
       const s = await session(browser, shift.find((x) => x.name === 'Ernesto Villareal'), 'desktop-1280');
       await s.page.goto(`${ORIGIN}/alert-hub.html`, { waitUntil: 'domcontentloaded', timeout: 45000 }); await sleep(8000);
-      HS394_KEYS = await s.page.evaluate(() => [...document.querySelectorAll('.alert[data-alert-key]')].map((e) => e.getAttribute('data-alert-key')));
+      // the cards a person can mark seen - a card with no key has no seen mark to hold (system and AMC cards had none
+      // until 2026-11-05; four of them made the shift write an empty key and read "(not on screen)")
+      HS394_KEYS = await s.page.evaluate(() => [...document.querySelectorAll('.alert[data-alert-key]')].map((e) => e.getAttribute('data-alert-key')).filter(Boolean));
       await s.ctx.close();
     },
     upsert: 'alert_dismissals?on_conflict=hive_id,alert_key', upsertPrefer: ',resolution=ignore-duplicates',
     body: (p, i) => ({ hive_id: HIVE, alert_key: HS394_KEYS[i % HS394_KEYS.length], action: 'acknowledged', actor: p.name }),
     get mine() { return `hive_id = '${HIVE}' and action = 'acknowledged' and alert_key in (${HS394_KEYS.map((k) => `'${k.replace(/'/g, "''")}'`).join(',') || "''"})`; },
     expectLanded: () => HS394_KEYS.length,
+    // ★THE FEED IS A WINDOW OF 30 WITH ITS OWN LOAD MORE (2026-11-05): since GJ J2 the feed reads every current pattern
+    // (it read the 20 newest), and an alert marked seen sinks below the unseen ones - four of the shift's alerts were past
+    // the first 30 and read "(not on screen)". A person presses Load more; so does the reader.
+    loadMore: 'button[onclick="loadMoreAlerts()"]',
     // each alert's card, as the reader's feed shows it: dimmed, "Seen by" the member who acted on it first
     check: async (s, writers) => {
       const seen = await s.page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.alert[data-alert-key]')].map((e) =>

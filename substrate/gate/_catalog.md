@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: ec818fde84481617
+source_sha: 0819b229c39770cc
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1519) — the 'what's already gated' brain
+## gate · registered validators (1522) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -416,7 +416,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1105)
+### Platform (1106)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -867,6 +867,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `gateway-routing` ⚡ [fail] — AI Gateway Routing (4-layer: gateway present + routes exist + canonical coverage + inventory)
 - `gateway-tenancy` ⚡ [fail] — Gateway Tenancy Verification (Pillar I: client hive_id must be membership-verified; ratchet 34->0)
 - `getelementbyid-orphan-setter` ⚡ [fail] — getElementById Orphan Setter (every JS id lookup must have a matching <id> in HTML; forward-only ratchet)
+- `gj-rows-hold` ⚡ [fail] — every banked GJ row is still held by the latest group walk of its scenario (tools/prove_group_journeys.mjs): the act, the receiver's screen, psql as the receive
 - `global-ai-budget` ⚡ [fail] — Q6 Global LLM Budget Guard (the org-shared-pool layer above per-tenant caps: atomic row-locked consume RPC + daily circuit-breaker + per-minute burst smoother t
 - `glossary-registry` [blocker] — T177: the platform must teach its own vocabulary. WorkHive puts domain acronyms straight onto the glass - MTBF beside a number, OEE on a card, SPI in a project 
 - `governance` ⚡ [fail] — Data Governance Validator
@@ -1580,12 +1581,14 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `calc-method-defaults-split` [fail] — Calculator method notes state the standard default and where to change it as two short sentences, and their markdown twins agree
 - `learn-provenance` ⚡ [fail] — Learn provenance (every article names its sources and says how fresh it is)
 
-### Security (38)
+### Security (40)
+- `a-link-opens-in-its-hive` [fail] — a link that names its hive (?hive=) opens in it for an active member of it, says so and drops the parameter; for anyone else the page keeps its own hive and say
 - `admin-is-an-account` ⚡ [fail] — Admin is an account (renaming yourself or founding a hive under an admin's name grants nothing; the real admin stays one; a solo owner reads his own record)
 - `boundary-legible` [fail] — Boundary legible (a refusal is addressed to a person: nothing leaked, something to act on)
 - `credential-pointers` ⚡ [fail] — Credential pointers (no page tells a reader where a secret lives)
 - `csp-exact` [fail] — SL S3 (2026-10-15): every page of the S3 roster, loaded in Chromium as its cast under the policy vercel.json resolves for its own path (serve_vercel_headers - t
 - `csp-exact-profiles` ⚡ [fail] — SL S3 (2026-10-15): every served page's Content-Security-Policy in vercel.json is the one its own code needs today - the origins its HTML and every script it lo
+- `debug-hooks-prod-dead` ⚡ [fail] — the local-only test hooks (debug echo, debug_fault_inject, faultInject) are decided on the local-runtime test and can never fire in production
 - `destructive-sweep` [fail] — Destructive sweep (every destructive control that can be reached is guarded; unreached surfaces are named)
 - `federated-consent` ⚡ [fail] — Cross-hive figures come only from hives that consented: _shared/federated-consent.ts reads hives.federated_benchmark_opted_in and fails closed; benchmark-comput
 - `fn-contracts` [fail] — Function contracts (a foreign-hive request refused with a sentence, a provider failure that degrades legibly, a documented shape somebody calls)
