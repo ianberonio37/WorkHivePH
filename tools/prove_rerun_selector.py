@@ -28,11 +28,22 @@ SCRIPTS = {
     "tools/g_ts_sfx.py":  'src = open("functions/login/index.ts").read()',
     "tools/g_css.py":     'css = open("components.css").read()',
     "tools/g_self.py":    'pass',
+    # rule 4 - the measured miss (2026-11-05): stamp_functions walks the functions through a Path chain, names no file
+    "tools/g_walk_chain.py": 'FN = ROOT / "supabase" / "functions"\nfor d in FN.iterdir(): stamp(d)',
+    "tools/g_walk_lit.py":   'for p in Path("supabase/migrations").glob("*.sql"): read(p)',
+    "tools/g_rglob.py":      'for p in ROOT.rglob("*.sql"): read(p)',
+    "tools/g_rglob_any.py":  'for p in d.rglob("*"): read(p)',
+    "tools/g_dir_nowalk.py": 'DOC = "supabase/functions"  # mentioned, never walked',
+    "tools/g_join.py":       'FUNCS = os.path.join(ROOT, "supabase", "functions")\nfor r, _, fs in os.walk(FUNCS): pass',
+    # naming a directory is not walking it: 37 real gates put tools/ on sys.path and walk something else
+    "tools/g_syspath.py":    'sys.path.insert(0, str(ROOT / "tools"))\nfor p in Path("learn").glob("*/index.html"): read(p)',
+    # a walk with a literal pattern reaches that pattern only
+    "tools/g_tools_glob.py": 'for p in sorted((ROOT / "tools").glob("validate_*.py")): read(p)',
 }
 VALIDATORS = [{"id": name[6:-3], "script": name} for name in SCRIPTS]
 TRACKED = ["index.html", "learn/x/index.html", "learn/y/index.html", "tools/x/index.html", "about/index.html",
            "supabase/functions/login/index.ts", "supabase/functions/ai-gateway/index.ts", "nav-hub.js",
-           "components.css", "tools/g_self.py"]
+           "components.css", "tools/g_self.py", "supabase/migrations/20261105000001_x.sql", "tools/prove_x.mjs", "tools/validate_x.py"]
 read = SCRIPTS.get
 
 CASES = [
@@ -40,9 +51,14 @@ CASES = [
     (["learn/x/index.html"],                 {"g_glob", "g_dstar", "g_roster"},                  {"g_bare", "g_star", "g_ts_bare", "g_css"}),
     (["tools/x/index.html"],                 {"g_roster"},                                       {"g_bare", "g_glob", "g_dstar"}),
     (["about/index.html"],                   {"g_star", "g_dstar", "g_roster"},                  {"g_bare", "g_glob"}),
-    (["index.html"],                         {"g_bare", "g_roster"},                             {"g_glob", "g_star", "g_dstar"}),
+    (["index.html"],                         {"g_bare", "g_roster"},                             {"g_glob", "g_star", "g_dstar", "g_walk_chain", "g_rglob_any"}),
     (["nav-hub.js"],                         {"g_bare"},                                         {"g_roster", "g_glob"}),
-    (["supabase/functions/login/index.ts"],  {"g_ts_full", "g_ts_sfx"},                          {"g_ts_bare", "g_roster", "g_bare"}),
+    (["supabase/functions/login/index.ts"],  {"g_ts_full", "g_ts_sfx", "g_walk_chain", "g_join"}, {"g_ts_bare", "g_roster", "g_bare", "g_walk_lit", "g_rglob", "g_rglob_any", "g_dir_nowalk", "g_syspath"}),
+    (["supabase/functions/ai-gateway/index.ts"], {"g_walk_chain", "g_join"},                     {"g_ts_full", "g_ts_sfx", "g_dir_nowalk"}),
+    (["tools/prove_x.mjs"],                  set(),                                              {"g_syspath", "g_walk_chain", "g_join", "g_rglob_any", "g_tools_glob"}),
+    (["tools/validate_x.py"],                {"g_tools_glob"},                                   {"g_syspath", "g_walk_chain"}),
+    (["learn/y/index.html"],                 {"g_syspath", "g_glob", "g_roster"},                {"g_walk_chain", "g_join"}),
+    (["supabase/migrations/20261105000001_x.sql"], {"g_walk_lit", "g_rglob"},                    {"g_walk_chain", "g_rglob_any", "g_roster"}),
     (["components.css"],                     {"g_css"},                                          {"g_roster", "g_bare"}),
     (["tools/g_self.py"],                    {"g_self"},                                         {"g_bare"}),
     (["run_platform_checks.py"],             set(),                                              set(SCRIPTS and [n[6:-3] for n in SCRIPTS])),

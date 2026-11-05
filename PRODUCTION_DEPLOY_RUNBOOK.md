@@ -107,6 +107,19 @@ From `Z:` (subst): `npx supabase db push --dry-run`, then `npx supabase db push`
   LOCAL-ONLY `debug_fault_inject` (dead in production - gate `debug-hooks-prod-dead`).
 Deploy each from `Z:`; `verify_function_builds.py --target prod` before and after.
 
+**Done 2026-11-05 - and the after-check caught a stamp that lied.** The first deploy succeeded, yet the check still read
+`runs d6ec37f07743, the tree is 767c236560cc` (and `9cff05e70b14` / `d1a4c62cfc2d`): the new code was live, but
+`_shared/build_stamps.ts` still held the stamps of the two functions' PREVIOUS code, because nothing had run
+`stamp_functions.py --write` after the edits. The `function-stamps` gate exists for exactly this and never ran:
+`--rerun-failed` re-runs the gates a change NAMES, and `stamp_functions.py` reads every function through
+`ROOT / "supabase" / "functions"` + `iterdir()`, naming no file. The selector (`tools/rerun_selector.py`) gained a
+fourth rule, WALK - a script that walks a directory it names is reached by the files that walk can read (a literal
+`glob("validate_*.py")` reaches only that pattern; `sys.path.insert(0, str(ROOT / "tools"))` is naming, not walking) -
+pinned in `prove_rerun_selector.py` (14 change sets). Measured on the real registry: an edge-function edit now selects
+67 gates (was 2, `function-stamps` among the 65 it missed), a migration 35 (was 1); a page edit (298) and a prover
+edit (5) are unchanged. Re-stamped, redeployed both: **`function-builds (prod)`: 62/62 running functions are the
+tree's code.**
+
 ### Leg C - Frontend
 `git push origin master` (the full board runs in the pre-push hook); then the public smoke at `EXPECT_SW=v590`. No
 sitemap page changed except `index.html`, so IndexNow is sent the home URL alone.
