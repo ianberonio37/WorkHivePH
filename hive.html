@@ -5672,6 +5672,8 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
   }
   // "that person" = their identity OR their name. Union, not swap: rows whose auth_uid was never bound
   // (service-role and seeded inserts) are findable only by name, and this card is mostly history.
+  // whose profile this is: skill badges are readable only to their owner, so someone else's 'none' is not knowable
+  const _isSelfWp = !!(_uid && typeof _authUid !== 'undefined' && _authUid && _uid === _authUid);
   const _them = _uid
     ? 'auth_uid.eq.' + _uid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(workerName)) + ')'   // SL AU3: never a namesake's row
     : null;
@@ -5747,7 +5749,11 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
       '<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">' +
         '<div style="padding: 12px 12px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); border-radius:12px;">' +
           '<p style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange-text); margin:0 0 2px;">Top discipline</p>' +
-          '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; color:var(--wh-cloud); margin:0;">' + (top ? escHtml(top.discipline) + ' L' + (top.level || 1) : 'No badges yet') + '</p>' +
+          // ★PRIVATE IS NOT NONE (2026-11-06, GJ M9 J25): skill badges are private to the worker who earned them (RLS:
+          // auth_uid = auth.uid(); skillmatrix promises 'not your supervisor or teammates'), so for anyone else this read
+          // returns nothing - and the tile said 'No badges yet' about a worker who may hold three. Someone else's
+          // profile now says the badges are kept private; only the worker's own says there are none.
+          '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; color:var(--wh-cloud); margin:0;">' + (top ? escHtml(top.discipline) + ' L' + (top.level || 1) : (_isSelfWp ? 'No badges yet' : 'Kept private by ' + escHtml(String(workerName).split(' ')[0]))) + '</p>' +
         '</div>' +
         '<div style="padding: 12px 12px; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.08); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2); border-radius:12px;">' +
           '<p style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-blue); margin:0 0 2px;">Community XP</p>' +
@@ -5775,8 +5781,11 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
           : '<p style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0;">No recent logbook entries.</p>') +
         (recentMore ? '<p data-wh-more-note role="note" style="font-size:var(--wh-fs-xs, 0.8rem);line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:6px 0 0;">The 3 most recent. More are in the Logbook.</p>' : '') +
       '</div>';
-    const sub = panel.querySelector('p:nth-of-type(1) + p');
-    if (sub) sub.style.display = 'none';
+    // ★THIS HID THE TOP DISCIPLINE, ON EVERY PROFILE (2026-11-06, GJ M9 J25): 'p:nth-of-type(1) + p' was meant to hide the
+    // "Loading profile..." line under the name - but that line is now removed by id (#wh-wp-loading), so the selector
+    // matched the next p+p pair in the panel: the Top discipline label and its VALUE. Every worker's top badge (and the
+    // privacy line) rendered and was hidden. The loading line is removed by id; nothing else is hidden here.
+    document.getElementById('wh-wp-loading')?.remove();
   }).catch((err) => {
     // Say we could not look, rather than showing an empty profile that reads as "this worker has
     // done nothing". Logs as well as shows: a profile drawer failing for every supervisor would
@@ -5789,8 +5798,11 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
         + escHtml(_t(whReadError(err, 'this profile'),
                      'Hindi ma-load ang profile na ito. Isara at subukan muli.')) + '</p>';
     }
-    const sub = panel.querySelector('p:nth-of-type(1) + p');
-    if (sub) sub.style.display = 'none';
+    // ★THIS HID THE TOP DISCIPLINE, ON EVERY PROFILE (2026-11-06, GJ M9 J25): 'p:nth-of-type(1) + p' was meant to hide the
+    // "Loading profile..." line under the name - but that line is now removed by id (#wh-wp-loading), so the selector
+    // matched the next p+p pair in the panel: the Top discipline label and its VALUE. Every worker's top badge (and the
+    // privacy line) rendered and was hidden. The loading line is removed by id; nothing else is hidden here.
+    document.getElementById('wh-wp-loading')?.remove();
   });
 }
 

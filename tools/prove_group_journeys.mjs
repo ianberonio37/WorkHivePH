@@ -2232,6 +2232,111 @@ RECIPES.J7 = {
   },
 };
 
+// ── J25 · a new worker proves a skill and gets their first supervised job
+// (cast: w = the new worker, s = the supervisor)
+// ★RE-PREMISED ON THE PRODUCT'S REAL MODEL (2026-11-06): the census said "the skill the new worker proved is on the
+// supervisor's team view" - but skill badges are PRIVATE to the worker who earned them (RLS auth_uid = auth.uid(); the
+// skill matrix promises "not your supervisor or teammates"). Hand-off 1 walks that promise: the badge is earned, and the
+// supervisor's view of the worker says it is kept private (it said "No badges yet" until 2026-11-06). Making a badge
+// shareable with a supervisor is Ian's decision, not a walk's.
+async function openProfileFromTeam(P, name, uid) {
+  await go(P, 'hive.html');
+  const tapped = await P.page.evaluate((nm) => {
+    const chip = [...document.querySelectorAll('.presence-chip')].find((c) => (c.getAttribute('onclick') || '').includes(nm));
+    if (chip) { chip.click(); return true; } return false;
+  }, name).catch(() => false);
+  if (!tapped) await P.page.evaluate(([nm, id]) => { if (typeof _openWorkerProfileDrawer === 'function') _openWorkerProfileDrawer(nm, id); }, [name, uid]);
+  await sleep(2500);
+  return tapped;
+}
+RECIPES.J25 = {
+  1: async (X) => {   // the skill the new worker proved is theirs: the supervisor's view of them says it is kept private
+    const { w, s } = X.S;
+    X.restores = [...(X.restores || []), ['the walk\'s exam and badge', `delete from skill_badges where auth_uid = '${w.m.uid}' and earned_at >= '${X.t0}';
+      delete from skill_exam_attempts where auth_uid = '${w.m.uid}' and attempted_at >= '${X.t0}';`]];
+    await go(w, 'skillmatrix.html');
+    await w.page.evaluate(() => { if (typeof openLesson === 'function') openLesson('Electrical', 1); });
+    await sleep(900);
+    // the lesson is read to its end first: "Take Exam" stays disabled until the lesson has been scrolled through (a tall
+    // screen shows it whole at once; a phone has to scroll - the first J25 walk at 390 never reached the exam)
+    for (let k = 0; k < 12; k++) {
+      const done = await w.page.evaluate(() => {
+        const sc = document.getElementById('lesson-body-scroll'); const b = document.getElementById('lesson-exam-btn');
+        if (!sc || !b) return true;
+        if (!b.disabled) return true;
+        sc.scrollTop = Math.min(sc.scrollHeight, sc.scrollTop + Math.round(sc.clientHeight * 0.9));
+        sc.dispatchEvent(new Event('scroll'));
+        return false;
+      }).catch(() => true);
+      if (done) break;
+      await sleep(250);
+    }
+    await w.page.evaluate(() => { const b = document.getElementById('lesson-exam-btn'); if (b) b.click(); });
+    await sleep(900);
+    // the worker answers each question (the page holds each question's answer for its instant score; the server grades)
+    for (let k = 0; k < 10; k++) {
+      await w.page.evaluate(() => {
+        const qn = (typeof _examQuestions !== 'undefined' && typeof _currentQuestion !== 'undefined') ? _examQuestions[_currentQuestion] : null;
+        const opts = document.querySelectorAll('.exam-option');
+        if (qn && opts[qn.answer]) opts[qn.answer].click();
+      }).catch(() => {});
+      await sleep(250);
+      await w.page.evaluate(() => { const b = document.getElementById('exam-next-btn'); if (b && !b.disabled) b.click(); }).catch(() => {});
+      await sleep(350);
+    }
+    await sleep(3000);
+    const said = await w.page.evaluate(() => (document.getElementById('result-msg') || {}).textContent || '').catch(() => '');
+    const badge = psql(`select id from skill_badges where auth_uid = '${w.m.uid}' and discipline = 'Electrical' and level = 1 and earned_at >= '${X.t0}' limit 1`);
+    X.rec.badge = badge;
+    return { act: { ok: !!badge, detail: `the Electrical Level 1 exam on skillmatrix as ${w.m.name}: "${said.replace(/\s+/g, ' ').slice(0, 120)}" -> skill_badges ${badge || 'NONE'}` },
+      // the supervisor opens the worker's profile from the team strip: the worker is there, the badge is not, and it
+      // says the badges are private rather than that there are none
+      absent: { container: '#wh-wp-panel', presentRx: new RegExp('Kept private by ' + reEsc(w.m.name.split(' ')[0]), 'i'), nameRx: /Electrical L\d/i },
+      path: 'hive.html',
+      prepare: async (R) => { await openProfileFromTeam(R, w.m.name, w.m.uid); },
+      rec: { table: 'v_skill_badges_truth', id: badge } };
+  },
+  2: async (X) => {   // the supervisor's first supervised job is pushed to the new worker
+    const { s, w } = X.S;
+    // the supervisor logs the job, then - it is their OWN entry - hands it on through its edit form: "assigned", and the
+    // member picked from the hive's list (a supervisor's "Move the work order" is for a teammate's entry)
+    await go(s, 'logbook.html');
+    const r = await logWizard(s.page, H(s.page), { tag: X.tag, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'panel breaker tripping under load' });
+    const [id, machine, node] = psql(`select id, machine, asset_node_id from logbook where problem like '${q(X.tag)}%' and hive_id = '${HIVE_ID}' order by created_at limit 1`).split('|');
+    X.rec.entry = { id, machine, node };
+    const opened = await openEdit(s, X.tag);
+    await s.page.evaluate(() => { const b = document.getElementById('extras-toggle-btn'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click(); });
+    await sleep(400);
+    await s.page.selectOption('#f-wo-state', 'assigned').catch(() => {});
+    await s.page.evaluate(() => { const el = document.getElementById('f-wo-state'); if (el) el.dispatchEvent(new Event('change', { bubbles: true })); });
+    await sleep(1200);
+    const offered = await s.page.evaluate(() => [...document.querySelectorAll('#wo-assignee-options option')].map((o) => o.value)).catch(() => []);
+    await s.page.fill('#f-wo-assigned-to', w.m.name).catch(() => {});
+    await s.page.evaluate(() => { const b = document.getElementById('save-entry-btn'); if (b) b.click(); });
+    await sleep(3500);
+    const got = psql(`select coalesce(wo_assigned_to,'') || '|' || coalesce(wo_state,'') from logbook where id = '${q(id)}'`);
+    const push = () => psql(`select count(*) from service_outbox where consumer = 'notify-push' and created_at >= '${X.t0}'
+      and payload->'auth_uids' ? '${w.m.uid}' and payload->>'title' = 'Work order assigned to you'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where consumer = 'notify-push' and created_at >= '${X.t0}' and payload->'auth_uids' ? '${w.m.uid}' and payload->>'title' = 'Work order assigned to you' order by created_at desc limit 1`);
+    return { act: { ok: !!id && opened && got.startsWith(w.m.name + '|assigned') && offered.includes(w.m.name),
+        detail: `logged by ${s.m.name} (${r.toast || 'no toast'}); its edit form: "assigned" to ${w.m.name}, picked from the ${offered.length} members offered -> wo_assigned_to|wo_state = ${got}` },
+      marker: X.tag, path: 'logbook.html?status=Open', channelSaid: pushSaid || null, rec: { table: 'logbook', id },
+      F: () => { const n = Number(push()); return { ok: n >= 1 && got.startsWith(w.m.name), detail: `push "Work order assigned to you" to ${w.m.name}: ${n}; the entry reads assigned to ${got.split('|')[0] || 'nobody'}` }; } };
+  },
+  3: async (X) => {   // the new worker's first job is in the supervisor's logbook
+    const { w } = X.S;
+    // its own tag, so it is never confused with the supervisor's job above (both would match the walk's tag)
+    const tag2 = X.tag.replace(/^GJ-/, 'GW-');
+    X.restores = [...(X.restores || []), ['the worker\'s entry', `delete from logbook where hive_id = '${HIVE_ID}' and problem like '${q(tag2)}%';`]];
+    await go(w, 'logbook.html');
+    const r = await logWizard(w.page, H(w.page), { tag: tag2, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'motor bearing running hot' });
+    const id = psql(`select id from logbook where problem like '${q(tag2)}%' and hive_id = '${HIVE_ID}' order by created_at limit 1`);
+    return { act: { ok: !!id, detail: `logbook wizard as ${w.m.name}: ${r.toast || 'no toast'}${id ? ` -> entry ${id}` : ' -> NO ROW'}` },
+      marker: tag2, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, tag2, ms), rec: { table: 'logbook', id } };
+  },
+};
+
 // ── G-ADV · the record reached for from outside: the hand-off stays inside its hive, refused in words
 RECIPES['G-ADV'] = {
   1: (X) => RECIPES.J2[1](X),
@@ -2417,6 +2522,12 @@ function cleanup(X, kept) {
       delete from pm_scope_items where asset_id in (select id from pm_assets where hive_id = '${HIVE_ID}' and asset_name like '${q(X.tag)}%');
       delete from pm_assets where hive_id = '${HIVE_ID}' and asset_name like '${q(X.tag)}%';`],
     ['XP the walk earned', `delete from achievement_xp_log where earned_at >= '${X.t0}' and worker_name in (${names});`],
+    ...(kept.xpNames ? [['the cast\'s XP totals put back', `begin;
+      delete from worker_achievements where worker_name in ${kept.xpNames};
+      insert into worker_achievements select * from json_populate_recordset(null::worker_achievements, '${q(kept.xpTotals)}');
+      delete from community_xp where worker_name in ${kept.xpNames};
+      insert into community_xp select * from json_populate_recordset(null::community_xp, '${q(kept.cxTotals)}');
+      commit;`]] : []),
     ['audit lines', `delete from hive_audit_log where hive_id = '${HIVE_ID}' and created_at >= '${X.t0}';`],
     ['the walk\'s acknowledgements', `delete from alert_dismissals where hive_id = '${HIVE_ID}' and created_at >= '${X.t0}';`],
     ['the walk\'s devices', `delete from worker_known_devices where first_seen_at >= '${X.t0}' and auth_uid in (${uids});`],
@@ -2502,6 +2613,18 @@ async function walkPass(browser, pass, foreign) {
   const X = { S, tag: `GJ-${SCEN}-${pass}-${Date.now()}`, t0: psql('select now()'), rec: {}, notes: [],
     faults: new Set(TEETH ? ['push-never-fires', 'foreign-let-in'] : []) };
   const kept = snapshotInPlace();
+  // ★THE LOG ROWS WENT, THE TOTALS THEY FED STAYED (2026-11-06, found walking J7): the cleanup deletes the XP lines a walk
+  // earned, but worker_achievements.xp_total and community_xp had already been raised by them - every walk left its cast a
+  // little richer. The cast's totals are kept here, before anything happens, and put back exactly in the cleanup.
+  {
+    const castNames = Object.values(S).map((s) => s.m && s.m.name).filter((n) => n && n !== 'a stranger' && !/^the plant bridge/.test(n));
+    if (castNames.length) {
+      const inList = '(' + castNames.map((n) => `'${q(n)}'`).join(',') + ')';
+      kept.xpNames = inList;
+      kept.xpTotals = psql(`select coalesce(json_agg(row_to_json(t)), '[]') from worker_achievements t where worker_name in ${inList}`);
+      kept.cxTotals = psql(`select coalesce(json_agg(row_to_json(t)), '[]') from community_xp t where worker_name in ${inList}`);
+    }
+  }
   const out = [];
   try {
     for (const hop of HOPS) {

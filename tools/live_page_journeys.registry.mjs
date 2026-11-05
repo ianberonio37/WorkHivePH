@@ -727,7 +727,15 @@ export async function logWizard(page, h, { tag, maintType = 'Breakdown / Correct
   // regex demanded the verbose form and false-failed J while T proved the row persisted
   // (instrument drift, the gate-accuracy class). Accept both copies; the DB T-lens stays the
   // stronger proof of the write.
-  const toast = await h.evalIn(() => { const t = document.getElementById('toast-text'); return t ? t.textContent.trim() : ''; });
+  let toast = await h.evalIn(() => { const t = document.getElementById('toast-text'); return t ? t.textContent.trim() : ''; });
+  // ★THE PAGE ASKED FOR A SECOND PRESS AND THE HELPER WALKED AWAY (2026-11-06, GJ M9 J25): logbook's duplicate guard
+  // answers a second entry on the same machine the same day with "<machine> already logged today. Submit again to save
+  // anyway." - a person presses Save again; the helper read that as a failed save. It now presses again, as asked.
+  if (/already logged today\.?\s*submit again/i.test(toast)) {
+    await h.click('#save-entry-btn').catch(() => {});
+    await page.waitForTimeout(3000);
+    toast = await h.evalIn(() => { const t = document.getElementById('toast-text'); return t ? t.textContent.trim() : ''; });
+  }
   // Success-copy FAMILY (evolved twice: "Entry saved to your logbook." → "Entry saved." →
   // "✓ Logged: updated Analytics (…)" — the G1 visibility work enriched it). Match any of the
   // family; the DB T-lens remains the stronger write-proof.

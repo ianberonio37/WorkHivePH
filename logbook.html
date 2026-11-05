@@ -850,7 +850,8 @@
               <!-- Assigned-to (only meaningful when wo_state is approved/assigned/in_progress) -->
               <div id="wo-assigned-wrap" style="display:none;">
                 <label data-i="p_assignedto_d00c" for="f-wo-assigned-to" class="wh-label">Assigned To</label>
-                <input id="f-wo-assigned-to" type="text" class="wh-input" placeholder="Your name" autocomplete="off" />
+                <input id="f-wo-assigned-to" type="text" class="wh-input" placeholder="A member of this hive" autocomplete="off" list="wo-assignee-options" />
+                <datalist id="wo-assignee-options"></datalist>
               </div>
 
               <div>
@@ -5883,7 +5884,12 @@ async function saveEditFromForm() {
   // that haven't received the migration yet (the columns don't exist there,
   // and PostgREST would reject the update with "column does not exist").
   const _woStateVal    = (document.getElementById('f-wo-state')?.value || '').trim();
-  const _woAssignedVal = (document.getElementById('f-wo-assigned-to')?.value || '').trim();
+  let _woAssignedVal = (document.getElementById('f-wo-assigned-to')?.value || '').trim();
+  if (_woAssignedVal) {   // GJ M9 J25: a member of the hive, or nothing is saved
+    const _m = _woAssigneeOrRefuse(_woAssignedVal);
+    if (_m === null) { saveBtn.disabled = false; saveBtn.textContent = 'Update Entry'; return; }
+    _woAssignedVal = _m;
+  }
   if (_woStateVal)    updates.wo_state       = _woStateVal;
   if (_woAssignedVal) updates.wo_assigned_to = _woAssignedVal;
 
@@ -6509,7 +6515,12 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   // Same backward-compat logic as saveEditFromForm — keeps inserts safe on
   // databases that haven't received the migration yet.
   const _woNewState    = (document.getElementById('f-wo-state')?.value || '').trim();
-  const _woNewAssigned = (document.getElementById('f-wo-assigned-to')?.value || '').trim();
+  let _woNewAssigned = (document.getElementById('f-wo-assigned-to')?.value || '').trim();
+  if (_woNewAssigned) {   // GJ M9 J25: a member of the hive, or nothing is saved
+    const _m = _woAssigneeOrRefuse(_woNewAssigned);
+    if (_m === null) { saveBtn.disabled = false; saveBtn.textContent = 'Save Entry'; return; }
+    _woNewAssigned = _m;
+  }
   if (_woNewState)    entry.wo_state       = _woNewState;
   if (_woNewAssigned) entry.wo_assigned_to = _woNewAssigned;
 
@@ -8013,6 +8024,34 @@ const WO_TRANSITIONS = {
 
 const WO_NEEDS_ASSIGNEE = new Set(['approved', 'assigned', 'in_progress']);
 
+// ★A JOB HANDED TO A TYPED NAME (2026-11-06, GJ M9 J25): on their own entry a supervisor assigns through this form, and
+// "Assigned To" was free text ("Your name") - a misspelt or half-typed name was saved as the assignee, the push that
+// tells the assignee resolved nobody, and the job sat assigned to no one. A name is not an identity: the field now
+// offers the hive's active members, a name typed in another case becomes the member's own, and a name that is nobody
+// in the hive is refused in words before anything is saved.
+let _woMembers = null;
+async function _woFillAssignees() {
+  if (_woMembers || !HIVE_ID) return;
+  try {
+    // canonical-allow: the active members a job may be handed to - a picker over the membership rows, not a worker figure
+    const { data } = await db.from('hive_members').select('worker_name')
+      .eq('hive_id', HIVE_ID).eq('status', 'active').order('worker_name').order('id').limit(500);   // limit-as-count-allow: a picker's rows, nothing counts them
+    _woMembers = (data || []).map((r) => r.worker_name).filter(Boolean);
+    const dl = document.getElementById('wo-assignee-options');
+    if (dl) dl.innerHTML = _woMembers.map((n) => '<option value="' + escHtml(n) + '"></option>').join('');
+  } catch (_) { _woMembers = null; }   // empty-catch-allow: without the list the field still takes a name; the refusal below needs the list
+}
+// the member's own name for what was typed, or null after saying nobody in the hive is called that
+function _woAssigneeOrRefuse(typed) {
+  if (!typed || !_woMembers || !_woMembers.length) return typed;
+  const hit = _woMembers.find((n) => n.toLowerCase() === String(typed).toLowerCase());
+  if (hit) return hit;
+  showToast('Nobody in this hive is called "' + typed + '". Pick a member from the list to hand the job to.', '⚠️');
+  const el = document.getElementById('f-wo-assigned-to');
+  if (el) el.focus();
+  return null;
+}
+
 function applyWoStateUI() {
   const sel = document.getElementById('f-wo-state');
   const assignedWrap = document.getElementById('wo-assigned-wrap');
@@ -8044,6 +8083,7 @@ function applyWoStateUI() {
   // Show the Assignee input only when an assignment-bearing state is selected
   if (assignedWrap) {
     assignedWrap.style.display = WO_NEEDS_ASSIGNEE.has(current) ? '' : 'none';
+    if (WO_NEEDS_ASSIGNEE.has(current)) _woFillAssignees();   // GJ M9 J25: the members a job can be handed to
   }
 }
 
