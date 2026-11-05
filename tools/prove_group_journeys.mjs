@@ -1646,6 +1646,8 @@ function j1People(X) {
     pw: `Wh!${stamp}Qz9#`,
     n: { user: `gjn${stamp}`, name: `Lorna Villamor ${sfx}` },
     i: { user: `gji${stamp}`, name: `Dante Pascual ${sfx}` },
+    // G-ONB's third person, the screen-reader joiner (minted the same way; cleaned up with the others)
+    t: { user: `gjt${stamp}`, name: `Mila Ocampo ${sfx}` },
     // the hive is named WITHOUT the walk's tag: a page header carrying the hive's name would otherwise match the tag the
     // entry's reading looks for, before the entry's own card does
     hive: `Villamor Plant ${stamp}`,
@@ -1653,7 +1655,7 @@ function j1People(X) {
   const P = X.rec.people;
   // the cleanup is registered BEFORE anything is made, and resolves by name at cleanup time, so a walk that dies
   // halfway leaves nothing behind either
-  const users = `('${q(P.n.user)}','${q(P.i.user)}')`;
+  const users = `('${q(P.n.user)}','${q(P.i.user)}','${q(P.t.user)}')`;
   const uids = `(select auth_uid from worker_profiles where username in ${users})`;
   const hive = `(select id from hives where name = '${q(P.hive)}')`;
   // ★A CASCADE DOES NOT REACH EVERY ROW (2026-11-06): 25 tables keep their rows with hive_id NULLED when a hive goes
@@ -1683,8 +1685,8 @@ function j1People(X) {
          END IF;
        END LOOP;
        IF h IS NOT NULL THEN DELETE FROM public.hives WHERE id = h; END IF;
-       DELETE FROM public.achievement_xp_log WHERE worker_name IN ('${q(P.n.name)}', '${q(P.i.name)}');
-       DELETE FROM public.early_access_emails WHERE lower(email) LIKE '${q(P.n.user)}%' OR lower(email) LIKE '${q(P.i.user)}%';
+       DELETE FROM public.achievement_xp_log WHERE worker_name IN ('${q(P.n.name)}', '${q(P.i.name)}', '${q(P.t.name)}');
+       DELETE FROM public.early_access_emails WHERE lower(email) LIKE '${q(P.n.user)}%' OR lower(email) LIKE '${q(P.i.user)}%' OR lower(email) LIKE '${q(P.t.user)}%';
        IF u IS NOT NULL THEN
          DELETE FROM public.worker_profiles WHERE auth_uid = ANY(u);
          DELETE FROM auth.users WHERE id = ANY(u);
@@ -1714,11 +1716,12 @@ RECIPES.J1 = {
       code = (code || '').trim();
     }
     const hid = psql(`select id from hives where name = '${q(P.hive)}'`);
-    X.rec.hive = { id: hid, name: P.hive, code };
+    X.rec.hive = { id: hid, name: P.hive, code };   // (the link is kept below, for the next joiner)
     // the link, the way the supervisor sends it: "Copy invite link" on the screen that just showed the code
     await n.page.evaluate(() => { const b = document.getElementById('btn-copy-code-link'); if (b) b.click(); });
     await sleep(1200);
     const link = (await readClipboard(n)).trim();
+    X.rec.link = link || `${ORIGIN}/hive.html?join=${code}`;
     // i: never signed up, opens the link - the wall, then "create a free account", then back to the link
     await i.page.goto(link || `${ORIGIN}/hive.html?join=${code}`, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
     await sleep(4000);
@@ -2061,6 +2064,171 @@ RECIPES['G-MOD'] = {
         const theirs = asUser(witness.uid, `select count(*) from public.my_moderation_news() where post_id = '${q(post.id)}'`);
         return { ok: Number(theirs) === 0, foreign: witness.user, foreign_rows: Number(theirs) };
       } };
+  },
+};
+
+// ── G-ONB · a hive born and joined: each joiner's first screen is the hive, not the landing
+// (cast: n = the new supervisor, i = the first joiner, t = a screen-reader joiner - all three MINTED; J1's machinery)
+// every visible control on the screen with no accessible name (what a screen reader would say nothing for)
+async function unnamedControls(P) {
+  return P.page.evaluate(() => {
+    // ★A CLOSED SHEET IS NOT ON THE SCREEN (2026-11-06, the first G-ONB walk): the nav hub's closed sheet is
+    // visibility:hidden, and checkVisibility() without options calls it visible - its eight tiles read as "unnamed"
+    // because innerText of hidden text is empty. Visibility and opacity are asked for, as a screen reader meets them.
+    const vis = (e) => e.checkVisibility && e.checkVisibility({ visibilityProperty: true, checkVisibilityCSS: true, opacityProperty: true, checkOpacity: true });
+    const nameOf = (e) => {
+      const al = e.getAttribute('aria-label'); if (al && al.trim()) return al.trim();
+      const lb = e.getAttribute('aria-labelledby');
+      if (lb) { const t = lb.split(/\s+/).map((id) => (document.getElementById(id) || {}).textContent || '').join(' ').trim(); if (t) return t; }
+      if (e.id) { const l = document.querySelector(`label[for="${e.id}"]`); if (l && l.textContent.trim()) return l.textContent.trim(); }
+      const wrap = e.closest('label'); if (wrap && wrap.textContent.trim()) return wrap.textContent.trim();
+      // a button or link - native, or by role (a provenance figure is role=button) - is named by its own content
+      if ((/^(BUTTON|A|SUMMARY)$/.test(e.tagName) || /^(button|link|tab|menuitem)$/.test(e.getAttribute('role') || '')) && (e.textContent || '').trim()) return e.textContent.trim();
+      const ti = e.getAttribute('title'); if (ti && ti.trim()) return ti.trim();
+      if (e.tagName === 'INPUT' && e.placeholder) return null;   // a placeholder is not a name
+      return null;
+    };
+    return [...document.querySelectorAll('button, a[href], input:not([type="hidden"]), select, textarea, [role="button"], [tabindex]:not([tabindex="-1"])')]
+      .filter(vis).filter((e) => !nameOf(e)).map((e) => `${e.tagName.toLowerCase()}${e.id ? '#' + e.id : ''}${e.className && typeof e.className === 'string' ? '.' + e.className.split(/\s+/)[0] : ''}`).slice(0, 8);
+  }).catch(() => ['(could not read the screen)']);
+}
+RECIPES['G-ONB'] = {
+  1: (X) => RECIPES.J1[1](X),   // the invite lands the first joiner in the hive (J1's hand-off 1, the same people)
+  2: async (X) => {   // the invite lands the screen-reader joiner in the hive, every control named
+    const { t } = X.S;
+    const P = j1People(X);
+    const hid = (X.rec.hive || {}).id || '';
+    await t.page.goto(X.rec.link || `${ORIGIN}/hive.html`, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
+    await sleep(4000);
+    const up = await signUpHere(t, P.t, P.pw);
+    let note = '';
+    for (let k = 0; k < 20 && !note; k++) {
+      await sleep(1000);
+      note = await t.page.evaluate(() => { const e = document.getElementById('join-invite-note'); return e && !e.classList.contains('hidden') ? e.textContent.trim() : ''; }).catch(() => '');
+    }
+    // the landing as a screen reader meets it: every control named, and the focus already on the one that joins
+    const unnamed = await unnamedControls(t);
+    const focused = await t.page.evaluate(() => (document.activeElement && document.activeElement.id) || '').catch(() => '');
+    await t.page.keyboard.press('Enter');
+    let welcome = '';
+    for (let k = 0; k < 20 && !/You're In/i.test(welcome); k++) {
+      await sleep(1000);
+      welcome = await t.page.evaluate(() => { const v = document.getElementById('view-welcome'); return v && !v.classList.contains('hidden') ? v.innerText : ''; }).catch(() => '');
+    }
+    const unnamedWelcome = welcome ? await unnamedControls(t) : ['(no welcome)'];
+    const mid = t.m.uid ? psql(`select id from hive_members where hive_id = '${q(hid)}' and auth_uid = '${t.m.uid}' and status = 'active'`) : '';
+    X.rec.memberT = mid;
+    return { act: { ok: up.ok && !!mid && focused === 'btn-submit-join' && unnamed.length === 0 && unnamedWelcome.length === 0,
+        detail: `${P.t.name}, signed out, opened the invite link, signed up (${up.ok}${up.err ? ': ' + up.err : ''}) and landed on the join form ("${note || 'no invite line'}"); `
+          + `focus on ${focused || 'nothing'}; unnamed controls on the join form: ${unnamed.length ? unnamed.join(', ') : 'none'}; joined with Enter -> membership ${mid || 'NONE'}; `
+          + `unnamed controls on the welcome: ${unnamedWelcome.length ? unnamedWelcome.join(', ') : 'none'}` },
+      preRead: welcome ? { card: welcome } : null,
+      marker: P.hive, path: 'hive.html', rec: { table: 'hive_members', id: mid } };
+  },
+  3: async (X) => {   // the joiners on the new supervisor's roster
+    const r = await RECIPES.J1[2](X);
+    const t = X.S.t;
+    return { ...r, act: { ok: !!X.rec.member && !!X.rec.memberT, detail: `${X.S.i.m.name} and ${t.m.name} joined at hand-offs 1 and 2 (memberships ${X.rec.member || 'NONE'}, ${X.rec.memberT || 'NONE'})` } };
+  },
+  4: async (X) => {   // the screen-reader joiner's first entry is in the supervisor's logbook
+    const { t } = X.S;
+    // the hive's first machine (registered and approved by the supervisor, J1's hand-off 3), so the entry has one
+    await RECIPES.J1[3](X);
+    await go(t, 'logbook.html');
+    const unnamed = await unnamedControls(t);
+    const r = await logWizard(t.page, H(t.page), { tag: X.tag, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'compressor tripping on high temperature' });
+    const hid = (X.rec.hive || {}).id || '';
+    const id = psql(`select id from logbook where problem like '${q(X.tag)}%' and hive_id = '${q(hid)}' order by created_at limit 1`);
+    X.rec.entry = { id };
+    return { act: { ok: !!id, detail: `logbook wizard as ${t.m.name} (machine picked: ${r.machineSet}): ${r.toast || 'no toast'}${id ? ` -> entry ${id}` : ' -> NOT in the hive'}; unnamed controls on the logbook: ${unnamed.length ? unnamed.join(', ') : 'none'}` },
+      marker: X.tag, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id } };
+  },
+};
+
+// ── J7 · a question answered: the asker asks, a teammate answers, the asker chooses it, the answer earns its credit
+// (cast: a = the worker who asks, r = the worker who answers)
+async function openThreadAs(P, pid) {
+  await go(P, `community.html?post=${pid}`);
+  await sleep(1500);
+  const open = await P.page.evaluate(() => { const o = document.getElementById('thread-overlay'); return !!(o && o.classList.contains('open')); }).catch(() => false);
+  if (!open) await P.page.evaluate((id) => { if (typeof openThread === 'function') openThread(id); }, pid);
+  await sleep(1500);
+}
+RECIPES.J7 = {
+  1: async (X) => {   // the question reaches the answerer
+    const { a, r } = X.S;
+    // the XP totals the walk's post, reply and chosen answer move are the cast's own: put back exactly as they were
+    const names = `('${q(a.m.name)}','${q(r.m.name)}')`;
+    const wa = psql(`select coalesce(json_agg(row_to_json(t)), '[]') from worker_achievements t where worker_name in ${names}`);
+    const cx = psql(`select coalesce(json_agg(row_to_json(t)), '[]') from community_xp t where worker_name in ${names}`);
+    X.restores = [...(X.restores || []), ['the cast\'s XP totals put back', `begin;
+      delete from worker_achievements where worker_name in ${names};
+      insert into worker_achievements select * from json_populate_recordset(null::worker_achievements, '${q(wa)}');
+      delete from community_xp where worker_name in ${names};
+      insert into community_xp select * from json_populate_recordset(null::community_xp, '${q(cx)}');
+      commit;`],
+      ['the walk\'s XP ledgers', `delete from community_reply_xp_awards where post_id in (select id from community_posts where content like '${q(X.tag)}%');
+      delete from community_post_xp_awards where post_id in (select id from community_posts where content like '${q(X.tag)}%');
+      delete from community_reaction_xp_awards where post_id in (select id from community_posts where content like '${q(X.tag)}%');`]];
+    await go(a, 'community.html');
+    await a.page.evaluate(() => { if (typeof openComposer === 'function') openComposer(); });
+    await sleep(1000);
+    const text = `${X.tag} how do you align a coupling without a laser kit?`;
+    await a.page.fill('#post-content', text).catch(() => {});
+    await a.page.selectOption('#post-category', 'technical').catch(() => {});
+    await a.page.evaluate(() => { const b = document.getElementById('btn-submit-post'); if (b) b.click(); });
+    await sleep(3500);
+    const pid = psql(`select id from community_posts where hive_id = '${HIVE_ID}' and content like '${q(X.tag)}%' order by created_at desc limit 1`);
+    X.rec.post = { id: pid, text };
+    return { act: { ok: !!pid, detail: `"Post to Hive" (Technical) as ${a.m.name}: community_posts ${pid || 'NO ROW'}` },
+      marker: X.tag, path: 'community.html', rec: { table: 'community_posts', id: pid } };
+  },
+  2: async (X) => {   // the answer is pushed to the asker
+    const { a, r } = X.S;
+    const post = X.rec.post || {};
+    await openThreadAs(r, post.id);
+    const reply = `${X.tag} rim and face with two dial indicators, check sag first`;
+    await r.page.fill('#reply-content', reply).catch(() => {});
+    await r.page.evaluate(() => { const b = document.getElementById('btn-submit-reply'); if (b) b.click(); });
+    await sleep(3500);
+    const rid = psql(`select id from community_replies where post_id = '${q(post.id)}' and content like '${q(X.tag)}%' order by created_at desc limit 1`);
+    X.rec.reply = { id: rid, text: reply };
+    const push = () => psql(`select count(*) from service_outbox where created_at >= '${X.t0}' and payload->'auth_uids' ? '${a.m.uid}' and payload->>'title' like '%answered your question'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${a.m.uid}' and payload->>'title' like '%answered your question' order by created_at desc limit 1`);
+    return { act: { ok: !!rid, detail: `the thread's reply box as ${r.m.name}: community_replies ${rid || 'NO ROW'}` },
+      marker: reply.slice(0, 40), path: `community.html?post=${post.id}`, channelSaid: pushSaid || null,
+      reach: async (R2, ms) => { await openThreadAs(R2, post.id); return findText(R2, reply.slice(0, 40), ms); },
+      rec: { table: 'community_replies', id: rid },
+      F: () => { const n = Number(push()); return { ok: n >= 1, detail: `push "<answerer> answered your question" to ${a.m.name}: ${n}` }; } };
+  },
+  3: async (X) => {   // the accepted answer is told to the answerer
+    const { a, r } = X.S;
+    const post = X.rec.post || {};
+    const rep = X.rec.reply || {};
+    await openThreadAs(a, post.id);
+    const marked = await a.page.evaluate((id) => {
+      const b = [...document.querySelectorAll('button[onclick^="markAnswer("]')].find((x) => (x.getAttribute('onclick') || '').includes(id));
+      if (b) { b.click(); return true; } return false;
+    }, rep.id);
+    await sleep(3000);
+    const acc = psql(`select is_accepted::text || '|' || coalesce(accepted_by,'') from community_replies where id = '${q(rep.id)}'`);
+    const push = () => psql(`select count(*) from service_outbox where created_at >= '${X.t0}' and payload->'auth_uids' ? '${r.m.uid}' and payload->>'title' = 'Your answer was chosen'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${r.m.uid}' and payload->>'title' = 'Your answer was chosen' order by created_at desc limit 1`);
+    return { act: { ok: marked && /^t(rue)?\|/.test(acc) && acc.endsWith('|' + a.m.name), detail: `"Best answer" on ${r.m.name}'s reply as ${a.m.name} (pressed ${marked}): is_accepted|accepted_by = ${acc}` },
+      marker: rep.text.slice(0, 40), markerRx: /chosen by/i, path: `community.html?post=${post.id}`, channelSaid: pushSaid || null,
+      reach: async (R2, ms) => { await openThreadAs(R2, post.id); return findText(R2, rep.text.slice(0, 40), ms); },
+      rec: { table: 'community_replies', id: rep.id, where: 'and is_accepted' },
+      F: () => { const n = Number(push()); return { ok: n >= 1, detail: `push "Your answer was chosen" to ${r.m.name}: ${n}` }; } };
+  },
+  4: async (X) => {   // the credit the accepted answer earned, on the answerer's achievements
+    const { r } = X.S;
+    const rep = X.rec.reply || {};
+    const xp = psql(`select coalesce(sum(xp_earned), 0) from achievement_xp_log where source_action = 'best_answer' and source_id = '${q(rep.id)}' and reversed_at is null`);
+    return { act: { ok: Number(xp) === 30, detail: `achievement_xp_log best_answer for ${r.m.name}'s chosen reply ${rep.id}: +${xp}` },
+      marker: 'Your answer was chosen as the best', whoRx: /\+30\b/, path: 'achievements.html',
+      rec: { table: 'v_achievement_xp_log', idCol: 'source_id', id: rep.id, where: `and source_action = 'best_answer'` } };
   },
 };
 
