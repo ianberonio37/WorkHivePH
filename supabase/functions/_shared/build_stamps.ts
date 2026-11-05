@@ -49,7 +49,7 @@ export const BUILD_STAMPS: Record<string, string> = {
   "send-report-email": "6b611dc10a9d",
   "sensor-readings-ingest": "23320233f704",
   "shift-planner-orchestrator": "d1a4c62cfc2d",
-  "supervisor-reset-password": "a0caa644a623",
+  "supervisor-reset-password": "c476ca9cbc9f",
   "temporal-rag-orchestrator": "e3a6f70ea664",
   "trigger-ml-retrain": "1a477cb4381f",
   "tts-speak": "1364dfb29914",

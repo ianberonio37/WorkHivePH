@@ -1453,7 +1453,7 @@
              already works, in the one place the platform keeps account actions, beside Sign Out.
              forgotPassword() is already window-scoped and states its own caveat for the many field
              workers who have no email on file: ask your supervisor. -->
-        <button type="button" onclick="forgotPassword(event)" class="oh-signout" data-i="changepwd" style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; padding:6px 16px; background:var(--wh-white-05, rgba(255,255,255,.05)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.7); border:1px solid var(--wh-white-10, rgba(255,255,255,.1)); border-radius:8px; font-family:inherit; cursor:pointer;">Change Password</button>
+        <button type="button" onclick="changePassword(event)" class="oh-signout" data-i="changepwd" style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; padding:6px 16px; background:var(--wh-white-05, rgba(255,255,255,.05)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.7); border:1px solid var(--wh-white-10, rgba(255,255,255,.1)); border-radius:8px; font-family:inherit; cursor:pointer;">Change Password</button>
         <button onclick="signOut()" class="oh-signout" data-i="signout" style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; padding:6px 16px; background:var(--wh-white-05, rgba(255,255,255,.05)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.7); border:1px solid var(--wh-white-10, rgba(255,255,255,.1)); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
       </div>
     </div>
@@ -3572,6 +3572,82 @@
   }
   window.forgotPassword = forgotPassword;
 
+  // ★A RESET PASSWORD IS NOT YOURS UNTIL YOU SET ONE (2026-11-05, GJ M9 J19). supervisor-reset-password stamps the
+  // account with who reset it and when (user_metadata.password_reset_by / _at). The only change-password path was the
+  // emailed recovery link, and a worker's sign-in address (<username>@auth.workhiveph.com) receives no mail - so the
+  // temporary password, which the supervisor knows, stayed theirs for good, and the header's "Change Password" opened an
+  // email prompt they could never answer. Signed in, a person now changes it here: asked twice (a masked typo would lock
+  // out someone with no inbox), checked against breach lists, set with the stamp cleared in the same call.
+  async function changePassword(ev, knownUser) {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    const db = _getDb();
+    let user = knownUser || null;
+    if (!user) {
+      try { const { data } = await db.auth.getSession(); user = data && data.session ? data.session.user : null; }
+      catch (_) { user = null; }   // empty-catch-allow: no readable session is the signed-out path below
+    }
+    if (!user) return forgotPassword(ev);   // signed out: the emailed link is the only door
+    const meta = user.user_metadata || {};
+    const lead = meta.password_reset_at
+      ? (meta.password_reset_by || 'A supervisor') + ' reset your password'
+        + (typeof whFmtDate === 'function' ? ' on ' + whFmtDate(meta.password_reset_at, { time: true }) : '')
+        + '. Set your own now, so only you know it. At least 8 characters:'
+      : 'Choose your new password (at least 8 characters):';
+    const say = (m) => window.whConfirm(m, { okLabel: 'OK', cancelLabel: '' });
+    const newPw = await window.whPrompt(lead, { inputLabel: 'New password', inputType: 'password', okLabel: 'Next',
+      cancelLabel: meta.password_reset_at ? 'Later' : 'Cancel' });
+    if (!newPw) return;
+    if (newPw.length < 8) { await say('That password is shorter than 8 characters, so nothing was changed. Try again with a longer one.'); return; }
+    const again = await window.whPrompt('Type the new password once more.', { inputLabel: 'New password again',
+      inputType: 'password', okLabel: 'Set password' });
+    if (again === null || again === undefined || again === '') return;
+    if (again !== newPw) { await say('The two passwords did not match, so nothing was changed. Try again.'); return; }
+    if (await _passwordBreached(newPw)) { await say('That password has appeared in a public data breach, so it was not set. Choose a different one.'); return; }
+    let error = null;
+    try { ({ error } = await db.auth.updateUser({ password: newPw, data: { password_reset_by: null, password_reset_at: null } })); }
+    catch (e) { error = e || { message: 'no answer' }; }
+    if (error) {
+      const code = String(error.code || '');
+      await say(code === 'same_password' ? 'That is the password you have now, so nothing changed. Choose a different one.'
+        : code === 'reauthentication_needed' ? 'WorkHive needs a recent sign-in before a password change. Sign out, sign in again with the password you have now, then change it.'
+        : code === 'weak_password' ? 'That password is too weak, so it was not set: ' + String(error.message || '')
+        : navigator.onLine === false ? 'You are offline, so your password was not changed. Try again when your connection is back.'
+        : 'Your password was not changed - WorkHive did not answer. Try again in a moment.');
+      return;
+    }
+    const box = document.getElementById('oh-pwreset-notice');
+    if (box) box.remove();
+    await say('Password changed. Use it the next time you sign in.' + (_breachUnchecked ? ' ' + BREACH_UNCHECKED_NOTE : ''));
+  }
+  window.changePassword = changePassword;
+
+  // The stamp, said on the home page above the day's verdict on every visit until the person sets their own. A prompt
+  // that can be put off with "Later" is told once; this is what keeps it told.
+  function _whTellPasswordReset(user) {
+    const meta = (user && user.user_metadata) || {};
+    const old = document.getElementById('oh-pwreset-notice');
+    if (!meta.password_reset_at) { if (old) old.remove(); return; }
+    const anchor = document.getElementById('oh-today');
+    if (!anchor || !anchor.parentNode || old) return;
+    const box = document.createElement('div');
+    box.id = 'oh-pwreset-notice';
+    box.className = 'oh-card';
+    box.setAttribute('role', 'status');
+    box.style.cssText = 'display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; background:rgba(var(--wh-orange-rgb), 0.08); border-color:rgba(var(--wh-orange-rgb), 0.3);';
+    const p = document.createElement('p');
+    p.style.cssText = 'flex:1 1 240px; margin:0; font-size:var(--wh-fs-sm); line-height:1.5; color:var(--wh-white);';
+    p.textContent = (meta.password_reset_by || 'A supervisor') + ' reset your password'
+      + (typeof whFmtDate === 'function' ? ' on ' + whFmtDate(meta.password_reset_at, { time: true }) : '')
+      + '. The password you were given is temporary, and your supervisor knows it. Set your own so only you do.';
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = 'Set my password';
+    b.style.cssText = 'min-height:44px; padding:10px 18px; border-radius:10px; border:1px solid rgba(var(--wh-orange-rgb), 0.45); background:rgba(var(--wh-orange-rgb), 0.16); color:var(--wh-orange); font:inherit; font-weight:700; font-size:var(--wh-fs-sm); cursor:pointer;';
+    b.addEventListener('click', (e) => changePassword(e, null));
+    box.append(p, b);
+    anchor.parentNode.insertBefore(box, anchor);
+  }
+
   // When the user follows a recovery link, Supabase fires PASSWORD_RECOVERY — prompt for a new password.
   try {
     _getDb().auth.onAuthStateChange(async (event) => {
@@ -3998,6 +4074,9 @@
     await resolveActiveHiveContext(db, displayName, data.user.id);
     closeSignIn();
     updateNavbarName(displayName);
+    // GJ M9 J19: a password a supervisor reset is the supervisor's until this person sets their own - say so, now
+    _whTellPasswordReset(data.user);
+    if (data.user && data.user.user_metadata && data.user.user_metadata.password_reset_at) await changePassword(null, data.user);
     // Flip from marketing wrap to personal dashboard. The DOMContentLoaded
     // handler that normally does this already fired before sign-in, so we
     // mirror its behaviour here for an instant transition without a reload.
@@ -4536,6 +4615,8 @@
       const db = _getDb();
       const { data: { session } } = await db.auth.getSession();
       if (session) {
+        // GJ M9 J19: a reset password stays named on the home page until the person sets their own (told once is not told)
+        try { _whTellPasswordReset(session.user); } catch (_) { /* empty-catch-allow: the notice is a nudge; the home page renders without it */ }
         // Auth session present: restore display_name if needed
         if (!whWorker()) {
           const { data: profile } = await db.from('worker_profiles')

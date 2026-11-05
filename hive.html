@@ -5203,7 +5203,7 @@ async function renderRoster() {
 // supervisor + worker membership, sets a temp password via the admin API, and returns it ONCE to show.
 async function resetMemberPassword(workerName) {
   if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para lang sa mga supervisor.')); return; }
-  if (!(await window.whConfirm(`Reset ${workerName}'s password? You'll get a one-time temporary password to give them. They should change it after signing in.`, { okLabel: 'Reset password', cancelLabel: 'Cancel' }))) return;
+  if (!(await window.whConfirm(`Reset ${workerName}'s password? You'll get a one-time temporary password to give them. When they sign in, WorkHive asks them to set their own.`, { okLabel: 'Reset password', cancelLabel: 'Cancel' }))) return;
   try {
     const { data, error } = await db.functions.invoke('supervisor-reset-password', {
       body: { hive_id: HIVE_ID, target_worker_name: workerName }
@@ -5231,7 +5231,7 @@ async function resetMemberPassword(workerName) {
     // '&amp;' where the password holds '&' - and the worker this flow exists for, the one with no reachable email,
     // typed what the supervisor read out and stayed locked out. Plain text in; the dialog does the escaping.
     await window.whConfirm(
-      `Temporary password for ${workerName}:\n\n${data.temp_password}\n\nGive this to ${workerName} now; it won't be shown again. Ask them to change it after signing in.`,
+      `Temporary password for ${workerName}:\n\n${data.temp_password}\n\nGive this to ${workerName} now; it won't be shown again. When they sign in with it, WorkHive asks them to set their own, and keeps asking until they do.`,
       { okLabel: 'Done', cancelLabel: '' }
     );
     loadAuditLog();  // the reset is audit-logged server-side; refresh the action log

@@ -162,7 +162,12 @@ def main() -> int:
             c3, _ = _invoke("supervisor-reset-password", {"hive_id": HIVE, "target_worker_name": "Wilfredo Malabanan"}, key, wjwt)
             checks.append((c3 == 403, f"LIVE: a WORKER attempting a reset refused (code={c3}, expect 403)"))
         # restore Bryan to the seed default so other tests keep working
-        psql("UPDATE auth.users SET encrypted_password = crypt('test1234', gen_salt('bf')) WHERE email = 'bryangarcia@auth.workhiveph.com'")
+        # ...and clear the reset stamp (GJ M9 J19, 2026-11-05): supervisor-reset-password now marks the account with who
+        # reset it and when, and the home page asks the person to set their own until it is cleared - a probe that put
+        # the password back and left the stamp would leave Bryan told, on every visit, of a reset that never happened
+        psql("UPDATE auth.users SET encrypted_password = crypt('test1234', gen_salt('bf')), "
+             "raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) - 'password_reset_by' - 'password_reset_at' "
+             "WHERE email = 'bryangarcia@auth.workhiveph.com'")
         live_note = " + live edge proof (probe worker restored)"
     else:
         live_note = " (live edge skipped: seeder/runtime unreachable)"

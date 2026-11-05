@@ -96,7 +96,14 @@ serveObserved("supervisor-reset-password", async (req) => {
 
   // 3. set a fresh temp password via the admin API (service role)
   const pw = tempPassword();
-  const { error: upErr } = await admin.auth.admin.updateUserById(tgt.auth_uid, { password: pw });
+  // ★THE WORKER WAS NEVER TOLD TO CHANGE IT (2026-11-05, GJ M9 J19 hand-off 1). The header above promised "changes it
+  // on next sign-in (client nudge)" and nothing read anything: a worker signs in as <username>@auth.workhiveph.com, an
+  // address that receives no mail, so the recovery link (the only change-password path) never reached them and the
+  // temporary password - one their supervisor knows - lived on. The reset now stamps the account with who reset it and
+  // when; index.html reads the stamp and asks for the person's own, and clears it when they set one. user_metadata is
+  // writable by its owner: right for a nudge, never for a security gate, and nothing gates on it.
+  const { error: upErr } = await admin.auth.admin.updateUserById(tgt.auth_uid, { password: pw,
+    user_metadata: { password_reset_by: actor.worker_name, password_reset_at: new Date().toISOString() } });
   if (upErr) return json(502, { error: "reset_failed", message: upErr.message });
 
   // 4. audit-log the privileged action (best-effort; never block the reset on a log failure)
@@ -125,5 +132,5 @@ serveObserved("supervisor-reset-password", async (req) => {
   } catch (_e) { /* push best-effort; the reset stands */ }
 
   return json(200, { ok: true, worker_name: target, temp_password: pw,
-    message: "Temporary password set. Share it with the worker; they should change it after signing in." });
+    message: "Temporary password set. Give it to the worker in person. When they sign in, WorkHive asks them to set their own." });
 });

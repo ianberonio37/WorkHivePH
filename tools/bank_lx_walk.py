@@ -659,6 +659,30 @@ def a_view(layer: str, verdict: tuple[str, str], v: dict, ctx: dict) -> tuple[st
             return "FAIL", ("the page writes and keeps a trail, but nothing in it refuses a write it cannot send or queues it "
                             "with its author - offline, an act could vanish without a name; " + base)
         return "ok", f"a write it cannot send is refused or queued with its author ({g}); " + base
+    # ★LB, CI AND AV UNDER THE WEATHER (2026-11-05, GJ M9 - the first group pages to carry these layers on the A pillar;
+    # every one read UNPROVEN, "no A reading", because the walk took the readings and nothing judged them). Each layer is
+    # asked what IT promises when the reads are refused or the network is gone:
+    if layer == "LB":
+        # load-bearing promises a bounded cost; under refusal the way to break it is to ask again, which the repeat count
+        # above already fails - a page that kept its calls flat while refused kept the bound
+        return "ok", "refused, the page's cost stayed bounded: no request was repeated beyond an ordinary load - " + base
+    if layer == "CI":
+        # release safety promises no uncaught error; a refused read or a lost network is exactly where an unguarded
+        # `data.map` or `.length` throws
+        pg = ctx.get("page") or ""
+        errs = [e.get("msg", "") for e in v.get("pageErrors") or [] if e.get("mode") in ("r429", "offline") and e.get("pg") == pg]
+        if errs:
+            return "FAIL", f"refused or offline, the page threw an error of its own: \"{errs[0][:140]}\"; " + base
+        return "ok", "refused and offline, the page threw no error of its own - " + base
+    if layer == "AV":
+        # model honesty promises a machine's answer is never shown as fact; a page that shows no model output has nothing
+        # to pass off when its reads fail
+        hav = ((v.get("healthy") or {}).get("av") or {})
+        if not hav.get("modelCard") and not ((v.get("av") or {}).get("modelCalls") or 0):
+            return "n/a", "the page shows no model output, so a refused or lost read cannot pass a machine's answer off as fact - " + base
+        if told:
+            return "ok", f"the page shows model output and, refused, says its reads failed (\"{told[:80]}\") - " + base
+        return HOLD, "the page shows model output and said nothing when its reads were refused - read the card under 429 before banking"
     return "UNPROVEN", f"no A reading for layer {layer}"
 
 

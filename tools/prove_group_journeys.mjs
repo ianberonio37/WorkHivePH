@@ -109,6 +109,8 @@ async function session(browser, m, vpName) {
   if (!tok.access_token) throw new Error(`sign-in failed for ${m.user}`);
   await ctx.addInitScript(([t, hive, hiveName, name, r]) => {
     try {
+      // a member the walk SIGNED OUT on this device (J19) stays signed out: the seat's token is not put back
+      if (localStorage.getItem('wh_gj_signedout') === '1') return;
       if (!localStorage.getItem('sb-127-auth-token')) localStorage.setItem('sb-127-auth-token', JSON.stringify(t));
       // a member the walk has removed (J14, G-LEAVE) stands where the product put them, not where the walk seated them
       if (localStorage.getItem('wh_gj_noseat') === '1') return;
@@ -1451,6 +1453,145 @@ RECIPES['G-LEAVE'] = {
       path: 'hive.html',
       prepare: async (R) => { await R.page.evaluate(() => { const b = document.getElementById('btn-toggle-members'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click(); }); await sleep(1500); },
       rec: { table: 'hive_members', id: X.rec.member, where: `and status = 'active'` } };
+  },
+};
+
+// ── J19 · locked out and back to work: the supervisor lets the worker in without handing over a password for good
+// (cast: w = Wilfredo Malabanan, returner, worker; s = Ramon Castillo, supervisor; Baguio Textile Mills)
+// The walk's own fixtures, put back in cleanup: the worker's password returns to the seed's and the reset stamp is
+// cleared (auth.users), so every later walk seats them as before.
+const modalText = (P) => P.page.evaluate(() => {
+  const ok = document.querySelector('[data-wh-modal-ok]');
+  const card = ok && ok.parentElement && ok.parentElement.parentElement;
+  return card ? (card.innerText || '').trim() : '';
+}).catch(() => '');
+async function modalFill(P, value, ms = 8000) {
+  const inp = P.page.locator('[data-wh-modal-ok]').first().locator('xpath=../..').locator('input').first();
+  try { await inp.waitFor({ state: 'visible', timeout: ms }); } catch (_) { return false; }
+  await inp.fill(value);
+  return modalOk(P);
+}
+async function modalCancel(P, ms = 5000) {
+  const c = P.page.locator('[data-wh-modal-cancel]').first();
+  try { await c.waitFor({ state: 'visible', timeout: ms }); } catch (_) { return false; }
+  await c.click().catch(() => c.evaluate((el) => el.click()));
+  await sleep(800);
+  return true;
+}
+const tokenFor = async (user, pw) => {
+  const r = await (await fetch(`${SB}/auth/v1/token?grant_type=password`, { method: 'POST',
+    headers: { apikey: KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: `${user}@auth.workhiveph.com`, password: pw }) })).json().catch(() => ({}));
+  return !!r.access_token;
+};
+// a member signed out on this device: the seat's own token is not put back (wh_gj_signedout, read by session())
+async function signOutHere(P) {
+  await P.page.evaluate(() => {
+    try {
+      localStorage.setItem('wh_gj_signedout', '1');
+      ['sb-127-auth-token', 'wh_last_worker', 'wh_active_hive_id', 'wh_hive_name', 'wh_hive_role'].forEach((k) => localStorage.removeItem(k));
+    } catch (_) { /* storage blocked */ }
+  });
+}
+
+RECIPES.J19 = {
+  1: async (X) => {   // the supervisor resets the worker's password; the worker signs in with it and is told to set their own
+    const { s, w } = X.S;
+    X.restores = [...(X.restores || []), [`${w.m.name}'s password back to the seed's, the reset stamp cleared`,
+      `update auth.users set encrypted_password = extensions.crypt('test1234', extensions.gen_salt('bf')),
+         raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) - 'password_reset_by' - 'password_reset_at'
+       where id = '${w.m.uid}';`]];
+    // the supervisor's own control: the roster's "Reset password" on the worker's row
+    await go(s, 'hive.html');
+    await s.page.evaluate(() => { const b = document.getElementById('btn-toggle-members'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click(); });
+    await sleep(1500);
+    // the row's own "Reset PW" (its handler names the member: resetMemberPassword('<name>'))
+    const pressed = await s.page.evaluate((nm) => {
+      const b = [...document.querySelectorAll('button[onclick^="resetMemberPassword("]')].find((x) => (x.getAttribute('onclick') || '').includes(nm));
+      if (b) { b.scrollIntoView({ block: 'center' }); b.click(); return true; } return false;
+    }, w.m.name);
+    const asked = pressed ? await modalOk(s) : false;            // "Reset <name>'s password?" -> Reset password
+    let shown = '';
+    for (let t = 0; t < 20000 && !/Temporary password for/i.test(shown); t += 1000) { await sleep(1000); shown = await modalText(s); }
+    // the dialog's <p> collapses the message's newlines: "Temporary password for <name>: <pw> Give this to ..."
+    const temp = ((shown.match(/Temporary password for [^:]+:\s*(\S+)\s+Give this/i) || [])[1] || '').trim();
+    await modalOk(s);                                              // Done
+    const stamp = psql(`select coalesce(raw_user_meta_data->>'password_reset_by','') || '|' || coalesce(raw_user_meta_data->>'password_reset_at','') from auth.users where id = '${w.m.uid}'`);
+    X.rec.temp = temp;
+    // the worker, signed out on their own device, signs in through the front door with what they were handed
+    await signOutHere(w);
+    await go(w, 'index.html');
+    await w.page.evaluate(() => { if (typeof openSignIn === 'function') openSignIn(null, true); });
+    await sleep(800);
+    await w.page.fill('#si-username', w.m.user).catch(() => {});
+    await w.page.fill('#si-password', temp).catch(() => {});
+    await w.page.click('#si-btn').catch(() => w.page.evaluate(() => submitSignIn()));
+    let told = '';
+    for (let t = 0; t < 30000 && !/reset your password/i.test(told); t += 1000) { await sleep(1000); told = await modalText(w); }
+    // the worker's own record of the reset is the stamp on their account, read with their OWN session (the trail is the
+    // supervisor's: a worker cannot read hive_audit_log, by design)
+    const wtok = await w.page.evaluate(() => { try { return JSON.parse(localStorage.getItem('sb-127-auth-token') || '{}').access_token || ''; } catch (_) { return ''; } });
+    const me = wtok ? await (await fetch(`${SB}/auth/v1/user`, { headers: { apikey: KEY, Authorization: `Bearer ${wtok}` } })).json().catch(() => ({})) : {};
+    const ownStamp = (me.user_metadata || {}).password_reset_by || '';
+    // "Later": the notice above the day's verdict keeps saying it - the 3G reading below reads that
+    await modalCancel(w);
+    const audit = psql(`select id from hive_audit_log where action = 'supervisor_password_reset' and target_name = '${q(w.m.name)}'
+      and created_at >= '${X.t0}' order by created_at desc limit 1`);
+    X.rec.audit = audit;
+    return { act: { ok: pressed && asked && temp.length >= 8 && stamp.startsWith(s.m.name + '|'),
+        detail: `"Reset password" on ${w.m.name}'s roster row as ${s.m.name} (asked ${asked}); a ${temp.length}-character temporary password shown once; the account stamp reads ${stamp || 'nothing'}` },
+      preRead: told ? { card: told } : null,
+      marker: 'reset your password', markerRx: /set your own/i, path: 'index.html',
+      rec: { table: 'hive_audit_log', id: audit },
+      // F: the account itself carries who reset it (the stamp the page reads), and the reset is a trail line
+      F: () => ({ ok: stamp.startsWith(s.m.name + '|') && !!audit,
+        detail: `auth.users ${w.m.user} user_metadata.password_reset_by|_at = ${stamp || 'none'}; hive_audit_log supervisor_password_reset ${audit || 'MISSING'}` }),
+      // I: the worker reads the reset on their own account; the supervisor reads it in the trail; another hive reads neither
+      I: (witness) => {
+        const supRows = audit ? Number(asUser(s.m.uid, `select count(*) from hive_audit_log where id = '${q(audit)}'`)) : 0;
+        // the teeth fault "a foreign member let in" puts someone INSIDE the boundary in the witness's place: here the trail's
+        // own reader, so a boundary that admitted them would read 1 row and fail
+        const reader = X.faults.has('foreign-let-in') ? s.m : witness;
+        const forRows = audit ? Number(asUser(reader.uid, `select count(*) from hive_audit_log where id = '${q(audit)}'`)) : -1;
+        return { ok: ownStamp === s.m.name && supRows >= 1 && forRows === 0, worker_reads_own_stamp: ownStamp || null,
+          supervisor_trail_rows: supRows, foreign: witness.user, foreign_rows: forRows };
+      } };
+  },
+  2: async (X) => {   // the worker sets their own, and their open work is still theirs
+    const { w } = X.S;
+    await go(w, 'index.html');
+    const box = await w.page.waitForSelector('#oh-pwreset-notice button', { timeout: 20000 }).catch(() => null);
+    if (box) await box.click().catch(() => {});
+    const mine = `GJ19-${Date.now().toString(36)}`;
+    const a = await modalFill(w, mine);                            // the new password
+    const b = a ? await modalFill(w, mine) : false;                // once more
+    let said = '';
+    for (let t = 0; t < 20000 && !/password changed/i.test(said); t += 1000) { await sleep(1000); said = await modalText(w); }
+    await modalOk(w);
+    const stamp = psql(`select coalesce(raw_user_meta_data->>'password_reset_by','') from auth.users where id = '${w.m.uid}'`);
+    const newOk = await tokenFor(w.m.user, mine);
+    const tempOk = X.rec.temp ? await tokenFor(w.m.user, X.rec.temp) : true;
+    await sleep(500);
+    const noticeGone = await (async () => { await go(w, 'index.html'); await sleep(2500); return !(await w.page.$('#oh-pwreset-notice')); })();
+    // their open work, as they left it before the reset
+    const job = psql(`select l.id || '|' || coalesce(l.machine, '') || '|' || coalesce(l.problem, '') from logbook l
+      where l.hive_id = '${HIVE_ID}' and l.worker_name = '${q(w.m.name)}' and l.status = 'Open' order by l.created_at desc limit 1`);
+    const [jid, jmach, jprob] = job.split('|');
+    const untouched = jid ? psql(`select (updated_at < '${X.t0}')::text from logbook where id = '${q(jid)}'`) : '';
+    return { act: { ok: !!box && a && b && /password changed/i.test(said) && stamp === '' && newOk && !tempOk && noticeGone,
+        detail: `"Set my password" on the home notice: set (${said.replace(/\s+/g, ' ').slice(0, 80) || 'no answer'}); stamp now "${stamp}"; the new password signs in ${newOk}, the temporary one ${tempOk}; the notice gone on reload ${noticeGone}` },
+      // whose it is, on the worker's own screen: the job sits under "My open jobs" (or carries their name)
+      marker: (jmach || jprob || '').slice(0, 40) || null, whoRx: new RegExp('my open jobs|' + reEsc(w.m.name.split(' ')[0]), 'i'),
+      path: 'logbook.html?status=Open',
+      rec: { table: 'logbook', id: jid, where: `and worker_name = '${q(w.m.name)}' and status = 'Open'` },
+      F: () => ({ ok: !!jid && untouched === 'true', detail: `${w.m.name}'s open entry ${jid || 'NONE'} still theirs, not written since the reset began: ${untouched}` }) };
+  },
+  3: async (X) => {   // the reset is in the trail with who did it - read by the supervisor
+    const { s, w } = X.S;
+    return { act: { ok: !!X.rec.audit, detail: `hive_audit_log ${X.rec.audit || 'MISSING'}: supervisor_password_reset of ${w.m.name} by ${s.m.name}` },
+      marker: 'Reset member password', markerRx: new RegExp(reEsc(w.m.name.split(' ')[0]), 'i'),
+      whoRx: new RegExp(reEsc(s.m.name.split(' ')[0]), 'i'), path: 'audit-log.html',
+      rec: { table: 'hive_audit_log', id: X.rec.audit } };
   },
 };
 
