@@ -6100,17 +6100,9 @@ document.getElementById('modal').addEventListener('click', (e) => {
 // ────────────────────────────────────────────
 // DELETE
 // ────────────────────────────────────────────
-/* T50/T27 (2026-08-28): this wrapper used to ASK THE SAME QUESTION AGAIN and then announce success
-   whatever happened. deleteEntry already confirms, already re-renders, already closes the modal,
-   and already speaks honestly on both failure paths - a refused write ("The delete did not go
-   through. The entry is still there.") and an RLS-empty result ("you can only delete your own
-   entries."). Wrapping it in a second confirm made the person answer twice, and the unconditional
-   toast below OVERWROTE those honest failures a moment later with "Entry deleted. Any XP it earned
-   was reversed." - so the one flow that must never lie about whether data is gone announced a
-   deletion that had just been refused, and a reversal that never happened. */
-async function confirmDelete(id) {
-  await deleteEntry(id);
-}
+/* The entry view's Delete calls deleteEntry directly (2026-11-05): deleteEntry confirms, re-renders, closes the modal
+   and speaks honestly on both failure paths. The confirmDelete wrapper that once stood here asked the same question a
+   second time and then announced success whatever happened (T50/T27, 2026-08-28) - never wrap it again. */
 
 // ────────────────────────────────────────────
 // FORM SUBMIT

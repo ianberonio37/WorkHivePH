@@ -180,11 +180,23 @@ async function probePage(browser, entry) {
       const ctas = await page.evaluate(FIND_CTAS);
       walked[vp.name] = { ctas: ctas.length, byFill: ctas.filter((c) => c.by === 'fill').length };
       for (const c of ctas) {
+        // ★A CTA IS FOUND AGAIN BY WHAT IT IS, NOT BY WHERE IT WAS (2026-11-05, the M7 push board: 7 index CTAs read
+        // "dead-click" and every one worked for a person - "See How It Works" scrolled, both sign-up buttons opened the
+        // form). Each CTA is tagged by its position among ALL links and buttons, and the re-arm after a navigation tags by
+        // position again - so once an earlier control leaves the page for good (the consent banner's "Allow", whose
+        // choice is remembered), every later CTA's position drops by two and the walk pressed the wrong control, or
+        // nothing ("gone"). The read-the-control-after-pressing-it class again, in its index costume. After a re-arm the
+        // CTA is looked up by its own text and href; its first tag stands only while it is still that control.
+        const idx = await page.evaluate(([t, h, i]) => {
+          const same = [...document.querySelectorAll('[data-cta-probe]')]
+            .find((e) => (e.innerText || '').trim().slice(0, 40) === t && e.getAttribute('href') === h);
+          return same ? Number(same.getAttribute('data-cta-probe')) : i;
+        }, [c.text, c.href, c.idx]).catch(() => c.idx);
         // Re-check inert AFTER the reveal gesture: still inert = stuck, and that is the record.
         const stillInert = await page.evaluate((i) => {
           const el = document.querySelector(`[data-cta-probe="${i}"]`);
           return el ? !!(el.inert || (el.closest && el.closest('[inert]'))) : null;
-        }, c.idx);
+        }, idx);
         if (stillInert) {
           // One more chance: the sticky bar re-inerts near the top; probe at depth.
           await page.evaluate(() => window.scrollTo(0, Math.min(document.body.scrollHeight, innerHeight * 2)));
@@ -192,13 +204,13 @@ async function probePage(browser, entry) {
           const inertAtDepth = await page.evaluate((i) => {
             const el = document.querySelector(`[data-cta-probe="${i}"]`);
             return el ? !!(el.inert || (el.closest && el.closest('[inert]'))) : null;
-          }, c.idx);
+          }, idx);
           if (inertAtDepth) {
             results.push({ page: entry.slug, vp: vp.name, cta: c.text || c.sel, verdict: 'inert-stuck', dead: true });
             continue;
           }
         }
-        const q = await consequenceOfClick(page, c.idx);
+        const q = await consequenceOfClick(page, idx);
         const alive = q.gone === true ? false
           : (q.navigated || q.modal || q.scrolled || q.focused || (q.mutations || 0) >= 3);
         results.push({ page: entry.slug, vp: vp.name, cta: c.text || c.sel, verdict: alive ? 'alive' : 'dead-click', dead: !alive, q });

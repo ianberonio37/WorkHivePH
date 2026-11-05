@@ -744,5 +744,11 @@
   "20261030000015_project_rollups_every_item.sql": "ec0f27765586637590ce8b29ab67424b9856dbcdb3f9bc221e98e24adcd01591",
   "20261031000001_a_dispute_has_a_screen.sql": "cdc4214ad48e8f1f8a6323e1dfbd2f472d4f5040fd244d9bb533f42653f2ab4f",
   "20261031000002_the_counters_grant_is_written.sql": "e18bb2cbb0d169b1a041c21ebb4b16235a6d89b44ad1eb701f0e1ab5cc740776",
-  "20261103000001_register_ed_standards.sql": "f4cdaf45c2a168580ef6cf7761af1ad6a587be5b97fe365be98f2f3bbf361a36"
+  "20261103000001_register_ed_standards.sql": "f4cdaf45c2a168580ef6cf7761af1ad6a587be5b97fe365be98f2f3bbf361a36",
+  "20261104000001_a_supervisor_can_move_a_work_order.sql": "0ffd61c508422148356ed2855c56a9c7e6f4b8d8b180511ae3c6ef64759d3e75",
+  "20261104000002_the_assignee_moves_their_job_forward.sql": "3fe15fd3e73b8dce043895256cba24c7c54852c0c56cd94456b43ed96113ca5c",
+  "20261104000003_a_decision_says_who_and_where.sql": "03724ea973d0b8dbdf15a2b1a266fa3add8b2aab40eaa0fd33bf3f213f767fee",
+  "20261105000001_a_machine_that_reports_is_not_an_anomaly.sql": "c1c3b287233f6dff55b7568ba00cc8b6c367406c6d73e6b4c765b4bfdcffd516",
+  "20261105000002_a_sensor_anomaly_names_its_machine.sql": "23ad2206bfc22031932c039c440300aaf75871644a2bd9d25006cb000a9f8b28",
+  "20261105000003_a_push_opens_in_its_hive.sql": "91a866413a2d8f185c6173d55b0102ad54d6606c6edaa0b7031fdcc94bf66942"
 }

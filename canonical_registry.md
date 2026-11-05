@@ -19,7 +19,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 |---|---:|---|---|---|---|---|
 | `hive_audit_log` | 9 | no | yes | alert-hub.html, asset-hub.html, audit-log.html, community.html ... | alert-hub.html, asset-hub.html, community.html ... | export-hive-data, supervisor-reset-password |
 | `automation_log` | 6 | yes | no | alert-hub.html, report-sender.html | — | batch-risk-scoring, benchmark-compute, cmms-push-completion ... |
-| `asset_nodes` | 29 | yes | yes | asset-hub.html, assistant.html, hive.html, integrations.html ... | asset-hub.html, integrations.html, inventory.html ... | — |
+| `asset_nodes` | 29 | yes | yes | alert-hub.html, asset-hub.html, assistant.html, hive.html ... | asset-hub.html, integrations.html, inventory.html ... | — |
 | `logbook` | 36 | yes | no | dayplanner.html, hive.html, integrations.html, logbook.html ... | dayplanner.html, hive.html, integrations.html ... | cmms-sync, cmms-webhook-receiver |
 | `hive_members` | 7 | yes | no | asset-hub.html, community.html, hive.html, inventory.html ... | hive.html | ai-eval-runner |
 | `pm_completions` | 10 | yes | no | asset-hub.html, hive.html, logbook.html, pm-scheduler.html ... | logbook.html, pm-scheduler.html | — |
@@ -624,7 +624,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `achievements.html` | achievement_xp_log, v_service_provider_truth, v_worker_achievements_truth, v_worker_truth | — | my_recent_xp, my_service_provider_ids | — |
 | `agentic-rag-observability.html` | agentic_rag_traces | — | — | — |
 | `ai-quality.html` | — | — | hive_ai_usage_30d | — |
-| `alert-hub.html` | alert_dismissals, amc_briefings, anomaly_signals, automation_log ... | alert_dismissals, amc_briefings, anomaly_signals ... | compute_anomaly_signals | analytics-orchestrator |
+| `alert-hub.html` | alert_dismissals, amc_briefings, anomaly_signals, asset_nodes ... | alert_dismissals, amc_briefings, anomaly_signals ... | compute_anomaly_signals | analytics-orchestrator |
 | `all_figures.html` | — | — | — | — |
 | `analytics-report.html` | v_hives_truth | — | — | — |
 | `analytics.html` | analytics_snapshots | — | get_pm_compliance_smrp, get_pm_ontime_delivery | batch-risk-scoring |

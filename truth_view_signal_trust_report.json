@@ -1,6 +1,6 @@
 {
   "summary": {
-    "view_column_pairs": 330,
+    "view_column_pairs": 333,
     "at_risk": 0,
     "review": 9,
     "files_scanned": 354
@@ -401,6 +401,19 @@
     {
       "view": "v_anomaly_truth",
       "column": "computed_at",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "evidence",
       "consumers": [
         {
           "file": "alert-hub.html",
@@ -975,6 +988,11 @@
       "view": "v_asset_truth",
       "column": "name",
       "consumers": [
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "search-overlay.js",
           "shape": "direct",
@@ -3081,6 +3099,11 @@
       "view": "v_logbook_truth",
       "column": "parts_used",
       "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "assistant.html",
           "shape": "direct",
@@ -6297,6 +6320,11 @@
       "column": "asset_id",
       "consumers": [
         {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "index.html",
           "shape": "direct",
           "smells": []
@@ -6327,6 +6355,11 @@
       "view": "v_sensor_truth",
       "column": "parameter",
       "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "asset-hub.html",
           "shape": "direct",
@@ -6361,8 +6394,26 @@
     },
     {
       "view": "v_sensor_truth",
+      "column": "reading_id",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_sensor_truth",
       "column": "recorded_at",
       "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "asset-hub.html",
           "shape": "direct",
@@ -6379,8 +6430,31 @@
     },
     {
       "view": "v_sensor_truth",
+      "column": "unit",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "asset-hub.html",
+          "shape": "mapped_enum",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_sensor_truth",
       "column": "value",
       "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "asset-hub.html",
           "shape": "direct",

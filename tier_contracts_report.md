@@ -6,12 +6,12 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 
 | Tier | Registry file | Registered | Discovered | Pending |
 |---|---|---:|---:|---:|
-| F (Fuel) | `canonical/capture_contracts.json` | 494 | 276 | 59 |
+| F (Fuel) | `canonical/capture_contracts.json` | 494 | 278 | 61 |
 | E (Engine) | `canonical/formula_contracts.json` | 24 | 23 | 20 |
 | B (Brain) | `canonical/agent_contracts.json` | 7 | 114 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
-## Tier F (Fuel) — pending registrations (59)
+## Tier F (Fuel) — pending registrations (61)
 
 - `asset-linker-find`
 - `cl-text`

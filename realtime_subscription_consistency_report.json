@@ -9,12 +9,12 @@
     {
       "page": "index.html",
       "reads": [
-        "asset_nodes",
         "early_access_emails",
         "pm_assets",
         "pm_completions",
         "v_alert_truth",
         "v_amc_truth",
+        "v_asset_truth",
         "v_hives_truth",
         "v_inventory_items_truth",
         "v_logbook_truth",
@@ -627,12 +627,12 @@
         {
           "table": "amc_briefings",
           "allowed": false,
-          "offset": 87380
+          "offset": 87392
         },
         {
           "table": "anomaly_signals",
           "allowed": false,
-          "offset": 112111
+          "offset": 113181
         }
       ],
       "drift": []

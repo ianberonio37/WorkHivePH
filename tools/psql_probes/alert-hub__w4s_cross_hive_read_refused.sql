@@ -1,5 +1,5 @@
 -- cross_hive_read_refused (alert-hub, P-B, generated 2026-09-05 by tools/gen_cross_hive_read_recipes.py): every
--- hive-scoped table this page reads (alert_dismissals, amc_briefings, automation_log, hive_audit_log, parts_staging_recommendations, v_alert_truth, v_inventory_items_truth, v_pm_scope_items_truth, v_risk_truth) must refuse a foreign hive in the DATABASE. RLS USING
+-- hive-scoped table this page reads (alert_dismissals, amc_briefings, asset_nodes, automation_log, hive_audit_log, parts_staging_recommendations, v_alert_truth, v_inventory_items_truth, v_pm_scope_items_truth, v_risk_truth, v_sensor_truth) must refuse a foreign hive in the DATABASE. RLS USING
 -- clauses FILTER rather than raise, so the probe counts rows as a member of exactly one hive: a foreign hive with
 -- rows reads 0, the member's own hive reads > 0 (the control). Fixtures are chosen live; a table with rows in
 -- fewer than two hives reports 'n/a' and is excluded from the expectations by the generator.
@@ -9,6 +9,9 @@
 -- expect: amc_briefings_fixture \| t
 -- expect: amc_briefings_foreign_rows \| 0
 -- expect: amc_briefings_own_rows_gt0 \| t
+-- expect: asset_nodes_fixture \| t
+-- expect: asset_nodes_foreign_rows \| 0
+-- expect: asset_nodes_own_rows_gt0 \| t
 -- expect: automation_log_fixture \| t
 -- expect: automation_log_foreign_rows \| 0
 -- expect: automation_log_own_rows_gt0 \| t
@@ -30,6 +33,9 @@
 -- expect: risk_fixture \| t
 -- expect: risk_foreign_rows \| 0
 -- expect: risk_own_rows_gt0 \| t
+-- expect: sensor_fixture \| t
+-- expect: sensor_foreign_rows \| 0
+-- expect: sensor_own_rows_gt0 \| t
 
 CREATE TEMP TABLE _fx_alert_dismissals AS
 SELECT m.auth_uid AS me, m.hive_id AS mine,
@@ -71,6 +77,27 @@ SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims', json_build_object('sub', (SELECT me FROM _fx_amc_briefings)::text, 'role','authenticated')::text, true);
 SELECT 'amc_briefings_foreign_rows | ' || (SELECT count(*) FROM amc_briefings WHERE hive_id = (SELECT foreign_hive FROM _fx_amc_briefings));
 SELECT 'amc_briefings_own_rows_gt0 | ' || ((SELECT count(*) FROM amc_briefings WHERE hive_id = (SELECT mine FROM _fx_amc_briefings)) > 0);
+ROLLBACK;
+
+CREATE TEMP TABLE _fx_asset_nodes AS
+SELECT m.auth_uid AS me, m.hive_id AS mine,
+       (SELECT x.hive_id FROM asset_nodes x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
+          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active')
+        GROUP BY x.hive_id ORDER BY count(*) DESC LIMIT 1) AS foreign_hive
+FROM hive_members m
+WHERE m.status = 'active'
+  AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
+  AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
+  AND EXISTS (SELECT 1 FROM asset_nodes x WHERE x.hive_id = m.hive_id)
+ORDER BY (m.role = 'supervisor') DESC, (SELECT count(*) FROM asset_nodes x WHERE x.hive_id = m.hive_id AND x.auth_uid = m.auth_uid) DESC, m.auth_uid
+LIMIT 1;
+GRANT SELECT ON _fx_asset_nodes TO authenticated;
+SELECT 'asset_nodes_fixture | ' || ((SELECT me FROM _fx_asset_nodes) IS NOT NULL AND (SELECT foreign_hive FROM _fx_asset_nodes) IS NOT NULL);
+BEGIN;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims', json_build_object('sub', (SELECT me FROM _fx_asset_nodes)::text, 'role','authenticated')::text, true);
+SELECT 'asset_nodes_foreign_rows | ' || (SELECT count(*) FROM asset_nodes WHERE hive_id = (SELECT foreign_hive FROM _fx_asset_nodes));
+SELECT 'asset_nodes_own_rows_gt0 | ' || ((SELECT count(*) FROM asset_nodes WHERE hive_id = (SELECT mine FROM _fx_asset_nodes)) > 0);
 ROLLBACK;
 
 CREATE TEMP TABLE _fx_automation_log AS
@@ -218,4 +245,25 @@ SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims', json_build_object('sub', (SELECT me FROM _fx_risk)::text, 'role','authenticated')::text, true);
 SELECT 'risk_foreign_rows | ' || (SELECT count(*) FROM v_risk_truth WHERE hive_id = (SELECT foreign_hive FROM _fx_risk));
 SELECT 'risk_own_rows_gt0 | ' || ((SELECT count(*) FROM v_risk_truth WHERE hive_id = (SELECT mine FROM _fx_risk)) > 0);
+ROLLBACK;
+
+CREATE TEMP TABLE _fx_sensor AS
+SELECT m.auth_uid AS me, m.hive_id AS mine,
+       (SELECT x.hive_id FROM v_sensor_truth x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
+          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active')
+        GROUP BY x.hive_id ORDER BY count(*) DESC LIMIT 1) AS foreign_hive
+FROM hive_members m
+WHERE m.status = 'active'
+  AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
+  AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
+  AND EXISTS (SELECT 1 FROM v_sensor_truth x WHERE x.hive_id = m.hive_id)
+ORDER BY (m.role = 'supervisor') DESC, m.auth_uid
+LIMIT 1;
+GRANT SELECT ON _fx_sensor TO authenticated;
+SELECT 'sensor_fixture | ' || ((SELECT me FROM _fx_sensor) IS NOT NULL AND (SELECT foreign_hive FROM _fx_sensor) IS NOT NULL);
+BEGIN;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims', json_build_object('sub', (SELECT me FROM _fx_sensor)::text, 'role','authenticated')::text, true);
+SELECT 'sensor_foreign_rows | ' || (SELECT count(*) FROM v_sensor_truth WHERE hive_id = (SELECT foreign_hive FROM _fx_sensor));
+SELECT 'sensor_own_rows_gt0 | ' || ((SELECT count(*) FROM v_sensor_truth WHERE hive_id = (SELECT mine FROM _fx_sensor)) > 0);
 ROLLBACK;

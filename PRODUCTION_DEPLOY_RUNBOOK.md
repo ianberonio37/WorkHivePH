@@ -124,6 +124,20 @@ tree's code.**
 `git push origin master` (the full board runs in the pre-push hook); then the public smoke at `EXPECT_SW=v590`. No
 sitemap page changed except `index.html`, so IndexNow is sent the home URL alone.
 
+**The first push's board (105 min, 898 PASS) gave four reds, each at its cause:**
+- **Seven "dead" CTAs on the home page that all worked.** Read as a visitor they did: "See How It Works" scrolled,
+  both sign-up buttons opened the form in place, "Install the app" scrolled to its instructions. The CTA prover
+  (`prove_cta_activation.mjs`) tagged each CTA by its position among ALL links and buttons, and its re-arm after a
+  navigation tagged by position again. Once the consent banner's "Allow" (orange, so a CTA by fill) was pressed, its
+  choice was remembered and the banner never came back, so every later CTA moved down two places. The walk pressed
+  the wrong control, or nothing (`gone`). A CTA is now found again by its own text and href. Index went from
+  7 dead to 0 of 11, and the conversion bank from 6 owed rows to 20 of 20 green.
+- **logbook.html was newer than `sw.js`.** The gate-fix commit changed logbook after the v590 bump. v590 has not
+  shipped (production serves v589), so its comment now records those changes, and v590 stays.
+- **An orphaned function (14 -> 15):** `confirmDelete`, which nothing called once Delete went to `deleteEntry`.
+  Removed.
+- **A stale substrate chunk:** rebuilt.
+
 ### The touched-gate check (2026-11-05) - 17 reds, each at its cause
 `--rerun-failed --fast` (660 gates; the full mode was stopped after 85 min on the board-only browser gates, which the
 push runs anyway) gave 17 reds. None was a product defect the walks had missed; each was a registry, a ratchet or an

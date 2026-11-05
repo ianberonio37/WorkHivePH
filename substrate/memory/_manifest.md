@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1089-files
-source_sha: 0d942641dbb51bbb
+source: memory-curated:1090-files
+source_sha: a1bd5a3da9fc991e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1089 durable topic files)
+## memory · curated auto-memory (1090 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=690 · project=306 · reference=93
+**By type:** feedback=691 · project=306 · reference=93
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -91,6 +91,7 @@ Entries (name · type · sha):
 - `feedback_a_gate_read_a_month_old_reading_and_called_it_D0` · feedback · 1c2e1785edfaa753
 - `feedback_a_gate_reddened_because_the_code_improved` · feedback · 32bf6e2608eaa28a
 - `feedback_a_gate_that_exhausts_its_own_rate_budget` · feedback · 225cf26e51228b75
+- `feedback_a_gate_that_walks_a_directory_names_no_file` · feedback · dd643cd1d5bc447d
 - `feedback_a_gates_blind_spot_is_a_green_light` · feedback · d721288e71ccc08f
 - `feedback_a_gates_reach_is_part_of_its_rule` · feedback · 7d0c6269c3685f6d
 - `feedback_a_generated_catalog_hides_its_own_distribution_bug` · feedback · 641a70eab7a44d01
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_provenance_user_voice_not_internals` · feedback · d625e82bd6e7f509
 - `feedback_psql_autocommit_made_my_teeth_test_permanent` · feedback · 30ac6a1f9cb5ef4c
 - `feedback_pyapi_validators_fail_in_gate_pass_standalone` · feedback · 1ff46ad3f053ea43
-- `feedback_pygame_wmi_hang` · feedback · f4bfb92b4be3af86
-- … +589 more (all included in the fingerprint)
+- … +590 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

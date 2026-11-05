@@ -1,54 +1,6 @@
 {
-  "turn": 502,
+  "turn": 503,
   "history": [
-    {
-      "turn": 493,
-      "ts": "2026-10-28T00:48:46",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 3572,
-          "to": 3572,
-          "delta": 0
-        },
-        "L0_validators_with_baseline": {
-          "from": 217,
-          "to": 217,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [],
-      "L0_regressions_quarantined": [],
-      "env_up": null,
-      "promotions": {
-        "rule_candidates": 13,
-        "sentinel_candidates": 2,
-        "tracked_total": 15,
-        "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
     {
       "turn": 494,
       "ts": "2026-10-28T01:51:54",
@@ -529,6 +481,60 @@
         "top_rule": "rule:html:loads_utils_js",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
+    },
+    {
+      "turn": 503,
+      "ts": "2026-11-05T14:11:10",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 3551,
+          "to": 3550,
+          "delta": -1
+        },
+        "L0_validators_with_baseline": {
+          "from": 229,
+          "to": 229,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [
+        {
+          "validator": "event_listener_cleanup",
+          "from": 5,
+          "to": 4
+        }
+      ],
+      "L0_regressions": [],
+      "L0_regressions_quarantined": [],
+      "env_up": null,
+      "promotions": {
+        "rule_candidates": 13,
+        "sentinel_candidates": 2,
+        "tracked_total": 15,
+        "below_threshold": 0,
+        "top_rule": "rule:html:loads_utils_js",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
     }
   ],
   "snapshots": {
@@ -646,7 +652,7 @@
         "episodic_memory_wiring": 0,
         "error_capture": 0,
         "error_remedy": 0,
-        "event_listener_cleanup": 5,
+        "event_listener_cleanup": 4,
         "export_value_contract": 0,
         "external_link_rel": 0,
         "extractability": 0,
@@ -781,7 +787,7 @@
         "view_select_star": 0,
         "viewport_user_scalable": 0
       },
-      "total_baseline_count": 3551,
+      "total_baseline_count": 3550,
       "validators_with_baseline": 229,
       "higher_is_better": [
         "ai_seam_coverage",
@@ -819,92 +825,92 @@
     "rule:html:loads_utils_js": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 502,
-      "seen_turns": 446
+      "last_seen_turn": 503,
+      "seen_turns": 447
     },
     "rule:seeder:accepts_client_param": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 502,
-      "seen_turns": 446
+      "last_seen_turn": 503,
+      "seen_turns": 447
     },
     "rule:validator:has_main_guard": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 502,
-      "seen_turns": 446
+      "last_seen_turn": 503,
+      "seen_turns": 447
     },
     "sentinel:user_facing_jargon": {
       "kind": "sentinel",
       "first_seen_turn": 109,
-      "last_seen_turn": 502,
-      "seen_turns": 394
+      "last_seen_turn": 503,
+      "seen_turns": 395
     },
     "rule:html:has_main_landmark": {
       "kind": "rule",
       "first_seen_turn": 142,
-      "last_seen_turn": 502,
-      "seen_turns": 361
+      "last_seen_turn": 503,
+      "seen_turns": 362
     },
     "rule:edge:uses_error_envelope": {
       "kind": "rule",
       "first_seen_turn": 315,
-      "last_seen_turn": 502,
-      "seen_turns": 188
+      "last_seen_turn": 503,
+      "seen_turns": 189
     },
     "rule:edge:sets_content_type_json": {
       "kind": "rule",
       "first_seen_turn": 315,
-      "last_seen_turn": 502,
-      "seen_turns": 188
+      "last_seen_turn": 503,
+      "seen_turns": 189
     },
     "rule:edge:imports_supabase_esm": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 502,
-      "seen_turns": 148
+      "last_seen_turn": 503,
+      "seen_turns": 149
     },
     "rule:edge:reads_supabase_url_env": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 502,
-      "seen_turns": 148
+      "last_seen_turn": 503,
+      "seen_turns": 149
     },
     "rule:edge:reads_service_role_env": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 502,
-      "seen_turns": 148
+      "last_seen_turn": 503,
+      "seen_turns": 149
     },
     "rule:edge:handles_options": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 502,
-      "seen_turns": 80
+      "last_seen_turn": 503,
+      "seen_turns": 81
     },
     "rule:edge:uses_get_cors_headers": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 502,
-      "seen_turns": 80
+      "last_seen_turn": 503,
+      "seen_turns": 81
     },
     "rule:edge:has_try_catch": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 502,
-      "seen_turns": 80
+      "last_seen_turn": 503,
+      "seen_turns": 81
     },
     "rule:html:has_details_toggle": {
       "kind": "rule",
       "first_seen_turn": 473,
-      "last_seen_turn": 502,
-      "seen_turns": 30
+      "last_seen_turn": 503,
+      "seen_turns": 31
     },
     "sentinel:i18n_family_consistency": {
       "kind": "sentinel",
       "first_seen_turn": 483,
-      "last_seen_turn": 502,
-      "seen_turns": 20
+      "last_seen_turn": 503,
+      "seen_turns": 21
     }
   }
 }

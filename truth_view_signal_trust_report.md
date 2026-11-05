@@ -6,7 +6,7 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **330**
+- View/column pairs scanned: **333**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
 - Files scanned: **354**
@@ -65,6 +65,7 @@ re-deriving what the canonical view should expose:
 | `v_anomaly_truth` | `acknowledged_by` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `composite_score` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `computed_at` | ✅ OK | 1 | direct |
+| `v_anomaly_truth` | `evidence` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `machine` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `resolved_at` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `resolved_by` | ✅ OK | 1 | direct |
@@ -95,7 +96,7 @@ re-deriving what the canonical view should expose:
 | `v_asset_truth` | `location` | ✅ OK | 3 | direct |
 | `v_asset_truth` | `manufacturer` | ✅ OK | 3 | direct |
 | `v_asset_truth` | `model` | ✅ OK | 3 | direct |
-| `v_asset_truth` | `name` | ✅ OK | 10 | direct |
+| `v_asset_truth` | `name` | ✅ OK | 11 | direct |
 | `v_asset_truth` | `parent_id` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `pm_asset_id` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `pm_completed_count` | ✅ OK | 2 | direct |
@@ -182,7 +183,7 @@ re-deriving what the canonical view should expose:
 | `v_logbook_truth` | `loto_applied` | ✅ OK | 1 | mapped_enum |
 | `v_logbook_truth` | `machine` | ✅ OK | 23 | direct |
 | `v_logbook_truth` | `maintenance_type` | ✅ OK | 20 | direct |
-| `v_logbook_truth` | `parts_used` | ✅ OK | 2 | direct |
+| `v_logbook_truth` | `parts_used` | ✅ OK | 3 | direct |
 | `v_logbook_truth` | `permit_reference` | ✅ OK | 1 | mapped_enum |
 | `v_logbook_truth` | `problem` | ✅ OK | 14 | direct |
 | `v_logbook_truth` | `production_output` | ✅ OK | 1 | direct |
@@ -315,12 +316,14 @@ re-deriving what the canonical view should expose:
 | `v_risk_truth` | `risk_level` | ✅ OK | 8 | direct |
 | `v_risk_truth` | `risk_score` | ✅ OK | 8 | direct |
 | `v_risk_truth` | `top_factors` | ✅ OK | 7 | direct |
-| `v_sensor_truth` | `asset_id` | ✅ OK | 1 | direct |
+| `v_sensor_truth` | `asset_id` | ✅ OK | 2 | direct |
 | `v_sensor_truth` | `is_anomaly` | ✅ OK | 2 | direct |
-| `v_sensor_truth` | `parameter` | ✅ OK | 2 | direct |
+| `v_sensor_truth` | `parameter` | ✅ OK | 3 | direct |
 | `v_sensor_truth` | `quality_flag` | ✅ OK | 2 | direct |
-| `v_sensor_truth` | `recorded_at` | ✅ OK | 2 | direct |
-| `v_sensor_truth` | `value` | ✅ OK | 1 | direct |
+| `v_sensor_truth` | `reading_id` | ✅ OK | 1 | direct |
+| `v_sensor_truth` | `recorded_at` | ✅ OK | 3 | direct |
+| `v_sensor_truth` | `unit` | ✅ OK | 2 | direct, mapped_enum |
+| `v_sensor_truth` | `value` | ✅ OK | 2 | direct |
 | `v_service_catalog_truth` | `category` | ✅ OK | 2 | direct |
 | `v_service_credit_ledger_truth` | `amount` | ✅ OK | 1 | direct |
 | `v_service_credit_ledger_truth` | `entry_type` | ✅ OK | 1 | direct |

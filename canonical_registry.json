@@ -2359,6 +2359,7 @@
       "realtime_published": true,
       "comment": "Asset Brain canonical graph node. ISO 14224 hierarchy. Links optionally to legacy assets.id (text) and pm_assets.id (uuid) so existing data stays intact.",
       "read_by_surfaces": [
+        "alert-hub.html",
         "asset-hub.html",
         "assistant.html",
         "hive.html",
@@ -6377,7 +6378,6 @@
     "v_asset_truth": {
       "defined_in": "20260509000002_v_asset_truth.sql",
       "read_by_surfaces": [
-        "alert-hub.html",
         "asset-hub.html",
         "pm-scheduler.html"
       ],
@@ -11361,12 +11361,12 @@
         "alert_dismissals",
         "amc_briefings",
         "anomaly_signals",
+        "asset_nodes",
         "automation_log",
         "hive_audit_log",
         "parts_staging_recommendations",
         "v_alert_truth",
         "v_anomaly_truth",
-        "v_asset_truth",
         "v_inventory_items_truth",
         "v_pm_scope_items_truth",
         "v_risk_truth",
@@ -11384,7 +11384,7 @@
       "edge_fns_invoked": [
         "analytics-orchestrator"
       ],
-      "size_kb": 199.3
+      "size_kb": 200.3
     },
     "analytics-report.html": {
       "tables_read": [
@@ -11736,7 +11736,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 551.4
+      "size_kb": 551.0
     },
     "marketplace-admin.html": {
       "tables_read": [
