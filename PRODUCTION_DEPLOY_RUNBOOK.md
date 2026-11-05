@@ -60,7 +60,26 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
-# M8 release (2026-11-05) - the record's hand-offs (IN PROGRESS)
+# M8 release (2026-11-05) - the record's hand-offs ✅ DEPLOYED
+
+> **✅ M8 DEPLOYED 2026-11-05: the record's hand-offs are in production.** Production serves `workhive-shell-v591` from
+> `945b6084` (`fd051338..945b6084`).
+>
+> - **Leg A, 5 migrations:** the dry run listed exactly `20261105000004`-`08`; pushed; the production ledger reads them.
+>   No function body carries a CR; anon may execute none of the five functions, and authenticated only the two reads
+>   (`my_recent_removal`, `auth_own_history_names`). The preconditions were read on production first: `service_offers`
+>   had no trigger, and its only two writers (`accept_service_request`, `select_quote`) already set the system flag the
+>   new guard honours.
+> - **Leg B, 1 function:** `analytics-orchestrator` deployed; `verify_function_builds.py --target prod` read 61/62 before
+>   (only that function) and 62/62 after.
+> - **Leg C:** the full board (79 min, 900 PASS) gave one red and one warning, fixed in `945b6084`. A gate read "derives
+>   from the session" off the policy's spelling, so `ach_log_owner_read` moving to `auth_own_history_names()` read as
+>   forgeable; it now asks what each called function does. Four migrations had been edited before production applied
+>   them (the anon revokes), recorded beside the `20261021000002` precedent. Before the commit, the psql suite read
+>   the new reply guard as a breach: a trigger that pins `hive_id` touches the row and moves nothing, so the write-authz
+>   generator now asks where the row sits. 214/214 hold.
+> - **Post-deploy, read on production:** public smoke 120/120 and app smoke 26/26 at `EXPECT_SW=v591`, both clean at 390.
+>   IndexNow: no URL to send (no sitemap page's public content changed); the key file is live.
 
 > **Prepared and verified locally on 2026-11-05.** M8 is the second group-journey milestone (§GJ): the record's
 > hand-offs, J4 J24 J14 G-LEAVE G-ADV J21 G-ESC. Each was walked at both viewports, per layer, per UFAI pillar and per
