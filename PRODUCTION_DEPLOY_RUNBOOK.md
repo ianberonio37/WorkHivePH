@@ -60,7 +60,31 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
-# M9 release (2026-11-06) - marketplace, onboarding and integrations
+# M9 release (2026-11-06) - marketplace, onboarding and integrations ✅ DEPLOYED
+
+> **✅ M9 DEPLOYED 2026-11-06: marketplace, onboarding and integrations are in production.** Production serves
+> `workhive-shell-v592` from `ffca61fd` (`945b6084..ffca61fd`).
+>
+> - **Leg A, 13 migrations:** the dry run listed exactly `20261106000001`-`13`; pushed; the production ledger reads them.
+>   The preconditions were read on production first (the two signatures migration 12 drops; the four recreated views'
+>   bodies equal to local by md5; no new column present yet).
+> - **Leg B, 2 functions:** `supervisor-reset-password` and `cmms-webhook-receiver` deployed;
+>   `verify_function_builds.py --target prod` read 60/62 before and 62/62 after. The board then shortened the reset
+>   function's reply to one sentence with a next step (edge-fn copy), and `supervisor-reset-password` was
+>   stamped and redeployed with that sentence before the push; after it, `verify_function_builds.py --target prod`
+>   read 62/62 again.
+> - **Leg C:** the full board (~2 h on this host) gave 18 reds on the first pass. 15 were fixed before the end-of-board
+>   retries passed them: copy, the RBAC ratchet, the regenerated registries, a webhook's real gate named, recoverable
+>   deletes, caps that say more, the skew-heal lists, tokens, the trail's labels. Then:
+>   - three late reds were fixed: the feedback panel's "Your reports" classes compiled into the public sheets; the
+>     password sentences no longer read as pointing at a secret; the rubric lens learned `parts_cost_by_asset`;
+>   - the regen chain cleared substrate freshness and the destructive roster;
+>   - **one red is recorded rather than fixed:** `memory_health_gate`, `file_grounded_pct` 43 < 50. It measures the
+>     session's Memento retrievals, not the product. The window was dominated by retrievals fired on prompts the harness
+>     writes (background-task notices, context-resume prompts). `memento_hook.py` now tags those prompts by origin and
+>     `memento_precision_audit.py` leaves them out, so the reading recovers as the 24 h window rolls. The `--only`
+>     re-check of every other red: 20/20 green.
+> - **Post-deploy, read on production:** public smoke 146/146 and app smoke 26/26 at `EXPECT_SW=v592`, both clean at 390. IndexNow: no URL to send (no sitemap page's lastmod moved since the last receipt); the key file is live.
 
 > **Prepared and verified locally on 2026-11-06.** M9 is the third group-journey milestone (§GJ.10): J19 J1 G-ONB J31
 > G-MOD J7 J25 J5 J12 G-PUBLIC J8 J30 J15 G-SVC J6 J10 J27, each walked at both viewports, per layer, per UFAI pillar and
