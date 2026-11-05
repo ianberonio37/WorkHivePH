@@ -2337,6 +2337,305 @@ RECIPES.J25 = {
   },
 };
 
+// ── J5 · shortage to shelf: a part sourced from another hive, asked for, answered and reviewed
+// (cast: b = the buyer, v = the seller; the seller's own published listing is what is walked to)
+function j5Listing(X) {
+  if (X.rec.listing) return X.rec.listing;
+  const row = psql(`select id || '|' || title from marketplace_listings where seller_name = '${q(X.S.v.m.name)}' and status = 'published' order by created_at desc limit 1`);
+  const [id, title] = row ? [row.split('|')[0], row.split('|').slice(1).join('|')] : ['', ''];
+  // the seller's response stats move when they answer: their row is kept and put back exactly
+  const sel = psql(`select coalesce(json_agg(row_to_json(t)), '[]') from marketplace_sellers t where worker_name = '${q(X.S.v.m.name)}'`);
+  X.restores = [...(X.restores || []), ['the walk\'s inquiry and review', `delete from marketplace_inquiries where message like '${q(X.tag)}%';
+      delete from marketplace_reviews where comment like '${q(X.tag)}%';`],
+    ['the seller\'s stats put back', `begin; delete from marketplace_sellers where worker_name = '${q(X.S.v.m.name)}';
+      insert into marketplace_sellers select * from json_populate_recordset(null::marketplace_sellers, '${q(sel)}'); commit;`]];
+  return (X.rec.listing = { id, title });
+}
+// a listing is opened as a person opens it: found by its title in the search, then its card tapped
+async function openListing(P, id, title) {
+  await go(P, 'marketplace.html');
+  if (title) {
+    await P.page.fill('#search-input', title.split(/\s+/).slice(0, 3).join(' ')).catch(() => {});
+    await P.page.keyboard.press('Enter').catch(() => {});
+    await sleep(2000);
+  }
+  await P.page.evaluate((lid) => { const c = document.querySelector(`article.listing-card[data-id="${lid}"]`); if (c) { c.scrollIntoView({ block: 'center' }); c.click(); } }, id);
+  await sleep(2000);
+}
+RECIPES.J5 = {
+  1: async (X) => {   // the seller's listing is what the buyer finds
+    const { b } = X.S;
+    const L = j5Listing(X);
+    await go(b, 'marketplace.html');
+    const words = L.title.split(/\s+/).slice(0, 3).join(' ');
+    await b.page.fill('#search-input', words).catch(() => {});
+    await b.page.keyboard.press('Enter').catch(() => {});
+    await sleep(2500);
+    const found = await b.page.evaluate((id) => !!document.querySelector(`article.listing-card[data-id="${id}"]`), L.id).catch(() => false);
+    // the marketplace is the platform's one cross-hive surface: a published listing is FOR other hives to find. Its
+    // boundary is the seller's contact, which a stranger and another hive's member must not read off the table
+    const contact = await anonGet(`marketplace_sellers?worker_name=eq.${encodeURIComponent(X.S.v.m.name)}&select=messenger_username`);
+    return { act: { ok: !!L.id && found, detail: `${X.S.v.m.name}'s published listing "${L.title}" (${L.id || 'NONE'}); "${words}" in the marketplace search as ${b.m.name}: card shown ${found}` },
+      marker: L.title, path: 'marketplace.html',
+      reach: async (R2, ms) => {
+        await go(R2, 'marketplace.html');
+        await R2.page.fill('#search-input', words).catch(() => {});
+        await R2.page.keyboard.press('Enter').catch(() => {});
+        await sleep(2000);
+        return findText(R2, L.title, ms);
+      },
+      rec: { table: 'v_marketplace_listings_public', id: L.id },
+      I: (witness) => {
+        const other = Number(asUser(witness.uid, `select count(*) from v_marketplace_listings_public where id = '${q(L.id)}'`));
+        return { ok: other === 1 && contact.status !== 200, cross_hive_listing_rows: other, stranger_contact_status: contact.status,
+          note: 'a published listing is cross-hive by design; the boundary read is the seller contact' };
+      } };
+  },
+  2: async (X) => {   // the buyer's inquiry is in the seller's console
+    const { b } = X.S;
+    const L = j5Listing(X);
+    await openListing(b, L.id, L.title);
+    await b.page.evaluate(() => { const c = document.getElementById('btn-detail-contact'); if (c) c.click(); });
+    await sleep(1500);
+    const msg = `${X.tag} is the set of 8 still available? Need it for the boiler room this week.`;
+    await b.page.fill('#inq-name', b.m.name).catch(() => {});
+    await b.page.fill('#inq-contact', '0917 555 0142').catch(() => {});
+    await b.page.fill('#inq-message', msg).catch(() => {});
+    await b.page.evaluate(() => { const s = document.getElementById('btn-submit-inquiry'); if (s) s.click(); });
+    await sleep(3000);
+    const inq = psql(`select id from marketplace_inquiries where message like '${q(X.tag)}%' order by created_at desc limit 1`);
+    X.rec.inq = inq;
+    return { act: { ok: !!inq, detail: `"Contact seller" -> the inquiry form on "${L.title}" as ${b.m.name}: marketplace_inquiries ${inq || 'NO ROW'}` },
+      marker: X.tag, path: 'marketplace-seller.html',
+      reach: async (R2, ms) => {
+        await go(R2, 'marketplace-seller.html');
+        await R2.page.evaluate(() => { const t = document.getElementById('tab-inquiries'); if (t) t.click(); });
+        await sleep(2000);
+        return findText(R2, X.tag, ms);
+      },
+      rec: { table: 'v_marketplace_inquiries_truth', id: inq } };
+  },
+  3: async (X) => {   // the seller's answer is on the buyer's inquiry
+    const { v } = X.S;
+    const inq = X.rec.inq;
+    await go(v, 'marketplace-seller.html');
+    await v.page.evaluate(() => { const t = document.getElementById('tab-inquiries'); if (t) t.click(); });
+    await sleep(2000);
+    const reply = `${X.tag}-R yes, all 8 in stock, you can pick them up Friday morning`;
+    await v.page.fill(`.reply-textarea[data-inq-id="${inq}"]`, reply).catch(() => {});
+    await v.page.evaluate((id) => { const b = document.querySelector(`[data-action="reply"][data-id="${id}"]`); if (b) b.click(); }, inq);
+    await sleep(3000);
+    const got = psql(`select status || '|' || coalesce(reply_text,'') from marketplace_inquiries where id = '${q(inq)}'`);
+    return { act: { ok: got.startsWith('replied|' + X.tag), detail: `"Send Reply" on the inquiry in the seller console as ${v.m.name}: ${got.slice(0, 90)}` },
+      marker: reply.slice(0, 30), path: 'marketplace.html',
+      reach: async (R2, ms) => { await go(R2, 'marketplace.html'); await sleep(1500); return findText(R2, reply.slice(0, 30), ms); },
+      rec: { table: 'v_marketplace_inquiries_truth', id: inq } };
+  },
+  4: async (X) => {   // the buyer's review is on the seller's public profile
+    const { b, v } = X.S;
+    const L = j5Listing(X);
+    await openListing(b, L.id, L.title);
+    await b.page.evaluate(() => { const o = document.getElementById('btn-open-review'); if (o) o.click(); });
+    await sleep(800);
+    await b.page.selectOption('#review-rating', '5').catch(() => {});
+    const comment = `${X.tag} quick reply and the cartridges were exactly as listed`;
+    await b.page.fill('#review-comment', comment).catch(() => {});
+    await b.page.evaluate(() => { const s = document.getElementById('btn-submit-review'); if (s) s.click(); });
+    await sleep(3000);
+    const rid = psql(`select id from marketplace_reviews where comment like '${q(X.tag)}%' order by created_at desc limit 1`);
+    return { act: { ok: !!rid, detail: `"Write a review" (5 stars) on "${L.title}" as ${b.m.name}: marketplace_reviews ${rid || 'NO ROW'}` },
+      marker: X.tag, path: `marketplace-seller-profile.html?worker=${encodeURIComponent(v.m.name)}`,
+      rec: { table: 'marketplace_reviews', id: rid },
+      // a review on a public seller profile is public by design (that is what a review is for); the boundary is the
+      // reviewer's ACCOUNT, which a stranger must not read off the table
+      I: (witness) => {
+        const other = Number(asUser(witness.uid, `select count(*) from marketplace_reviews where id = '${q(rid)}'`));
+        const acct = psql(`select has_column_privilege('anon', 'public.marketplace_reviews', 'reviewer_auth_uid', 'SELECT')::text`);
+        return { ok: other === 1 && acct === 'false', other_hive_reads_the_public_review: other, stranger_may_read_reviewer_account: acct };
+      } };
+  },
+};
+
+// ── J12 / G-PUBLIC · stranger to member - RE-PREMISED ON THE PRODUCT'S REAL MODEL (2026-11-06)
+// The census said "the newcomer's join REQUEST is on the supervisor's hive page" and "the supervisor's APPROVAL is the
+// newcomer's first screen". A code join is ADMISSION: join_hive_by_code seats the member at once ("Anyone with this code
+// can join your hive"); there is no request and no approval for people (the approval queue is for machines and parts).
+// Walked as the product works: the supervisor's invite link; the newcomer's JOIN on the supervisor's roster, with when
+// (mig 20261106000001); the newcomer's first screen is the hive, naming its supervisor. An approval gate for people would
+// be Ian's product decision, not a walk's.
+function newcomer(X, key, first, last) {
+  X.rec.newcomers = X.rec.newcomers || {};
+  if (X.rec.newcomers[key]) return X.rec.newcomers[key];
+  const stamp = Date.now().toString(36).slice(-6);
+  const sfx = stamp.replace(/[0-9]/g, (d) => 'ABCDEFGHIJ'[Number(d)]).toUpperCase().slice(-3);
+  const who = { user: `gj${key}${stamp}`, name: `${first} ${last} ${sfx}`, pw: `Wh!${stamp}Nc7#` };
+  // the newcomer joins a REAL hive, so the sweep is by their account only - never by the hive
+  X.restores = [...(X.restores || []), [`the newcomer ${who.name}, everything they wrote`, `DO $gj$
+     DECLARE r record; u uuid; pass int;
+     BEGIN
+       SELECT auth_uid INTO u FROM public.worker_profiles WHERE username = '${q(who.user)}';
+       IF u IS NULL THEN RETURN; END IF;
+       DELETE FROM public.logbook WHERE auth_uid = u;
+       FOR pass IN 1..3 LOOP
+         FOR r IN SELECT c.conrelid::regclass AS t, a.attname AS col FROM pg_constraint c
+                    JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1]
+                   WHERE c.confrelid = 'auth.users'::regclass AND c.contype = 'f' AND c.conrelid <> 'public.worker_profiles'::regclass LOOP
+           BEGIN EXECUTE format('DELETE FROM %s WHERE %I = %L', r.t, r.col, u); EXCEPTION WHEN others THEN NULL; END;
+         END LOOP;
+       END LOOP;
+       DELETE FROM public.hive_members WHERE auth_uid = u;
+       DELETE FROM public.achievement_xp_log WHERE worker_name = '${q(who.name)}';
+       DELETE FROM public.worker_achievements WHERE worker_name = '${q(who.name)}';
+       DELETE FROM public.early_access_emails WHERE lower(email) LIKE '${q(who.user)}%';
+       DELETE FROM public.worker_profiles WHERE auth_uid = u;
+       DELETE FROM auth.users WHERE id = u;
+     END $gj$;`]];
+  return (X.rec.newcomers[key] = who);
+}
+// the supervisor's invite link, the way they send it: the hive menu's "Show Invite Code", then "Copy invite link"
+async function copyInviteLink(s) {
+  await go(s, 'hive.html');
+  await s.page.evaluate(() => { const m = document.getElementById('btn-hive-menu'); if (m) m.click(); });
+  await sleep(600);
+  await s.page.evaluate(() => { const b = document.getElementById('btn-show-code'); if (b) b.click(); });
+  await sleep(2500);
+  await s.page.evaluate(() => { const b = document.getElementById('btn-copy-invite'); if (b) b.click(); });
+  await sleep(1200);
+  return (await readClipboard(s)).trim();
+}
+async function joinByLink(X, P, who, link) {
+  await P.page.goto(link, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
+  await sleep(4000);
+  const up = await signUpHere(P, who, who.pw);
+  let note = '';
+  for (let k = 0; k < 20 && !note; k++) {
+    await sleep(1000);
+    note = await P.page.evaluate(() => { const e = document.getElementById('join-invite-note'); return e && !e.classList.contains('hidden') ? e.textContent.trim() : ''; }).catch(() => '');
+  }
+  await P.page.evaluate(() => { const b = document.getElementById('btn-submit-join'); if (b) b.click(); });
+  let welcome = '';
+  for (let k = 0; k < 20 && !/You're In/i.test(welcome); k++) {
+    await sleep(1000);
+    welcome = await P.page.evaluate(() => { const v = document.getElementById('view-welcome'); return v && !v.classList.contains('hidden') ? v.innerText : ''; }).catch(() => '');
+  }
+  const mid = P.m.uid ? psql(`select id from hive_members where hive_id = '${HIVE_ID}' and auth_uid = '${P.m.uid}' and status = 'active'`) : '';
+  return { up, note, welcome, mid };
+}
+function rosterReach(name) {
+  return async (R2, ms) => {
+    await go(R2, 'hive.html');
+    await R2.page.evaluate(() => { const b = document.getElementById('btn-toggle-members'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click(); });
+    for (let t = 0; t < ms; t += 500) {
+      const card = await R2.page.evaluate((nm) => {
+        const list = document.getElementById('members-list'); if (!list) return null;
+        const row = [...list.querySelectorAll('div')].filter((d) => (d.innerText || '').includes(nm) && d.querySelector('[data-wh-joined], .text-sm'))
+          .sort((a, b) => (a.innerText || '').length - (b.innerText || '').length)[0];
+        return row ? row.innerText.trim() : null;
+      }, name).catch(() => null);
+      if (card) return { text: name, card };
+      await sleep(500);
+    }
+    return null;
+  };
+}
+RECIPES.J12 = {
+  1: async (X) => {   // the newcomer's join is on the supervisor's roster, with when
+    const { n, s } = X.S;
+    const who = newcomer(X, 'n', 'Rhea', 'Lagman');
+    const link = await copyInviteLink(s);
+    X.rec.link = link;
+    const j = await joinByLink(X, n, who, link || `${ORIGIN}/hive.html`);
+    X.rec.member = j.mid;
+    X.rec.welcome = j.welcome;
+    return { act: { ok: /join=/.test(link) && j.up.ok && !!j.mid,
+        detail: `${s.m.name}'s "Copy invite link" gave ${link || 'NOTHING'}; ${who.name}, signed out, opened it, signed up (${j.up.ok}${j.up.err ? ': ' + j.up.err : ''}), read "${j.note || 'no invite line'}" and joined: membership ${j.mid || 'NONE'}` },
+      marker: who.name, markerRx: /joined/i, path: 'hive.html', reach: rosterReach(who.name),
+      rec: { table: 'hive_members', id: j.mid } };
+  },
+  2: async (X) => {   // the newcomer's first screen is the hive - not a landing - and names who runs it
+    const { n } = X.S;
+    return { act: { ok: !!X.rec.member, detail: `${n.m.name} joined at hand-off 1; the screen the join landed on is read` },
+      preRead: X.rec.welcome ? { card: X.rec.welcome } : null,
+      marker: HOME, markerRx: /supervisor/i, path: 'hive.html', rec: { table: 'hive_members', id: X.rec.member } };
+  },
+  3: async (X) => {   // the newcomer's first entry is in the supervisor's logbook
+    const { n } = X.S;
+    await go(n, 'logbook.html');
+    const r = await logWizard(n.page, H(n.page), { tag: X.tag, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'conveyor belt slipping at the drive pulley' });
+    const id = psql(`select id from logbook where problem like '${q(X.tag)}%' and hive_id = '${HIVE_ID}' order by created_at limit 1`);
+    return { act: { ok: !!id, detail: `logbook wizard as ${n.m.name}: ${r.toast || 'no toast'}${id ? ` -> entry ${id}` : ' -> NO ROW'}` },
+      marker: X.tag, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id } };
+  },
+};
+
+// ── G-PUBLIC · a shared result brings a stranger in: the link, the sign-up, the join (re-premised as J12: a code join is
+// admission, so "the join request" is the join on the roster and "the approval" is the newcomer's first screen)
+// (cast: w = the worker who shares, x = the stranger (MINTED when they sign up), s = the supervisor)
+async function calcFigures(P) {
+  return P.page.evaluate(() => {
+    const said = (document.querySelector('.kc-said') || {}).textContent || '';
+    const figs = [...document.querySelectorAll('.wh-kc li')].map((li) => (li.innerText || '').replace(/\s+/g, ' ').trim()).filter(Boolean).slice(0, 4);
+    return { said: said.trim(), figs };
+  }).catch(() => ({ said: '', figs: [] }));
+}
+RECIPES['G-PUBLIC'] = {
+  1: async (X) => {   // the shared result opens for the stranger with the numbers in it
+    const { w, x } = X.S;
+    if (!x.m.name) x.m.name = 'a stranger, not signed up yet';
+    await go(w, 'tools/oee-calculator/index.html');
+    // the worker's own numbers: the planned time changed from the default, as a person working out their shift would
+    await w.page.evaluate(() => {
+      const inp = document.querySelector('.wh-kc input[type="number"]');
+      if (inp) { inp.value = String(Number(inp.value || 0) + 37); inp.dispatchEvent(new Event('input', { bubbles: true })); inp.dispatchEvent(new Event('change', { bubbles: true })); }
+    });
+    await sleep(800);
+    const mine = await calcFigures(w);
+    await w.page.evaluate(() => { const b = [...document.querySelectorAll('.wh-kc button')].find((x) => /copy share link/i.test(x.textContent || '')); if (b) b.click(); });
+    await sleep(1200);
+    const link = (await readClipboard(w)).trim();
+    X.rec.calcLink = link;
+    // the stranger, with no account, opens it
+    await x.page.goto(link || `${ORIGIN}/tools/oee-calculator/index.html`, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
+    await sleep(3500);
+    const theirs = await calcFigures(x);
+    const same = mine.figs.length > 0 && mine.figs[0] === theirs.figs[0];
+    const carriesNoOne = !!link && !link.includes(encodeURIComponent(w.m.name)) && !link.includes(w.m.name) && !link.includes(HIVE_ID);
+    return { act: { ok: /#kpi=/.test(link) && same, detail: `"Copy share link" on the OEE calculator as ${w.m.name}: ${link ? link.slice(0, 90) + '...' : 'NOTHING'}; the stranger read ${theirs.figs[0] || 'nothing'} (the worker's: ${mine.figs[0] || 'nothing'})` },
+      preRead: theirs.said ? { card: theirs.said + ' || ' + theirs.figs.join(' | ') } : null,
+      marker: 'shared link', whoRx: /shared link/i, path: 'tools/oee-calculator/index.html',
+      reach: async (R2, ms) => {
+        await R2.page.goto(link, { waitUntil: 'domcontentloaded', timeout: R2.gotoTimeout || 60000 }).catch(() => {});
+        for (let t = 0; t < ms; t += 500) {
+          const f = await calcFigures(R2);
+          if (f.said && f.figs.length) return { text: f.said, card: f.said + ' || ' + f.figs.join(' | ') };
+          await sleep(500);
+        }
+        return null;
+      },
+      rec: { table: 'hives', id: null },
+      F: () => ({ ok: same, detail: `the stranger's first figure "${theirs.figs[0] || '-'}" is the worker's "${mine.figs[0] || '-'}" - the link carries the whole calculation` }),
+      I: () => ({ ok: carriesNoOne, link_names_the_worker_or_hive: !carriesNoOne, note: 'a shared calculation carries the numbers and nothing of who made it' }) };
+  },
+  2: async (X) => {   // the stranger's join is on the supervisor's roster, with when
+    const { x, s } = X.S;
+    const who = newcomer(X, 'x', 'Arvin', 'Mendoza');
+    const link = await copyInviteLink(s);
+    const j = await joinByLink(X, x, who, link || `${ORIGIN}/hive.html`);
+    X.rec.member = j.mid;
+    X.rec.welcome = j.welcome;
+    return { act: { ok: /join=/.test(link) && j.up.ok && !!j.mid,
+        detail: `the stranger, ${who.name}, opened ${s.m.name}'s invite link, signed up (${j.up.ok}${j.up.err ? ': ' + j.up.err : ''}) and joined: membership ${j.mid || 'NONE'}` },
+      marker: who.name, markerRx: /joined/i, path: 'hive.html', reach: rosterReach(who.name),
+      rec: { table: 'hive_members', id: j.mid } };
+  },
+  3: async (X) => {   // the newcomer's first screen is the hive, naming who runs it
+    const { x } = X.S;
+    return { act: { ok: !!X.rec.member, detail: `${x.m.name} joined at hand-off 2; the screen the join landed on is read` },
+      preRead: X.rec.welcome ? { card: X.rec.welcome } : null,
+      marker: HOME, markerRx: /supervisor/i, path: 'hive.html', rec: { table: 'hive_members', id: X.rec.member } };
+  },
+};
+
 // ── G-ADV · the record reached for from outside: the hand-off stays inside its hive, refused in words
 RECIPES['G-ADV'] = {
   1: (X) => RECIPES.J2[1](X),

@@ -325,7 +325,8 @@
       say('Kept as scenario A. Change any number to see A beside it.');
     }
 
-    function link() { return location.href.replace(/#.*$/, '') + '#kpi=' + encode(state); }
+    // GJ M9 G-PUBLIC: the link carries when it was shared, so whoever opens it knows how old the numbers are
+    function link() { return location.href.replace(/#.*$/, '') + '#kpi=' + encode(state) + '&at=' + Date.now(); }
     var copyBox = el('input', { type: 'url', class: 'kc-copy', readonly: '', 'aria-label': 'Link to this calculation', hidden: '' });
     var keepBtn = el('button', { type: 'button', text: 'Keep as scenario A', onclick: keep });
     var saveBtn = el('button', { type: 'button', text: 'Save on this device', onclick: function () {
@@ -385,7 +386,13 @@
 
     showMode();
     draw();
-    if (savedFrom === 'link') say('This calculation came from a shared link. Change anything - your copy is your own.');
+    if (savedFrom === 'link') {
+      // ★FIGURES WITH NO DATE (2026-11-06, GJ M9 G-PUBLIC): a stranger opening a shared result read the numbers and could
+      // not tell whether they were worked out this morning or last year. The link now carries when it was shared.
+      var _at = /(?:^|[#&])at=(\d{10,15})/.exec(location.hash || ''), _when = '';
+      if (_at) { try { _when = new Date(Number(_at[1])).toLocaleString('en-PH', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Manila' }); } catch (_) { _when = ''; } }   // device-clock-allow: a moment carried in the link, shown in Manila time
+      say('This calculation came from a shared link' + (_when ? ', shared on ' + _when : '') + '. Change anything - your copy is your own.');
+    }
     else if (savedFrom === 'device') say('Your saved calculation is back.');
     return { state: state, calc: calc };
   }
