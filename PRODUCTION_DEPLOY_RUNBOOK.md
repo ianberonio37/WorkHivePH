@@ -60,7 +60,22 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
-# M7 release (2026-11-05) - the shift's hand-offs (IN PROGRESS)
+# M7 release (2026-11-05) ✅ DEPLOYED
+
+> **✅ M7 DEPLOYED 2026-11-05: the shift's hand-offs are in production.** Production serves `workhive-shell-v590` from
+> `fd051338` (`d4f73189..fd051338`).
+>
+> - **Leg A, 6 migrations:** pushed; the production ledger reads 752 versions, newest `20261105000003`. The six function
+>   bodies carry no CR, the push URL names its hive, and the anomaly composer counts only flagged readings.
+> - **Leg B, 2 functions:** deployed. The after-check caught stamps that lied (`build_stamps.ts` was never re-stamped,
+>   and `--rerun-failed` never re-ran `function-stamps` because that gate walks a directory and names no file). The
+>   selector gained a WALK rule (`a84e2801`). Redeployed: `verify_function_builds.py --target prod` reads 62/62.
+> - **Leg C:** pushed on the second attempt. The first full board (105 min, 898 PASS) gave four reds, fixed in
+>   `fd051338`: seven home-page CTAs read dead while all of them worked (the CTA prover lost its place when the consent
+>   banner left the page), logbook.html newer than `sw.js`, an orphaned `confirmDelete`, and a stale substrate chunk.
+> - **Post-deploy, read on production:** public smoke 120/120 and app smoke 26/26 at `EXPECT_SW=v590`, both clean at 390.
+>   IndexNow: no URL to send. index.html's change is in the signed-in Today card, so its sitemap `lastmod` rightly did
+>   not move. The key file is live.
 
 > **Prepared and verified locally on 2026-11-05.** M7 is the first group-journey milestone (§GJ): the shift's hand-offs
 > between two or three real people - J2 J3 J9 J22 J23 J29 J17 G-SHIFT G-SENSOR G-MULTI - each walked at both viewports,
