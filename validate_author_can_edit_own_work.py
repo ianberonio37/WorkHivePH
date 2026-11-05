@@ -33,6 +33,7 @@ from __future__ import annotations
 import datetime
 import io
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -93,11 +94,17 @@ def measure() -> dict:
              "('logbook','inventory_items','asset_nodes','marketplace_watchlist',"
              "'marketplace_saved_searches','achievement_xp_log');")
     out["policies_derive_uid"] = {}
+    # ★A NAME LIST IS NOT A MECHANISM (2026-11-05, GJ M8 J14). "Derives from the session" was read off the predicate's
+    # TEXT for two spellings, auth.uid() and auth_worker_names - so when ach_log_owner_read moved to
+    # auth_own_history_names() (mig 20261105000008: the caller's names plus their own removed memberships', each guarded
+    # against a namesake, still keyed on auth.uid()) the gate called a session-anchored policy forgeable. It now asks
+    # what each function the predicate CALLS does: a public function whose body reads auth.uid() anchors it.
+    anchored = {r[0] for r in _q("select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace "
+                                 "where n.nspname = 'public' and p.prosrc like '%auth.uid()%';")}
     for tbl, name, pred in pol:
         out["policies"][f"{tbl}.{name}"] = ("auth_uid" in pred)
-        # "derives from the session" means the predicate reaches auth.uid() somehow: directly, or through
-        # auth_worker_names(), the SECURITY DEFINER function that maps auth.uid() to the caller's names.
-        out["policies_derive_uid"][f"{tbl}.{name}"] = ("auth.uid()" in pred) or ("auth_worker_names" in pred)
+        called = set(re.findall(r"\b([a-z_][a-z0-9_]*)\s*\(", pred))
+        out["policies_derive_uid"][f"{tbl}.{name}"] = ("auth.uid()" in pred) or bool(called & anchored)
     return out
 
 
@@ -159,6 +166,24 @@ def selftest() -> int:
     if not any("no longer derives from auth.uid()" in x for x in probs_nd):
         probs.append("a name-derived policy that stopped reaching auth.uid() was not reported - the "
                      "watchlist reads have no client filter left, so that is an unscoped read")
+    # measure() reads what a CALLED function does (2026-11-05): a predicate calling a session-anchored function
+    # derives; one calling a function that never reads auth.uid() does not - fed through a stand-in for psql
+    global _q
+    _real_q = _q
+    def _fake(sql):
+        if "count(*) filter" in sql: return [["0", "1"]]
+        if "prosrc like" in sql: return [["auth_own_history_names"]]
+        return [["achievement_xp_log", "ach_log_owner_read", "(worker_name IN ( SELECT auth_own_history_names() AS a))"],
+                ["marketplace_watchlist", "mkt_watchlist_owner_rw", "(worker_name IN ( SELECT names_anyone_typed() AS n))"]]
+    _q = _fake
+    try:
+        mm = measure()
+    finally:
+        _q = _real_q
+    if not mm["policies_derive_uid"].get("achievement_xp_log.ach_log_owner_read"):
+        probs.append("a policy calling a function whose body reads auth.uid() was called forgeable")
+    if mm["policies_derive_uid"].get("marketplace_watchlist.mkt_watchlist_owner_rw"):
+        probs.append("a policy calling a function that never reads auth.uid() was called session-anchored - no teeth")
     m_gone = {"unbound": {}, "policies": {}, "policies_derive_uid": {}}
     if not any("is GONE" in x for x in audit(m_gone, {})):
         probs.append("a MISSING name-derived policy was not reported")

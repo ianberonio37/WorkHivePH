@@ -2815,6 +2815,11 @@
       "column": "failure_consequence",
       "consumers": [
         {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/analytics-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -2855,6 +2860,11 @@
       "view": "v_logbook_truth",
       "column": "loto_applied",
       "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "mapped_enum",
@@ -3122,6 +3132,11 @@
       "view": "v_logbook_truth",
       "column": "permit_reference",
       "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "mapped_enum",

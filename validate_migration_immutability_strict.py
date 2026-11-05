@@ -47,6 +47,12 @@ ALLOWED_MULTI_COMMIT = {
     "20261020000003_lb2_read_shapes.sql",
     # 2026-10-23 — revoke widened to anon before production ever applied it (same record there).
     "20261021000002_l3_usage_events.sql",
+    # 2026-11-05 — GJ M8: revoke widened to anon before production applied them (the record is in
+    # validate_migration_immutability.py ALLOWED_MULTI_COMMIT).
+    "20261105000004_a_removed_member_is_told_who_and_when.sql",
+    "20261105000005_a_dispute_party_cannot_write_the_admins_decision.sql",
+    "20261105000006_a_client_cannot_rewrite_the_providers_quote.sql",
+    "20261105000008_a_removed_member_keeps_their_own_history.sql",
 }
 
 

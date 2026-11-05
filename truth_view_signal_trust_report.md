@@ -178,13 +178,13 @@ re-deriving what the canonical view should expose:
 | `v_logbook_truth` | `closed_at` | ✅ OK | 4 | direct |
 | `v_logbook_truth` | `date` | ✅ OK | 7 | direct |
 | `v_logbook_truth` | `downtime_hours` | ✅ OK | 13 | direct |
-| `v_logbook_truth` | `failure_consequence` | ✅ OK | 3 | direct |
+| `v_logbook_truth` | `failure_consequence` | ✅ OK | 4 | direct |
 | `v_logbook_truth` | `knowledge` | ✅ OK | 2 | direct |
-| `v_logbook_truth` | `loto_applied` | ✅ OK | 1 | mapped_enum |
+| `v_logbook_truth` | `loto_applied` | ✅ OK | 2 | direct, mapped_enum |
 | `v_logbook_truth` | `machine` | ✅ OK | 23 | direct |
 | `v_logbook_truth` | `maintenance_type` | ✅ OK | 20 | direct |
 | `v_logbook_truth` | `parts_used` | ✅ OK | 3 | direct |
-| `v_logbook_truth` | `permit_reference` | ✅ OK | 1 | mapped_enum |
+| `v_logbook_truth` | `permit_reference` | ✅ OK | 2 | direct, mapped_enum |
 | `v_logbook_truth` | `problem` | ✅ OK | 14 | direct |
 | `v_logbook_truth` | `production_output` | ✅ OK | 1 | direct |
 | `v_logbook_truth` | `readings_json` | ✅ OK | 3 | direct |

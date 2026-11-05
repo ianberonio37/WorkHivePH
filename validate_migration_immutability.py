@@ -71,6 +71,14 @@ ALLOWED_MULTI_COMMIT = {
     "20261021000002_l3_usage_events.sql":
         "BRH-Y (66ecd128, same day as 9b1fe959): `revoke ... from public` -> `from public, anon`, because Supabase grants "
         "anon EXECUTE explicitly. Unapplied in production when edited, so production receives the final content.",
+    "20261105000004_a_removed_member_is_told_who_and_when.sql":
+        "GJ M8 (2026-11-05): the release's definer-doors audit found the new functions still callable by anon - `revoke ... from public` never reaches anon, which Supabase grants explicitly - so the revoke was widened (and the trigger functions refuse authenticated too) BEFORE production applied the file; production received only the final content (pushed with 078e084b, read back: anon EXECUTE on none).",
+    "20261105000005_a_dispute_party_cannot_write_the_admins_decision.sql":
+        "GJ M8 (2026-11-05): the release's definer-doors audit found the new functions still callable by anon - `revoke ... from public` never reaches anon, which Supabase grants explicitly - so the revoke was widened (and the trigger functions refuse authenticated too) BEFORE production applied the file; production received only the final content (pushed with 078e084b, read back: anon EXECUTE on none).",
+    "20261105000006_a_client_cannot_rewrite_the_providers_quote.sql":
+        "GJ M8 (2026-11-05): the release's definer-doors audit found the new functions still callable by anon - `revoke ... from public` never reaches anon, which Supabase grants explicitly - so the revoke was widened (and the trigger functions refuse authenticated too) BEFORE production applied the file; production received only the final content (pushed with 078e084b, read back: anon EXECUTE on none).",
+    "20261105000008_a_removed_member_keeps_their_own_history.sql":
+        "GJ M8 (2026-11-05): the release's definer-doors audit found the new functions still callable by anon - `revoke ... from public` never reaches anon, which Supabase grants explicitly - so the revoke was widened (and the trigger functions refuse authenticated too) BEFORE production applied the file; production received only the final content (pushed with 078e084b, read back: anon EXECUTE on none).",
     # ── 2026-09-04 prod deploy of the security batch (commit 1548378e, deploy recorded in 6fab5624) ──
     "20260831000001_anon_cannot_read_post_author_uid.sql":
         "2026-09-04 prod deploy: wrapped the GRANT to grafana_reader in a DO block guarded by pg_roles (the role exists only locally); idempotent no-op where the role is present, deployed content is the guarded form.",

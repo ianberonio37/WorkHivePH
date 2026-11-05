@@ -1,6 +1,6 @@
-# Flywheel Turn #503
+# Flywheel Turn #504
 
-_2026-11-05T14:11:10_
+_2026-11-05T21:05:59_
 
 ## Layer deltas
 
@@ -9,15 +9,11 @@ _2026-11-05T14:11:10_
 | L-1   | cluster proposals       | 0 | 0 | · |
 | L-1.5 | rules in manifest       | 50 | 50 | · |
 | L0    | baselines tracked       | 229 | 229 | · |
-| L0    | total locked count      | 3551 | 3550 | ↓1 ✅ |
+| L0    | total locked count      | 3550 | 3550 | · |
 | L2    | sentinel parity cases   | 29 | 29 | · |
 | L13   | stale walkthroughs      | 0 | 0 | · |
 
-## ✅ Ratchets (1) — baselines tightened
-
-| Validator | Was | Now |
-|---|---:|---:|
-| `event_listener_cleanup` | 5 | **4** |
+## No ratchets or regressions this turn — platform stable.
 
 ## ⏫ Promotions — queued for one-pass approval
 
