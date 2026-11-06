@@ -60,7 +60,23 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
-# M10 release (2026-11-06) - founder and public hand-offs
+# M10 release (2026-11-06) - founder and public hand-offs ✅ DEPLOYED
+
+> **✅ M10 DEPLOYED 2026-11-06: the founder and public hand-offs are in production.** Production serves
+> `workhive-shell-v593` from `7c957609` (`ffca61fd..7c957609`). All 885 M10 rows are banked.
+>
+> - **Leg A, 2 migrations:** the dry run listed exactly `20261106000014`-`15`; pushed; the production ledger reads both.
+>   Read on production first: both open read policies present, the new columns and functions absent, 0 public items and
+>   0 votes. Read after: no function body carries a CR; anon holds no SELECT on `platform_feedback` (its email column
+>   included), may execute `public_feedback_board()` and not `escalate_reported_post`; both open policies are gone; the
+>   never-public CHECK is in place. **Through the public API as anon:** the board answers `200 []`, the table and the
+>   vote-token table answer `401 permission denied`, and an escalation is refused.
+> - **Leg B:** none (`git diff ffca61fd..HEAD -- supabase/functions` is empty).
+> - **Leg C:** the full board (~2 h) gave five reds. Four were fixed in `7c957609`: hive.html's invited-member seat goes
+>   through the one role adopter and rebuilds a board already up; the public board states its bound where it reads.
+>   The fifth, `memory_health_gate`, is recorded rather than fixed: it grades the session's own Memento retrievals, not
+>   the product, as in M9. `--only` re-check 22/22.
+> - **Post-deploy, read on production:** public smoke 146/146 and app smoke 26/26 at `EXPECT_SW=v593`, both clean at 390. IndexNow: no URL to send (no sitemap page's lastmod moved; the board's items are live data); the key file is live.
 
 > **Prepared and verified locally on 2026-11-06.** M10 is the fourth group-journey milestone (§GJ.11): every hand-off
 > whose receiving page is a founder or public page - G-ESC hand-offs 2-3 (a report the supervisor cannot settle reaches
