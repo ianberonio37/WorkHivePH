@@ -11,4 +11,4 @@ the class that produces _two pages, two numbers_ inconsistency.
 - Pages with local truth-math (FREQ_DAYS / calcNextDue / ...): **0**
 - **TIER A drift pages** (user-facing KPI surface): **0**
 - TIER B drift pages (internal / shared JS): **0**
-- Canonical reads: 345 · Drift: 0 · Gap: 0 · Allowed: 323
+- Canonical reads: 345 · Drift: 0 · Gap: 0 · Allowed: 321

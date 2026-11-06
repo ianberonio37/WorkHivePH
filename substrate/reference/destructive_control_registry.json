@@ -30,19 +30,23 @@
     ],
     "community.html": [
       {
-        "line": 2584,
+        "line": 2586,
         "message_head": "Keep this post. Say why, if you like: the person who wrote it and anyone who reported it will read this. Nobody is told who reported it."
       },
       {
-        "line": 2664,
+        "line": 2621,
+        "message_head": "Send this reported post to WorkHive. Say what you need WorkHive to decide:"
+      },
+      {
+        "line": 2697,
         "message_head": "Make this post public? Workers in every other hive will be able to read it in their Global feed."
       },
       {
-        "line": 3296,
+        "line": 3329,
         "message_head": "Copy this public link:"
       },
       {
-        "line": 3309,
+        "line": 3342,
         "message_head": "Copy this link:"
       }
     ],
@@ -256,7 +260,7 @@
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1438,
+        "line": 1442,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
@@ -282,7 +286,7 @@
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1983,
+        "line": 1987,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
@@ -366,5 +370,5 @@
     ]
   },
   "total_files": 20,
-  "total_controls": 80
+  "total_controls": 81
 }

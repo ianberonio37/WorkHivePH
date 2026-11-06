@@ -2,11 +2,11 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: c027cf14b5e0fd3c
+source_sha: 9912258ec8eb8ac0
 last_verified: 2026-07-13
 supersedes: null
 ---
-## fk · relational-integrity graph (211 foreign keys)
+## fk · relational-integrity graph (212 foreign keys)
 
 **UNINDEXED FK columns (34)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`source_trace_id` -> `agentic_rag_traces`

@@ -2,19 +2,19 @@
 name: page-community
 type: page
 source: file:community.html
-source_sha: 0b934097a4990571
+source_sha: 9bca341abff4f56f
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `community.html` — Community: WorkHive
 
-Size: 285KB · 106 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 287KB · 107 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (6): `community_posts.insert`, `community_posts.update`, `community_reactions.delete`, `community_reactions.insert`, `community_replies.insert`, `hive_audit_log.insert`
-**RPC calls**: `get_community_reputation`, `get_hive_trade_peers`, `moderate_reported_post`, `my_moderation_news`, `notify_post_mentions`, `notify_reply_accepted`, `notify_reply_posted`, `report_community_post`, `set_community_best_answer`, `wh_restore`, `wh_trash`
+**RPC calls**: `escalate_reported_post`, `get_community_reputation`, `get_hive_trade_peers`, `moderate_reported_post`, `my_moderation_news`, `notify_post_mentions`, `notify_reply_accepted`, `notify_reply_posted`, `report_community_post`, `set_community_best_answer`, `wh_restore`, `wh_trash`
 **Edge invokes**: (none)
 **Truth views read**: `v_community_posts_truth`, `v_marketplace_listings_public`, `v_marketplace_sellers_truth`
 
-**Functions**: _MINE, _POST_UNCHANGED, _addGlobalPostFromRealtime, _appendMoreStubs, _carryArrival, _commSyncUrl, _expandAllStubs, _fetchPage, _findPost, _hideMentionDropdown, _initObservers, _isMinePost, _isMineRow, _keepPlace, _leaderboardMoved, _loadMyPostIds, _makeStub, _markCommunitySeen, _maybeOpenMentionDropdown, _mentionDropdownEl, _mineAuthorFilter, _mineFilter, _postMenu, _postName, _prependPostCard, _presenceUnavailable, _queueOfflinePost, _reEscape, _removePostCard, _renderMentionDropdown, _renderNextMilestone, _reportName, _resetFeed, _runPostAct, _rxButton, _rxCount, _setCommunityAiContext, _updateRenderedCard, cleanup, closeComposer, closePersonCard, closePostMenus, closeReport, closeThread, communityRetryAll, copyPublicLink, copyThreadLink, deletePost, formatTimeAgo, keyOf, line, listFocusable, loadGlobalFeed, loadHiveMembers, loadLeaderboard, loadModQueue, loadModerationNews, loadMoreGlobalPosts, loadMorePosts, loadPosts …
+**Functions**: _MINE, _POST_UNCHANGED, _addGlobalPostFromRealtime, _appendMoreStubs, _carryArrival, _commSyncUrl, _expandAllStubs, _fetchPage, _findPost, _hideMentionDropdown, _initObservers, _isMinePost, _isMineRow, _keepPlace, _leaderboardMoved, _loadMyPostIds, _makeStub, _markCommunitySeen, _maybeOpenMentionDropdown, _mentionDropdownEl, _mineAuthorFilter, _mineFilter, _postMenu, _postName, _prependPostCard, _presenceUnavailable, _queueOfflinePost, _reEscape, _removePostCard, _renderMentionDropdown, _renderNextMilestone, _reportName, _resetFeed, _runPostAct, _rxButton, _rxCount, _setCommunityAiContext, _updateRenderedCard, cleanup, closeComposer, closePersonCard, closePostMenus, closeReport, closeThread, communityRetryAll, copyPublicLink, copyThreadLink, deletePost, escalatePost, formatTimeAgo, keyOf, line, listFocusable, loadGlobalFeed, loadHiveMembers, loadLeaderboard, loadModQueue, loadModerationNews, loadMoreGlobalPosts, loadMorePosts …
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

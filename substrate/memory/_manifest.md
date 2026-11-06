@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1092-files
-source_sha: 092be2648e5ab024
+source: memory-curated:1093-files
+source_sha: 617209e54fdae6a0
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1092 durable topic files)
+## memory · curated auto-memory (1093 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=693 · project=306 · reference=93
+**By type:** feedback=694 · project=306 · reference=93
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -117,6 +117,7 @@ Entries (name · type · sha):
 - `feedback_a_lens_reported_a_test_it_never_ran` · feedback · c64fb719241deac8
 - `feedback_a_library_batch_is_not_an_mcp_walk` · feedback · 03936ce910011833
 - `feedback_a_lifted_listener_left_the_sibling_card_dead` · feedback · d4f4d2a1d879a05e
+- `feedback_a_line_above_a_const_reads_it_in_its_dead_zone` · feedback · 8ba9305f47c1cf80
 - `feedback_a_listed_model_is_not_an_answering_model` · feedback · c0c54a4d5df6baea
 - `feedback_a_live_poll_repaint_destroys_focus_but_not_the_draft` · feedback · 58707fa55aa4e9d0
 - `feedback_a_live_reread_must_hold_the_readers_place` · feedback · bb79850377908ef2
@@ -446,7 +447,7 @@ Entries (name · type · sha):
 - `feedback_measured_percent_not_qualitative_done` · feedback · a0140544db758050
 - `feedback_membership_resolved_by_auth_uid` · feedback · ba5e55000349dafd
 - `feedback_memento_visible_confirmation` · feedback · e015e662599822a1
-- `feedback_metric_label_is_a_claim_add_the_missing_half` · feedback · 8dd7b2feb1f65811
+- `feedback_metric_label_is_a_claim_add_the_missing_half` · feedback · df3edcc5397f246c
 - `feedback_mobile_fit_rubric_gap_and_two_bugs` · feedback · e101498c62dd7da7
 - `feedback_momentum_stop_guard` · feedback · 8dfb6c6ba25c45f0
 - `feedback_my_design_is_slop_the_skills_are_the_instrument` · feedback · cfb8b41167ee18ac
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_production_fixes_log` · feedback · 88ce8203d05a21f5
 - `feedback_proposal_first_ux_mockup_loop` · feedback · b63fd33f3c5501e4
 - `feedback_provenance_user_voice_not_internals` · feedback · d625e82bd6e7f509
-- `feedback_psql_autocommit_made_my_teeth_test_permanent` · feedback · 30ac6a1f9cb5ef4c
-- … +592 more (all included in the fingerprint)
+- … +593 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

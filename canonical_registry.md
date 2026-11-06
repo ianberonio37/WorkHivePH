@@ -7,11 +7,11 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **184**
 - Views:         **69**
-- RPCs:          **427**
+- RPCs:          **431**
 - HTML surfaces: **59**
 - Edge fns:      **114**
 - Phantom tables (referenced in code, not in migrations): **0**
-- Duplicate signals: **86**
+- Duplicate signals: **87**
 
 ## Tables (sorted by usage)
 
@@ -95,7 +95,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `knowledge_graph_facts` | 18 | yes | yes | — | — | semantic-fact-extractor |
 | `kb_documents` | 11 | yes | no | — | — | pdf-ingest |
 | `kb_chunks` | 7 | yes | no | — | — | pdf-ingest |
-| `platform_feedback` | 24 | yes | yes | platform-actions.html | platform-actions.html | — |
+| `platform_feedback` | 26 | yes | yes | platform-actions.html | platform-actions.html | — |
 | `agent_episodic_memory` | 14 | yes | no | — | — | _shared/episodic-memory.ts |
 | `unified_events` | 12 | yes | no | — | — | data-fabric-normalizer |
 | `ai_cache` | 8 | yes | no | — | — | _shared/cache.ts |
@@ -347,6 +347,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `enqueue_service_push_uids` | p_auth_uids uuid[], p_title text, p_body text, p_url text DE | yes | — | — |
 | `enqueue_user_push` | p_auth_uids uuid[], p_title text, p_body text,     p_url tex | yes | — | — |
 | `ensure_pm_asset_for_node` | p_node_id uuid | yes | asset-hub.html | — |
+| `escalate_reported_post` | p_post_id uuid, p_words text | yes | community.html | — |
 | `expire_stale_parts_recommendations` |  | yes | — | — |
 | `export_hive_data` | p_hive_id uuid | yes | — | export-hive-data |
 | `fanout_broadcast_push` |  | yes | — | — |
@@ -470,6 +471,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `moderate_reported_post` | p_post_id uuid, p_keep boolean, p_note text DEFAULT NULL | yes | community.html | — |
 | `my_credit_balance` |  | yes | marketplace.html | — |
 | `my_feedback_outcomes` |  | yes | — | — |
+| `my_feedback_votes` | p_voter_token text | yes | — | — |
 | `my_inquiry_ids` |  | yes | — | — |
 | `my_listing_ids` |  | yes | — | — |
 | `my_logbook_summary` | p_worker_name text default null | no | resume.html | — |
@@ -499,6 +501,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `provider_credit_balance` | p_provider_id uuid | yes | — | — |
 | `provider_is_certified_for` | p_provider_id uuid, p_category text, p_min_level integer | yes | — | — |
 | `prune_embedding_cache` | p_max_age_days int DEFAULT 45 | yes | — | — |
+| `public_feedback_board` |  | yes | — | — |
 | `publish_service_showcase` | p_request_id uuid | yes | — | — |
 | `raise_service_objection` | p_request_id uuid, p_reason text | yes | marketplace.html | — |
 | `recompute_seller_sales_and_tier` | p_seller_name text | yes | — | — |
@@ -584,6 +587,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `tg_marketplace_listings_tell_seller` |  | yes | — | — |
 | `tg_marketplace_reviews_pin_reply` |  | no | — | — |
 | `tg_notify_pending_submission` |  | yes | — | — |
+| `tg_platform_feedback_status_at` |  | no | — | — |
 | `tg_platform_feedback_tell_sender` |  | yes | — | — |
 | `tg_project_items_bind_added_by` |  | yes | — | — |
 | `tg_project_links_bind_linked_by` |  | yes | — | — |
@@ -650,7 +654,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `asset-hub.html` | asset_nodes, equipment_reading_templates, hive_audit_log, hive_members ... | asset_nodes, hive_audit_log, parts_staging_recommendations ... | accept_parts_staging, ensure_pm_asset_for_node | ai-gateway, asset-brain-query, fmea-populator |
 | `assistant.html` | ai_reply_feedback, asset_nodes, pm_assets, schedule_items ... | ai_reply_feedback | — | ai-gateway |
 | `audit-log.html` | ai_audit_log, hive_audit_log | — | audit_filter_vocab | — |
-| `community.html` | community_posts, community_reactions, community_replies, community_xp ... | community_posts, community_reactions, community_replies ... | get_community_reputation, get_hive_trade_peers, moderate_reported_post | — |
+| `community.html` | community_posts, community_reactions, community_replies, community_xp ... | community_posts, community_reactions, community_replies ... | escalate_reported_post, get_community_reputation, get_hive_trade_peers | — |
 | `dayplanner.html` | logbook, schedule_items, v_logbook_truth, v_pm_scope_items_truth | logbook, schedule_items | — | — |
 | `engineering-design.html` | — | — | — | — |
 | `export-truthful-teeth.html` | — | — | — | — |
@@ -710,6 +714,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - `marketplace_sellers`: `kyb_verified` vs `kyb_verified_at`
 - `marketplace_sellers`: `cert_verified` vs `cert_verified_at`
+- `platform_feedback`: `status` vs `status_at`
 - `unified_events`: `source` vs `source_id`
 - `service_providers`: `verified` vs `verified_at`
 

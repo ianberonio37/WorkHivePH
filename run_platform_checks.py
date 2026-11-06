@@ -14589,6 +14589,18 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # GJ M11 (2026-11-06): every banked UX row - "every screen this member meets in the scenario, graded" - still agrees
+        # with its receipts: the in-walk rubric surveys (prove_group_journeys.mjs --survey) for a person, the copy its
+        # functions speak (critic_edge_fn_copy) for a machine member. A row banked clean whose receipts now grade a
+        # finding FAILS; a row with no fresh receipt on disk is counted unjudged, never passed.
+        "id":      "gj-ux-hold",
+        "script":  "tools/bank_gj_ux.py",
+        "args":    ["--check"],
+        "label":   "every banked GJ UX row still agrees with what graded it: the rubric surveys of the screens its member met in the group walk (both viewports), or for a machine member the copy its functions speak",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         # ★A PROD-SAFETY GUARD THAT NO BOARD RAN (2026-11-05, GJ G-SHIFT). validate_debug_echo_prod_safe proves the
         # local-only test hooks (ai-gateway's debug echo and debug_fault_inject, ai-chain's faultInject) can never fire
         # in production - and it was never registered, so when the W4 fake-provider refactor reshaped the chain's gate

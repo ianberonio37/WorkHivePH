@@ -691,6 +691,9 @@ RPC_CAPS = {
     # GJ M9 (2026-11-06): the moderation news (the person's 20 newest reports) and the parts cost (the 200 costliest machines)
     ("my_moderation_news", "hive_audit_log", 20): ("community.html", "", "sample: The 20 most recent from the last 30 days"),
     ("parts_cost_by_asset", "lines", 200): ("analytics.html", "", "sample: The 200 machines with the highest parts cost"),
+    # GJ M10: the public roadmap's read (the 201st item is the probe render turns into "There are more") and a visitor's own votes
+    ("public_feedback_board", "platform_feedback", 201): ("feedback/index.html", "", "render"),
+    ("my_feedback_votes", "platform_feedback_votes", 500): ("feedback/index.html", "", "lookup"),
     ("founder_dev_reads", "traces", 10): [("founder-console.html", "rag_heavy", "sample: Top 10 most token-heavy queries"),
                                           ("founder-console.html", "rag_recent", "sample: The 10 most recent traces")],
 }

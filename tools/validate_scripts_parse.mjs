@@ -19,6 +19,10 @@ import { join, relative } from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+// a let/const read before its declaration parses, then throws on the first call (GJ M10: the founder console's save
+// handler never saved). One lens, tools/lib/tdz_reads.cjs, shared with tools/check_inline_scripts.js.
+const { tdzReads, tdzSelfTest } = createRequire(import.meta.url)('./lib/tdz_reads.cjs');
 
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..');
 const CLASSIC = (attrs) => {
@@ -38,7 +42,10 @@ export function scriptProblems(name, src, isHtml, opts = {}) {
       finally { try { unlinkSync(tmp); } catch (_) { /* gone already */ } }
       return out;
     }
-    try { new vm.Script(src, { filename: name }); } catch (e) { out.push(`${name}: ${e.message}`); }
+    try {
+      new vm.Script(src, { filename: name });
+      for (const r of tdzReads(src)) out.push(`${name}: temporal dead zone - ${r}`);
+    } catch (e) { out.push(`${name}: ${e.message}`); }
     return out;
   }
   // an HTML comment that MENTIONS a script tag ("before the <script> block runs") is not one: blank the comments first,
@@ -49,8 +56,12 @@ export function scriptProblems(name, src, isHtml, opts = {}) {
   while ((m = re.exec(src))) {
     const attrs = m[1];
     if (/\bsrc\s*=/.test(attrs) || !CLASSIC(attrs) || !m[2].trim()) continue;
-    try { new vm.Script(m[2], { filename: name }); }
-    catch (e) { out.push(`${name}:${src.slice(0, m.index).split('\n').length}: inline script - ${e.message}`); }
+    const at = src.slice(0, m.index).split('\n').length;
+    try {
+      new vm.Script(m[2], { filename: name });
+      for (const r of tdzReads(m[2])) out.push(`${name}:${at}: inline script - temporal dead zone - ${r}`);
+    }
+    catch (e) { out.push(`${name}:${at}: inline script - ${e.message}`); }
   }
   // ★AN INLINE HANDLER IS A SCRIPT TOO (2026-10-21, SL L3 walk). An edit left onclick="setPhase('diagnostic', true)\" on
   // all four analytics phase tabs: the attribute's code ended in a backslash, every tab threw "Invalid or unexpected
@@ -114,6 +125,9 @@ function selfTest() {
     ['a handler BUILT inside a script template is that script\'s, not markup',
       scriptProblems('p.html', '<script>var h = `<b onclick="f(\'${x}\')">`;</script>', true).length === 0],
   ];
+  cases.push(['a let/const read before its declaration (the founder console save handler, GJ M10)',
+    scriptProblems('p.html', html('function save(id){ const a = row ? 1 : 2; const row = find(id); }'), true).length === 1]);
+  for (const f of tdzSelfTest()) cases.push(['tdz lens: ' + f, false]);
   const bad = cases.filter(([, pass]) => !pass);
   for (const [name, pass] of cases) console.log(`  ${pass ? 'ok  ' : 'FAIL'} ${name}`);
   console.log(`${bad.length ? 'FAIL' : 'PASS'} scripts-parse self-test - ${cases.length - bad.length}/${cases.length}`);

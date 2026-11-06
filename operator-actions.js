@@ -1214,7 +1214,7 @@
     async function fetchFeedback() {
       try {
         const { data, error } = await db.from('platform_feedback')
-          .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at,sender_reply,auth_uid')
+          .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at,sender_reply,auth_uid,ref_post_id')
           .order('created_at', { ascending: false })
           .order('id')                       // MR4: the sort above is not total on its own
           .limit(500 + 1);   // more-said: by applyFeedbackView - the 'all' count says '500+' when a 501st exists (SL LB1)
@@ -1361,18 +1361,21 @@
         <!-- ★THE ANSWER TO THE PERSON WHO SENT IT (GJ M9 J27, 2026-11-06): a member who reported a listing or a problem
              never learned what became of it. The note above stays internal; this is the one the sender reads - under
              "Your reports" in their feedback panel, and as a notification when it or the status changes. -->
-        <label for="fb-d-reply">Answer to the sender</label>
+        <label for="fb-d-reply">${row.ref_post_id ? 'Answer to the supervisor and everyone who reported the post' : 'Answer to the sender'}</label>
         <textarea id="fb-d-reply" maxlength="1000" placeholder="What WorkHive did about it, in a sentence or two…">${e(row.sender_reply || '')}</textarea>
-        <div class="fb-meta" style="margin-top:.35rem">${row.auth_uid
+        <div class="fb-meta" style="margin-top:.35rem">${row.ref_post_id
+          ? 'A supervisor sent this reported post on (GJ M10 G-ESC). They and everyone who reported the post read this answer in WorkHive and are notified when it or the status changes. The reporters are never named to you or to each other.'
+          : row.auth_uid
           ? 'They read this in WorkHive and are notified when it or the status changes.'
           : 'This was sent without an account, so it can only be answered by email (if they left one).'}</div>
 
         <label style="display:flex;align-items:center;gap:.5rem;margin-top:1rem;cursor:pointer;text-transform:none;letter-spacing:0;color:var(--wh-white, #fff)">
-          <input type="checkbox" id="fb-d-public"${row.is_public ? ' checked' : ''} style="width:auto;min-height:0;cursor:pointer" />
+          <input type="checkbox" id="fb-d-public"${row.is_public ? ' checked' : ''}${row.ref_post_id ? ' disabled' : ''} style="width:auto;min-height:0;cursor:pointer" />
           <span>Show on the public roadmap (/feedback/)</span>
         </label>
-        <div class="fb-meta" style="margin-top:.35rem">Anyone can read a public item and Google can index it.
-          Don't publish contact emails, worker names or internal notes.</div>
+        <div class="fb-meta" style="margin-top:.35rem">${row.ref_post_id
+          ? 'Never published: it holds a hive\'s own post.'
+          : 'Anyone can read a public item and Google can index it. The roadmap shows the subject, the message, the status and its date - never who sent it, their email or your note. Don\'t put a name or an email in the message itself.'}</div>
 
         <div class="fb-drawer-actions">
           <button type="button" class="mod-btn ok" id="fb-d-save" data-i="savechanges">Save changes</button>
@@ -1420,9 +1423,10 @@
       const priority = document.getElementById('fb-d-priority').value || null;
       const note     = document.getElementById('fb-d-note').value.trim() || null;
       const reply    = (document.getElementById('fb-d-reply')?.value || '').trim() || null;   // GJ M9 J27: the sender reads this
-      const isPublic = document.getElementById('fb-d-public')?.checked || false;
+      const row      = _fb.rows.find(r => r.id === id);   // read first: the line below asks it whether this is an escalation
+      // an escalation holds a hive's own post: never public (the CHECK platform_feedback_escalation_private agrees)
+      const isPublic = row?.ref_post_id ? false : (document.getElementById('fb-d-public')?.checked || false);
       const btn      = document.getElementById('fb-d-save');
-      const row      = _fb.rows.find(r => r.id === id);
       const wasPublic = !!row?.is_public;
 
       /* WCAG 3.3.4 error protection: publishing is hard to reverse — once /feedback/ is indexed the

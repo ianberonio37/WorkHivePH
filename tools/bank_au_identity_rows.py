@@ -43,7 +43,10 @@ SOLO_GATE_ID = "lxp-au-identity-solo"           # the same prover with --solo, r
 SOLO_CORE = {"hive_members", "v_worker_truth", "logbook", "pm_assets"}
 READ_RE = re.compile(r"""\.from\(\s*['"]([a-z0-9_]+)['"]""")
 SCRIPT_RE = re.compile(r'''<script[^>]*src="(?!http)([^"]+\.js)"''')
-EVIDENCE = ("ok", "own-records-retained", "public-by-design")
+# refused-by-design (GJ M10, 2026-11-06): the subject never reads the relation while ACTIVE and the hive's own supervisor
+# reads the same rows on the same run - role-guarded in fact (a worker on the supervisor-only audit log), so the page
+# shows this person none of it before or after the change. Measured against the supervisor, never inferred from "blind".
+EVIDENCE = ("ok", "own-records-retained", "public-by-design", "refused-by-design")
 
 
 def page_source(page):

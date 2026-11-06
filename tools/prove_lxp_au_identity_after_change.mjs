@@ -489,7 +489,28 @@ try {
           // superuser connection (which is the one thing a superuser lens is good for - what EXISTS) and the
           // two cases are named apart. Neither counts as evidence, but only one of them is fixed by seeding.
           const inHive = Number(psql(`select count(*) from public."${rel}" where "${REL_KEY[rel]}"::text = '${keyValue(rel)}'`) || 0);
-          SWEEP[rel] = inHive > 0
+          // ★BLIND BY DESIGN IS A DIFFERENT FACT, AND IT CAN BE MEASURED (2026-11-06, GJ M10). A worker is blind to the
+          // audit log on purpose (supervisor-only), and an AU row for that worker on audit-log.html asks whether the page
+          // keeps the worker's identity honest - it does: the page shows them none of it, active or not. "Blind" alone
+          // cannot say so (a broken read is blind too), so it is measured against the hive's own supervisor: the SAME
+          // rows, read as an active supervisor of this hive, on this run. Seen by them and never by this worker = the
+          // relation is role-guarded in fact - 'refused-by-design'. A supervisor who is blind too leaves it unproven.
+          let supSees = 0, supName = null;
+          if (inHive > 0 && REL_KEY[rel] === 'hive_id' && ROLE0 !== 'supervisor') {
+            const sup = psql(`select auth_uid::text || '|' || worker_name from hive_members where hive_id = '${HIVE}' and role = 'supervisor' and status = 'active' and auth_uid is not null limit 1`);
+            if (sup) {
+              const [supUid, sn] = sup.split('|');
+              supName = sn;
+              const out = psql(`set role authenticated; select set_config('request.jwt.claims', json_build_object('sub', '${supUid}', 'role', 'authenticated')::text, false); select count(*) from public."${rel}" where hive_id::text = '${HIVE}'`);
+              supSees = Number((out.split('\n').filter((l) => /^\d+$/.test(l.trim())).pop() || '0').trim());
+            }
+          }
+          SWEEP[rel] = inHive > 0 && supSees > 0
+            ? { verdict: 'refused-by-design', active: 0, rows_in_hive: inHive, revoked: null, supervisor_reads: supSees,
+                reason: `this hive's ${supSees} row(s) are read by its supervisor (${supName}) and never by this ${ROLE0}, `
+                  + 'even while active - the relation is role-guarded, so the page shows this person none of it before or '
+                  + 'after the change' }
+            : inHive > 0
             ? { verdict: 'blind-while-active', active: 0, rows_in_hive: inHive, revoked: null,
                 reason: `this hive holds ${inHive} row(s) but the subject could not read them even while ACTIVE `
                   + '- a revocation cannot be demonstrated on a relation the person never had' }

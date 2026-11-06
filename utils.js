@@ -7219,6 +7219,8 @@ const WH_AUDIT_ACTIONS = {
   // GJ M9 G-MOD (2026-11-06): a supervisor's decision on a reported post, written by moderate_reported_post
   keep_reported_post:          { icon: '✓',  label: 'Kept a reported post', tone: 'sec' },
   remove_reported_post:        { icon: '⊘',  label: 'Removed a reported post', tone: 'neg' },
+  // GJ M10 G-ESC (2026-11-06): a report the supervisor could not settle, handed to WorkHive (escalate_reported_post)
+  escalate_reported_post:      { icon: '↗',  label: 'Sent a reported post to WorkHive', tone: 'sec' },
   make_post_public:            { icon: '◎',  label: 'Made post public', tone: 'sec' },
   make_post_private:           { icon: '◉',  label: 'Made post hive-only' },
   soft_delete_post:            { icon: '⊘',  label: 'Deleted post', tone: 'neg' },

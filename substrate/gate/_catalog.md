@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 0819b229c39770cc
+source_sha: 4f5b9aa354202053
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1522) — the 'what's already gated' brain
+## gate · registered validators (1523) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -416,7 +416,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1106)
+### Platform (1107)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -868,6 +868,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `gateway-tenancy` ⚡ [fail] — Gateway Tenancy Verification (Pillar I: client hive_id must be membership-verified; ratchet 34->0)
 - `getelementbyid-orphan-setter` ⚡ [fail] — getElementById Orphan Setter (every JS id lookup must have a matching <id> in HTML; forward-only ratchet)
 - `gj-rows-hold` ⚡ [fail] — every banked GJ row is still held by the latest group walk of its scenario (tools/prove_group_journeys.mjs): the act, the receiver's screen, psql as the receive
+- `gj-ux-hold` ⚡ [fail] — every banked GJ UX row still agrees with what graded it: the rubric surveys of the screens its member met in the group walk (both viewports), or for a machine m
 - `global-ai-budget` ⚡ [fail] — Q6 Global LLM Budget Guard (the org-shared-pool layer above per-tenant caps: atomic row-locked consume RPC + daily circuit-breaker + per-minute burst smoother t
 - `glossary-registry` [blocker] — T177: the platform must teach its own vocabulary. WorkHive puts domain acronyms straight onto the glass - MTBF beside a number, OEE on a card, SPI in a project 
 - `governance` ⚡ [fail] — Data Governance Validator

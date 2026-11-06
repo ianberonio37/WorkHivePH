@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:770
-source_sha: cd475ae2898eb108
+source: dir:supabase/migrations:772
+source_sha: ff20837ba7c18cf9
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (770 migrations)
+## migration · catalog (772 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260828000005_schedule_items_normalize_time_not_reject` — fns:tg_schedule_items_blank_time_is_null · triggers:tg_schedule_items_blank_time_is_null · tables:schedule_items
-- `20260828000006_inventory_ledger_chain_normalize` — fns:tg_inventory_txn_chain_qty_after · triggers:trg_inventory_txn_chain_qty_after
 - `20260831000001_anon_cannot_read_post_author_uid` — (misc DDL/DML)
 - `20260831000002_hive_value_summary_view` — (misc DDL/DML)
 - `20260901000001_hive_fk_integrity` — policies:wh_traces_hive_read · tables:ai_user_rate_limits,alert_dismissals,analytics_events,analytics_snapshots,anomaly_alerts,automation_log
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261106000011_a_review_gets_a_reply_and_a_report_gets_an_answer` — fns:my_feedback_outcomes,reply_to_listing_review,tg_marketplace_listings_tell_seller,tg_marketplace_reviews_pin_reply,tg_platform_feedback_tell_sender · triggers:trg_marketplace_listings_tell_seller,trg_marketplace_reviews_pin_reply,trg_platform_feedback_tell_sender · tables:marketplace_reviews,platform_feedback
 - `20261106000012_a_provider_with_two_identities_chooses_which_one_answers` — fns:accept_service_request,submit_service_quote
 - `20261106000013_a_quote_is_offered_only_by_who_can_take_the_job` — fns:select_quote,submit_service_quote
+- `20261106000014_the_public_board_reads_the_words_not_the_sender` — policies:anon,feedback · fns:my_feedback_votes,public_feedback_board,tg_platform_feedback_status_at · triggers:trg_platform_feedback_status_at · tables:platform_feedback
+- `20261106000015_a_report_the_supervisor_cannot_settle_reaches_workhive` — fns:escalate_reported_post,my_feedback_outcomes,my_moderation_news,tg_platform_feedback_tell_sender · tables:platform_feedback
 
 (showing last 200)
 

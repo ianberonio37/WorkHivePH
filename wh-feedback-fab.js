@@ -115,6 +115,23 @@
     injectFab();
     injectPanel();
     wireEvents();
+    openFromLink();
+  }
+
+  // ★THE ANSWER'S LINK OPENED A PAGE, NOT THE ANSWER (GJ M10 G-ESC, 2026-11-06). WorkHive's answer to a report is pushed
+  // with a link; the answer itself lives in this panel's "Your reports", which the person then had to find and open.
+  // ?reports=1 opens the panel there. The parameter is dropped from the address so a reload or a shared link does not
+  // re-open it.
+  function openFromLink() {
+    let want = false;
+    try { want = new URLSearchParams(location.search).get('reports') === '1'; } catch (_) { want = false; }   // empty-catch-allow: no link, no panel
+    if (!want) return;
+    try {
+      const u = new URL(location.href); u.searchParams.delete('reports');
+      history.replaceState(history.state, '', u.pathname + u.search + u.hash);
+    } catch (_) { /* empty-catch-allow: the panel still opens; only the address keeps the parameter */ }
+    openPanel();
+    setTimeout(() => { const m = document.getElementById('wh-fb-mine'); if (m && !m.hidden) m.scrollIntoView({ block: 'start' }); }, 900);
   }
 
   function injectStyles() {
@@ -574,9 +591,10 @@
     new: 'Sent, not read yet',
     triaged: 'WorkHive has read it',
     in_progress: 'WorkHive is working on it',
-    resolved: 'Resolved',
+    // every decided state names who decided, in the push's own words (GJ M10: "Resolved" said what, never who)
+    resolved: 'WorkHive resolved it',
     wontfix: 'WorkHive decided not to act on it',
-    duplicate: 'Handled with an earlier report',
+    duplicate: 'WorkHive is handling it with an earlier report',
   };
   async function loadMyReports() {
     const slot = document.getElementById('wh-fb-mine');

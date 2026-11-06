@@ -4449,7 +4449,9 @@
         "updated_at",
         "triaged_by",
         "triaged_at",
-        "sender_reply"
+        "sender_reply",
+        "status_at",
+        "ref_post_id"
       ],
       "rls_enabled": true,
       "grants": {
@@ -11507,6 +11509,40 @@
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "tg_platform_feedback_status_at": {
+      "defined_in": "20261106000014_the_public_board_reads_the_words_not_the_sender.sql",
+      "args": "",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "public_feedback_board": {
+      "defined_in": "20261106000014_the_public_board_reads_the_words_not_the_sender.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "my_feedback_votes": {
+      "defined_in": "20261106000014_the_public_board_reads_the_words_not_the_sender.sql",
+      "args": "p_voter_token text",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "escalate_reported_post": {
+      "defined_in": "20261106000015_a_report_the_supervisor_cannot_settle_reaches_workhive.sql",
+      "args": "p_post_id uuid, p_words text",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "community.html"
+      ],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -11693,6 +11729,7 @@
         "hive_audit_log"
       ],
       "rpcs_called": [
+        "escalate_reported_post",
         "get_community_reputation",
         "get_hive_trade_peers",
         "moderate_reported_post",
@@ -11706,7 +11743,7 @@
         "wh_trash"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 285.1
+      "size_kb": 288.0
     },
     "dayplanner.html": {
       "tables_read": [
@@ -12137,7 +12174,7 @@
         "get_credit_ledger_totals"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 168.6
+      "size_kb": 169.4
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -13759,6 +13796,14 @@
       "columns": [
         "cert_verified",
         "cert_verified_at"
+      ]
+    },
+    {
+      "kind": "near_duplicate_column",
+      "table": "platform_feedback",
+      "columns": [
+        "status",
+        "status_at"
       ]
     },
     {

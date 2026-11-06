@@ -53,6 +53,17 @@ function blocks(html) {
   return out;
 }
 
+// ★A SCRIPT THAT PARSES CAN STILL DIE ON ITS FIRST LINE (2026-11-06, GJ M10): a let/const read before its declaration
+// parses and throws on the first call. The lens lives once in tools/lib/tdz_reads.cjs (also gate scripts-parse).
+const { tdzReads, tdzSelfTest } = require('./lib/tdz_reads.cjs');
+
+if (process.argv[2] === '--self-test') {
+  const fails = tdzSelfTest();
+  if (fails.length) { console.log('SELF-TEST FAIL - ' + fails.join('; ')); process.exit(1); }
+  console.log('SELF-TEST PASS - a read before its declaration is caught; a closure, a shadow and a property are not');
+  process.exit(0);
+}
+
 const html = fs.readFileSync(process.argv[2], 'utf8');
 let i = 0, j = 0, empty = 0, skipped = 0, sourced = 0;
 const bad = [];
@@ -62,7 +73,10 @@ for (const b of blocks(html)) {
   const t = ((/\btype=["']([^"']*)["']/.exec(b.attrs) || [])[1] || '').trim();
   if (!t || JS.test(t)) {
     i++;
-    try { new Function(b.body); }
+    try {
+      new Function(b.body);
+      for (const r of tdzReads(b.body)) bad.push('script #' + i + ' (' + (t || 'untyped') + ') temporal dead zone: ' + r);
+    }
     catch (e) { bad.push('script #' + i + ' (' + (t || 'untyped') + ') ' + e.message); }
   } else if (JSON_T.test(t)) {
     if (!b.body.trim()) { empty++; }

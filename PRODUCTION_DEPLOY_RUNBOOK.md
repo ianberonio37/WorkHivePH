@@ -60,6 +60,36 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
+# M10 release (2026-11-06) - founder and public hand-offs
+
+> **Prepared and verified locally on 2026-11-06.** M10 is the fourth group-journey milestone (§GJ.11): every hand-off
+> whose receiving page is a founder or public page - G-ESC hand-offs 2-3 (a report the supervisor cannot settle reaches
+> WorkHive, and both are told the outcome), G-PUBLIC's public calculator, and the audit-log hops of J4 J14 J19 J22 J24
+> G-MULTI. Its premise check found **a latent leak on the public roadmap**: every column of a published feedback item
+> - the sender's email, account and browser, and the founder's internal note - was readable by any visitor, and every
+> visitor's vote token by anyone. Production held 0 public items, so nothing had leaked.
+>
+> | Leg | Payload | Measured how |
+> |---|---|---|
+> | **A · DB** | **2 migrations**: `20261106000014` the public board reads the words, never the sender (`public_feedback_board()`, `my_feedback_votes(token)`, `status_at`; the open read policies on `platform_feedback` and `platform_feedback_votes` dropped, anon's table read revoked); `...15` a report the supervisor cannot settle reaches WorkHive (`escalate_reported_post`, `ref_post_id` with a never-public CHECK, the answer pushed to the supervisor and every reporter, `my_feedback_outcomes` / `my_moderation_news` carry it) | dry run lists exactly 14-15 |
+> | **B · Edge** | none | `git diff ffca61fd..HEAD -- supabase/functions` empty |
+> | **C · Frontend** | community (Send to WorkHive; the reporter's news), feedback/index.html (board via RPC, dated status), `wh-feedback-fab.js` (`?reports=1` opens Your reports; every decided status names who decided), `platform-actions.html` + `operator-actions.js` (escalation answered to supervisor + reporters; never published), `sw.js` -> **`workhive-shell-v593`** | `git diff --name-only ffca61fd..HEAD` |
+>
+> **Order: A -> C.** The board calls `public_feedback_board()` (Leg A) and stops reading the table, which Leg A closes;
+> shipping C before A would blank the roadmap, shipping A before C blanks it only until C lands (minutes) - A first.
+
+### What a person using WorkHive will notice (release notes)
+
+> - A supervisor can send a reported post they cannot settle to WorkHive, with their own words. WorkHive's answer reaches
+>   them and everyone who reported the post - as a notification that opens straight to "Your reports".
+> - A worker whose report was sent on reads, in the community page's notices, that it went to WorkHive and what WorkHive
+>   decided.
+> - The public roadmap says when each item's status was set ("resolved Nov 6").
+> - **Privacy:** the public roadmap shows an item's words and status only - never who sent it - and no visitor can read
+>   or undo anyone else's votes.
+
+---
+
 # M9 release (2026-11-06) - marketplace, onboarding and integrations ✅ DEPLOYED
 
 > **✅ M9 DEPLOYED 2026-11-06: marketplace, onboarding and integrations are in production.** Production serves

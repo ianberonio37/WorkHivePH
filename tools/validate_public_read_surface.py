@@ -57,7 +57,7 @@ DB = os.environ.get("WH_DB_CONTAINER", "supabase_db_workhive")
 # A predicate that mentions any of these is asking WHO is calling.
 CALLER_RE = re.compile(
     r"auth\.uid|auth\.jwt|auth\.role|current_user|current_setting|"
-    r"is_platform_admin|is_marketplace_admin|auth_worker_names|\bmy_\w+\(",
+    r"is_platform_admin|is_marketplace_admin|auth_worker_names|auth_own_history_names|\bmy_\w+\(",
     re.I)
 # A predicate that scopes through another table inherits that table's row security.
 DELEGATED_RE = re.compile(r"\bselect\b.+\bfrom\b", re.I | re.S)
@@ -67,6 +67,20 @@ DELEGATED_RE = re.compile(r"\bselect\b.+\bfrom\b", re.I | re.S)
 SENSITIVE_RE = re.compile(
     r"credit|treasur|ledger|payment|payout|receipt|invoice|wallet|balance|"
     r"email|phone|address|contact|token|secret|session", re.I)
+
+# ★A DECLARED-PUBLIC ROW IS NOT A DECLARED-PUBLIC COLUMN (GJ M10, 2026-11-06). platform_feedback sat in DECLARED below with
+# "the public branch is intentional" - true of its ROWS (the roadmap shows the items WorkHive publishes), and the gate never
+# asked about its COLUMNS. Both client roles held SELECT on every one, so the first item the founder published would have
+# handed any visitor its sender's contact_email, account, browser string and the founder's internal admin_note. The same
+# gap as M9's seller contact (20261106000002). This lens asks the column question of every caller-blind PERMISSIVE read
+# policy (restrictive ones only narrow): which identity/contact/internal columns can its roles select?
+SENSITIVE_COL_RE = (r"(^|_)(email|phone|mobile|contact|messenger|address|auth_uid|user_agent|password|token|secret|ip_address)"
+                    r"($|_)|admin_note|internal")
+# A sensitive column a caller-blind read serves ON PURPOSE - "table.column": the reason. Same contract as DECLARED.
+DECLARED_COLUMNS = {
+    "service_providers.contact": "a provider's BUSINESS contact, published for the clients who hail them; granted to "
+                                 "authenticated by column in 20260728000039 (the service-hailing design), live location excluded",
+}
 
 # ── DECLARED: this data is public ON PURPOSE. A entry without a reason is a silenced failure. ──
 DECLARED = {
@@ -194,6 +208,16 @@ def selftest():
         ok = False
     else:
         print(f"  {GREEN}PASS{RST} — a client-readable view that runs as its owner is caught")
+    # GJ M10: a caller-blind read policy that serves an email column to anon - the platform_feedback shape - must be named
+    got = blind_sensitive_columns("begin; grant select (contact_email) on public.platform_feedback to anon; "
+                                  "create policy probe_public_branch on public.platform_feedback for select to anon using (is_public);")
+    if got is None:
+        print(f"  {YEL}SKIP{RST} — the live column mutant needs the local database")
+    elif not any(g.startswith("platform_feedback.contact_email (anon)") for g in got):
+        print(f"  {RED}FAIL{RST} — a public branch serving contact_email to anon was not caught (got {got[:3]})")
+        ok = False
+    else:
+        print(f"  {GREEN}PASS{RST} — a caller-blind read that serves an identity column is caught")
     return 0 if ok else 1
 
 
@@ -228,6 +252,32 @@ def api_matviews(prefix_sql=""):
     if p.returncode != 0:
         return None
     return [l.strip() for l in p.stdout.splitlines() if l.strip() and l.strip() not in ("BEGIN", "GRANT", "ROLLBACK")]
+
+
+def blind_sensitive_columns(prefix_sql=""):
+    """Sensitive columns ("table.column (role)") a client role can SELECT through a caller-blind PERMISSIVE read policy that
+    applies to it. prefix_sql runs first in a rolled-back transaction (the self-test's mutant). None when unreadable."""
+    sql = (prefix_sql + r"""
+select distinct c.table_name || '.' || c.column_name || ' (' || c.grantee || ')'
+  from pg_policies p
+  join information_schema.column_privileges c
+    on c.table_schema = 'public' and c.table_name = p.tablename and c.privilege_type = 'SELECT'
+   and c.grantee in ('anon', 'authenticated')
+   and p.roles && array['public', c.grantee::text]::name[]
+ where p.schemaname = 'public' and p.cmd in ('SELECT', 'ALL') and p.permissive = 'PERMISSIVE'
+   and regexp_replace(coalesce(p.qual, 'true'), '\s+', ' ', 'g') !~* '(auth\.uid|auth\.jwt|auth\.role|current_user|current_setting|is_platform_admin|is_marketplace_admin|auth_worker_names|auth_own_history_names|\mmy_\w+\(|\muser_\w*hive_ids\(|\mselect\M.+\mfrom\M)'
+   and c.column_name ~* '""" + SENSITIVE_COL_RE + r"""'
+ order by 1;
+""" + ("rollback;" if prefix_sql else ""))
+    try:
+        p = subprocess.run(["docker", "exec", "-i", DB, "psql", "-U", "postgres", "-d", "postgres", "-tA"],
+                           input=sql, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=90)
+    except Exception:
+        return None
+    if p.returncode != 0:
+        return None
+    # only result rows ("table.column (role)"): a mutant prefix prints its own command tags
+    return [l.strip() for l in p.stdout.splitlines() if re.match(r"^\w+\.\w+ \((anon|authenticated)\)$", l.strip())]
 
 
 def rls_off_tables(prefix_sql=""):
@@ -350,6 +400,21 @@ def main(argv):
               f"the reason it is public. 'using (id = 1)' is not an access rule: it picks a row, it "
               f"does not check a person.{RST}")
         return 1
+
+    cols = blind_sensitive_columns()
+    if cols is None:
+        print(f"  {YEL}SKIP{RST} — the column lens could not read the catalogue")
+    else:
+        leaks = [c for c in cols if c.split(" ")[0] not in DECLARED_COLUMNS]
+        if leaks:
+            print(f"\n  {RED}FAIL{RST} — {len(leaks)} identity/contact/internal column(s) are served by a read policy that "
+                  f"never asks who is calling. A public ROW is a decision; its columns are a second one:")
+            for c in leaks:
+                print(f"    · {BOLD}{c}{RST}")
+            print(f"\n  {DIM}Serve the public columns through a definer read that names them (public_feedback_board), or "
+                  f"narrow the role's column grant; if the column is public on purpose, add it to DECLARED_COLUMNS.{RST}")
+            return 1
+        print(f"  {DIM}column lens: {len(cols)} sensitive column(s) behind caller-blind reads, all declared{RST}")
 
     print(f"\n  {GREEN}PASS{RST} — every client-readable table either checks the caller, inherits "
           f"scoping, denies by default, or is declared public with a reason")

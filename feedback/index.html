@@ -347,17 +347,14 @@
       const tok = getVoterToken();
       // Public items + this visitor's votes — parallel, single round trip each
       const [itemsRes, votesRes] = await Promise.all([
-        db.from('platform_feedback')
-          .select('id,created_at,kind,subject,body,status,upvotes')
-          .eq('is_public', true)
-          .order('upvotes', { ascending: false })
-          .order('created_at', { ascending: false })
-          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(200 + 1),   // more-said: by render (SL LB1: a 201st item says the board holds more than it shows)
-        db.from('platform_feedback_votes')
-          .select('feedback_id')
-          .eq('voter_token', tok)
-          .limit(500),   // cap-ok (LB1): its largest group (voter_token) is far under 500 - sized live by list-caps-say-more
+        // ★THE BOARD READ THE TABLE, AND THE TABLE ANSWERED WITH THE SENDER (GJ M10, 2026-11-06). Any visitor could ask
+        // platform_feedback for a public item's contact_email, account and the founder's internal note. The board now
+        // reads public_feedback_board(): the words, the kind, the status and when it was set, the votes - nothing else.
+        // It returns the 200 most-voted and a 201st when there are more (more-said: by render, SL LB1).
+        db.rpc('public_feedback_board'),
+        // this visitor's own votes, by their own token - the table itself is read by no client (anyone could once list
+        // every visitor's token and take their votes back). One visitor's votes: at most 500, the board holds 200 items.
+        db.rpc('my_feedback_votes', { p_voter_token: tok }),
       ]);
       if (itemsRes.error) throw itemsRes.error;
       _state.more  = (itemsRes.data || []).length > 200;
@@ -408,8 +405,8 @@
           <div class="flex-1 min-w-0">
             <div class="flex flex-wrap items-center gap-2 mb-1.5 text-xs text-white/50">
               <span class="kind-chip kind-${escHtml(r.kind)}">${escHtml(r.kind)}</span>
-              <span class="status-pill status-${escHtml(r.status)}">${escHtml(r.status.replace('_',' '))}</span>
-              <span>${escHtml(timeAgo(r.created_at))} ago</span>
+              <span class="status-pill status-${escHtml(r.status)}">${escHtml(r.status.replace('_',' '))}${(r.status !== 'new' && r.status_at) ? ' ' + escHtml(new Date(r.status_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })) : ''}</span>
+              <span>sent ${escHtml(timeAgo(r.created_at))} ago</span>
             </div>
             <h2 class="font-semibold text-base mb-1">${escHtml(r.subject || '(no subject)')}</h2>
             <p class="text-sm text-white/65 leading-relaxed whitespace-pre-wrap break-words">${escHtml(snippet)}${(r.body || '').length > 280 ? '…' : ''}</p>

@@ -25,6 +25,7 @@ import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { logWizard } from './live_page_journeys.registry.mjs';
 import { spawnSync } from 'child_process';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { createHash } from 'crypto';
 
 const ORIGIN = 'http://127.0.0.1:5000/workhive';
 const SB = 'http://127.0.0.1:54321';
@@ -184,6 +185,62 @@ async function go(s, path) {
   // reading sets s.gotoTimeout and records how long it took; everywhere else a minute is the page failing to load
   await s.page.goto(`${ORIGIN}/${path}`, { waitUntil: 'domcontentloaded', timeout: s.gotoTimeout || 60000 });
   await sleep(5000);
+  await surveyScreen(s, path);
+}
+
+// ★GJ M11 (2026-11-06): --survey GRADES EVERY SCREEN A MEMBER MEETS, IN THE WALK. M11's rows say "every screen this member
+// meets in the scenario, graded ... as the member lives them in the group walk". This walk already opens exactly those
+// screens for every human member - minted joiners and the signed-out visitor included - at phone-390 in one pass and
+// desktop-1280 in the other. So each go() runs survey_ufai_rubric.js once per (member, viewport, page) and keeps it in
+// .tmp/gj_ux/<scenario>/<member>_<viewport>_<pageId>.json for tools/bank_gj_ux.py. A refusal screen, or a signed-in member
+// sent somewhere else, is marked _denied (the critic batch runner's rule) and is never banked. Never on a --teeth run.
+const SURVEY = process.argv.includes('--survey') && !TEETH;
+const RUBRIC_SRC = SURVEY ? readFileSync('survey_ufai_rubric.js', 'utf8') : '';
+const RUBRIC_SHA = SURVEY ? createHash('sha256').update(readFileSync('survey_ufai_rubric.js')).digest('hex').slice(0, 12) : '';
+const _graded = new Set();
+// the settle times the critic batch runner grades these pages with (their reports render after their reads return)
+const SURVEY_SETTLE = { 'analytics.html': 3000, 'analytics-report.html': 3000, 'project-report.html': 2500 };
+async function surveyScreen(s, path) {
+  if (!SURVEY || !s || !s.m || !s.page || s.vp === 'n/a') return;
+  let rel = String(path).split('#')[0].split('?')[0];
+  if (rel === '' || rel.endsWith('/')) rel += 'index.html';
+  const parts = rel.split('/');
+  const pid = (parts[parts.length - 1] === 'index.html' && parts.length > 1) ? parts[parts.length - 2] : parts[parts.length - 1].replace(/\.html$/, '');
+  const key = `${s.m.key}|${s.vp}|${pid}`;
+  if (_graded.has(key)) return;
+  // ★GRADE THE PAGE, NOT ITS LOADING SHELL (2026-11-06, the first J4 --survey walk): analytics-report was graded 5 s after
+  // its first paint - h1=0, no headings, one block - while its report was still on the way. Wait for the network to go
+  // quiet and the page's settle time (the critic batch runner's own pace), never a reveal click (that would change the
+  // journey); a screen that still reads as a bare shell gets one more wait and is graded again.
+  await s.page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+  await sleep(SURVEY_SETTLE[rel] || 1500);
+  try {
+    const grade = () => s.page.evaluate(({ src, pid, rel, anon }) => {
+      eval('(' + src + ')')();
+      const out = window.__RUBRIC.survey({ pageId: pid });
+      const h1 = [...document.querySelectorAll('h1')].map((h) => (h.textContent || '').trim()).join(' | ');
+      const refused = /founder access only|your access cannot be checked/i.test(h1);
+      // a directory's index is that page: /feedback/ IS feedback/index.html (the first --survey walk marked every
+      // feedback screen "landed elsewhere" because the address shows the directory form)
+      const here = decodeURIComponent(location.pathname);
+      const dirForm = rel.endsWith('/index.html') ? rel.slice(0, -'index.html'.length) : null;
+      const elsewhere = !anon && !here.endsWith('/' + rel) && !(dirForm && here.endsWith('/' + dirForm));
+      out._denied = !!document.querySelector('[class*="access-denied"]') || refused || elsewhere;
+      if (refused) out._deniedWhy = 'refusal screen: ' + h1.slice(0, 60);
+      else if (elsewhere) out._deniedWhy = 'landed on ' + location.pathname + location.search;
+      out._css = innerWidth + 'x' + innerHeight;
+      out._shell = !document.querySelector('h1') && !document.querySelector('h2, h3, [role="heading"]');
+      return out;
+    }, { src: RUBRIC_SRC, pid, rel, anon: !!s.m.anon });
+    let survey = await grade();
+    if (survey._shell) { await sleep(5000); survey = await grade(); survey._regradedAfterShell = true; }
+    mkdirSync(`.tmp/gj_ux/${SCEN}`, { recursive: true });
+    writeFileSync(`.tmp/gj_ux/${SCEN}/${s.m.key}_${s.vp}_${pid}.json`, JSON.stringify({ scenario: SCEN, member: s.m.key,
+      user: s.m.user || null, vp: s.vp, page: rel, pid, lens: RUBRIC_SHA, teeth: false, at: new Date().toISOString(), survey }));
+    _graded.add(key);
+  } catch (e) {
+    console.log(`  survey ${s.m.key}@${s.vp} ${rel}: ${String(e).slice(0, 120)}`);
+  }
 }
 // the smallest visible element carrying the marker, and THE RECORD'S OWN CARD around it - what the person actually reads.
 // ★THE "CARD" WAS ONCE THE LARGEST BLOCK UNDER 900 CHARACTERS (2026-11-04, the first J2 walk): on the logbook that was a
@@ -3499,6 +3556,7 @@ RECIPES['G-ESC'] = {
     await w.page.evaluate(() => { const b = document.getElementById('btn-submit-report'); if (b) b.click(); });
     await sleep(3000);
     const flagged = psql(`select flagged from community_posts where id = '${q(pid)}'`);
+    X.rec.gesc = { id: pid, words: X.tag };   // GJ M10: hand-offs 2-3 send this report on to WorkHive
     return { act: { ok: flagged === 't' && opened, detail: `"Report Post" on ${aname}'s post as ${w.m.name} (reason spam): flagged = ${flagged}` },
       marker: X.tag, markerRx: /Reported by/i, path: 'community.html',
       reach: async (R2, ms) => {
@@ -3508,6 +3566,91 @@ RECIPES['G-ESC'] = {
         return findText(R2, X.tag, ms);
       },
       rec: { table: 'community_posts', id: pid, where: 'and flagged' } };
+  },
+  // GJ M10 (2026-11-06): the supervisor cannot settle it, so "Send to WorkHive" from the Mod Queue; WorkHive decides on the
+  // founder console; the decision lands where each of them reads their reports - the feedback panel's "Your reports", opened
+  // by the answer's link on WorkHive's own board (feedback/?reports=1). Never published: it holds a hive's own post.
+  2: async (X) => {   // WorkHive's decision on the supervisor's escalation, read by the supervisor
+    const { s, o } = X.S;
+    const post = X.rec.gesc || {};
+    X.restores = [...(X.restores || []), ['the walk\'s escalation', `delete from platform_feedback where ref_post_id = '${q(post.id)}' or body like '${q(X.tag)}%';`]];
+    await go(s, 'community.html');
+    await s.page.evaluate(() => { const t = document.getElementById('tab-mod'); if (t) t.click(); });
+    await sleep(1500);
+    const opened = await s.page.evaluate((id) => {
+      const card = document.getElementById('post-' + id);
+      if (card) card.scrollIntoView({ block: 'center' });
+      const b = card && card.querySelector('button[aria-haspopup="menu"]');
+      if (!b) return false; b.click(); return true;
+    }, post.id);
+    await sleep(600);
+    const tapped = opened ? await s.page.evaluate(() => {
+      const it = [...document.querySelectorAll('[role="menuitem"]')].find((b) => /^send to workhive$/i.test((b.innerText || '').trim()) && b.checkVisibility && b.checkVisibility());
+      if (it) { it.click(); return true; } return false;
+    }) : false;
+    const words = `${X.tag}-S A member keeps selling personal goods in the plant feed and says the hive rule does not apply to them`;
+    const asked = tapped ? await modalFill(s, words) : false;
+    await sleep(3000);
+    const fb = psql(`select id || '|' || coalesce(auth_uid::text,'') || '|' || is_public::text from platform_feedback where ref_post_id = '${q(post.id)}' order by created_at desc limit 1`);
+    const [fid, fuid, fpub] = fb ? fb.split('|') : ['', '', ''];
+    // WorkHive decides, on the founder console's Feedback inbox
+    await go(o, 'founder-console.html');
+    await sleep(4000);
+    await o.page.evaluate(() => { const sec = document.getElementById('sec-feedback'); const d = sec && sec.closest('details'); if (d) d.open = true; if (sec) sec.scrollIntoView({ block: 'start' }); });
+    await sleep(2500);
+    const drawer = await o.page.evaluate((id) => { const c = document.querySelector(`button[data-fb-id="${id}"]`); if (c) { c.click(); return true; } return false; }, fid);
+    await sleep(1500);
+    const publishLocked = await o.page.evaluate(() => { const c = document.getElementById('fb-d-public'); return !!(c && c.disabled); });
+    const reply = `${X.tag}-W Personal sales are not allowed anywhere on WorkHive. Please remove the post; we have told the member`;
+    await o.page.evaluate(() => { const st = document.getElementById('fb-d-status'); if (st) { st.value = 'resolved'; st.dispatchEvent(new Event('change', { bubbles: true })); } });
+    await o.page.fill('#fb-d-reply', reply).catch(() => {});
+    await o.page.evaluate(() => { const b2 = document.getElementById('fb-d-save'); if (b2) b2.click(); });
+    await sleep(3500);
+    const st = psql(`select status || '|' || coalesce(sender_reply,'') || '|' || is_public::text from platform_feedback where id = '${q(fid)}'`);
+    X.rec.gescAnswer = { fid, reply };
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') || ' -> ' || coalesce(payload->>'url','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${s.m.uid}' and payload->>'title' = 'WorkHive answered your report' order by created_at desc limit 1`);
+    return { act: { ok: tapped && asked && !!fid && fuid === s.m.uid && fpub === 'false' && drawer && publishLocked && st.startsWith('resolved|' + reply.slice(0, 20)),
+        detail: `the post's menu "Send to WorkHive" in the Mod Queue as ${s.m.name}: platform_feedback ${fid || 'NO ROW'} (bound to the supervisor: ${fuid === s.m.uid}, public: ${fpub}); decided on the founder console as ${o.m.name} (publish locked: ${publishLocked}): ${st.slice(0, 90) || 'NOT SAVED'}` },
+      // who decided is named by the panel's own status sentence ("WorkHive resolved it"), never by words inside the reply
+      marker: reply.slice(0, 40), whoRx: /WorkHive (resolved|has read|is working on|decided not to act|is handling)/i, path: 'feedback/index.html', channelSaid: pushSaid || null,
+      // the answer's link: WorkHive's board with "Your reports" open
+      reach: async (R2, ms) => { await go(R2, 'feedback/?reports=1'); await sleep(2500); return findText(R2, reply.slice(0, 40), ms); },
+      rec: { table: 'platform_feedback', id: fid },
+      F: () => {
+        const mine = Number(asUser(s.m.uid, `select count(*) from my_feedback_outcomes() where id = '${q(fid)}' and status = 'resolved' and sender_reply like '${q(X.tag)}%'`) || 0);
+        return { ok: mine === 1 && /reports=1/.test(pushSaid || ''), detail: `my_feedback_outcomes() read as ${s.m.name}: ${mine} (resolved, with the answer); the push: ${pushSaid || 'NONE'}` };
+      },
+      I: (witness) => {
+        const other = Number(asUser(witness.uid, `select count(*) from my_feedback_outcomes() where id = '${q(fid)}'`) || 0);
+        const raw = Number(asUser(witness.uid, `select count(*) from platform_feedback where id = '${q(fid)}'`) || 0);
+        const board = Number(psql(`set role anon; select count(*) from public_feedback_board() where id = '${q(fid)}';`).split('\n').pop() || 0);
+        return { ok: other === 0 && raw === 0 && board === 0, receiver_rows: 1, foreign: witness.user, foreign_outcome_rows: other, foreign_table_rows: raw, public_board_rows: board };
+      } };
+  },
+  3: async (X) => {   // and the worker who reported it reads the same decision
+    const { w } = X.S;
+    const post = X.rec.gesc || {};
+    const g = X.rec.gescAnswer || {};
+    const pushW = () => psql(`select count(*) from service_outbox where created_at >= '${X.t0}' and payload->'auth_uids' ? '${w.m.uid}' and payload->>'title' = 'WorkHive reviewed the post you reported'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') || ' -> ' || coalesce(payload->>'url','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${w.m.uid}' and payload->>'title' = 'WorkHive reviewed the post you reported' order by created_at desc limit 1`);
+    return { act: { ok: !!g.fid, detail: `WorkHive's decision at hand-off 2 on the post ${w.m.name} reported` },
+      marker: (g.reply || X.tag).slice(0, 40), markerRx: /a post you reported/i, whoRx: /WorkHive (resolved|has read|is working on|decided not to act|is handling)/i, path: 'feedback/index.html', channelSaid: pushSaid || null,
+      reach: async (R2, ms) => { await go(R2, 'feedback/?reports=1'); await sleep(2500); return findText(R2, (g.reply || X.tag).slice(0, 40), ms); },
+      rec: { table: 'platform_feedback', id: g.fid },
+      F: () => {
+        const n = Number(pushW());
+        const back = asUser(w.m.uid, `select count(*) from my_feedback_outcomes() where id = '${q(g.fid)}' and subject like 'A post you reported:%' and sender_reply like '${q(X.tag)}%'`);
+        const news = asUser(w.m.uid, `select coalesce(outcome,'') || '|' || coalesce(moderated_by,'') from public.my_moderation_news() where kind = 'escalation' and post_id = '${q(post.id)}'`);
+        return { ok: n >= 1 && Number(back) === 1 && news.startsWith('resolved|'),
+          detail: `push "WorkHive reviewed the post you reported" to ${w.m.name}: ${n}; my_feedback_outcomes as ${w.m.name}: ${back}; my_moderation_news: ${news || 'nothing'}` };
+      },
+      I: (witness) => {
+        const theirs = Number(asUser(witness.uid, `select count(*) from my_feedback_outcomes() where id = '${q(g.fid)}'`) || 0);
+        const news = Number(asUser(witness.uid, `select count(*) from public.my_moderation_news() where post_id = '${q(post.id)}'`) || 0);
+        return { ok: theirs === 0 && news === 0, foreign: witness.user, foreign_outcome_rows: theirs, foreign_news_rows: news };
+      } };
   },
 };
 

@@ -65,6 +65,12 @@ SIGNED_OUT = {
     "seller_has_published_listing": "an anon row policy on marketplace_sellers and the public sellers view ask it",
     "marketplace_sellers_public_rows": "the public seller list (v_marketplace_sellers_public) - per-seller totals that must "
                                        "not depend on who asks, so they are counted with the owner's rights (BRH-R)",
+    # GJ M10 (2026-11-06): the public roadmap stopped reading platform_feedback and platform_feedback_votes directly - both
+    # served every column (the sender's email, account, browser; every visitor's vote token) to anyone
+    "public_feedback_board": "the public roadmap (/feedback/) lists the items WorkHive published - their words, kind, status, "
+                             "when it was set, and votes; never who sent them, nor the founder's note",
+    "my_feedback_votes": "a visitor's OWN votes on the public roadmap, found by the random token their browser holds; never "
+                         "anyone else's token or votes",
 }
 POLICY_ONLY_SIGNED_OUT = {"seller_has_published_listing"}
 VIEW_BACKED_SIGNED_OUT = {"marketplace_sellers_public_rows": "v_marketplace_sellers_public"}
