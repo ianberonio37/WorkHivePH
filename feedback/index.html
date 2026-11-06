@@ -350,10 +350,12 @@
         // ★THE BOARD READ THE TABLE, AND THE TABLE ANSWERED WITH THE SENDER (GJ M10, 2026-11-06). Any visitor could ask
         // platform_feedback for a public item's contact_email, account and the founder's internal note. The board now
         // reads public_feedback_board(): the words, the kind, the status and when it was set, the votes - nothing else.
-        // It returns the 200 most-voted and a 201st when there are more (more-said: by render, SL LB1).
-        db.rpc('public_feedback_board'),
+        // It returns the 200 most-voted and a 201st when there are more.
+        db.rpc('public_feedback_board')
+          .limit(200 + 1),   // more-said: by render (SL LB1: a 201st item says the board holds more than it shows)
         // this visitor's own votes, by their own token - the table itself is read by no client (anyone could once list
         // every visitor's token and take their votes back). One visitor's votes: at most 500, the board holds 200 items.
+        // a lookup the board never lists: the function caps one visitor's own votes at 500 (declared in RPC_CAPS)
         db.rpc('my_feedback_votes', { p_voter_token: tok }),
       ]);
       if (itemsRes.error) throw itemsRes.error;

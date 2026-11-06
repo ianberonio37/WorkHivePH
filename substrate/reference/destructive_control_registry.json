@@ -96,23 +96,23 @@
         "message_head": "You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it ca"
       },
       {
-        "line": 3524,
+        "line": 3526,
         "message_head": "Copy this invite link and send it to your team:"
       },
       {
-        "line": 3612,
+        "line": 3614,
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 5309,
+        "line": 5312,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. When they sign in, WorkHive asks them to set their ow"
       },
       {
-        "line": 5336,
+        "line": 5339,
         "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. When they sign in"
       },
       {
-        "line": 6673,
+        "line": 6676,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],

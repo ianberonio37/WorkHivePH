@@ -3508,9 +3508,11 @@ async function _whSeatInvitedHive(h) {
   localStorage.setItem('wh_active_hive_id', h.id);
   localStorage.setItem('wh_hive_id', h.id);
   localStorage.setItem('wh_hive_name', h.name);
-  localStorage.setItem('wh_hive_role', role);   // storage-key-allow: wh_hive_role is the canonical role key (storage_key_registry.json)
   HIVE_ID = h.id; HIVE_NAME = h.name;
-  applyHiveRole(role);
+  applyHiveRole(role);   // the ONE role adopter: the variable, the stored key and the paint move together
+  // The start-up path (the only caller today) builds the board AFTER this, so nothing is drawn for another hive. A seat
+  // after the board is already up would leave it drawn for the previous hive: reload so it is rebuilt for this one.
+  if (window._whBoardStarted) { window.location.reload(); return; }
 }
 document.getElementById('btn-copy-invite').addEventListener('click', async () => {
   const code = (document.getElementById('code-strip-value').textContent || '').trim().toUpperCase();
@@ -3669,6 +3671,7 @@ document.getElementById('btn-rename-hive').addEventListener('click', renameHive)
 
 // ── BOARD INIT ──
 async function initBoard() {
+  window._whBoardStarted = true;   // read by _whSeatInvitedHive: a seat after this point must rebuild the board
   document.getElementById('board-hive-name').textContent = HIVE_NAME || 'Hive Board'; // textContent is XSS-safe (no HTML parse); escHtml would double-escape. Fallback keeps the h1 non-empty (a11y).
 
   // Source/window chip for the Hive Board KPI strip. Single chip covers the

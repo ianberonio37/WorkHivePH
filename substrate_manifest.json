@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-05T21:54:20.299236+00:00",
+  "generated_at": "2026-11-06T03:08:46.636098+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -298,7 +298,7 @@
         "total_canonical_reads": 345,
         "total_drift_reads": 0,
         "total_gap_reads": 0,
-        "total_allowed_reads": 322
+        "total_allowed_reads": 321
       }
     },
     {

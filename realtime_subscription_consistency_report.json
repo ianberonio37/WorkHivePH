@@ -59,67 +59,67 @@
         {
           "table": "hive_readiness",
           "allowed": true,
-          "offset": 267318
+          "offset": 268253
         },
         {
           "table": "hive_adoption_score",
           "allowed": true,
-          "offset": 281723
+          "offset": 282658
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 393871
+          "offset": 394806
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 394288
+          "offset": 395223
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 395413
+          "offset": 396348
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 396368
+          "offset": 397303
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 398309
+          "offset": 399244
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 447140
+          "offset": 448075
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 447595
+          "offset": 448530
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 448589
+          "offset": 449524
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 449052
+          "offset": 449987
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 450646
+          "offset": 451581
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 451173
+          "offset": 452108
         }
       ],
       "drift": []
@@ -245,42 +245,42 @@
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 239990
+          "offset": 243266
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 241252
+          "offset": 244528
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 245665
+          "offset": 248941
         },
         {
           "table": "community_replies",
           "allowed": false,
-          "offset": 247641
+          "offset": 250917
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 249216
+          "offset": 252492
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 250089
+          "offset": 253365
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 253407
+          "offset": 256683
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 253667
+          "offset": 256943
         }
       ],
       "drift": []

@@ -2,7 +2,7 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-11-05T21:44:03Z",
+    "generated_at": "2026-11-06T02:57:52Z",
     "seam_count": 186,
     "by_kind": {
       "saas\u2192ai": 46,
@@ -1585,7 +1585,7 @@
       "caller": "hive.html",
       "callee": "ai-gateway",
       "file": "hive.html",
-      "line": 7312,
+      "line": 7328,
       "evidence": "const resp = await db.functions.invoke('ai-gateway', {",
       "contract_test": null
     },
@@ -1595,7 +1595,7 @@
       "caller": "hive.html",
       "callee": "ai-orchestrator",
       "file": "hive.html",
-      "line": 7328,
+      "line": 7344,
       "evidence": "const { data, error } = await db.functions.invoke('ai-orchestrator', {",
       "contract_test": null
     },
