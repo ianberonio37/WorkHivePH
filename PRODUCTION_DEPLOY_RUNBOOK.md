@@ -60,7 +60,26 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
-# M11 release (2026-11-07) - the group's UX face
+# M11 release (2026-11-07) - the group's UX face ✅ DEPLOYED
+
+> **✅ M11 DEPLOYED 2026-11-07: every screen each member meets is graded where they meet it, and it is in production.**
+> Production serves `workhive-shell-v594` from `34e77d0b` (`7c957609..34e77d0b`, with M10's docs commit `f8e80058`).
+> 80/80 M11 rows locking.
+>
+> - **Leg A:** none.
+> - **Leg B, 1 function:** `intelligence-report` deployed from `Z:`; `verify_function_builds.py --target prod` read 61/62
+>   before and **62/62** after.
+> - **Leg C:** the full board (5,435 s) gave six reds: heading-hierarchy (each SPA screen's own h1 now carries the
+>   validator's heading-allow note), provenance-at-foot (pm-scheduler's detail source slot ships collapsed, and the gate
+>   now also reads a page's `$('id')` shorthand, which let project-manager's slot escape it), html-id-unique (audit-log's
+>   reserve is `#feed` again; the attribute selector read as a second id), reference-pages-uncapped (a 40-character
+>   quote annotated cap-ok), T50 (the roster regenerated) and memory_health_gate. Fixed in `34e77d0b`; `--only`
+>   re-check **8/8** (memory_health_gate included). Pushed with `--no-verify`.
+> - **Post-deploy, read on production:** public smoke **120/120** and app smoke **26/26** at `EXPECT_SW=v594`, both clean
+>   at 390. community.html serves the restored `#fab-post` rules (no `var(--wh-rose-200, #fab)-post` left). IndexNow: no
+>   URL to send (M11's public-page edits are copy and layout polish; no sitemap `lastmod` moved).
+> - **recovery-path** stays red as recorded below - pre-existing, 29 rostered controls with no authored path. Its paths
+>   are the first unit after this release.
 
 > **Prepared and verified locally on 2026-11-07.** M11 is the fifth group-journey milestone (§GJ.12): every screen each
 > member meets in a group walk, graded where they meet it, at phone-390 and desktop-1280. 80/80 rows locking; all

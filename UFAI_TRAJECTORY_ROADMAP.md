@@ -5957,6 +5957,9 @@ roadmap. Reading what the roadmap actually reads, before walking it:
 
 ### §GJ.12 M11 walked - the group's UX face (every screen each member meets, graded in the walk)
 
+**✅ Deployed 2026-11-07** - production serves `workhive-shell-v594` from `34e77d0b`; public smoke 120/120 and app smoke
+26/26 at v594, both clean at 390 (PRODUCTION_DEPLOY_RUNBOOK.md, M11).
+
 **What M11 measures.** M11's 80 rows are scenario × member. Each says: grade every screen THIS member meets in the
 scenario, at phone-390 and desktop-1280, as the member lives it in the group walk. The instrument is
 `tools/prove_group_journeys.mjs --survey`: each time the walk opens a page for a member it runs `survey_ufai_rubric.js`
