@@ -2641,6 +2641,75 @@ def group_journey_rows(existing: list[dict], replay: bool = False) -> list[dict]
     return rows
 
 
+# ★WHAT THE CRITIC FOUND IS ROADMAP WORK (CF1..; Ian, 2026-11-07: "what we find in critic program should be added
+# appropriate numbers of trajectories in trajectories roadmap so that we have a common framework working on this"). One row
+# per DISTINCT defect the critic deepwalk has found - (page, persona, rubric dimension), measured by
+# tools/critic_findings_census.py from the open critic bank and the batch's held-red ledger (critic_found_ledger.json) - in
+# the blocks it declares (M12 signed-in screens, M13 the signed-out face), each closed by a production push. ONE wave, "CF",
+# so a defect found tomorrow appends after today's ids and the block never splits (the BRH rule). A row closes on the
+# critic's own instrument: a later walk of the same page as the same persona that graded the dimension and found nothing
+# (tools/bank_cf_rows.py), and its critic rows close with it.
+CF_PREFIX = "CF"
+CF_WAVE = "CF-FOUND"   # never two letters: update_trajectory_scoreboard reads [A-Z]{1,2} as a founding wave
+CF_INSTRUMENT = ("playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or "
+                 "tools/family_rubric_sweep.mjs --anon)")
+
+
+def critic_finding_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per cell of the critic findings census not yet seeded. replay=True returns what was SEEDED, in id order."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("cf") or {}).get("kind") == "critic-finding"),
+                        key=lambda x: int(str(x["id"])[len(CF_PREFIX):] or 0))
+        critic_finding_rows.arithmetic = {}
+        return [{"wave": t["wave"], "cf": t["cf"]} for t in seeded]
+    import critic_findings_census as cfc
+    c = cfc.census()
+    have = {((x.get("cf") or {}).get("page"), (x.get("cf") or {}).get("persona"), (x.get("cf") or {}).get("dim"))
+            for x in existing if (x.get("cf") or {}).get("kind") == "critic-finding"}
+    rows: list[dict] = []
+    for cell in c["cells"]:
+        page, persona, dim = cell["page"], cell["persona"], cell["dim"]
+        if (page, persona, dim) in have:
+            continue
+        who = "a signed-out visitor" if persona == "anon" else ("a person" if persona == "any" else persona)
+        if persona == "anon":
+            pages, entry = (["index.html", page] if page != "index.html" else [page]), "search-arrival"
+        elif persona == "oversight" and page != "index.html":
+            pages, entry = [page], "direct"
+        else:
+            pages = _path(_start(page), page, [], cast=_cast_of(persona))
+            entry = "direct" if page == "index.html" else "hub-nav"
+        detail = str(cell["evidence"]).split(":", 1)[-1].strip()
+        rows.append({
+            "wave": CF_WAVE,
+            "title": f"{dim} {cell['dim_name']} - {_short(page)} · {who}: {detail[:70]}",
+            "pages": list(pages), "layers": ["F"], "ufai": ["U"], "persona": persona, "device": "any", "entry": entry,
+            "framing": "person",
+            "story": (f"{who} opens {_short(page)} and meets what the critic deepwalk found there on the {dim} class "
+                      f"({cell['dim_name']}): {detail}. Found {cell['found_at'][:10] or 'in the bank'} on "
+                      f"{len(cell['critic_ids'])} critic walk(s) ({', '.join(cell['critic_ids'][:4])}"
+                      f"{'...' if len(cell['critic_ids']) > 4 else ''}), {cell['findings']} finding(s). The row closes when the "
+                      f"defect is fixed at its cause and a later walk of the same page as the same person grades {dim} clean "
+                      f"at {' and '.join(LX_VIEWPORTS)}"),
+            "journey": {"archetype": f"CF:{persona}", "stage": "acquire" if persona == "anon" else "operate",
+                        "vertical": HIVES[len(page) % len(HIVES)], "pair": "", "language": "en", "moment": "present",
+                        "condition": "normal", "tier": "A", "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "cf": {"kind": "critic-finding", "page": page, "persona": persona, "dim": dim, "dim_name": cell["dim_name"],
+                   "screen": cell["screen"], "evidence": cell["evidence"], "severity": cell["severity"],
+                   "found_at": cell["found_at"], "critic_ids": list(cell["critic_ids"]), "findings": cell["findings"],
+                   "sources": list(cell["sources"]), "milestone": cell["milestone"], "viewports": list(LX_VIEWPORTS),
+                   "instrument": CF_INSTRUMENT,
+                   "closes": (f"{dim} graded clean on {_short(page)} for {who} by a walk after the fix, at both viewports")},
+        })
+    critic_finding_rows.arithmetic = {"by_block": Counter(r["cf"]["milestone"] for r in rows),
+                                      "by_persona": Counter(r["persona"] for r in rows),
+                                      "by_dim": Counter(r["cf"]["dim"] for r in rows),
+                                      "by_source": Counter(src for r in rows for src in r["cf"]["sources"]),
+                                      "skipped": c["skipped"], "pages": len({r["cf"]["page"] for r in rows})}
+    return rows
+
+
 def _place_by_wave(existing: list, created: list) -> list:
     """Each new row goes directly after the last row of its own wave, or after the last row of its id space for a
     wave's first row, so every wave stays one contiguous block in the order validate_trajectory_registry replays.
@@ -2709,6 +2778,8 @@ def main() -> int:
                     help="ED (2026-10-31): one row per empty cell of tools/engineering_design_census.py - each calculator")
     ap.add_argument("--add-open-design", action="store_true",
                     help="OD (2026-11-03): one row per cell of tools/open_design_census.py - Penpot comps, token drift, system tokens")
+    ap.add_argument("--add-critic-findings", action="store_true",
+                    help="CF (2026-11-07): one row per distinct defect the critic deepwalk found (tools/critic_findings_census.py)")
     ap.add_argument("--add-group-journeys", action="store_true",
                     help="GJ (2026-11-04): one row per cell of tools/group_journey_census.py - the hand-offs between the "
                          "people of one scenario, per layer, per pillar, per member, cut into milestones M7-M11")
@@ -2853,6 +2924,35 @@ def main() -> int:
         from critic_seed_missing import seed_missing  # noqa: E402
         seed_missing()
         print("\n" + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
+        return 0
+    if args.add_critic_findings:
+        rows = critic_finding_rows(existing)
+        if not rows:
+            print("  CF critic findings: every defect the census measured is already seeded - nothing to add")
+            return 0
+        a = critic_finding_rows.arithmetic
+        created = _append_own_space(existing, rows, CF_PREFIX)
+        print("  THE NUMBER, measured by tools/critic_findings_census.py (never typed) - what the critic deepwalk found:")
+        print("    by block    " + " · ".join(f"{k} {a['by_block'][k]}" for k in sorted(a["by_block"], key=lambda m: int(m[1:]))))
+        print("    by source   " + " · ".join(f"{k} {v}" for k, v in a["by_source"].most_common()))
+        print("    by persona  " + " · ".join(f"{k} {v}" for k, v in a["by_persona"].most_common()))
+        print("    by dim      " + " · ".join(f"{k} {v}" for k, v in a["by_dim"].most_common()))
+        if a["skipped"]:
+            print("    not rows    " + " · ".join(f"{k} {v}" for k, v in sorted(a["skipped"].items())))
+        print(f"    = {len(created)} new rows ({created[0]['id']}..{created[-1]['id']}) on {a['pages']} page(s), each closed "
+              f"at {' and '.join(LX_VIEWPORTS)}")
+        print(f"  program: {len(scoped)} in scope today -> {len(scoped) + len(created)} after seeding")
+        if args.dry_run:
+            print(f"  {created[0]['id']:<7} {created[0]['title'][:140]}")
+            print(f"  {created[-1]['id']:<7} {created[-1]['title'][:140]}")
+            print("  (nothing written)")
+            return 0
+        doc["trajectories"] = _place_by_wave(existing, created)
+        doc["count"] = len(doc["trajectories"])
+        _rio.save_doc(doc)
+        from critic_seed_missing import seed_missing  # noqa: E402
+        seed_missing()
+        print("\n" + f"  wrote {len(created)} CF row(s) into {REGISTRY.name} (registry now {doc['count']})")
         return 0
     if args.add_cube or args.add_own or args.add_hive_scale or args.add_engineering_design or args.add_open_design             or args.add_group_journeys:
         if args.add_group_journeys:

@@ -67,6 +67,13 @@ def main():
     # a row whose fixes landed (none of its findings recur -> improving). --pages a.html,b.html limits it to the rows
     # whose path touches a fixed page. Without --rewalk the manifest is the pending queue, as before.
     rewalk = '--rewalk' in sys.argv
+    # --ids a,b (Wave CF, 2026-11-08): walk THESE critic rows whatever their status, on their own declared path - the
+    # evidence walk a CF row needs at its second width (a batch-held fix was banked clean at phone-390 only). Write it
+    # with --out, never over the pending queue the batch reads by default.
+    only_ids = set()
+    if '--ids' in sys.argv:
+        only_ids = {i.strip() for i in sys.argv[sys.argv.index('--ids') + 1].split(',') if i.strip()}
+        rewalk = True
     page_filter = set()
     if '--pages' in sys.argv:
         page_filter = {p.strip() for p in sys.argv[sys.argv.index('--pages') + 1].split(',') if p.strip()}
@@ -111,7 +118,10 @@ def main():
 
     seen = {}
     for x in crit:
-        if rewalk:
+        if only_ids:
+            if x['id'] not in only_ids:
+                continue
+        elif rewalk:
             if x.get('status') != 'critiqued' or not (x.get('findings') or []):
                 continue
             if page_filter and not (set(x.get('pages') or []) & page_filter):
@@ -177,7 +187,8 @@ def main():
 
     manifest = list(seen.values())
     resolved = [w for w in manifest if w['email'] or w['persona'] == 'anon']
-    out_path = os.path.join(HERE, '.tmp', 'critic_walk_manifest.json')
+    out_path = (sys.argv[sys.argv.index('--out') + 1] if '--out' in sys.argv
+                else os.path.join(HERE, '.tmp', 'critic_walk_manifest.json'))
     io.open(out_path, 'w', encoding='utf-8').write(json.dumps(manifest, indent=1, ensure_ascii=False))
     print('walks: %d  (resolved cast: %d, unresolved: %d)  -> %s'
           % (len(manifest), len(resolved), len(manifest) - len(resolved), out_path))

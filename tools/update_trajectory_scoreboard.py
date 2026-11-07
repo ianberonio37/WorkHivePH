@@ -157,6 +157,9 @@ try:
                        for cls, w in _GJ_WAVE.items()})
 except Exception:
     WAVE_NAMES.update({w: f"Group journeys: {w}" for w in ("GJ-PROD", "GJ-FND", "GJ-PUB", "GJ-UX")})
+# what the critic deepwalk FOUND (CF, 2026-11-07), registered in the change that seeds it
+WAVE_NAMES["CF-FOUND"] = ("Critic finds: each distinct defect the critic deepwalk found (page x persona x rubric class), "
+                          "fixed at its cause and graded clean by a later walk")
 # SL / ENH / OPC = the three waves of 2026-10-14 (the sub-layers, the enhancements, the operator console), named from
 # their own tables in the SAME change that seeds them, or render() raises KeyError on the first new row.
 try:

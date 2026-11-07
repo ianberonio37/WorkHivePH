@@ -24,8 +24,12 @@ const RUBRIC_SRC = readFileSync('survey_ufai_rubric.js', 'utf8');
 // mid-run can never be stamped onto rows the old lens graded (2026-10-13)
 import { createHash } from 'crypto';
 const LENS_SHA = createHash('sha256').update(readFileSync('survey_ufai_rubric.js')).digest('hex').slice(0, 12);
-const MANIFEST = '.tmp/critic_walk_manifest.json';
-const OUTDIR = '.tmp/batchsurvey';
+// --manifest (Wave CF, 2026-11-08): an evidence walk reads its own manifest (critic_walk_manifest.py --ids .. --out ..)
+const MANIFEST = (() => { const a = process.argv.slice(2); const i = a.indexOf('--manifest'); return i >= 0 ? a[i + 1] : '.tmp/critic_walk_manifest.json'; })();
+// --outdir (Wave CF, 2026-11-07): an evidence walk writes beside, never over, the batch's own surveys
+const OUTDIR = (() => { const a = process.argv.slice(2); const i = a.indexOf('--outdir'); return i >= 0 ? a[i + 1] : '.tmp/batchsurvey'; })();
+// --device (Wave CF): walk the cast at another width - the desktop half a CF row needs before it can close
+const DEVICE = (() => { const a = process.argv.slice(2); const i = a.indexOf('--device'); return i >= 0 ? a[i + 1] : ''; })();
 
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
@@ -34,6 +38,18 @@ const APPLY = args.includes('--apply');
 // apply pass, which re-graded every clean walk twice (~1 min a walk on this host).
 const CLEAN_ONLY = args.includes('--clean-only');
 const heldRed = [];
+// what a walk FOUND goes to critic_found_ledger.json (Wave CF): the trajectory roadmap seeds one row per distinct defect
+// the survey's own record of who it graded (Wave CF): persona, device, the walk's ids, and when
+const castOf = (w) => ({ persona: w.persona || 'any', device: w.device || 'any', ids: w.ids.slice(0, 40),
+  // LOCAL wall time, like every found_at and banked_at it is compared with (toISOString is UTC: 13 h early on this host)
+  at: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) });
+const recordFind = (w, extra) => {
+  try {
+    const out = execFileSync('python', ['tools/critic_found_append.py', '--walk', w.ids[0], '--ids', w.ids.join(','),
+      '--persona', w.persona || 'any', ...extra], { encoding: 'utf8', shell: false });
+    console.log('    ' + out.trim());
+  } catch (e) { console.log(`    FIND NOT RECORDED ${w.ids[0]}: ${String((e.stderr || '') + (e.stdout || '') || e).trim().split('\n').slice(-1)[0].slice(0, 200)}`); }
+};
 const HEADED = args.includes('--headed');
 const LIMIT = (() => { const i = args.indexOf('--limit'); return i >= 0 ? parseInt(args[i + 1], 10) : Infinity; })();
 const SUBSET = (() => { const i = args.indexOf('--subset'); return i >= 0 ? args[i + 1] : 'hive'; })();
@@ -139,6 +155,7 @@ const browser = await chromium.launch({ headless: !HEADED });
 let banked = 0, surveyed = 0, failed = 0;
 try {
   for (const w of walks) {
+    if (DEVICE) w.device = DEVICE;
     const view = VIEW[w.device] || VIEW['phone-390'];
     // offline-3g needs the SW ALLOWED (it serves the cache when the network is cut); every other mode
     // blocks it (a stray SW would serve stale markup and mask a real regression).
@@ -187,7 +204,7 @@ try {
         const hit = SURVEY_CACHE.get(cacheKey);
         const pid = pageIdOf(rel);
         const f = `${OUTDIR}/${w.ids[0]}_${pid.replace(/[^a-z0-9-]/gi, '_')}.json`;
-        writeFileSync(f, JSON.stringify({ ...hit.survey, _reusedFrom: hit.from }));
+        writeFileSync(f, JSON.stringify({ ...hit.survey, _reusedFrom: hit.from, _cast: castOf(w) }));
         if (hit.survey._denied) anyDenied = true;
         files.push({ f, pid, failing: (hit.survey.failing || []).length, denied: hit.survey._denied, reused: true });
         reused++;
@@ -225,7 +242,7 @@ try {
         }, { src: RUBRIC_SRC, pid, rel: String(rel).split('?')[0], anon: isAnon(w) });
         if (survey._denied) anyDenied = true;
         const f = `${OUTDIR}/${w.ids[0]}_${pid.replace(/[^a-z0-9-]/gi, '_')}.json`;
-        writeFileSync(f, JSON.stringify(survey));
+        writeFileSync(f, JSON.stringify({ ...survey, _cast: castOf(w) }));
         files.push({ f, pid, failing: (survey.failing || []).length, denied: survey._denied });
         if (REUSE) SURVEY_CACHE.set(cacheKey, { survey, from: w.ids[0] });
       } catch (e) { pageErr = `${rel}: ${String(e).slice(0, 80)}`; }
@@ -242,11 +259,21 @@ try {
     if (anyDenied) {
       const why = files.map((x) => { try { return x.denied ? `${x.pid}: ${JSON.parse(readFileSync(x.f, 'utf8'))._deniedWhy || 'access-denied'}` : null; } catch (_) { return null; } }).filter(Boolean);
       console.log(`    SKIP bank ${w.ids[0]}: not the page's own screen (${why.join('; ') || 'access-denied'}) - not banking a denied survey`);
+      // ★A BOUNCED SCREEN IS A FIND (Wave CF, 2026-11-07): the page never showed this person its own screen, so the
+      // trajectory roadmap carries it (critic_found_ledger.json -> tools/critic_findings_census.py -> CF rows)
+      if (APPLY) for (const x of files.filter((y) => y.denied)) {
+        let landed = '';
+        try { landed = String(JSON.parse(readFileSync(x.f, 'utf8'))._deniedWhy || '').replace(/^landed on\s*/, ''); } catch (_) { /* empty-catch-allow: the find still names the page */ }
+        recordFind(w, ['--screen', x.pid, '--landed', landed]);
+      }
       continue;
     }
     if (APPLY && CLEAN_ONLY && totFail > 0) {
       heldRed.push(w.ids[0] + ' ' + files.filter((x) => x.failing).map((x) => `${x.pid}:${x.failing}`).join(' '));
       console.log(`    HELD ${w.ids[0]}: red, left pending for a fix (--clean-only)`);
+      // ★A HELD RED IS A FIND (Wave CF, 2026-11-07): fixed before it banks, it would leave no finding in the critic bank,
+      // so each failing dimension goes to the ledger the trajectory roadmap's census reads
+      recordFind(w, ['--surveys', `${OUTDIR}/${w.ids[0]}_*.json`]);
       continue;
     }
     if (APPLY) {

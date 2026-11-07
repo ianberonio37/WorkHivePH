@@ -771,6 +771,11 @@ def build() -> dict:
         # wave; every GJ row is open when it lands.
         if (r.get("gj") or {}).get("kind") == "group-journey":
             want = (r.get("gj") or {}).get("instrument") or want
+        # a CF row (what the critic deepwalk found, 2026-11-07) is closed by the critic's own survey of the same page as the
+        # same person after the fix - its title's rubric words must not route it to another instrument. DISCLOSED: added in
+        # the change that seeds the wave; every CF row is open when it lands.
+        if (r.get("cf") or {}).get("kind") == "critic-finding":
+            want = (r.get("cf") or {}).get("instrument") or want
         # ...and so does every SL / ENH / OPC row (2026-10-14): a contract sub-layer names its batch prover, a walk row
         # the chrome-devtools + postgres walk - a title's keywords must not re-route either
         if _meta_1014(r):

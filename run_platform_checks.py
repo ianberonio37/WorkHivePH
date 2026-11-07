@@ -14589,6 +14589,18 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Wave CF (2026-11-07): what the critic deepwalk FOUND, one trajectory per (page, persona, rubric class). A CF row
+        # closed on the critic's own survey stays closed only while no newer survey of the same page as the same person
+        # finds the defect again (signed-out: the closer's merged --anon sweep state; signed-in: batch surveys with _cast
+        # and later critic rows).
+        "id":      "cf-rows-hold",
+        "script":  "tools/bank_cf_rows.py",
+        "args":    ["--check"],
+        "label":   "every closed CF row (a defect the critic deepwalk found, Wave CF) is still graded clean by the newest survey of the same page as the same person",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         # GJ M11 (2026-11-06): every banked UX row - "every screen this member meets in the scenario, graded" - still agrees
         # with its receipts: the in-walk rubric surveys (prove_group_journeys.mjs --survey) for a person, the copy its
         # functions speak (critic_edge_fn_copy) for a machine member. A row banked clean whose receipts now grade a

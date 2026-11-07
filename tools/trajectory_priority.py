@@ -197,15 +197,23 @@ def tier_of(r: dict, classes: dict, trip_units: set) -> tuple[int, str]:
 
 def milestone_of(r: dict, tier: int) -> str:
     """The block a row closes in: its wave's declared milestone (GJ: gj.milestone), else its tier's (M1..M6)."""
-    return (r.get("gj") or {}).get("milestone") or f"M{tier}"
+    return (r.get("gj") or {}).get("milestone") or (r.get("cf") or {}).get("milestone") or f"M{tier}"
 
 
 def _gj_blocks() -> dict:
+    out = {}
     try:
         from group_journey_census import GJ_MILESTONES
-        return {m: v["name"] for m, v in GJ_MILESTONES.items()}
+        out.update({m: v["name"] for m, v in GJ_MILESTONES.items()})
     except Exception:
-        return {}
+        pass
+    # what the critic deepwalk found (Wave CF, 2026-11-07) declares its blocks the same way, after GJ's
+    try:
+        from critic_findings_census import CF_MILESTONES
+        out.update({m: v["name"] for m, v in CF_MILESTONES.items()})
+    except Exception:
+        pass
+    return out
 
 
 def score_of(r: dict, tier: int, classes: dict, layer_pct: dict, persona_rank: dict) -> tuple:
