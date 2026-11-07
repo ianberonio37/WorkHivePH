@@ -40,16 +40,19 @@ def main() -> int:
                         "is gone, and the readings left to them are 'the app broke' or 'my work was "
                         "deleted'")
 
-    m = re.search(r"showToast\(\s*_t\(\s*'You were removed from[^']*'", src)
+    # GJ M11 (2026-11-06): the notice is now said in the active voice ("<supervisor> removed you from <hive>"), and M8's J14
+    # had already said the records "stay yours" - this gate is skip_if_fast, so its old vocabulary had read that as
+    # missing since M8 with no board showing it. The MEANINGS are what it holds: removed, by whom, records kept, a way on.
+    m = re.search(r"showToast\(\s*_t\(\s*(?:'You were removed from[^']*'|\(typeof _whRemovedYou)", src)
     if not m:
         failures.append("the removal notice no longer says the worker was removed - a hive that "
                         "vanishes without a sentence is indistinguishable from a bug")
     else:
         notice = src[m.start():m.start() + 400]
-        if not re.search(r"by a supervisor", notice):
+        if not re.search(r"by a supervisor|A supervisor removed you|_whRemovedYou\(", notice):
             failures.append("the notice does not say a SUPERVISOR removed them - without an actor it "
                             "reads as a malfunction")
-        if not re.search(r"records are still yours|records are still", notice):
+        if not re.search(r"records (?:are still|stay) yours|records are still", notice):
             failures.append("the notice does not say their personal records survive - that is the "
                             "fear underneath, and silence about it is read as loss")
         if not re.search(r"join another hive|create your own", notice):

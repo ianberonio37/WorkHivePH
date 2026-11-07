@@ -368,7 +368,7 @@
     }
 
     /* FAB Post */
-    var(--wh-rose-200, #fab)-post {
+    #fab-post {
       /* ★V1 (Ian: colliding widgets): was bottom:5.5rem/right — the SAME slot as the shared connectivity
          "Online" chip (bottom:5.5rem right), so they overlapped. Move to the bottom-LEFT page-FAB
          convention (pm-scheduler's fork), clear of the whole bottom-right chrome stack + below the
@@ -380,7 +380,7 @@
          stay in the corner and go ABOVE the stack, which is what the guide-link itself did at 132px.
          At 190px it clears the "Online" chip (88px) and the raised guide-link (132px) with room, and the
          hub FAB keeps the corner below it. Measured at 320 AND 390 with every piece of fixed chrome on
-         screen: var(--wh-rose-200, #fab)-post 570..622, #wh-guide-link 650..712, #wh-hub 764..820 - ZERO pairwise overlap,
+         screen: #fab-post 570..622, #wh-guide-link 650..712, #wh-hub 764..820 - ZERO pairwise overlap,
          and the 320 FIL interaction sweep passes.
          Why not move the action into the page instead: that was built and measured first, and it put a
          primary CTA 1312px down a phone page - trading an always-visible control for a buried one to fix
@@ -396,7 +396,7 @@
          lifted. */
       box-shadow: 0 4px 20px var(--wh-black-45, rgba(0,0,0,0.45)); transition: transform 0.2s;
     }
-    var(--wh-rose-200, #fab)-post:hover { transform: scale(1.08); }
+    #fab-post:hover { transform: scale(1.08); }
 
     /* Bottom sheets */
     .sheet-overlay {
@@ -4617,7 +4617,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
          replacement belongs under the button that causes it, not in a summary card at the top of a
          page: a hail is broadcast, first-accept wins, and it stays cancellable until the provider
          arrives — three facts a person wants BEFORE pressing, not after. */
-      '<p style="margin:0.45rem 0 0;font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted);">Every nearby provider is notified straight away. The first one to accept takes the job, and you can still cancel until they arrive.</p>' +
+      '<p style="margin:0.45rem 0 0;font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted);">WorkHive tells every nearby provider straight away. The first one to accept takes the job, and you can still cancel until they arrive.</p>' +
       // THE REWARD WAS UNDISCOVERABLE ON THE SURFACE WHERE THE BUYER COMMITS (measured 2026-08-04).
       // grant_service_reward() pays the buyer credits back when a hailed job SETTLES, and
       // guard_reward_exclusive makes earning and spending mutually exclusive on the same job -- yet
@@ -4628,7 +4628,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       // Phrased as "credits back" ON PURPOSE: that is the exact wording the listing chip uses
       // ("PHP6,898.05 credits back"), so a buyer meets ONE name for this reward across parts and
       // services rather than two dialects for the same thing.
-      'When the job settles you get 10% of it in credits back, and you can spend credits on a job OR earn them on it, never both.</p>' +
+      'When the job settles you get 10% of it in credits back. On one job you either spend credits or earn them, never both.</p>' +
       '</div>';
     // ── custom job → quotes ──
     html += _svcQuoteFormHtml(e);
@@ -4983,7 +4983,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           ? '<div class="svc-latest-review" style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.9;margin-top:0.25rem;">Latest review: ★'
             + Number(p.latest_review_rating || 0) + ' from ' + e(p.latest_review_by || 'a client') + ', '
             + e(new Date(p.latest_review_at).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric' }))
-            + (p.latest_review_comment ? ': <q>' + e(p.latest_review_comment) + '</q>' : '') + '</div>'
+            + (p.latest_review_comment ? ': <q data-user-content>' + e(p.latest_review_comment) + '</q>' : '') + '</div>'
           : '') +
         '<button type="button" onclick="svcPickQuote(\'' + e(o.id) + '\')" style="' + _svcBtnC + 'margin-top:0.4rem;" data-i="choosethisprovider">Choose this provider</button>' +
         '</div>';
@@ -5747,6 +5747,11 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
                  document.getElementById('mk-listings-h2'),
                  document.getElementById('listings-info')];
     for (const el of els) { if (el) el.hidden = !show; }
+    // The "Post a listing" FAB belongs to the listings grid too (GJ M11, J6): on Services it was a third primary beside the
+    // client's "Choose this provider" and "Hail now", for an action the pane is not about. By style, not [hidden]:
+    // #fab-post{display:flex} is an ID selector and beats the UA's [hidden]{display:none}.
+    const fab = document.getElementById('fab-post');
+    if (fab) fab.style.display = show ? '' : 'none';
     // Collapse the explainer rather than just hiding it: left expanded, switching back to parts would
     // restore a panel the person never chose to open on this section.
     // It is closed by REMOVING .open, not by setting .hidden -- `#mk-summary-details.open{display:block}`

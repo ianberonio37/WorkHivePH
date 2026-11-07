@@ -149,15 +149,17 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 2852,
-   "class_tokens": 118,
-   "bytes": 10104,
-   "classes_in_sheet": 75,
+   "harvested_tokens": 2870,
+   "class_tokens": 120,
+   "bytes": 9990,
+   "classes_in_sheet": 74,
    "non_utility_classes": [
     "active",
     "arrow",
     "count",
     "fb-card",
+    "fb-empty",
+    "fb-send-btn",
     "filled",
     "filter-chip",
     "icon",
@@ -197,6 +199,7 @@
     "wh-fb-stars",
     "wh-fb-submit",
     "wh-fb-textarea",
+    "wh-help",
     "wh-offline-banner",
     "wh-offline-banner-open",
     "wh-skip-link",
@@ -581,5 +584,5 @@
    ]
   }
  },
- "generated": "2026-11-05T23:08:29.120Z"
+ "generated": "2026-11-06T15:50:57.869Z"
 }

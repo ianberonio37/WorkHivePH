@@ -243,9 +243,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          about where either one led, so a visitor pressing "Hail a service" could not tell whether it
          was about to charge them, post something publicly, or call someone. Both are free and
          reversible, and saying so is the difference between a door and a trapdoor. -->
-    <p data-i="pf_next_hint" style="margin-top:0.6rem; font-size:var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72); line-height:1.5;">
-      Signing in takes you to your hive's board: what you post there appears on your team's board
-      only, never here, unless you share it. Hailing a service publishes your job to nearby providers,
+    <p data-i="pf_next_hint" style="margin-top:0.6rem; font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.5;">
+      Signing in takes you to your hive's board. What you post there stays on your team's board,
+      never here, unless you share it. Hailing a service publishes your job to nearby providers,
       who reply with quotes. You pick one. You can still cancel the request until then. You
       pay the provider directly; WorkHive never handles the money.
     </p>
@@ -494,7 +494,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       box = document.createElement('section');
       box.id = 'shared-post';
       box.setAttribute('aria-label', 'The post you were sent');
-      box.style.marginBottom = '1.25rem';
+      box.style.marginBottom = '1.5rem';   // R1 (GJ M11): 24px, a spacing token - 20px sat off the scale
       list.parentNode.insertBefore(box, list);
     }
     const { data, error } = await _DB.from('v_community_posts_truth')

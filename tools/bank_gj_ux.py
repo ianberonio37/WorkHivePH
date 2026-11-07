@@ -83,17 +83,21 @@ def met_pages(t: dict) -> tuple[list[str], list[str]]:
     analytics-report - the supervisor's screens; the worker only ever opens the logbook."""
     g = t["gj"]
     member, scen = g.get("member"), g["scenario"]
-    opened = set()
+    opened = {}   # pid -> the page as the walk opened it
     d = SURVEYS / scen
     if d.is_dir():
         for f in d.glob(f"{member}_*.json"):
             try:
-                opened.add(json.loads(f.read_text(encoding="utf-8")).get("pid"))
+                rec = json.loads(f.read_text(encoding="utf-8"))
+                opened.setdefault(rec.get("pid"), rec.get("page"))
             except Exception:
                 pass
     claimed = list(g.get("pages") or [])
     receives = RECEIVES.get((scen, member), set())
+    # every screen the member MET: each page the walk opened for them (claimed or not - G-ESC's founder meets the founder
+    # console, which the scenario's page list never named) and each page a hand-off lands on for them
     met = [pg for pg in claimed if page_id(pg) in opened or pg in receives]
+    met += [opened[pid] for pid in sorted(opened) if opened[pid] and pid not in {page_id(m) for m in met}]
     met += [pg for pg in sorted(receives) if pg not in met]
     return met, [pg for pg in claimed if pg not in met]
 
@@ -140,9 +144,28 @@ def main() -> int:
 
     spec = set(json.loads(Path(SPEC).read_text(encoding="utf-8")).keys()) - {"_meta"}
     doc = rio.load_doc()
+    # where each receiver READ: the walk's own receipt says it (a re-premised hand-off reads on another page than the
+    # census named - J6's provider reads the review on their console, there being no provider profile page); the census
+    # page from the registry is the fallback for a scenario with no receipt that records it
+    from_receipt = set()
+    for f in (ROOT / ".tmp" / "gj_walks").glob("*.json"):
+        try:
+            rcp = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        scen = f.stem
+        for ps in rcp.get("passes") or []:
+            for h in ps.get("hops") or []:
+                if "path" not in h:
+                    continue
+                who = str(h.get("receiver") or "").split(":")[0]
+                pg = str(h.get("path") or h.get("page") or "").split("?")[0]
+                if who and pg:
+                    RECEIVES.setdefault((scen, who), set()).add(pg if not pg.endswith("/") else pg + "index.html")
+                    from_receipt.add(scen)
     for t in doc["trajectories"]:
         g = t.get("gj") or {}
-        if g.get("kind") == "group-journey" and g.get("handoff") and g.get("receiver"):
+        if g.get("kind") == "group-journey" and g.get("handoff") and g.get("receiver") and g.get("scenario") not in from_receipt:
             RECEIVES.setdefault((g.get("scenario"), g.get("receiver")), set()).add(g.get("page"))
     rows = [t for t in doc["trajectories"] if (t.get("gj") or {}).get("cls") == "ux"
             and (a.scenario is None or t["gj"].get("scenario") == a.scenario)]

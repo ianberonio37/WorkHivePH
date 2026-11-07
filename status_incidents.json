@@ -17,10 +17,19 @@
    "status": "resolved"
   },
   {
-   "id": "gate-status-incidents-derived",
+   "id": "gate-gj-rows-hold",
    "source": "gate",
-   "title": "status-incidents-derived",
-   "severity": "minor",
+   "title": "gj-rows-hold",
+   "severity": "major",
+   "started_at": "2026-11-06T04:12:56.392521+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-recovery-path",
+   "source": "gate",
+   "title": "recovery-path",
+   "severity": "major",
    "started_at": "2026-11-06T04:12:56.392521+00:00",
    "ended_at": null,
    "status": "open"
@@ -29,15 +38,6 @@
    "id": "gate-memory_health_gate",
    "source": "gate",
    "title": "memory_health_gate",
-   "severity": "major",
-   "started_at": "2026-11-06T04:12:56.392521+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-substrate-freshness",
-   "source": "gate",
-   "title": "substrate-freshness",
    "severity": "major",
    "started_at": "2026-11-06T04:12:56.392521+00:00",
    "ended_at": null,

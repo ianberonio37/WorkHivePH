@@ -103,7 +103,7 @@ CALC_DATA: dict[str, dict] = {
         # Analytics, which reads a logbook they do not have yet
         "steps": ["Work out your own OEE on this page: enter one shift's planned time, stops and counts, or the three percentages, and read the result and what to do about it.", "Read the worked example. It uses a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles and shows every number in the method.", "To follow OEE from your own logbook over weeks, open Analytics in WorkHive (free, link below)."],
         "tool": {"id": "work-it-out", "title": "Work out your own OEE",
-                 "intro": "Enter one shift or one week from your records - planned time, stops and counts - or the three percentages if you already have them. It works out OEE and its three factors, says which loss is the biggest and what fixing it is worth, and lets you print it, save it, share it by link and set two scenarios side by side. It runs on this page: nothing you enter is sent anywhere, and no account is needed.",
+                 "intro": "Enter one shift or one week from your records: planned time, stops and counts. Or enter the three percentages if you have them. It works out OEE and its three factors, and names the biggest loss and what fixing it is worth. You can print it, save it, share it by link and set two scenarios side by side. It runs on this page. Nothing you enter leaves your device, and you need no account.",
                  "mount": "<div data-wh-kpi-calc=\"oee\"><noscript>The calculator needs JavaScript. The worked example below shows the method.</noscript></div>",
                  "script": "/kpi-calc.js",
                  "chip": "Worked example computed when this page was built · the calculator works on your device from what you enter · no live data"},
@@ -133,7 +133,7 @@ CALC_DATA: dict[str, dict] = {
         # Analytics, which reads a logbook they do not have yet
         "steps": ["Work out MTBF, MTTR and availability on this page: enter how long the asset ran, how many times it failed and the total repair hours, and read what to do about it.", "Read the worked example. It uses a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total and shows every number in the method.", "To follow them from your own logbook, open Analytics in WorkHive (free, link below)."],
         "tool": {"id": "work-it-out", "title": "Work out your own MTBF and MTTR",
-                 "intro": "Enter one asset over one period: how long it ran, how many times it failed and how long the repairs took in total. It works out MTBF, MTTR and availability, says whether repair time or failures cost you more, and lets you print it, save it, share it by link and set two scenarios side by side. It runs on this page: nothing you enter is sent anywhere, and no account is needed.",
+                 "intro": "Enter one asset over one period: how long it ran, how many times it failed and how long the repairs took in total. It works out MTBF, MTTR and availability, and says whether repair time or failures cost you more. You can print it, save it, share it by link and set two scenarios side by side. It runs on this page. Nothing you enter leaves your device, and you need no account.",
                  "mount": "<div data-wh-kpi-calc=\"mtbf\"><noscript>The calculator needs JavaScript. The worked example below shows the method.</noscript></div>",
                  "script": "/kpi-calc.js",
                  "chip": "Worked example computed when this page was built · the calculator works on your device from what you enter · no live data"},
@@ -535,7 +535,7 @@ CALC_DATA: dict[str, dict] = {
                   "Read the worked example. It uses a 100 kWp grid-tie solar array in Manila and shows every number in the method.",
                   "To size a grid-tie array with every input and save it to your hive, open the Solar PV System Calculator inside WorkHive's free Engineering Design suite (link below)."],
         "tool": {"id": "planner", "title": "Plan an off-grid solar power station",
-                 "intro": "List what the station will power and where it is. The planner adds up the daily energy, sizes the battery, panels, inverter and charge controller step by step, and estimates the cost. It runs on this page: nothing you enter is sent anywhere, and no account is needed.",
+                 "intro": "List what the station will power and where it is. The planner adds up the daily energy, sizes the battery, panels, inverter and charge controller step by step, and estimates the cost. It runs on this page. Nothing you enter leaves your device, and you need no account.",
                  "mount": '<div data-wh-solar-planner><noscript>The planner needs JavaScript. The worked example below shows the method.</noscript></div>',
                  "script": "/solar-planner.js",
                  "chip": "Worked example computed when this page was built · the planner calculates on your device from what you enter · no live data"},

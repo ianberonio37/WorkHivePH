@@ -307,7 +307,7 @@ serveObserved("intelligence-report", tracedReply("intelligence-report", async (r
     // dataset (it would be paid to invent a pattern): the report says plainly why it is empty.
     const _sum = data.summary as Record<string, unknown>;
     const narrative = _sum.insufficient_consent
-      ? { executive_summary: `Not enough hives share their benchmarks yet: ${_sum.consenting_hives} of the ${_sum.minimum_consenting_hives} needed have opted in. Nothing across hives is published until they do. A hive supervisor can turn sharing on from the hive menu.` }
+      ? { executive_summary: `Not enough hives share their benchmarks yet: ${_sum.consenting_hives} of the ${_sum.minimum_consenting_hives} needed have opted in. WorkHive publishes nothing across hives until they do. A hive supervisor can turn sharing on from the hive menu.` }
       : await generateNarrative(data);
 
     const report = {

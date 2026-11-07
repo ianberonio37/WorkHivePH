@@ -299,7 +299,7 @@
         <!-- ★SAID ON THE PAGE, NOT ONLY IN THE HELP (2026-10-28, the cube's U-on-S walk): "this is a seller's public profile"
              lived inside the closed help below, so nothing a person could see said that what they were reading is what
              every member sees - the one fact a seller checking their own profile needs. -->
-        <p class="hero-public" style="margin:8px 0 0;font-size:var(--wh-fs-xs, 0.8rem);line-height:1.5;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Public profile: anyone can see it, signed in or not. Signed-in members also see how to contact this seller and their community reputation.</p>
+        <p class="hero-public" style="margin:8px 0 0;font-size:var(--wh-fs-xs, 0.8rem);line-height:1.5;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Public profile: anyone can see it, signed in or not. Members who sign in also see how to reach this seller and how the community rates them.</p>
 <details class="wh-help">
   <summary data-i="p_howthispageworks_c540">How this page works</summary>
   <p data-i="p_thisisasellerspublicprofileb_4621">This is a seller’s public profile. Badges show identity checks and community trust. Use the contact button to message them: there are no fees.</p>
@@ -560,7 +560,7 @@
          (_posts ? '' : ' That help was inside their own hive, so it is not public here.'))
       : (_posts
           ? 'This seller earned trust by helping teammates in the community forum.'
-          : 'This seller\'s community activity is inside their own hive, so none of it is public here.');
+          : 'This seller\'s community activity stays inside their own hive. None of it is public here.');
     const tierLabel = _COMMUNITY_TIER[_communityRep.trust_tier] || 'Community Member';
     const link = 'community.html?person=' + encodeURIComponent(WORKER_VIEW)
       + (_seller?.hive_id ? '&phive=' + encodeURIComponent(_seller.hive_id) : '');
@@ -1179,7 +1179,7 @@
     // like it was ignored. Explain the rule once, and only when it actually applies to what is shown.
     const unverified = _reviews.filter(rv => !rv.verified_purchase).length;
     const note = unverified
-      ? `<p class="reviews-rule" style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0 0 0.75rem;">Every review is shown. The star rating above counts only reviews from buyers with a confirmed purchase, so ${unverified === 1 ? 'the one below without a Verified badge is' : `the ${unverified} below without a Verified badge are`} not included in it.</p>`
+      ? `<p class="reviews-rule" style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0 0 0.75rem;">Every review is shown. The star rating above counts only buyers with a confirmed purchase. ${unverified === 1 ? 'The one below without a Verified badge is' : `The ${unverified} below without a Verified badge are`} not in it.</p>`
       : '';
 
     wrap.innerHTML = note + _reviews.map(rv => `

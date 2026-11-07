@@ -11559,7 +11559,7 @@
         "my_service_provider_ids"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 101.0
+      "size_kb": 101.1
     },
     "agentic-rag-observability.html": {
       "tables_read": [
@@ -11607,7 +11607,7 @@
       "edge_fns_invoked": [
         "analytics-orchestrator"
       ],
-      "size_kb": 200.3
+      "size_kb": 200.4
     },
     "analytics-report.html": {
       "tables_read": [
@@ -11616,7 +11616,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 150.2
+      "size_kb": 152.6
     },
     "analytics.html": {
       "tables_read": [
@@ -11631,7 +11631,7 @@
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 266.7
+      "size_kb": 266.8
     },
     "asset-hub.html": {
       "tables_read": [
@@ -11675,7 +11675,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 355.9
+      "size_kb": 356.9
     },
     "assistant.html": {
       "tables_read": [
@@ -11708,7 +11708,7 @@
         "audit_filter_vocab"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 95.0
+      "size_kb": 95.4
     },
     "community.html": {
       "tables_read": [
@@ -11743,7 +11743,7 @@
         "wh_trash"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 288.0
+      "size_kb": 289.8
     },
     "dayplanner.html": {
       "tables_read": [
@@ -11788,7 +11788,7 @@
         "founder_scheduled_work"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 201.5
+      "size_kb": 201.8
     },
     "hive.html": {
       "tables_read": [
@@ -11845,7 +11845,7 @@
         "export-hive-data",
         "supervisor-reset-password"
       ],
-      "size_kb": 553.0
+      "size_kb": 555.2
     },
     "index.html": {
       "tables_read": [],
@@ -11912,7 +11912,7 @@
         "inventory_restock"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 243.2
+      "size_kb": 243.9
     },
     "llm-observability.html": {
       "tables_read": [
@@ -11964,7 +11964,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 559.2
+      "size_kb": 560.0
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -12051,7 +12051,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 302.3
+      "size_kb": 303.6
     },
     "marketplace.html": {
       "tables_read": [
@@ -12106,7 +12106,7 @@
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 429.0
+      "size_kb": 429.4
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -12125,7 +12125,7 @@
       "edge_fns_invoked": [
         "intelligence-report"
       ],
-      "size_kb": 57.2
+      "size_kb": 58.0
     },
     "plant-connections.html": {
       "tables_read": [
@@ -12174,7 +12174,7 @@
         "get_credit_ledger_totals"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 169.4
+      "size_kb": 170.2
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -12205,7 +12205,7 @@
         "get_pm_ontime_delivery"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 221.1
+      "size_kb": 223.5
     },
     "project-manager.html": {
       "tables_read": [
@@ -12246,7 +12246,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 266.1
+      "size_kb": 270.5
     },
     "project-report.html": {
       "tables_read": [
@@ -12262,7 +12262,7 @@
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 96.4
+      "size_kb": 96.5
     },
     "promo-poster.html": {
       "tables_read": [],
@@ -12278,7 +12278,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 47.4
+      "size_kb": 47.5
     },
     "report-sender.html": {
       "tables_read": [
@@ -12330,7 +12330,7 @@
         "analytics-orchestrator",
         "shift-planner-orchestrator"
       ],
-      "size_kb": 120.0
+      "size_kb": 120.1
     },
     "skillmatrix.html": {
       "tables_read": [

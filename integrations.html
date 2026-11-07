@@ -1010,7 +1010,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         _hn = (_hr && _hr.data && _hr.data.name) || '';
       }
       const _sc = document.getElementById('it-scope');
-      if (_sc && _hn) { _sc.textContent = _hn + '’s connections to outside systems: what sends its records in, and what they are sent to.'; _sc.hidden = false; }
+      if (_sc && _hn) { _sc.textContent = 'Outside systems connected to ' + _hn + '. What sends records in, and where they go.'; _sc.hidden = false; }
     } catch (_) { /* empty-catch-allow: the line is a courtesy; the CSV export and the connections themselves still name the hive */ }
     // CMMS-INTEGRATIONS PDDA I2/A3 role gate: this is a supervisor/IT console —
     // managing connections exposes endpoint URLs, plaintext bearer tokens, and API-key
@@ -2857,7 +2857,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         text = 'All ' + disabled.length + ' integration' + (disabled.length === 1 ? ' is' : 's are')
              + ' switched off, so nothing is syncing. Re-enable from the Live Sync tab, or delete the configs you no longer need.';
       } else {
-        text = 'Everything is syncing. Use the API Keys tab if you need to give Power BI or a custom app read access to your benchmark data.';
+        text = 'Everything is syncing. To let Power BI or your own app read your benchmark data, use the API Keys tab.';
       }
       actBox.textContent = text;
     }

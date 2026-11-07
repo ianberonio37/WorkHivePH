@@ -146,7 +146,12 @@
   // so those components can consume var(--wh-orange) etc. instead of hardcoding hex that
   // drifts. Idempotent: ~28 pages already <link> it in <head>; this only fills the gap
   // on the rest. Mirrors the wh-icons.css centralisation just below.
-  if (!document.querySelector('link[href*="tokens.css"]')) {
+  // ★components.css @imports tokens.css (GJ M11, 2026-11-07). Eleven pages take the tokens that way, with no <link> to
+  // tokens.css, so this appended a second copy at the END of <head> - after the page's own <style> - and every tokens rule
+  // then beat the page's equal-weight rule: project-manager's link pill wrapped by its own rule and still pushed the phone
+  // page 130px sideways under tokens' [class$="-pill"]{nowrap}; shift-brain's .shift-pill the same. The base layer must
+  // never come after the page, so a page that imports it is left alone.
+  if (!document.querySelector('link[href*="tokens.css"], link[href*="components.css"]')) {
     const tk = document.createElement('link');
     tk.rel = 'stylesheet';
     tk.href = 'tokens.css';

@@ -66,6 +66,15 @@
       #completion-sheet .sheet-panel > .flex.gap-3 { flex-wrap: wrap; }
       #completion-sheet .sheet-panel > .flex.gap-3 > button { flex: 1 1 100%; width: 100%; }
     }
+    /* GJ M11 (A3): a frequency group folds; a flex summary loses the native triangle, so it draws the platform's
+       chevron (the same one .wh-help carries) - a fold that shows no sign of opening is a fold nobody opens */
+    .pm-freq-group > summary { list-style: none; }
+    .pm-freq-group > summary::-webkit-details-marker { display: none; }
+    .pm-freq-group > summary::after { content: ''; margin-left: auto; flex: 0 0 auto; width: 8px; height: 8px;
+      border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; color: var(--wh-text-muted, rgba(255,255,255,0.8));
+      transform: rotate(45deg) translateY(-2px); transition: transform 150ms var(--wh-ease-out, ease-out); }
+    .pm-freq-group[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
+    @media (prefers-reduced-motion: reduce) { .pm-freq-group > summary::after { transition: none; } }
     .btn-primary {
       min-height: 44px;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
@@ -542,7 +551,8 @@
         <span data-i="back">Back</span>
       </button>
       <div class="flex items-center justify-between mb-3">
-        <h2 id="wizard-title" class="text-lg font-bold" data-i="addasset">Add Asset</h2>
+        <!-- GJ M11 (A1): each screen names itself in an h1 - the dashboard's h1 is hidden while this one shows -->
+        <h1 id="wizard-title" class="text-lg font-bold" data-i="addasset">Add Asset</h1>
         <div id="step-indicator" class="flex gap-1.5 items-center"></div>
       </div>
       <div class="progress-bar">
@@ -727,7 +737,8 @@
         <span class="ic ic-back" aria-hidden="true"></span>
         <span data-i="back">Back</span>
       </button>
-      <div class="flex gap-2">
+      <!-- GJ M11 (Z3): Delete Asset stands 24px clear of Edit -->
+      <div class="flex" style="gap:1.5rem">
         <button id="btn-edit-asset" class="hidden text-xs font-bold px-3 py-2 rounded-lg transition-colors" style="min-height:44px;background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12);border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3);color:var(--wh-blue-text);" onclick="openEditPMAsset()" data-i="editasset">Edit Asset</button>
         <button id="btn-delete-asset" class="btn-danger hidden" style="min-height:44px;" onclick="confirmDeleteAsset()" data-i="deleteasset">Delete Asset</button>
       </div>
@@ -737,7 +748,7 @@
     <div class="wh-card p-5 mb-5">
       <div class="flex items-start justify-between gap-3 mb-3">
         <div>
-          <h2 id="det-name" class="font-bold text-xl leading-tight"></h2>
+          <h1 id="det-name" class="font-bold text-xl leading-tight"></h1>
           <p id="det-tag-loc" class="text-sm text-white/80 mt-0.5"></p>
         </div>
         <span id="det-overall-status" class="status-badge flex-shrink-0 mt-1"></span>
@@ -749,20 +760,27 @@
         <!-- SERVICE_HAILING P9 (§1c recurring-contract hook): a PM that keeps coming due is a
              standing outside-service candidate - hail it with the asset + PM context pre-composed
              (the same landing pad as asset-hub's CTA). href set in renderDetail. -->
+        <!-- GJ M11 (R3): a toggle (aria-pressed) wears the pill; press buttons wear 8px - it wore 8px like Edit and Delete -->
         <button type="button" id="det-autohail-btn" onclick="toggleAutoHail()" aria-pressed="false"
           aria-label="Turn this asset's due PM work into a recurring service contract that hails a provider automatically"
-          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;font-size: var(--wh-fs-2xs, 0.75rem);font-weight:700;cursor:pointer;background:var(--wh-white-06, rgba(255,255,255,0.06));color:inherit;border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));">🔁 Auto-hail when due</button>
+          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:999px;font-size: var(--wh-fs-2xs, 0.75rem);font-weight:700;cursor:pointer;background:var(--wh-white-06, rgba(255,255,255,0.06));color:inherit;border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));">🔁 Auto-hail when due</button>
         <a id="det-hail-link" href="#" aria-label="Hail an outside specialist for this asset's PM work"
           style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size: var(--wh-fs-2xs, 0.75rem);font-weight:700;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.13);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">🔧 Hail a specialist</a>
       </div>
     </div>
+
+    <!-- GJ M11 (E3): the sources list drops the dashboard's chip while the dashboard is off screen, so the asset
+         screen says what its own figures are read from, and when -->
+    <div id="det-source" class="mb-5"></div>
 
     <!-- Add Task trigger -->
     <!-- The 0.8 alpha here was the page's only APCA failure: rgba(247,162,27,0.8) composites to
          rgb(204,139,36) on rgb(32,47,70), giving Lc 42.2 against the Lc 60 floor this text earns at
          14px/600. --wh-orange-text is the platform token that already fixed the same alpha-thinned
          orange on index and dayplanner; it carries no alpha, so nothing composites it away. -->
-    <button onclick="openAddTaskSheet()" class="wh-card w-full p-4 mb-4 flex items-center justify-between text-sm font-semibold transition-colors" style="color:var(--wh-orange-text);">
+    <!-- GJ M11 (A1): the asset screen's own action is adding a PM task to it, and it reads as the screen's primary
+         button now - drawn as a plain card it left the screen with no visible main action -->
+    <button onclick="openAddTaskSheet()" class="btn-primary mb-4" style="display:flex;align-items:center;justify-content:space-between;">
       <span data-i="plusaddtask">+ Add Task</span>
       <span class="ic ic-add" aria-hidden="true"></span>
     </button>
@@ -770,7 +788,7 @@
     <!-- PM Tasks section -->
     <div class="mb-4">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-sm" data-i="pmtasks">PM Tasks</h3>
+        <h2 class="font-semibold text-sm" data-i="pmtasks">PM Tasks</h2>
         <span id="det-progress-text" class="text-xs text-white/80"></span>
       </div>
       <div id="det-tasks" class="space-y-2.5"></div>
@@ -778,7 +796,7 @@
 
     <!-- History log -->
     <div class="wh-card p-4">
-      <h3 class="font-semibold text-sm mb-3" data-i="completionhistory">Completion History</h3>
+      <h2 class="font-semibold text-sm mb-3" data-i="completionhistory">Completion History</h2>
       <div id="det-history" class="divide-y divide-white/5"></div>
       <div id="det-history-empty" class="hidden text-center py-6 text-white/80 text-xs">No completions recorded yet. Completions land here once a PM task is done.</div>
       <div id="det-history-more" class="hidden mt-3">
@@ -2217,6 +2235,15 @@ function renderDetail(asset) {
   const overall = getAssetOverallStatus(items);
 
   document.getElementById('det-name').textContent    = asset.asset_name;
+  const _detSrc = document.getElementById('det-source');
+  if (_detSrc && typeof renderSourceChip === 'function') {
+    _detSrc.innerHTML = renderSourceChip({
+      freshness: 'Live data',
+      source: 'v_pm_scope_items_truth',
+      sourceLabel: "this asset's PM tasks and the work done on them",
+      possessive: false,
+    });
+  }
   document.getElementById('det-tag-loc').textContent =
     [asset.tag_id, asset.location].filter(Boolean).join(' · ');
   document.getElementById('det-overall-status').outerHTML =
@@ -2292,12 +2319,17 @@ function renderDetail(asset) {
 
   const tasksEl = document.getElementById('det-tasks');
   tasksEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = freqOrder.filter(freq => grouped[freq] && grouped[freq].length).map(freq => {
+    // GJ M11 (A3): a group is a disclosure. An asset with twenty tasks drew twenty cards at once; the groups that need
+    // nothing fold once the list is long, and any group holding overdue or due-soon work stays open.
+    const _list = grouped[freq];
+    const _open = items.length <= 8 || _list.some(it => it.itemStatus === 'overdue' || it.itemStatus === 'duesoon');
     return `
-      <div class="mb-4">
-        <div class="flex items-center gap-2 mb-2">
+      <details class="pm-freq-group mb-4" ${_open ? 'open' : ''}>
+        <summary class="flex items-center gap-2 mb-2" style="min-height:44px;cursor:pointer;">
           ${freqBadge(freq)}
           <span class="text-xs text-white/80 font-semibold">${freq === 'Other' ? 'Other frequencies' : freq}</span>
-        </div>
+          <span class="text-xs text-white/80">&middot; ${_list.length} ${_list.length === 1 ? 'task' : 'tasks'}</span>
+        </summary>
         <div class="space-y-2">
           ${grouped[freq].map(item => {
             const nextStr  = item.nextDue ? formatDate(item.nextDue) : 'Not set';
@@ -2340,7 +2372,7 @@ function renderDetail(asset) {
             `;
           }).join('')}
         </div>
-      </div>
+      </details>
     `;
   }).join('');
 

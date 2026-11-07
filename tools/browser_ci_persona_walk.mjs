@@ -81,7 +81,7 @@ const BOARD = _outArg || process.env.WH_FB2_BOARD || 'browser_ci_persona_board.j
 const BASELINE = 'browser_ci_persona_baseline.json';
 
 const HIVES = {
-  baguio: '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7',
+  baguio: '084c113b-99c0-45c6-a8e8-b4b8349da46d',
   lucena: '3792d7f0-59e2-42e6-b04f-6e6ef4e4713d',
   manila: 'ba383fb9-1e76-420e-a8cd-8ecf45bfe5a7',
 };

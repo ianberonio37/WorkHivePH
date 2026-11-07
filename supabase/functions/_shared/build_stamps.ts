@@ -29,7 +29,7 @@ export const BUILD_STAMPS: Record<string, string> = {
   "gcash-receipt-ocr": "488a1589d0d4",
   "hierarchical-summarizer": "944031b2c209",
   "intelligence-api": "90b30dc8e468",
-  "intelligence-report": "09e209567933",
+  "intelligence-report": "023ca7291dc9",
   "login": "1f90533ad2a0",
   "marketplace-listing-assist": "458680e7eb18",
   "notify-push": "d35e049ff3c2",

@@ -98,9 +98,15 @@
        next year joins the timeline silently - and puts layout and paint on the same clock as colour.
        The only thing :hover changes here is background, so that is what the timeline carries. */
     .btn-gold:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25); }
+    /* GJ M11 (C4): the stats row's figures line their digits up ("90d" was the one proportional number) */
+    .stats-row .sn, .sn { font-variant-numeric: tabular-nums; }
+    /* GJ M11 (A1): the page's primary action, filled */
+    .btn-gold.btn-gold-fill { background: linear-gradient(135deg, var(--wh-orange, #F7A21B), var(--wh-orange-light, #FDB94A));
+      color: var(--wh-navy, #162032); border-color: transparent; }
+    .btn-gold.btn-gold-fill:hover { filter: brightness(0.95); background: linear-gradient(135deg, var(--wh-orange, #F7A21B), var(--wh-orange-light, #FDB94A)); }
 
     /* API section */
-    .api-endpoint { font-family: ui-monospace, monospace; font-size: var(--wh-fs-2xs, 0.75rem); background: var(--wh-black-35, rgba(0, 0, 0, 0.35)); padding: 10px 16px; border-radius: 8px; color: var(--blue); margin-bottom: 8px; word-break: break-all; }
+    .api-endpoint { display: block; font-family: ui-monospace, monospace; font-size: var(--wh-fs-2xs, 0.75rem); background: var(--wh-black-35, rgba(0, 0, 0, 0.35)); padding: 10px 16px; border-radius: 8px; color: var(--blue); margin-bottom: 8px; word-break: break-all; }
     .hidden { display: none !important; }
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
@@ -148,7 +154,7 @@
          visual instruction; the space has to be in the text. -->
     <h1 translate="no">Philippine Industrial <br>Maintenance Intelligence</h1><!-- publication name: EN by design -->
     <div data-i="p_loading_b04b" class="hero-dateline" id="report-period-badge">Loading...</div>
-    <p data-i="p_ph_hero_blurb">Anonymized benchmarking data from manufacturing plants across the Philippines using WorkHive. Each report covers a period and is generated on demand; the card below shows how old the current one is.</p>
+    <p data-i="p_ph_hero_blurb">Anonymized benchmarks from Philippine plants that use WorkHive. Each report covers one period. The card below shows how old the current report is.</p>
   </div>
 <details class="wh-help">
   <summary data-i="p_howthispageworks_c540">How this page works</summary>
@@ -204,7 +210,7 @@
            no-report state, which disappears the moment one report exists. So the first report was the last: once hives
            opted in, nobody could refresh it, while this card said it "will stay this old until someone generates a new
            one". The control that sentence names, on the report itself. -->
-      <button type="button" id="ph-regenerate-btn" class="btn-gold" onclick="generateReport(this)"
+      <button type="button" id="ph-regenerate-btn" class="btn-gold btn-gold-fill" onclick="generateReport(this)"
               style="margin-top:10px;padding:8px 16px;min-height:44px;">Generate a fresh report</button>
     </div>
     <span data-wh-source-anchor="ph-summary-details" hidden></span>
@@ -261,9 +267,9 @@
     <div class="card">
       <div class="sec-head"><span class="sec-title">WorkHive Intelligence API</span></div>
       <p data-i="p_accessthisdataprogrammatical_ecd5" style="font-size:var(--wh-fs-2xs, .75rem); color:var(--muted); margin-bottom:12px;">Access this data programmatically. Integrate WorkHive benchmarks into your ERP, accounting, or HR systems.</p>
-      <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=benchmarks</div>
-      <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=failure-modes</div>
-      <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=report</div>
+      <code class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=benchmarks</code>
+      <code class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=failure-modes</code>
+      <code class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=report</code>
       <!-- The lead-in carries the hook, not the whole sentence: the link text is a NAVIGATION PATH
            ("Integrations → API Keys") that names two screens by their on-screen titles, and the rate
            limit is a number. Translating the path would send a Filipino reader looking for a menu item
@@ -283,7 +289,7 @@
   <!-- No report state -->
   <div id="no-report-state" class="card hidden" style="text-align:center; padding:32px;">
     <p data-i="p_noreportgeneratedyet_b6c2" style="font-weight:700; margin-bottom:8px;">No report generated yet</p>
-    <p data-i="p_reportscanbegeneratedonceeno_91ae" style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--muted); margin-bottom:16px;">Reports can be generated once enough hives are contributing data.</p>
+    <p data-i="p_reportscanbegeneratedonceeno_91ae" style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--muted); margin-bottom:16px;">WorkHive makes a report once enough hives share their data.</p>
     <button class="btn-gold" onclick="generateReport()" data-i="generatenow">Generate Now</button>
     <!-- FCh3: the report BODY is an EN publication by design (masthead translate="no");
          the CTA is the translatable UI chrome. -->
@@ -317,7 +323,7 @@
     </div>
 </div>
 <div class="wh-sources-item" data-wh-source-key="source-line-1">
-<p class="wh-source-chip" role="status" aria-live="polite" data-i="p_ph_source_chip" style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
+<p class="wh-source-chip" role="status" aria-live="polite" data-i="p_ph_source_chip" style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0;padding:3px 0 0;line-height:1.35;">Updated each time WorkHive generates a report &middot; From your logbook and anonymized benchmarks &middot; At least 5 plants per segment, for privacy</p>
 </div>
 </div>
 </section>
@@ -554,7 +560,7 @@
     let tone, label, sub;
     if (plants === 0) {
       tone = 'empty'; label = 'No regional data yet';
-      sub  = 'Reports can be generated once 3+ plants have opted into anonymised data sharing.';
+      sub  = 'No plant shares anonymised data yet. A report needs three.';   // GJ M11 (B3): was passive, grade 9.4
     } else if (plants < 3 || (days != null && days > 90)) {
       tone = 'watch'; label = 'Report is thin or aging';
       sub  = plants < 3 ? `Only ${plants} plant${plants === 1 ? '' : 's'} contributing, so patterns are noisy at this scale.`
@@ -580,7 +586,8 @@
         // the privacy guard, and the badge below only says NETWORK at 5. This line kept the report's 3 but
         // promised that "benchmarks unlock" there, which named the guarded thing against the unguarded
         // number. It now says which one 3 buys.
-        text = 'No regional report yet. Encourage other supervisors in your industry to opt into anonymised data sharing. Three contributing plants is enough to generate one; your own segment comparison needs five, which is the privacy guard.';
+        // GJ M11 (B3): one fact per sentence - it read at grade 14.7
+        text = 'No regional report yet. Ask other supervisors in your industry to share anonymised data. Three plants make a report. Your own segment comparison needs five, so nobody can pick out a single plant.';
       } else if (plants < 3) {
         text = `Only ${plants} plant${plants === 1 ? '' : 's'} contributing. Benchmark numbers below are directional only: wait for the network to grow before using them in decisions.`;
       } else if (days != null && days > 90) {
@@ -629,9 +636,10 @@
     // ★AND WHEN (2026-11-05, GJ M8 J21 hand-off 2): a supervisor reading another hive's contribution in the sector view read
     // what the figures rest on and not how old they are - the age lived in a separate tile. A benchmark's date is part of
     // the benchmark, so each passage's own "Based on" line says when the report was generated.
-    const _trustGround = 'anonymised maintenance records from ' + _plantsN + ' contributing plant' + (_plantsN === 1 ? '' : 's')
-      + ' over the last ' + ((r.summary && r.summary.period_days) || 90) + ' days'
-      + (data.generated_at && typeof whFmtDate === 'function' ? ', in the report generated ' + whFmtDate(data.generated_at, { time: true }) : '');
+    // GJ M11 (B3): the ground is a set of facts, so it reads as a middot line - as one 23-word sentence it graded 11.8
+    const _trustGround = 'anonymised maintenance records · ' + _plantsN + ' contributing plant' + (_plantsN === 1 ? '' : 's')
+      + ' · the last ' + ((r.summary && r.summary.period_days) || 90) + ' days'
+      + (data.generated_at && typeof whFmtDate === 'function' ? ' · report generated ' + whFmtDate(data.generated_at, { time: true }) : '');
     const _trustCard = (cardId, section, text) => {
       const card = document.getElementById(cardId);
       if (!card || !text || typeof whAiTrustRow !== 'function') return;
@@ -658,7 +666,7 @@
         <div class="mtbf-bar-bg"><div class="mtbf-bar-fill" style="width:${pct}%;"></div></div>
         <div class="mtbf-val">${b.avg_mtbf_days}d</div>
       </div>`;
-    }).join('') || '<p style="color:var(--muted); font-size:var(--wh-fs-2xs, .75rem);">No regional MTBF data yet: this chart comes from the regional report, which reads as thin below 3 contributing plants.</p>';
+    }).join('') || '<p style="color:var(--muted); font-size:var(--wh-fs-2xs, .75rem);">No regional MTBF data yet. This chart comes from the regional report, which needs at least 3 plants.</p>';
 
     // Failure modes
     const modes = r.failure_modes || [];

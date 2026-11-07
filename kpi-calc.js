@@ -146,8 +146,11 @@
     mtbf: [['op_h', 'Operating hours', 1], ['failures', 'Number of failures', 0], ['repair_h', 'Total repair hours', 0]]
   };
 
+  // GJ M11 (K2): the answer (.kc-a) is the page's KPI - 20px, read at arm's length; it was 18px.
+  // GJ M11 (C5): --kc-muted was 0.80 - APCA Lc 73 at the widget's 14px help and result lines, under the body floor of
+  // 75, on every calculator page. 0.86 is the platform's --wh-text-faint tier.
   var CSS = '' +
-    '.wh-kc{--kc-line:rgba(255,255,255,0.10);--kc-muted:rgba(244,246,250,0.80);color:var(--wh-cloud,#F4F6FA);container-type:inline-size}' +
+    '.wh-kc{--kc-line:rgba(255,255,255,0.10);--kc-muted:rgba(244,246,250,0.86);color:var(--wh-cloud,#F4F6FA);container-type:inline-size}' +
     '.wh-kc h3{margin:1.5rem 0 0.5rem;font-size:1.125rem;font-weight:700;line-height:1.35}' +
     '.wh-kc h3:first-child{margin-top:0.25rem}' +
     '.wh-kc p{margin:0 0 0.75rem}' +
@@ -169,7 +172,7 @@
     '.wh-kc .kc-result{margin:0;padding:0;list-style:none;border-top:1px solid var(--kc-line)}' +
     '.wh-kc .kc-result>li{list-style:none;margin:0;padding:12px 0;border-bottom:1px solid var(--kc-line)}' +
     '.wh-kc .kc-q{font-weight:700;font-size:0.95rem;margin:0 0 4px}' +
-    '.wh-kc .kc-a{font-size:1.125rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--wh-orange-light,#FDB94A);margin:0 0 4px}' +
+    '.wh-kc .kc-a{font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--wh-orange-light,#FDB94A);margin:0 0 4px}' +
     '.wh-kc .kc-how{font-size:0.875rem;color:var(--kc-muted);line-height:1.55;font-variant-numeric:tabular-nums;margin:0}' +
     '.wh-kc .kc-advice{font-size:0.95rem;line-height:1.55;margin:12px 0 0}' +
     '.wh-kc .kc-warn{color:var(--wh-red-text,#FDC9C9);font-size:0.875rem;line-height:1.55;margin:8px 0 0}' +
@@ -371,8 +374,8 @@
 
     root.appendChild(el('h3', { text: k === 'oee' ? 'Your line, your shift' : 'Your asset, your period' }));
     root.appendChild(el('p', { class: 'kc-help', text: k === 'oee'
-      ? 'Enter one shift or one week from your records - or the three percentages, if you already have them. The worked example is filled in to start.'
-      : 'Enter one asset over one period: how long it ran, how many times it failed, and how long the repairs took in total. The worked example is filled in to start.' }));
+      ? 'Enter one shift or one week from your records - or the three percentages, if you already have them. It starts with the worked example filled in.'
+      : 'Enter one asset over one period: how long it ran, how many times it failed, and how long the repairs took in total. It starts with the worked example filled in.' }));
     if (modeBox) root.appendChild(modeBox);
     Object.keys(grids).forEach(function (g) { root.appendChild(grids[g]); });
     root.appendChild(el('h3', { text: 'What it gives' }));

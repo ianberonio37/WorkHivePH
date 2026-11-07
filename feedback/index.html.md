@@ -7,9 +7,11 @@ Source: https://workhiveph.com/feedback/
 
 Public roadmap
 
-Vote on bug reports and feature ideas. They come from the crew running WorkHive on the job — technicians, supervisors and plant engineers — sent with the floating feedback button on any page and published here once the admin marks them public. Top-voted items get prioritized, so what slows a shift is what gets looked at first.
+Vote on bug reports and feature ideas from the crews who use WorkHive on the job. They send them with the feedback button on any page, and WorkHive publishes the ones it can share. WorkHive looks at the most-voted first, so what slows a shift gets fixed first.
 
-Have something to add? Tap the **💬** button in the bottom-right corner of any page.
+Signed in or not. On any other page it is in the menu, under Send feedback.
+
+### How this board works
 
 All
 🐞 Bug
@@ -24,4 +26,4 @@ Loading roadmap…
 
 Community-submitted feedback · public items, all time, sorted by votes then newest · top 200 · loaded when you open this page · dates in your time
 
-<!-- md-twin source-sha: 8d0332fc37535ce1 -->
+<!-- md-twin source-sha: 061d126f9ba69817 -->

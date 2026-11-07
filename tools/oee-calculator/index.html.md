@@ -10,7 +10,7 @@ OEE Calculator
 How it works
 OEE = Availability x Performance x Quality. Availability = run time / planned production time; Performance = (ideal cycle time x total count) / run time; Quality = good count / total count. For the example: 0.90 x 0.95 x 0.98 = 0.838, i.e. 83.8%. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 Work out your own OEE
-Enter one shift or one week from your records - planned time, stops and counts - or the three percentages if you already have them. It works out OEE and its three factors, says which loss is the biggest and what fixing it is worth, and lets you print it, save it, share it by link and set two scenarios side by side. It runs on this page: nothing you enter is sent anywhere, and no account is needed.
+Enter one shift or one week from your records: planned time, stops and counts. Or enter the three percentages if you have them. It works out OEE and its three factors, and names the biggest loss and what fixing it is worth. You can print it, save it, share it by link and set two scenarios side by side. It runs on this page. Nothing you enter leaves your device, and you need no account.
 Worked example: for a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles, OEE = 83.8 %, Availability = 90 %, Performance = 95 %, Quality = 98 %, TPM benchmark = 85 %. [Every number is in the worked example below](#worked).
 I2: reserved block 
 Worked example (Reliability & Metrics)
@@ -32,7 +32,7 @@ What is a good OEE score?85% is the benchmark Nakajima set for a mature TPM plan
 Why is my OEE lower than my availability?Because availability is only one of three factors. A line that is available 90% of the time but runs slow and scraps 5% of output lands near 80% OEE. Measuring availability alone is the most common OEE mistake.
 Do I need sensors to measure OEE?No. You can calculate OEE from shift records: planned time, downtime, counts produced, and rejects. A disciplined logbook is enough to start; sensors improve resolution later.
 See it worked out from your own log
-[See OEE for every machine in WorkHive Analytics](https://workhiveph.com/analytics.html). Free. Availability comes from the downtime your crew logs and quality from the good and total units they record; add each machine's ideal cycle time and performance joins them for the full OEE. A new account starts empty, so the figure appears once that work is being logged.
+[See OEE for every machine in WorkHive Analytics](https://workhiveph.com/analytics.html). Free. Availability comes from the downtime your crew logs. Quality comes from the good and total units they record. Add each machine's ideal cycle time and performance joins them for the full OEE. A new account starts empty. The figure appears once your crew logs that work.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [MTBF & MTTR Calculator](https://workhiveph.com/tools/mtbf-calculator/)
@@ -42,4 +42,4 @@ Where these figures come from
 Worked example computed when this page was built · the calculator works on your device from what you enter · no live data
  /wh-sources
 
-<!-- md-twin source-sha: bacdf203a77ff9e9 -->
+<!-- md-twin source-sha: c0053f27eda3529f -->

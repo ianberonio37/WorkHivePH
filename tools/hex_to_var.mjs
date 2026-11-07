@@ -13,7 +13,9 @@ const MAP = {
   '#7b8794': '--wh-steel', '#a9b6c4': '--wh-steel-bright',
   '#fca5a5': '--wh-red-text', '#c4b5fd': '--wh-violet-text', '#f4f6fa': '--wh-cloud',
 };
-const migrate = (css) => css.replace(/#[0-9a-fA-F]{6}\b/g, (h) => {
+// (?![\w-]), not \b: \b ends at '-', so an id like #facade-btn would be read as the colour #facade (GJ M11, 2026-11-07 - the
+// same hole fix_token_literals.py had, which shipped `var(--wh-rose-200, #fab)-post` as two pages' FAB selector)
+const migrate = (css) => css.replace(/#[0-9a-fA-F]{6}(?![\w-])/g, (h) => {
   const v = MAP[h.toLowerCase()];
   return v ? `var(${v})` : h;
 });

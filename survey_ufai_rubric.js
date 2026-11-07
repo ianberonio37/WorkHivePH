@@ -456,7 +456,13 @@
     // would be wrong for the medium. Hoisted here (a local copy also lived at G1) so A2's block
     // proxy can be medium-aware: a print doc's scannability lives in its headed sections, not
     // in card rounding. [external-consistency-and-standards-heuristic-internal-ext]
-    const isPrintDoc = !!document.querySelector('#ar-print-wrapper') && !!(R.closest && R.closest('#ar-print-wrapper'));
+    // ★A PRINT DOCUMENT CAN SAY SO (GJ M11, 2026-11-07). The shift handover a worker is handed is the page hive.html
+    // writes into a print window - a sheet of paper, not an app screen - and the lens knew a print artifact only by
+    // analytics-report's #ar-print-wrapper, so it asked the paper for a way back, touch-action, a status region and a
+    // help disclosure. A document that declares <meta name="wh-page-kind" content="print"> is one - the same declared
+    // contract reference and console pages use, auditable instead of guessed.
+    const isPrintDoc = (!!document.querySelector('#ar-print-wrapper') && !!(R.closest && R.closest('#ar-print-wrapper')))
+      || !!document.querySelector('meta[name="wh-page-kind"][content="print"]');
     // ★A STATIC CONTENT DOCUMENT IS THE POSTER'S SIBLING, AND THE WHOLE LEARN CORPUS FELL BETWEEN THE
     // TWO SPELLINGS (walked 2026-09-11, learn/what-is-oee-how-to-calculate, solo owner, phone-390).
     // G1 and I2 ALREADY carry a "static artifact" N/A branch — "state lives on the generator, not the
@@ -610,7 +616,10 @@
     // of several choices, and `*-picker` is the container of them, so the next page that ships a picker
     // is right without a sixteenth fault. Scope measured before widening: `primary-option`/
     // `primary-picker` appear on exactly ONE page, so this corrects a real reading and moves no other.
-    const isSelection = (e) => e.getAttribute('role') === 'tab' || e.hasAttribute('aria-pressed')
+    // GJ M11 (2026-11-07): aria-checked and the selection roles too - a switch is a held state, not a call to action
+    // (marketplace-seller's "Online: receiving jobs" switch read as a third primary); R3's roleOf already reads them so
+    const isSelection = (e) => e.getAttribute('role') === 'tab' || e.hasAttribute('aria-pressed') || e.hasAttribute('aria-checked')
+      || /^(switch|radio|checkbox|option|menuitemradio|menuitemcheckbox)$/.test(e.getAttribute('role') || '')
       || /(^|\s)(view-tab|phase-tab|period-btn|tab-btn|seg-btn|segmented|toggle-opt)/.test(
         (typeof e.className === 'string' ? e.className : ''))
       || /(^|\s)[a-z][a-z0-9]*(-[a-z0-9]+)*-(option|picker)(\s|$)/.test(
@@ -632,10 +641,24 @@
     const headerCtas = $$('header [class*="primary"], .page-header [class*="primary"], .toolbar [class*="primary"], header button, header a[href], .page-header button, [class*="btn-primary"]', document.body)
         .filter(vis).filter((e) => !/^wh-/.test(e.id || '') && !e.closest('#wh-nav-hub, [id*="wh-hub"], #wh-feedback-panel'))
         .filter((e) => /primary/.test(typeof e.className === 'string' ? e.className : '') || isFilled(e));
+    // ★THE OPEN DIALOG (GJ M11 round 2, 2026-11-07). While one is open its own controls are the screen's choices - and they
+    // join the pool wherever the dialog lives: feedback/?reports=1 opens the feedback panel outside <main> (and the header
+    // pass drops it as shell chrome), marketplace's sheets sit outside <main> too, so A1 read cta=0 over a filled "Send
+    // feedback". Open = vis() (opacity, off-canvas), not aria-hidden or inert, and covering real screen area: the panel every
+    // page carries is aria-modal from birth and closes as aria-hidden + width 0, and a closed sheet is translated away.
+    const _openDlg = [...document.querySelectorAll('[aria-modal="true"]')].find((d) => {
+      if (!vis(d) || d.closest('[aria-hidden="true"], [inert]')) return false;
+      const dr = d.getBoundingClientRect();
+      const w = Math.min(dr.right, innerWidth) - Math.max(dr.left, 0), h = Math.min(dr.bottom, innerHeight) - Math.max(dr.top, 0);
+      return w >= 8 && h >= 8;
+    }) || null;
+    const _dlgCtas = _openDlg ? $$('.ac-cta, .btn-generate, [class*="primary"]', _openDlg).filter(vis)
+      .concat($$('button, a[href]', _openDlg).filter(vis).filter(isFilled)) : [];
     const _ctaPairs = $$('.ac-cta, .btn-generate, [class*="primary"]', R).filter(vis)
         .concat($$('button, a[href]', R).filter(vis).filter(isFilled))
         .concat(headerCtas)
         .concat(pageFabs)
+        .concat(_dlgCtas)
         // The cookie notice's Allow/Decline answer a separate, passing question the platform asks, not the page's offer;
         // counted as a page CTA it made every signed-out landing screen read 4 primaries (critic batch G3, 2026-10-13).
         // ★A CONTROL BEHIND AN OPEN MODAL IS NOT A CHOICE (2026-10-14). index.html?signin=1 opens the sign-in dialog
@@ -643,6 +666,11 @@
         // the dialog's own Sign In, so 2,347 signed-out rows read "3 primary calls to action" for buttons no person
         // could reach. Teeth both ways in prove_rubric_teeth.mjs (g3modal passes, g3bare still fails).
         .filter((e2) => !e2.closest('[inert], [aria-hidden="true"]'))
+        // ★...AND BEHIND AN OPEN aria-modal DIALOG (GJ M11, 2026-11-07). The inert rule above needs the page to mark its
+        // background; aria-modal="true" already says the same thing to assistive tech. hive's first-run intent dialog sat
+        // over the board's own primaries and G3 read three at once. While a visible aria-modal dialog is open, only its
+        // own controls are choices.
+        .filter((e2) => !_openDlg || _openDlg.contains(e2))
         .filter((e2) => !isSelection(e2) && !isCard(e2) && !e2.closest('#wh-consent'))
         .map((e2) => [((e2.innerText || '').trim().slice(0, 24) + '|' + String(e2.className)), e2]);
     // A REPEATED ROW ACTION -- the same design appearing >=2 times, each inside its own list
@@ -668,7 +696,21 @@
       }
       return false;
     };
-    const _isRowAction = (k, e2) => _keyCount[k] >= 2 && _inRowContainer(e2);
+    // GJ M11 (round 3): a control that submits a FIELD in its own row (a reply under one inquiry, an answer under one
+    // review) acts on that row even when it is the only one; a lone filled control with no field beside it in its card
+    // (hive's "Take action") is still the page's recommendation and still counts.
+    // ...and the row is a RECORD row - a list item, or a container named for a record. The generic layout words _ROWISH
+    // also carries (card / row / entry) name a page's own form card too: logbook's log form is Save Entry in `div.card`,
+    // and the first cut read the page's one primary as a row action (J23, cta=0).
+    const _RECORD_ROW = /(^|[\s_-])(inquiry|review|listing|comment|reply|message|result|record|item)([\s_-]|$)/i;
+    const _rowForm = (e2) => {
+      let row = e2.closest('li, tr, article');
+      for (let a = e2.parentElement; !row && a && a !== document.body; a = a.parentElement) {
+        if (_RECORD_ROW.test(typeof a.className === 'string' ? a.className : '')) row = a;
+      }
+      return !!(row && row.querySelector('textarea, input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"])'));
+    };
+    const _isRowAction = (k, e2) => (_keyCount[k] >= 2 && _inRowContainer(e2)) || _rowForm(e2);
     const primaryCta = [...new Map(_uniq.filter(([k, e2]) => !_isRowAction(k, e2)).map(([k, e2]) => [e2, e2])).values()];
     out._a1 = { pairs: _ctaPairs.length, ctas: primaryCta.slice(0, 6).map((e2) => ((e2.innerText || '').trim().slice(0, 24) + '|' + String(e2.className).slice(0, 30))) };   // debug receipt (2026-09-06): which CTAs A1 kept, like _r3/_b3
     out.push(M('A1', '5-second test', [
@@ -1175,7 +1217,11 @@
       else {
         if (cr < worst.r) worst = { r: +cr.toFixed(2), t: ownText(e).slice(0, 20) };
         c2Off.push({ t: ownText(e).slice(0, 24), cls: String(e.className).slice(0, 40),
-          r: +cr.toFixed(2), need, fg: s.color, grad: !!bg.stops });
+          r: +cr.toFixed(2), need, fg: s.color, grad: !!bg.stops,
+          // GJ M11: which element - a class-less <mark> search highlight read as cls "" and nothing else
+          el: e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (e.parentElement ? ' < ' + e.parentElement.tagName.toLowerCase()
+            + (e.parentElement.id ? '#' + e.parentElement.id : (typeof e.parentElement.className === 'string' && e.parentElement.className.trim()
+              ? '.' + e.parentElement.className.trim().split(/\s+/)[0] : '')) : '') });
       }
     });
     out._c2 = c2Off;
@@ -1204,8 +1250,15 @@
     // them as four KPIs too small to glance at (0/4) on every signed-out screen, while C4 asked them for tabular
     // numerals. Nobody reads "03" as a quantity: the zero is the tell of a sequence label. Teeth both ways in
     // prove_rubric_teeth.mjs (k2ordinal must pass, k2small must still fail a real 16px KPI).
-    const nums = textEls.filter(e => /^[\d,.]+\s*(%|h|d|hrs)?$/.test(ownText(e)) && !/^0\d$/.test(ownText(e)) && parseFloat(getComputedStyle(e).fontSize) >= 14);
+    // GJ M11: seven or more digits with no separator is an IDENTIFIER (a part number, a GCash reference, a phone number), not
+    // a quantity - a KPI that size is written 3,991,971 - so it is neither asked for tabular figures nor to be 20px tall
+    const nums = textEls.filter(e => /^[\d,.]+\s*(%|h|d|hrs)?$/.test(ownText(e)) && !/^0\d$/.test(ownText(e)) && !/^\d{7,}$/.test(ownText(e)) && parseFloat(getComputedStyle(e).fontSize) >= 14);
     const tab = nums.filter(e => /tabular-nums/.test(getComputedStyle(e).fontVariantNumeric));
+    // GJ M11: the numbers C4 and K2 counted, so a fixer reads the element instead of guessing it
+    out._nums = nums.slice(0, 12).map((e) => ({ t: ownText(e).slice(0, 16), px: Math.round(parseFloat(getComputedStyle(e).fontSize)),
+      tab: /tabular-nums/.test(getComputedStyle(e).fontVariantNumeric),
+      el: e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : '')
+        + (e.parentElement ? ' < ' + e.parentElement.tagName.toLowerCase() + (e.parentElement.id ? '#' + e.parentElement.id : '') : '') }));
     // A ratio dim with denominator 0 must report N/A, never MEASURED-with-null-pct —
     // the roll-up counted those as 0% (the ⚠-trio pollution, 2026-07-15).
     out.push(nums.length
@@ -1295,8 +1348,10 @@
     // excuses a chip saying nothing about WHEN is worse than a missing one.
     // Its own audit tool had flagged this at 84% retention (44 EN / 37 FIL) as a CANDIDATE; this is the
     // measured bite. Fourth English-only vocabulary found in this dim's family.
+    // GJ M11 (2026-11-07): `loaded when/on/at` - the feedback board's chip says "loaded when you open this page", as plain a
+    // statement of when it read as "as of"; E3 marked it half-sourced. A bare "loaded" (a count) still does not count.
     const FRESH = new RegExp(
-      'updated|live|snapshot|as of|refresh|recomputed|generated|computed|calculated|on demand'
+      'updated|live|snapshot|as of|refresh|recomputed|generated|computed|calculated|on demand|loaded (?:when|on|at)'
       + '|kalkula|kuwenta|binubuo|hiniling|nakalipas|na-generate|na-update|nire-refresh'
       + '|noong|buhay|nabuo', 'i');
     // Read textContent, NOT innerText: index's provenance chip is DELIBERATELY collapsed inside
@@ -1628,13 +1683,16 @@
     // optimistic UI"). Count skeleton PRESENCE; keep vis for the min-height reserves. (2026-07-16)
     const reserved = $$('[style*="min-height"], .kpi-detail', R).filter(vis)
       .concat($$('[class*="skeleton"]', R))
+      // GJ M11 (2026-11-07): the shared skeletons (whListSkeleton / whCardSkeleton) mark the container they filled -
+      // the rows are replaced by the content, so after the load only the mark says the list held its place
+      .concat($$('[data-wh-reserved]', R))
       .concat(blocks.filter(b => parseFloat(getComputedStyle(b).minHeight) > 0))
       // A large min-height on a LAYOUT CONTAINER (not just a cardLike block) is a real space
       // reservation too -- status's `.grid { min-height:1088px }` holds the /health grid's slot
       // while the async pings resolve, but #grid isn't a card so the block-only check missed it.
       // >=100px excludes 44px button tap-targets and small chips; catches genuine content slots.
       .concat($$('div, section, main, ul, ol', R).filter(vis).filter(b => parseFloat(getComputedStyle(b).minHeight) >= 100));
-    const _printDoc = !!document.querySelector('#ar-print-wrapper') && R.closest('#ar-print-wrapper');
+    const _printDoc = isPrintDoc;
     out.push(reserved.length ? M('I2', 'Perceived performance', 1, 1, `${reserved.length} reserved block(s)`)
       : (_printDoc || isPoster) ? NA('I2', 'Perceived performance', 'static artifact: rendered once, nothing streams in')
       : isStaticDoc ? NA('I2', 'Perceived performance', 'static document: ships no data layer, so nothing streams in and there is nothing to reserve space for')
@@ -1698,8 +1756,12 @@
            DELEGATION KEY - data-action="remove" resolved by `action === 'remove'`. That key is the
            anchor this lens was missing. [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]] */
     const GUARD = /whConfirm|confirm\s*\(|are you sure|\bundo\b|pushUndo|showUndo|snapshotVersion/i;
+    // ★A PAGE'S OWN SCRIPT FILE IS THE PAGE'S CODE TOO (GJ M11, 2026-11-06). The founder console's "Remove ID badge" is
+    // confirmed by name through whConfirm - in operator-actions.js, the console's own cut of its queues, loaded by src -
+    // and J1 read 0/8 because only inline scripts were searched. A caller that can fetch (a walk, a sweep) puts the
+    // page's OWN same-origin scripts here (window.__WH_PAGE_OWN_JS); shared chrome stays out, graded once on its own.
     const pageJs = () => (survey._js !== undefined ? survey._js
-      : (survey._js = $$('script:not([src])').map(s => s.textContent).join('\n')));
+      : (survey._js = $$('script:not([src])').map(s => s.textContent).join('\n') + '\n' + (window.__WH_PAGE_OWN_JS || '')));
     const slipGuarded = (e) => {
       const oc = e.getAttribute('onclick') || '';
       if (GUARD.test(oc)) return true;
@@ -2128,8 +2190,8 @@
     // nav-hub FAB — navigation is not help, and including it would have scored every page 1 for free.
     const help = $$('details, [class*="help"], [aria-label*="guide" i], '
       + '[class*="details-toggle"], [class*="disclose"], [class*="method"]').filter(vis);
-    out.push(isPoster
-      ? NA('O2', 'Pull > push help', 'poster: a static artifact offers no in-page help journey')
+    out.push((isPoster || isPrintDoc)
+      ? NA('O2', 'Pull > push help', 'poster/print: a static artifact offers no in-page help journey')
       // a permission wall is one message and one way on; there is nothing on the page to look up (2026-10-13)
       : isPermWall ? NA('O2', 'Pull > push help', 'permission wall: one message and one way on, nothing on the page to look up')
       : M('O2', 'Pull > push help', help.length ? 1 : 0, 1, `${help.length} on-demand help affordance(s)`));
@@ -2356,7 +2418,13 @@
     // for 3 roles" for having a normal circular icon button. Exclude it, like card-anatomy. A
     // round button WITH a text label still counts (it's a shaped text control). (2026-07-16)
     const isRoundIcon = (e) => shape(e) === 'round' && (e.textContent || '').trim().length === 0;
-    const ctrlsVocab = ctrls.filter((e) => !isCardAnatomy(e) && !isRoundIcon(e) && drawsShape(e));
+    // A CLICKABLE CARD IS CARD VOCABULARY (GJ M11, 2026-11-07). A1/G3 already rule "a card is not a button" (isCard); R3
+    // counted hive's tappable readiness glance (a 12px card, role=button) and its flagged-items .wh-card link (16px) as two
+    // more control silhouettes beside 8px buttons. A content card - isCard, or a control laying out two or more block
+    // children (a card's body, not a label) - is graded with the cards, not the controls.
+    const _blockKids = (e) => [...e.children].filter((c) => vis(c) && /^(block|flex|grid|table|list-item)$/.test(getComputedStyle(c).display)).length;
+    const isContentCard = (e) => isCard(e) || _blockKids(e) >= 2;
+    const ctrlsVocab = ctrls.filter((e) => !isCardAnatomy(e) && !isContentCard(e) && !isRoundIcon(e) && drawsShape(e));
     const shapeV = (e) => (roleOf(e) === 'navigate' ? 'bar' : shape(e));
     const ctrlShapes = [...new Set(ctrlsVocab.map(shapeV))];
     const radii = ctrlShapes;
@@ -2382,7 +2450,12 @@
     out.push(M('R3', 'Treatment uniformity (cards AND controls)', r3Checks.filter(Boolean).length, 3,
       `cardTreatments=${peerSig.length} · silhouettes=${ctrlShapes.length} for ${roleCount} role(s) (${radii.join(',')})`
       + (shapeCollisions.length ? ` · SAME-SHAPE-DIFFERENT-JOB: ${shapeCollisions[0]}` : '')));
-    out._r3 = { ctrlShapes, radii, shapeCollisions, roleCount };
+    // GJ M11: one example control per silhouette (tag#id.class "text" role), so the odd shape can be found
+    const examples = {};
+    ctrlsVocab.forEach((e) => { const k = shapeV(e); if (!examples[k]) examples[k] = e.tagName.toLowerCase() + (e.id ? '#' + e.id : '')
+      + (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : '')
+      + ' "' + (e.innerText || e.getAttribute('aria-label') || '').trim().slice(0, 24) + '" ' + roleOf(e); });
+    out._r3 = { ctrlShapes, radii, shapeCollisions, roleCount, examples };
     // A void is a block that renders NOTHING — judge by the whole SUBTREE (innerText +
     // any media/controls), never by direct text nodes: page-header / phase-tabs / the
     // source chip hold their text in CHILDREN and were all falsely flagged as voids.
@@ -2495,8 +2568,23 @@
         for (const a of as) for (const b of bs) { const v = ov(a, b); if (v > m) m = v; }
         return m;
       };
+      // ★A BOX ITS OWN SCROLLER CLIPS AWAY IS NOT ON THE PAGE (GJ M11, 2026-11-07). dayplanner's sidebar scrolls a 4,283px
+      // list inside a 654px box; the list's lower "+ Add to my day" buttons lie, geometrically, across the sources
+      // section printed below the layout - and are drawn nowhere, clipped by the sidebar. V1 read "+ Add to my ×
+      // Show details" on the desktop walk. An element wholly outside a clipping ancestor's visible box is not a
+      // candidate; one the box shows, even partly, still is.
+      const _outOfItsBox = (e) => {
+        const er = e.getBoundingClientRect();
+        for (let a = e.parentElement; a && a !== document.body && a !== document.documentElement; a = a.parentElement) {
+          const as = getComputedStyle(a);
+          if (!/(auto|scroll|hidden|clip)/.test(as.overflowX + ' ' + as.overflowY)) continue;
+          const ar = a.getBoundingClientRect();
+          if (er.bottom <= ar.top || er.top >= ar.bottom || er.right <= ar.left || er.left >= ar.right) return true;
+        }
+        return false;
+      };
       const cand = [...R.querySelectorAll('button, a, input, select, h1, h2, h3, h4, p, label, li')]
-        .filter((e) => vis(e) && ownText(e).length > 1 && !inPanel(e) && !isFloat(e))
+        .filter((e) => vis(e) && ownText(e).length > 1 && !inPanel(e) && !isFloat(e) && !_outOfItsBox(e))
         .map((e) => ({ e, r: e.getBoundingClientRect(), rs: lineBoxes(e) }))
         .filter((o) => o.r.width > 10 && o.r.height > 8 && o.r.width < 900);
       const hits = [];
@@ -2577,6 +2665,21 @@
           const r = c.getBoundingClientRect(); if (r.width < 4 || r.height < 4) continue;
           const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
           if (cx < 0 || cx > innerWidth || cy < 0 || cy > innerHeight) continue;
+          // ★A CONTROL SCROLLED OUT OF ITS OWN SCROLL BOX IS NOT COVERED (GJ M11, 2026-11-07). The feedback panel opened on
+          // "Your reports" scrolls its body there, and the kind buttons it carried above the body's top edge sat behind
+          // the panel's header: "wh-fb-title covers button" on both viewports. Nothing covers them - their own box
+          // clips them, and scrolling it brings them back. A centre outside the visible box of a clipping ancestor is
+          // out of view, not occluded (a box that clips content nobody can reach is T1's question, not V1's).
+          {
+            let _out = false;
+            for (let a = c.parentElement; a && a !== document.body && a !== document.documentElement; a = a.parentElement) {
+              const as = getComputedStyle(a);
+              if (!/(auto|scroll|hidden|clip)/.test(as.overflowX + ' ' + as.overflowY)) continue;
+              const ar = a.getBoundingClientRect();
+              if (cx < ar.left || cx > ar.right || cy < ar.top || cy > ar.bottom) { _out = true; break; }
+            }
+            if (_out) continue;
+          }
           const hit = document.elementFromPoint(cx, cy);
           if (!hit || hit === c || c.contains(hit) || hit.contains(c)) continue;
           if (hit.closest('label') && hit.closest('label').control === c) continue;
@@ -2600,6 +2703,13 @@
               const roomBelow = se.scrollHeight - innerHeight - se.scrollTop;
               const cfix = (() => { for (let a = c; a && a !== document.body; a = a.parentElement) { const q = getComputedStyle(a).position; if (q === 'fixed' || q === 'sticky') return true; } return false; })();
               if (!cfix && fr.top > innerHeight / 2 && roomBelow >= r.bottom - fr.top + 1) continue;
+              // ★THE TOP OF THE SCREEN HAS A FOLD TOO (GJ M11, 2026-11-07). Four phone surveys read "occludes an interactive
+              // control" over content that had merely SCROLLED under the top chrome: the floating Back pill over
+              // analytics-report's CSV button at scrollY 575, pm-scheduler's nav over a figure, alert-hub's pill over a
+              // count. Measured at rest, pm-scheduler's content starts 80px down, clear of its 57px nav. A control the
+              // person can scroll back DOWN from under a header is the mirror of the bottom fold above; what stays a
+              // finding is a control under top chrome with no scroll left above it - content that starts under the nav.
+              if (!cfix && fr.bottom < innerHeight / 2 && se.scrollTop >= fr.bottom - r.top + 1) continue;
             }
           }
           // ★NAME THE ELEMENT THAT COVERS, AND MEASURE THAT ONE (2026-10-13). This climbed from `hit` to the nearest
@@ -2714,7 +2824,17 @@
       // loaded wh-persona.js leaves no img/svg/avatar node at all, so avatarVis stays false.
       const avatarVis = !!(avatar && (vis(avatar) || avatar.getClientRects().length > 0 || (avatar.innerHTML || '').trim().length > 0));
       const navHub = document.querySelector('#wh-hub-fab, #wh-hub-launcher, .wh-hub-fab, [data-nav-hub]');
-      const hubVis = !!(navHub && vis(navHub));
+      // ★THE HUB STANDS DOWN FOR A DIALOG (GJ M11, 2026-11-07). nav-hub.js hides its wrapper (visibility:hidden,
+      // aria-hidden) while any OTHER dialog or open sheet is up - page chrome must not sit over a modal's buttons or be
+      // reachable behind it. Five walks graded a page with a sheet open and read "nav-hub=false" on hive, inventory,
+      // logbook, marketplace and community. A hub that is present and standing down for an open dialog is the shared
+      // chrome working; a hub hidden with no dialog open is still a finding.
+      const _hubWrap = document.getElementById('wh-hub');
+      const _hubStoodDown = !!(navHub && _hubWrap && _hubWrap.getAttribute('aria-hidden') === 'true'
+        && [...document.querySelectorAll('[role="dialog"], dialog[open], .sheet.open, .modal.open, [id$="-sheet"].open, [id$="-modal"].open, .sheet-overlay.open')]
+          .some((d) => { if (_hubWrap.contains(d)) return false; const ds = getComputedStyle(d); const dr = d.getBoundingClientRect();
+            return ds.display !== 'none' && ds.visibility !== 'hidden' && dr.width > 0 && dr.height > 0; }));
+      const hubVis = !!(navHub && (vis(navHub) || _hubStoodDown));
       const anyCompanion = !!companion || !!navHub;   // if a page ships NO shell at all it's likely exempt (print/poster)
       // assistant.html IS the full assistant and index.html is the signed-out landing — both ship
       // WITHOUT the floating companion launcher BY DESIGN (AI_SURFACE_MAP: companion-launcher.js is on
@@ -2874,11 +2994,37 @@
       const _reflow = _sw > _cw + 2;
       const _z2off = [];
       if (_reflow) {
-        document.querySelectorAll('body *').forEach((e) => {
-          const cs = getComputedStyle(e); if (cs.position === 'fixed') return;   // off-screen fixed chrome doesn't scroll the page
-          const r = e.getBoundingClientRect(); if (r.width < 40 || r.height === 0) return;
-          if (r.right > _cw + 2) _z2off.push(e.tagName.toLowerCase() + (e.id ? '#' + e.id : '.' + String(e.className || '').trim().split(/\s+/)[0]));
+        // ★NAME THE CAUSE, NOT THE SYMPTOM (GJ M11, 2026-11-07). J30's phone read "offenders: button#wh-hub-fab,
+        // span#wh-hub-current-label, svg, polygon" - on a mobile viewport a page wider than the screen widens the layout
+        // viewport, and the FIXED hub moves out with it, so the hub is listed first while the element that widened the
+        // page goes unnamed. analytics-report's list was table cells inside their own overflow-x:auto wrapper, which
+        // scroll in their box and never widen the page. Offenders are now in-flow (no fixed or sticky ancestor), not
+        // inside a box that scrolls or clips sideways, and the DEEPEST such element (no offending child of its own).
+        const _z2free = (e) => {
+          for (let a = e; a && a !== document.body; a = a.parentElement) {
+            const q = getComputedStyle(a);
+            if (q.position === 'fixed' || q.position === 'sticky') return false;
+            if (a !== e && !/visible/.test(q.overflowX)) return false;
+          }
+          return true;
+        };
+        const _past = [...document.querySelectorAll('body *')].filter((e) => {
+          const r = e.getBoundingClientRect();
+          return r.width > 0 && r.height > 0 && r.right > _cw + 2 && _z2free(e);
         });
+        const _pastSet = new Set(_past);
+        _past.filter((e) => ![...e.children].some((ch) => _pastSet.has(ch))).forEach((e) => {
+          const r = e.getBoundingClientRect();
+          _z2off.push(e.tagName.toLowerCase() + (e.id ? '#' + e.id : (String(e.className || '').trim() ? '.' + String(e.className).trim().split(/\s+/)[0] : ''))
+            + '(' + Math.round(r.right - _cw) + 'px' + (getComputedStyle(e).whiteSpace === 'nowrap' ? ',nowrap' : '') + ')');
+        });
+        // nothing in flow crosses the edge: the overflow is glyphs spilling from a box that fits (analytics-report's
+        // "17.400000000000006/100") - name the boxes whose own content is wider than they are
+        if (!_z2off.length) {
+          [...document.querySelectorAll('body *')].filter((e) => e.scrollWidth > e.clientWidth + 2 && e.clientWidth > 0 && _z2free(e)
+              && /visible/.test(getComputedStyle(e).overflowX))
+            .slice(-4).forEach((e) => _z2off.push(e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (String(e.className || '').trim() ? '.' + String(e.className).trim().split(/\s+/)[0] : '') + '(content ' + e.scrollWidth + '>' + e.clientWidth + ')'));
+        }
       }
       out.push(M('Z2', 'Responsive reflow (no h-scroll, WCAG 1.4.10)', _reflow ? 0 : 1, 1,
         _reflow ? ('page scrolls horizontally by ' + (_sw - _cw) + 'px @' + _cw + 'px — offenders: ' + _z2off.slice(0, 4).join(', ')) : ('reflows clean, no h-scroll @' + _cw + 'px')));
@@ -3559,6 +3705,7 @@
       })(),
       b3_offenders: out._b3,   // the exact sentences to REWRITE — scoring alone fixes nothing
       c2_offenders: out._c2,   // every below-floor text el (worst-stop scored) — the C2 fix list
+      num_els: out._nums,      // GJ M11: the number-only elements C4 (tabular) and K2 (>=20px) counted
       // ★C5 COULD NOT SHOW ITS WORK (2026-09-11). The APCA offender list was computed, spent on ONE
       // clause of the note ("101 pass WCAG but miss APCA Lc (worst: …)") and then dropped, so a fixer
       // could see the count and the single worst element and none of the other hundred. C5 is the dim

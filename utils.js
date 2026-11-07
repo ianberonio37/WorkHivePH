@@ -3715,6 +3715,9 @@ function whListSkeleton(el, rows, label) {
   for (var i = 0; i < rows; i++) html += '<div class="wh-skeleton-row"></div>';
   html += '</div>';
   el.innerHTML = html;
+  // GJ M11 (I2): the container keeps a mark that it held a skeleton while it loaded - the rows themselves are replaced
+  // by the content, so a survey taken after the load could not see that the list ever reserved its place
+  try { el.setAttribute('data-wh-reserved', 'skeleton'); } catch (e) { /* empty-catch-allow: a mark, never load-bearing */ }
 }
 
 // ─────────────────────────────────────────────
@@ -3798,6 +3801,7 @@ function whCardSkeleton(el, count, opts) {
   for (var i = 0; i < count; i++) html += card;
   html += '</div>';
   el.innerHTML = html;
+  try { el.setAttribute('data-wh-reserved', 'skeleton'); } catch (e) { /* empty-catch-allow: a mark, never load-bearing */ }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -3977,7 +3981,9 @@ function whPresenceFit(bar) {
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'presence-chip wh-presence-more';
-      b.style.cssText = 'min-height:44px;cursor:pointer;font-weight:600;white-space:nowrap;flex-shrink:0;';
+      // 8px, not the chips' pill (GJ M11, G-MOD): the "+N more" opens the row - a button you press - while a pill on these
+      // pages is a filter you toggle, so wearing the chip's pill made one shape mean two jobs
+      b.style.cssText = 'min-height:44px;cursor:pointer;font-weight:600;white-space:nowrap;flex-shrink:0;border-radius:8px;';
       b.setAttribute('aria-expanded', expanded ? 'true' : 'false');
       b.textContent = label;
       b.onclick = function () { bar.setAttribute('data-wh-presence-open', expanded ? '0' : '1'); whPresenceFit(bar); };
@@ -5434,7 +5440,7 @@ function _whReadErrorText(err, what) {
   // (a refusal that confirmed the record would leak it).
   if (String((err && err.code) || '') === 'PGRST116' && /\b0 rows\b/i.test(msg + ' ' + hint)) {
     if (_whSignedOut()) return T('WorkHive does not show ' + thing + ' to visitors who are not signed in. Sign in to see it.');
-    return T('Couldn’t find ' + thing + ' in a hive you belong to. It may have been removed, or the link is for a hive '
+    return T('Couldn’t find ' + thing + ' in a hive you belong to. Someone may have removed it, or the link is for a hive '
          + 'you are not a member of. Your session is fine.');
   }
   var _off = false;
@@ -8305,10 +8311,12 @@ function whAuditView(row) {
   // The figure's own text stays its accessible NAME - it changes when the data lands (a tile reads 0 and then 3), and an
   // aria-label written at marking time would keep saying 0. What it shows and the "where from" hint are a DESCRIPTION,
   // one hidden node per entry, which does not go stale.
-  var descs = [];
-  function descFor(entry) {
-    var i = map.indexOf(entry);
-    if (descs[i]) return descs[i];
+  // ★AND NAMED BY WHAT IT SHOWS TOO (GJ M11, 2026-11-07). The text alone made an empty tile a button called "-" (alert-hub's
+  // AMC brief: three unnamed controls). The name is now aria-labelledby = the figure itself + a hidden "what it shows"
+  // node - "3 AMC high-risk assets" - which still never goes stale, because the reference to itself reads its current text.
+  // The press hint is the description.
+  var descs = [], names = [], figSeq = 0;
+  function hostEl() {
     var host = document.getElementById('wh-fig-descs');
     if (!host) {
       host = document.createElement('div');
@@ -8316,11 +8324,25 @@ function whAuditView(row) {
       host.hidden = true;
       document.body.appendChild(host);
     }
+    return host;
+  }
+  function descFor(entry) {
+    var i = map.indexOf(entry);
+    if (descs[i]) return descs[i];
     var d = document.createElement('span');
     d.id = 'wh-fig-desc-' + i;
-    d.textContent = (entry.shows || 'This figure') + '. Press to see where it comes from.';
-    host.appendChild(d);
+    d.textContent = 'Press to see where it comes from.';
+    hostEl().appendChild(d);
     return (descs[i] = d.id);
+  }
+  function nameFor(entry) {
+    var i = map.indexOf(entry);
+    if (names[i]) return names[i];
+    var d = document.createElement('span');
+    d.id = 'wh-fig-name-' + i;
+    d.textContent = entry.shows || 'figure';
+    hostEl().appendChild(d);
+    return (names[i] = d.id);
   }
   function mark(el, entry) {
     if (el.__whFig) return;
@@ -8330,6 +8352,8 @@ function whAuditView(row) {
     el.setAttribute('role', 'button');
     el.setAttribute('aria-haspopup', 'dialog');
     el.setAttribute('aria-expanded', 'false');
+    if (!el.id) el.id = 'wh-fig-n' + (++figSeq);
+    if (!el.getAttribute('aria-labelledby')) el.setAttribute('aria-labelledby', el.id + ' ' + nameFor(entry));
     var prev = el.getAttribute('aria-describedby');
     el.setAttribute('aria-describedby', (prev ? prev + ' ' : '') + descFor(entry));
   }

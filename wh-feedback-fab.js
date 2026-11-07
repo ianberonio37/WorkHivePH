@@ -131,7 +131,13 @@
       history.replaceState(history.state, '', u.pathname + u.search + u.hash);
     } catch (_) { /* empty-catch-allow: the panel still opens; only the address keeps the parameter */ }
     openPanel();
-    setTimeout(() => { const m = document.getElementById('wh-fb-mine'); if (m && !m.hidden) m.scrollIntoView({ block: 'start' }); }, 900);
+    // scroll the panel's BODY to "Your reports" - scrollIntoView also scrolled the panel itself, so its header rode up
+    // over the controls above the list (a V1 collision the first --survey walk graded)
+    setTimeout(() => {
+      const m = document.getElementById('wh-fb-mine');
+      const body = document.querySelector('#wh-feedback-panel .wh-fb-body');
+      if (m && !m.hidden && body) body.scrollTop = Math.max(0, m.offsetTop - body.offsetTop - 8);
+    }, 900);
   }
 
   function injectStyles() {

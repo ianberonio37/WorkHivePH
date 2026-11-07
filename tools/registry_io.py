@@ -41,7 +41,19 @@ def _read(path: Path) -> dict | None:
 def _atomic_write(path: Path, text: str) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(text, encoding="utf-8", newline="\n")
-    os.replace(tmp, path)
+    # ★A REPLACE THE OS REFUSES FOR A MOMENT IS RETRIED, NOT A LOST BANK (GJ M11, 2026-11-07). On Windows os.replace is
+    # denied (WinError 5) while another reader holds the destination open - the 76 MB registry being scanned by Defender or
+    # read by the editor. G-LEAVE's walk banked nothing because one replace was refused and the tool exited; the same call
+    # went through on the next try. Retry with back-off; a refusal that outlasts ~30 s still raises.
+    import time
+    for attempt in range(8):
+        try:
+            os.replace(tmp, path)
+            return
+        except PermissionError:
+            if attempt == 7:
+                raise
+            time.sleep(min(0.5 * (2 ** attempt), 8))
 
 
 def _shard_of(row_id: str, shards: dict) -> str | None:

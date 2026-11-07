@@ -40,7 +40,7 @@ import { execSync } from 'child_process';
 import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
-const HIVE = '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'; // Baguio Textile Mills
+const HIVE = '084c113b-99c0-45c6-a8e8-b4b8349da46d'; // Baguio Textile Mills
 const EMAIL = process.env.WH_TEST_EMAIL || 'leandromarquez@auth.workhiveph.com';
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
 const DB = process.env.WH_DB_CONTAINER || 'supabase_db_workhive';

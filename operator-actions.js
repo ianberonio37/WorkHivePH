@@ -637,7 +637,7 @@
             <button class="mod-btn" data-dispute-act="provider" data-id="${e(r.id)}" data-job="${e(r.job || '')}">Side with the provider</button>
           </div>`}
         </div>`).join('')
-        + '<p class="mod-sub" style="margin:0.4rem 0 0;">Siding with the client gives back any credits they paid, reverses the commission and takes back cashback. Siding with the provider lets the work stand: the job settles as completed work. Either way both parties are told, and the job cannot be reported again.</p>';
+        + '<p class="mod-sub" style="margin:0.4rem 0 0;">Siding with the client gives back any credits they paid, reverses the commission and takes back cashback. Siding with the provider lets the work stand: the job settles as completed work. Either way WorkHive tells both parties, and nobody can report the job again.</p>';
       setCount('svc-disputes-count', rows.filter(r => !r.reviewed_at).length, 'warn');
     }
 
@@ -1224,6 +1224,12 @@
       } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
     }
 
+    // GJ M11 (B5): a listing report's subject carries the listing's id ("Report listing: <title> (<id>)") - useful to a
+    // founder, who searches by it, but read as stray internals in a sentence. Shown as an identifier: monospaced code.
+    function _fbSubject(t) {
+      return e(t).replace(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi,
+        '<code style="font-size:0.85em;opacity:0.85;">$1</code>');
+    }
     function renderFeedback(m) {
       m = m || {};
       _fb.error = m._error || null;
@@ -1309,8 +1315,8 @@
             <span>${e(fbTimeAgo(r.created_at))} · ${who}</span>${stars}
             ${r.priority ? `<span class="fb-kind">${e(String(r.priority).toUpperCase())}</span>` : ''}
           </span>
-          <span class="fb-subject">${e(r.subject || '(no subject)')}</span>
-          <span class="fb-snippet">${e((r.body || '').slice(0, 220))}</span>
+          <span class="fb-subject" data-user-content>${_fbSubject(r.subject || '(no subject)')}</span>
+          <span class="fb-snippet" data-user-content>${e((r.body || '').slice(0, 220))}</span>
         </button>`;
       // the key is the card's own markup: it carries a relative time ("3m ago") that changes with no change to the row
       }, { key: 'html', long: true });
@@ -1333,9 +1339,9 @@
       body.innerHTML = `
         <div class="fb-meta">${e(new Date(row.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))} · ${e(row.kind)}
           · status: <strong>${e(row.status)}</strong>${row.priority ? ' · ' + e(String(row.priority).toUpperCase()) : ''}</div>
-        <div class="fb-subject" style="font-size:var(--wh-fs-base, 1rem);margin-top:.4rem">${e(row.subject || '(no subject)')}</div>
+        <div class="fb-subject" data-user-content style="font-size:var(--wh-fs-base, 1rem);margin-top:.4rem">${_fbSubject(row.subject || '(no subject)')}</div>
         ${stars}
-        <div class="fb-body">${e(row.body || '')}</div>
+        <div class="fb-body" data-user-content>${e(row.body || '')}</div>
         <div class="fb-meta">
           ${row.contact_email ? 'From: <strong>' + e(row.contact_email) + '</strong>' : 'Anonymous'}
           ${row.worker_name ? ' · worker: ' + e(row.worker_name) : ''}

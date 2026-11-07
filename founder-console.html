@@ -501,9 +501,10 @@
        min-width:0 stays so that once wrapped it may still shrink, and anywhere-wrapping lets the
        reference break rather than spill if the line is narrower still. */
     .mod-main { min-width:0; flex:1 1 14rem; }
-    .mod-main strong { display:block; font-size:var(--wh-fs-sm-plus, 0.875rem); overflow-wrap:anywhere; }
+    /* GJ M11 (C4): the credit lines' figures (cap 10,000,000 · issued 24,840 · left 9,975,160) line their digits up */
+    .mod-main strong { display:block; font-size:var(--wh-fs-sm-plus, 0.875rem); overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
     .mod-sub { display:block; color:var(--muted); font-size:var(--wh-fs-xs, 0.8rem); margin-top:0.25rem; }
-    .mod-actions { display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .mod-actions { display:flex; gap:1.5rem; flex-wrap:wrap; }   /* Z3 (GJ M11): 24px between a destructive control and its neighbour (Approve/Reject, two Remove badge buttons) */
     .mod-btn { padding:0.5rem 0.75rem; border-radius:0.5rem; font-weight:700; font-size:var(--wh-fs-xs, 0.8rem); cursor:pointer;
                border:1px solid var(--border); background:var(--wh-white-05, rgba(255,255,255,0.05)); color:var(--wh-white, #fff); min-height:44px; }
     .mod-btn.ok { background:rgba(var(--wh-emerald-400-rgb, 52, 211, 153), 0.14); color:var(--green); border-color:rgba(var(--wh-emerald-400-rgb, 52, 211, 153), 0.35); }
@@ -920,8 +921,8 @@
             <div class="panel-body">
               <p class="mod-sub" style="margin:0 0 0.6rem;">Search by title, seller, or the listing id a buyer's report names.
                 Unpublish takes the listing off the marketplace and puts it back in review. The seller sees your reason and
-                can fix and resubmit. Approving it again follows the usual rules, so a new seller already over the
-                three-live-listing limit stays in review until their first sale.</p>
+                can fix and resubmit. Approving it again follows the usual rules. A new seller with more than three
+                live listings stays in review until they sell one.</p>
               <input class="fb-filter" id="mkt-published-search" type="search" style="width:100%;margin-bottom:0.6rem;"
                 aria-label="Search published listings by title, seller or listing id" placeholder="Title, seller or listing id…"
                 autocomplete="off" maxlength="120" />
@@ -940,8 +941,8 @@
               <span id="mkt-verified-count" class="count">-</span>
             </div>
             <div class="panel-body">
-              <p class="mod-sub" style="margin:0 0 0.6rem;">Buyers decide whether to send money on these badges. Removing one
-                takes it off every listing and the seller's profile at once. You can verify them again later.</p>
+              <p class="mod-sub" style="margin:0 0 0.6rem;">Buyers decide whether to send money on these badges. Remove one and it leaves
+                every listing and the seller's profile at once. You can verify them again later.</p>
               <input class="fb-filter" id="mkt-verified-search" type="search" style="width:100%;margin-bottom:0.6rem;"
                 aria-label="Search verified sellers by name" placeholder="Seller name…" autocomplete="off" maxlength="80" />
               <div id="mkt-verified-content" aria-live="polite"><div class="mod-empty">Loading…</div></div>

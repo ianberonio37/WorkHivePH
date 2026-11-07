@@ -51,6 +51,14 @@ const census = () => Object.fromEntries(WATCH.map((t) => [t, psql(`select count(
 // path, authored from the page's source: `steps` are clicked in order, then `trigger` is pressed and the
 // confirm / undo that appears is judged exactly as before. `heads` names the roster entries the path
 // answers - a post-action message ("Your account has been deactivated…") rides the confirm before it.
+// ★THE PENDING-MODE ASSET IS READ FROM THE SEED, NOT NAMED (GJ M11 release, 2026-11-07). A mode's Delete renders only
+// while it awaits approval; the 2026-10-26 reseed approved BLR-001's three and put the pending ones elsewhere, and the
+// gate failed on a fixture that had moved. First tag alphabetically with a pending mode in HIVE (deterministic).
+const FMEA_PENDING_TAG = psql(`select n.tag from public.rcm_fmea_modes m join public.asset_nodes n on n.id = m.asset_id where m.hive_id = '${HIVE}' and m.approved_at is null and n.tag is not null order by n.tag limit 1`) || 'BLR-001';
+// ★THE HAIL ITEM IS ONE THE PAGE OFFERS (GJ M11 release). The rate card is segmented - a hive member is offered the
+// industrial services only - and the path named a consumer service, so nothing was selected and Hail stopped at "Pick a
+// service first". Read in the page's own order (category, id), industrial, active.
+const HAIL_ITEM = psql("select id from public.service_catalog where segment = 'industrial' and active order by category, id limit 1");
 const REACH = {
   'hive.html': [
     { steps: ['#btn-hive-menu'], trigger: '#btn-deactivate-account', heads: ['Deactivate your account?', 'Your account has been deactivated'] },
@@ -73,7 +81,7 @@ const REACH = {
     { steps: [], trigger: 'button[data-action="asset-reject"]', heads: ['Reject this asset? It stays in the queue'] },
     // BLR-001 carries 4 FMEA modes and 2 RCM strategies in the seeded hive - its card, not the first card
     // …and the workbench that lists them is collapsed behind "Show Reliability Workbench (engineer view)"
-    { steps: ['text=^BLR-001', 'js:(function(){const t=document.querySelector("[aria-controls=\\"reliability-card\\"]");if(t&&t.getAttribute("aria-expanded")!=="true")t.click();})()'], trigger: '#rel-panel-fmea [data-action="delete"]', heads: ['Delete this FMEA failure mode?'] },
+    { steps: [`text=^${FMEA_PENDING_TAG}`, 'js:(function(){const t=document.querySelector("[aria-controls=\\"reliability-card\\"]");if(t&&t.getAttribute("aria-expanded")!=="true")t.click();})()'], trigger: '#rel-panel-fmea [data-action="delete"]', heads: ['Delete this FMEA failure mode?'] },
     // the strategy strips arrive after the modes (a second fetch): two idle steps give them the seconds they need
     { steps: ['text=^BLR-001', 'js:(function(){const t=document.querySelector("[aria-controls=\\"reliability-card\\"]");if(t&&t.getAttribute("aria-expanded")!=="true")t.click();})()', 'js:void 0', 'js:void 0'], trigger: '#rel-panel-fmea [data-action="strat-delete"]', heads: ['Delete this RCM strategy?'] },
   ],
@@ -143,9 +151,9 @@ const REACH = {
     { prep: "insert into service_requests (client_auth_uid, client_worker_name, hive_id, mode, custom_scope, status) values ((select id from auth.users where email='leandromarquez@auth.workhiveph.com'), 'Leandro Marquez', '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'instant', 'RV probe request (delete me)', 'completed') returning id", cleanup: "delete from service_requests where id = '{id}'", steps: ['text=^Services'], trigger: 'button[onclick^="svcRaiseObjection"]', heads: ['What went wrong with this job?', 'Cancel this request?'] },
     // "already hailed at the same address": an open request at that address is seeded, then the person hails again there
     // the duplicate check is catalog item + address + status broadcasting within ten minutes - the seed matches all three
-    { prep: "insert into service_requests (client_auth_uid, client_worker_name, hive_id, mode, catalog_item_id, address, status) values ((select id from auth.users where email='leandromarquez@auth.workhiveph.com'), 'Leandro Marquez', '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'instant', '54aa11ba-ecf8-4ff8-9df8-cd403cae28b6', 'RV probe site, Baguio', 'broadcasting') returning id",
+    { prep: `insert into service_requests (client_auth_uid, client_worker_name, hive_id, mode, catalog_item_id, address, status) values ((select id from auth.users where email='leandromarquez@auth.workhiveph.com'), 'Leandro Marquez', '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'instant', '${HAIL_ITEM}', 'RV probe site, Baguio', 'broadcasting') returning id`,
       cleanup: "delete from service_requests where id = '{id}'",
-      steps: ['js:(function(){const s=document.getElementById("svc-hail-item");if(s){s.value="54aa11ba-ecf8-4ff8-9df8-cd403cae28b6";s.dispatchEvent(new Event("change",{bubbles:true}));}const a=document.getElementById("svc-hail-address");if(a){a.value="RV probe site, Baguio";a.dispatchEvent(new Event("input",{bubbles:true}));}})()'],
+      steps: [`js:(function(){const s=document.getElementById("svc-hail-item");if(s){s.value=${JSON.stringify(HAIL_ITEM)};s.dispatchEvent(new Event("change",{bubbles:true}));}const a=document.getElementById("svc-hail-address");if(a){a.value="RV probe site, Baguio";a.dispatchEvent(new Event("input",{bubbles:true}));}})()`],
       trigger: '#svc-hail-go', heads: ['You already hailed this'] },
     { prep: "insert into marketplace_saved_searches (worker_name, search_name, section, query_text, active) values ('Leandro Marquez', 'RV probe search', 'parts', 'probe', true) returning id", cleanup: "delete from marketplace_saved_searches where id = '{id}'", steps: ['#btn-saved-searches'], trigger: '.btn-delete-search', heads: ['Delete this saved search?'] },
   ],
@@ -153,7 +161,8 @@ const REACH = {
     { steps: ['.asset-card'], trigger: '#det-autohail-btn', heads: ['Auto-hail this asset'] },
     { steps: ['.asset-card'], trigger: '#btn-delete-asset', heads: ['Delete "${currentAsset.asset_name}"?'] },
     // the duplicate-name guard: open Add Asset, type a name the hive already has, press Next - the person's own path
-    { steps: ['text=^Add Asset', 'js:(function(){const e=document.getElementById("w-name");e.value="Siemens Simotics SD 200L";e.dispatchEvent(new Event("input",{bubbles:true}));})()'],
+    { steps: ['text=^Add Asset', 'js:(function(){const e=document.getElementById("w-name");e.value="Siemens Simotics SD 200L";e.dispatchEvent(new Event("input",{bubbles:true}));const c=document.getElementById("w-category");if(c&&c.options.length>1){c.selectedIndex=1;c.dispatchEvent(new Event("change",{bubbles:true}));}})()'],
+      // goStep(2) checks name, then CATEGORY, then the duplicate: a person picks a category, so the path does (GJ M11)
       trigger: 'button[onclick="goStep(2)"]', heads: ['"${name}" is already registered as'] },
   ],
   'project-manager.html': [

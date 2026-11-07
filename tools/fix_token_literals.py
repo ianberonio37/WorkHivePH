@@ -36,7 +36,11 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 
 GENERATED = ("learn/", "tools/")
 SKIP_CSS = {"tokens.css", "maplibre-gl.css"}
-_HEX = r"#[0-9a-fA-F]{8}\b|#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3,4}\b"
+# ★A HEX IS NOT FOLLOWED BY A NAME CHARACTER (GJ M11, 2026-11-07). `\b` ends at '-', so `#fab` matched inside the id selector
+# `#fab-post` and the page's FAB rule became `var(--wh-rose-200, #fab)-post { ... }` - an invalid selector, so community's
+# and marketplace's post buttons shipped unstyled (an in-flow grey button after <main>) from cadf57fa until found; audit-log's
+# `#feed` went the same way. proves_invisible() could not see it: the var() resolves to the literal, so the text "matched".
+_HEX = r"#[0-9a-fA-F]{8}(?![\w-])|#[0-9a-fA-F]{6}(?![\w-])|#[0-9a-fA-F]{3,4}(?![\w-])"
 _RGB = r"rgba?\(\s*[\d.]+%?\s*[, ]\s*[\d.]+%?\s*[, ]\s*[\d.]+%?\s*(?:[,/]\s*[\d.]+%?\s*)?\)"
 COLOUR = re.compile(f"(?:{_HEX})|(?:{_RGB})")
 VAR_OPEN = re.compile(r"var\(\s*--[\w-]+\s*,")
@@ -78,6 +82,22 @@ def palette(tokens_css: str):
             if c:
                 exact.setdefault(c, name)
     return exact, triplet
+
+
+def _in_selector(text: str, pos: int) -> bool:
+    """Is pos in a SELECTOR rather than a declaration value? The next structural character at paren depth 0 decides: a
+    selector runs into its rule's '{', a value into ';' or '}' (or the end of a style attribute). An all-hex id such as
+    `#feed {` or `#add, .x {` is a selector and is never a colour (GJ M11, 2026-11-07)."""
+    depth = 0
+    for i in range(pos, len(text)):
+        ch = text[i]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        elif not depth and ch in "{;}":
+            return ch == "{"
+    return False
 
 
 def _in_var_fallback(text: str, pos: int) -> bool:
@@ -125,7 +145,7 @@ def rewrite_css(css: str, exact: dict, triplet: dict) -> tuple[str, int]:
 def _rewrite_plain(css: str, exact: dict, triplet: dict) -> tuple[str, int]:
     out, n, last = [], 0, 0
     for m in COLOUR.finditer(css):
-        if _in_var_fallback(css, m.start()):
+        if _in_var_fallback(css, m.start()) or _in_selector(css, m.start()):
             continue
         c = rgba(m.group(0))
         if not c:
@@ -192,7 +212,7 @@ def retire_overlay(css: str, values: dict) -> tuple[str, int]:
     steps = _overlay_steps(values)
     out, n, last = [], 0, 0
     for m in COLOUR.finditer(css):
-        if _in_var_fallback(css, m.start()):
+        if _in_var_fallback(css, m.start()) or _in_selector(css, m.start()):
             continue
         c = rgba(m.group(0))
         if not c or not overlay_range(c):
@@ -369,7 +389,7 @@ def _near_token(c, values: dict):
 def retire_plain(css: str, values: dict) -> tuple[str, int]:
     out, n, last = [], 0, 0
     for m in COLOUR.finditer(css):
-        if _in_var_fallback(css, m.start()):
+        if _in_var_fallback(css, m.start()) or _in_selector(css, m.start()):
             continue
         c = rgba(m.group(0))
         hit = _near_token(c, values) if c else None
@@ -774,6 +794,10 @@ def self_test() -> int:
     t("an exact token value becomes var(token, literal)", "var(--wh-orange, #F7A21B)" in s)
     t("a tint with a triplet becomes rgba(var(--x-rgb, r,g,b), a) - same alpha", "rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2)" in s)
     t("an rgba token's full value is exact", "var(--wh-text-muted, rgba(255,255,255,0.8))" in s and n == 3)
+    ex2, tr2 = palette(tok.replace("}", "--wh-rose-200:#fab;}"))
+    s, n = _rewrite_plain("#fab-post{color:#fab}#fab-post:hover{border-color:#fab}#fab, .x{color:#fab}", ex2, tr2)
+    t("a hex-looking id selector is never a colour (#fab-post, #fab {) - only the values are rewritten",
+      s.startswith("#fab-post{") and "#fab-post:hover{" in s and "#fab, .x{" in s and n == 3)
     s, n = _rewrite_plain(".n{background:rgba(22,32,50,.5)}", exact, triplet)
     t("a tint with NO triplet is left as it is (its triplet is an OD-S row)", n == 0)
     s, n = _rewrite_plain(".f{color:var(--wh-orange, #F7A21B)}", exact, triplet)

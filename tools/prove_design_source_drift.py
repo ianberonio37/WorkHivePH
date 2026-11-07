@@ -60,6 +60,23 @@ def page_css(html: str) -> str:
     return "\n".join(blocks + attrs)
 
 
+# ★A var() IS NEVER FOLLOWED BY A NAME CHARACTER, AND NEVER OPENS A SELECTOR (GJ M11, 2026-11-07). The colour codemod read the
+# id `#fab-post` as the colour #fab and wrote `var(--wh-rose-200, #fab)-post { ... }`: an invalid selector, so the browser
+# dropped the whole rule and community's and marketplace's post buttons rendered as bare grey buttons after <main> - in
+# production from cadf57fa. Both shapes are invalid CSS anywhere, so either one is a codemod's wound, not a style choice.
+_CSS_NOTE = re.compile(r"/\*.*?\*/", re.S)
+_MANGLED = re.compile(r"var\(--[\w-]+(?:,[^(){};]*)?\)[A-Za-z_-]|(?:^|[{};])\s*var\(--[\w-]+[^{};]*\{", re.M)
+
+
+def mangled_selectors(root: Path, files: list[str]) -> list[str]:
+    out = []
+    for f in files:
+        text = (root / f).read_text(encoding="utf-8", errors="replace")
+        css = _CSS_NOTE.sub(" ", text if f.endswith(".css") else page_css(text))
+        out += [f"{f}: {m.group(0).strip()[:70]}" for m in _MANGLED.finditer(css)]
+    return out
+
+
 def design_files(root: Path) -> list[str]:
     """The served pages the anti-slop ratchet reads (one roster for both design gates), plus the shared stylesheets."""
     sys.path.insert(0, str(root / "tools"))
@@ -186,6 +203,12 @@ def self_test() -> int:
                                          encoding="utf-8")
         rose, _ = compare(counts(measure(root, ["a.html"])), base)
         t("a new token for a typed colour reclassifies it without a rise", not rose)
+        (root / "c.html").write_text("<style>/* var(--x, #fab)-post in a note */.k{color:var(--wh-orange, #F7A21B)}"
+                                     "var(--wh-rose-200, #fab)-post{left:0}</style>", encoding="utf-8")
+        bad = mangled_selectors(root, ["c.html"])
+        t("teeth: a selector a codemod turned into var(...)-post is caught (and a CSS comment is not)", len(bad) == 1)
+        (root / "c.html").write_text("<style>#fab-post{color:var(--wh-orange, #F7A21B)}</style>", encoding="utf-8")
+        t("a var() in a value position is not a mangled selector", not mangled_selectors(root, ["c.html"]))
     print("self-test " + ("PASS" if ok else "FAIL"))
     return 0 if ok else 1
 
@@ -202,6 +225,13 @@ def main() -> int:
     if a.self_test:
         return self_test()
     root = Path(a.root).resolve()
+    bad = mangled_selectors(root, design_files(root))
+    if bad and not a.report:
+        print(f"FAIL design-source-drift: {len(bad)} rule(s) where a var() sits in a SELECTOR - a colour codemod read an id "
+              f"such as #fab-post as the colour #fab; restore the selector:")
+        for b in bad[:20]:
+            print("  " + b)
+        return 1
     m = measure(root, design_files(root))
     now = counts(m)
     if a.report:

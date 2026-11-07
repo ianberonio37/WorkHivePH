@@ -16,37 +16,37 @@
     ],
     "asset-hub.html": [
       {
-        "line": 1852,
+        "line": 1854,
         "message_head": "Reject this asset? It stays in the queue but will not appear in the approved list."
       },
       {
-        "line": 3626,
+        "line": 3634,
         "message_head": "Delete this FMEA failure mode? Linked RCM strategies will cascade."
       },
       {
-        "line": 3852,
+        "line": 3860,
         "message_head": "Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only)."
       }
     ],
     "community.html": [
       {
-        "line": 2586,
+        "line": 2594,
         "message_head": "Keep this post. Say why, if you like: the person who wrote it and anyone who reported it will read this. Nobody is told who reported it."
       },
       {
-        "line": 2621,
+        "line": 2629,
         "message_head": "Send this reported post to WorkHive. Say what you need WorkHive to decide:"
       },
       {
-        "line": 2697,
+        "line": 2714,
         "message_head": "Make this post public? Workers in every other hive will be able to read it in their Global feed."
       },
       {
-        "line": 3329,
+        "line": 3346,
         "message_head": "Copy this public link:"
       },
       {
-        "line": 3342,
+        "line": 3359,
         "message_head": "Copy this link:"
       }
     ],
@@ -84,35 +84,35 @@
         "message_head": "Your account has been deactivated and your personal data anonymized."
       },
       {
-        "line": 3283,
+        "line": 3284,
         "message_head": "${_coSups[0]}${_coSups.length > 1 ? ' and others' : ''} also supervise${_coSups.length > 1 ? '' : 's'} this hive, so it keeps a supervisor w"
       },
       {
-        "line": 3298,
+        "line": 3299,
         "message_head": "Leave this hive? You'll lose access to its board and can't post here anymore. Your past logbook entries stay in the hive's records."
       },
       {
-        "line": 3336,
+        "line": 3337,
         "message_head": "You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it ca"
       },
       {
-        "line": 3526,
+        "line": 3527,
         "message_head": "Copy this invite link and send it to your team:"
       },
       {
-        "line": 3614,
+        "line": 3615,
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 5312,
+        "line": 5313,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. When they sign in, WorkHive asks them to set their ow"
       },
       {
-        "line": 5339,
+        "line": 5340,
         "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. When they sign in"
       },
       {
-        "line": 6676,
+        "line": 6689,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],
@@ -170,29 +170,29 @@
     ],
     "inventory.html": [
       {
-        "line": 2381,
+        "line": 2385,
         "message_head": "${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty} spends the"
       },
       {
-        "line": 2861,
+        "line": 2868,
         "message_head": "Remove \"${item.part_name}\" (${item.part_number}) from inventory? You can restore it from Recently deleted for at least 30 days."
       }
     ],
     "logbook.html": [
       {
-        "line": 2387,
+        "line": 2388,
         "message_head": "Discard this offline save? It was never saved to the server, so it will be gone."
       },
       {
-        "line": 2669,
+        "line": 2670,
         "message_head": "Close ${who}'s open job? It stays logged as theirs; the trail records that you closed it."
       },
       {
-        "line": 3285,
+        "line": 3286,
         "message_head": "Delete this entry? Any XP it earned is taken back. You can restore it from Recently deleted for at least 30 days."
       },
       {
-        "line": 3664,
+        "line": 3665,
         "message_head": "Remove this asset from the registry? It and its reliability history (Weibull fits, FMEA modes,"
       }
     ],
@@ -216,7 +216,7 @@
         "message_head": "Delete \"${item.title}\"? This cannot be undone."
       },
       {
-        "line": 3445,
+        "line": 3456,
         "message_head": "Cancel this job? The client will be notified."
       }
     ],
@@ -260,81 +260,81 @@
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1442,
+        "line": 1448,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
     "platform-actions.html": [
       {
-        "line": 890,
+        "line": 891,
         "message_head": "Verify this top-up? Credits are minted into the provider’s wallet immediately"
       },
       {
-        "line": 1209,
+        "line": 1210,
         "message_head": "A line both parties will read with the outcome (optional)"
       },
       {
-        "line": 1581,
+        "line": 1582,
         "message_head": "Remove ${_who}'s ${_isCert ? 'certification badge' : 'ID Verified badge'}?"
       },
       {
-        "line": 1608,
+        "line": 1609,
         "message_head": "Unpublish \"${btn.dataset.title || 'this listing'}\". Tell the seller why:"
       },
       {
-        "line": 1644,
+        "line": 1645,
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1987,
+        "line": 1994,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
     "pm-scheduler.html": [
       {
-        "line": 2412,
+        "line": 2444,
         "message_head": "Auto-hail this asset’s PM work? When an item falls due, WorkHive files a service request for you and providers nearby can accept it."
       },
       {
-        "line": 3179,
+        "line": 3211,
         "message_head": "\"${name}\" is already registered as an asset.\\n\\nOpen it to add more tasks instead?"
       },
       {
-        "line": 3450,
+        "line": 3482,
         "message_head": "Delete \"${currentAsset.asset_name}\"? Its ${_blast} go with it into Recently deleted, where you can restore them for at least 30 days."
       }
     ],
     "project-manager.html": [
       {
-        "line": 1975,
+        "line": 2006,
         "message_head": "No scope items checked. Create an empty project?"
       },
       {
-        "line": 2267,
+        "line": 2298,
         "message_head": "Hide project"
       },
       {
-        "line": 2974,
+        "line": 3021,
         "message_head": "Remove this link?"
       },
       {
-        "line": 3312,
+        "line": 3359,
         "message_head": "Remove this role?"
       },
       {
-        "line": 3447,
+        "line": 3494,
         "message_head": "Approve this change order? Cost / schedule impact will be reflected in the project."
       },
       {
-        "line": 3474,
+        "line": 3521,
         "message_head": "Reason for rejection (visible to requester):"
       },
       {
-        "line": 3505,
+        "line": 3552,
         "message_head": "Cancel this change order? It will be hidden from the active queue but kept for history."
       },
       {
-        "line": 3748,
+        "line": 3795,
         "message_head": "Mark project as complete? ${WAY_BACK}"
       }
     ],
@@ -350,21 +350,21 @@
     ],
     "shift-brain.html": [
       {
-        "line": 1424,
+        "line": 1425,
         "message_head": "Publish this shift plan to your crew? They will see it and work from it, released under your name."
       },
       {
-        "line": 1466,
+        "line": 1467,
         "message_head": "Archive this shift plan? It will be hidden from the active view but kept for history."
       }
     ],
     "utils.js": [
       {
-        "line": 7081,
+        "line": 7087,
         "message_head": "Delete X?"
       },
       {
-        "line": 7084,
+        "line": 7090,
         "message_head": "Enter name"
       }
     ]

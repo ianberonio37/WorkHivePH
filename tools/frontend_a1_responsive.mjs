@@ -11,7 +11,7 @@ import { writeFileSync } from 'fs';
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const EMAIL = process.env.WH_TEST_EMAIL || 'leandromarquez@auth.workhiveph.com';
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
-const HIVE = '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+const HIVE = '084c113b-99c0-45c6-a8e8-b4b8349da46d';
 const BPS = [360, 768, 1280, 1920];
 const TOL = 4; // px scrollbar tolerance
 

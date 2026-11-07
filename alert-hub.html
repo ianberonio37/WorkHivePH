@@ -2634,6 +2634,7 @@
     // ★WHO HID WHAT (2026-10-28, the cube's U-on-trail walk). "Handled removes it for everyone, under your name" - and
     // the name was recorded and never read back, so an alert vanished from the whole crew's feed with no way to tell who
     // had taken it out. One line says it: who handled or snoozed each hidden alert, and when.
+    // GJ M11 (B3): each hidden alert is a RECORD - its fields set apart with middots, read as data, not as a long sentence
     const _hn = document.getElementById('feed-hidden-note');
     if (_hn) {
       const _fmtDay = (iso) => (iso && typeof whFmtDate === 'function') ? whFmtDate(iso) : '';
@@ -2641,8 +2642,8 @@
         const nm = d.name || _t('an alert', 'isang alerto');
         const who = d.actor || _t('a member', 'isang miyembro');
         return d.action === 'snoozed'
-          ? _t(`${nm} snoozed by ${who} until ${_fmtDay(d.snooze_until)}`, `${nm} na-snooze ni ${who} hanggang ${_fmtDay(d.snooze_until)}`)
-          : _t(`${nm} handled by ${who}${d.created_at ? ', ' + _fmtDay(d.created_at) : ''}`, `${nm} naasikaso ni ${who}${d.created_at ? ', ' + _fmtDay(d.created_at) : ''}`);
+          ? _t(`${nm} · snoozed by ${who} · until ${_fmtDay(d.snooze_until)}`, `${nm} na-snooze ni ${who} hanggang ${_fmtDay(d.snooze_until)}`)
+          : _t(`${nm} · handled by ${who}${d.created_at ? ' · ' + _fmtDay(d.created_at) : ''}`, `${nm} naasikaso ni ${who}${d.created_at ? ', ' + _fmtDay(d.created_at) : ''}`);
       });
       const _more = _hiddenBy.length - _parts.length;
       _hn.textContent = _hiddenBy.length

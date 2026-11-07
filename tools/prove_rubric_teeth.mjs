@@ -78,6 +78,20 @@ const PAGES = {
   // a real KPI at 16px beside a label must still fail K2's glanceable check.
   k2ordinal: HEAD + '<main><h1>Synthetic stages</h1><div class="card"><span class="step-dot" style="font-size:16px">01</span>'
     + '<h2>Find the gap</h2></div><div class="card"><span class="step-dot" style="font-size:16px">02</span><h2>Close it</h2></div></main></body></html>',
+  // GJ M11 round 2: a ten-digit part number is an identifier - no KPI to enlarge, nothing to set tabular
+  k2ident: HEAD + '<main><h1>Synthetic shelf</h1><div class="card"><span style="font-size:14px;font-weight:900">3991971430</span>'
+    + '<p>Deep-groove bearing</p></div></main></body></html>',
+  // GJ M11 round 2: 8px buttons and a pill filter beside a 16px card LINK and a 12px tappable card (two block children
+  // each) - the cards are card vocabulary, so the controls wear 2 shapes (R3 passes)...
+  r3cards: HEAD + '<main><h1>Synthetic board</h1><p><button style="border-radius:8px;background:#333;color:#fff;border:0;min-height:44px">Save</button> '
+    + '<button aria-pressed="false" style="border-radius:999px;background:#333;color:#fff;border:0;height:32px">Overdue</button></p>'
+    + '<a href="#f" class="wh-card" style="display:block;border-radius:16px;background:#222;color:#fff;padding:16px"><div>What the hive flagged</div><div>3 alerts</div></a>'
+    + '<div role="button" tabindex="0" style="border-radius:12px;background:#222;border:1px solid #444;padding:12px"><div>Hive readiness</div><div>65/100</div></div></main></body></html>',
+  // ...and the same page with two plain text buttons wearing 12px and 16px is four silhouettes for two roles (R3 fails)
+  r3rogue: HEAD + '<main><h1>Synthetic board</h1><p><button style="border-radius:8px;background:#333;color:#fff;border:0;min-height:44px">Save</button> '
+    + '<button aria-pressed="false" style="border-radius:999px;background:#333;color:#fff;border:0;height:32px">Overdue</button> '
+    + '<button style="border-radius:12px;background:#333;color:#fff;border:0;min-height:44px">More</button> '
+    + '<button style="border-radius:16px;background:#333;color:#fff;border:0;min-height:44px">Export</button></p></main></body></html>',
   k2small: HEAD + '<main><h1>Synthetic tiles</h1><div class="card"><p style="font-size:16px">12</p><p>Open work orders</p></div>'
     + '<div class="card"><span class="step-dot" style="font-size:16px">01</span><h2>Step one</h2></div></main></body></html>',
   // ★2026-10-14: a dialog open over a page that made itself inert. Only the dialog's button is a choice (G3 must pass);
@@ -85,6 +99,36 @@ const PAGES = {
   g3modal: HEAD + '<main inert aria-hidden="true"><h1>Synthetic landing</h1><p><button class="btn-primary">Join the hive</button></p>'
     + '<p><button class="btn-primary">Create your free account</button></p></main>'
     + '<div role="dialog" aria-modal="true" aria-label="Sign in"><button class="btn-primary">Sign in</button></div></body></html>',
+  // GJ M11: the same open dialog marked only aria-modal (no inert on the page) - its own Save is the one choice
+  g3ariamodal: HEAD + '<main><h1>Synthetic board</h1><p><button class="btn-primary">Log your first job</button></p>'
+    + '<p><button class="btn-primary">Generate Shift Handover</button></p></main>'
+    + '<div role="dialog" aria-modal="true" aria-label="Focus" style="position:fixed;inset:0;display:flex"><button class="btn-primary">Save</button></div></body></html>',
+  // GJ M11 round 2: the open dialog lives OUTSIDE <main> (the feedback panel, a marketplace sheet) - its own primary is
+  // the screen's one choice (cta=1), and nothing behind it counts
+  g3dlgout: HEAD + '<main><h1>Synthetic board</h1><p><button class="btn-primary">Post a listing</button></p>'
+    + '<p><button class="btn-primary">Enable alerts</button></p></main>'
+    + '<aside id="wh-feedback-panel" role="dialog" aria-modal="true" aria-hidden="false" style="position:fixed;top:0;right:0;bottom:0;width:320px;background:#123">'
+    + '<h2>Your reports</h2><button class="wh-fb-submit" style="background:linear-gradient(135deg,#F7A21B,#FDB94A);border:0">Send feedback</button></aside></body></html>',
+  // GJ M11 round 2: a CLOSED aria-modal is not an open dialog - the feedback panel (aria-hidden, width 0, 1px border,
+  // off-canvas) and a bottom sheet translated away must leave the page's own primary counted
+  g3ariaclosed: HEAD + '<main><h1>Synthetic board</h1><p><button class="btn-primary">Send feedback</button></p></main>'
+    + '<aside role="dialog" aria-modal="true" aria-hidden="true" style="position:fixed;top:0;right:0;height:100vh;width:0;padding:0;border-left:1px solid #333;overflow:hidden;transform:translateX(100%)"><button class="btn-primary">Submit</button></aside>'
+    + '<div role="dialog" aria-modal="true" style="position:fixed;left:0;right:0;bottom:0;height:300px;transform:translateY(110%)"><button class="btn-primary">Post</button></div></body></html>',
+  // GJ M11: a filled availability SWITCH beside two primaries is a state, not a third call to action
+  g3switch: HEAD + '<main><h1>Synthetic provider</h1><p><button class="btn-primary">Post a listing</button></p>'
+    + '<p><button class="btn-primary">Enable job alerts</button></p>'
+    + '<p><button class="btn-primary" role="switch" aria-checked="true">Online: receiving jobs</button></p></main></body></html>',
+  // GJ M11 round 3: one inquiry card holding its reply field and its submit, one review card the same, and the page's
+  // own Post a listing - the row forms act on their rows (G3 passes); the same submits with NO field are page primaries
+  g3rowform: HEAD + '<main><h1>Synthetic seller</h1><p><button class="btn-primary">Post a listing</button></p>'
+    + '<div class="inquiry-card"><p>Is this still available?</p><textarea aria-label="Reply"></textarea><button class="btn-primary">Send reply</button></div>'
+    + '<div class="review-card"><p>Fast, clean work.</p><textarea aria-label="Answer"></textarea><button class="btn-primary">Post answer</button></div></main></body></html>',
+  // ...but a PAGE's own form card is not a row: logbook's Save Entry beside its fields in a .card is the page primary
+  g3formcard: HEAD + '<main><h1>Synthetic logbook</h1><div class="card"><form><label>What happened<textarea></textarea></label>'
+    + '<button class="btn-primary" type="submit">Save Entry</button></form></div></main></body></html>',
+  g3rownofield: HEAD + '<main><h1>Synthetic seller</h1><p><button class="btn-primary">Post a listing</button></p>'
+    + '<div class="inquiry-card"><p>Is this still available?</p><button class="btn-primary">Send reply</button></div>'
+    + '<div class="review-card"><p>Fast, clean work.</p><button class="btn-primary">Post answer</button></div></main></body></html>',
   g3bare: HEAD + '<main><h1>Synthetic landing</h1><p><button class="btn-primary">Join the hive</button></p>'
     + '<p><button class="btn-primary">Create your free account</button></p>'
     + '<p><button class="btn-primary">Sign in</button></p></main></body></html>',
@@ -128,6 +172,65 @@ const PAGES = {
   v1end: HEAD + '<main style="padding-bottom:0"><h1 style="margin:0;height:40px">Synthetic end</h1><div style="height:760px">Content above the fold</div>'
     + '<button id="all" style="height:44px">All</button></main>'
     + '<nav style="position:fixed;left:0;right:0;bottom:0;height:56px;background:#222"><button style="height:56px;width:100%">Dashboard</button></nav></body></html>',
+  // ★2026-11-07 (GJ M11): the top of the screen has a fold too. A control a scrolled page has carried under its fixed
+  // nav is a fold (V1 must pass); a control that sits under the nav at rest, with no scroll above it, is content
+  // starting under the header (V1 must fail).
+  v1topfold: HEAD + '<main style="padding-top:80px"><h1 style="margin:0;height:40px">Synthetic top fold</h1><div style="height:80px">Intro</div>'
+    + '<button id="csv" style="height:44px">CSV</button><div style="height:1800px">Report rows</div></main>'
+    + '<nav style="position:fixed;left:0;right:0;top:0;height:57px;background:#222"><a href="#home" style="display:inline-block;height:44px">Home</a></nav></body></html>',
+  v1topstart: HEAD + '<main style="padding-top:0"><button id="csv" style="height:44px;margin-left:200px">CSV</button><h1 style="margin:0;height:40px">Synthetic under nav</h1>'
+    + '<div style="height:1800px">Report rows</div></main>'
+    + '<nav style="position:fixed;left:0;right:0;top:0;height:57px;background:#222"><a href="#home" style="display:inline-block;height:44px">Home</a></nav></body></html>',
+  // ★2026-11-07 (GJ M11): a panel whose body is scrolled down carries its first buttons above the body's top edge, behind
+  // the panel's header - clipped by their own box, not covered (V1 must pass). The same header laid OVER a button in an
+  // unclipped body (a positioned title on top of a control) is still an occlusion (V1 must fail).
+  v1inner: HEAD + '<main><h1>Synthetic panel page</h1></main><div role="dialog" aria-modal="true" style="position:fixed;top:0;right:0;width:390px;height:600px;display:flex;flex-direction:column;background:#111">'
+    + '<div style="padding:16px;height:44px"><h2 style="margin:0">Send feedback</h2></div>'
+    + '<div id="fbbody" style="flex:1;overflow-y:auto"><p><button style="height:44px">Bug</button> <button style="height:44px">Idea</button></p>'
+    + '<div style="height:900px">Your reports</div></div></div>'
+    + '<script>document.getElementById("fbbody").scrollTop = 60;</script></body></html>',
+  v1innerctl: HEAD + '<main><h1>Synthetic panel page</h1></main><div role="dialog" aria-modal="true" style="position:fixed;top:0;right:0;width:390px;height:600px;background:#111">'
+    + '<div style="position:absolute;top:0;left:0;right:0;padding:16px;height:44px;background:#222;z-index:2"><h2 style="margin:0">Send feedback</h2></div>'
+    + '<p style="margin:20px 0 0"><button style="height:44px">Bug</button> <button style="height:44px">Idea</button></p></div></body></html>',
+  // ★2026-11-07 (GJ M11): a sidebar that scrolls a long list inside a short box clips the lower buttons away; their
+  // boxes cross the section printed below the layout but are drawn nowhere (V1 must pass). The same list spilling out
+  // of an UNCLIPPED short box lies on top of that section for real (V1 must fail).
+  v1clip: HEAD + '<main><div style="height:300px;display:flex"><div style="width:250px;height:300px;overflow-y:auto">'
+    + Array.from({ length: 24 }, (_, i) => '<p style="margin:0;height:44px"><button style="height:44px;width:240px">Add to my day ' + (i + 1) + '</button></p>').join('')
+    + '</div><div style="flex:1"><h1>Synthetic planner</h1></div></div>'
+    + '<section><p style="margin:0">Where these figures come from</p><p style="margin:0"><button style="height:44px;width:200px">Show details</button></p></section></main></body></html>',
+  v1clipctl: HEAD + '<main><div style="height:300px;display:flex"><div style="width:250px;height:300px">'
+    + Array.from({ length: 24 }, (_, i) => '<p style="margin:0;height:44px"><button style="height:44px;width:240px">Add to my day ' + (i + 1) + '</button></p>').join('')
+    + '</div><div style="flex:1"><h1>Synthetic planner</h1></div></div>'
+    + '<section><p style="margin:0">Where these figures come from</p><p style="margin:0"><button style="height:44px;width:200px">Show details</button></p></section></main></body></html>',
+  // ★2026-11-07 (GJ M11): nav-hub stands down while another dialog is open - W2 must credit a hub hidden for an open
+  // sheet, and must still fail a hub hidden with no dialog anywhere.
+  w2stand: HEAD + '<main><h1>Synthetic sheet</h1><p>Approve the part.</p></main>'
+    + '<div id="wh-ai-trigger" data-companion-launcher style="visibility:hidden"><svg width="20" height="20"><circle cx="10" cy="10" r="8"/></svg></div>'
+    + '<div id="wh-hub" aria-hidden="true" style="position:fixed;right:16px;bottom:16px;visibility:hidden"><button id="wh-hub-fab" style="width:56px;height:56px">Hub</button></div>'
+    + '<div role="dialog" aria-modal="true" class="sheet open" style="position:fixed;left:0;right:0;bottom:0;height:300px;background:#222"><button style="height:44px">Approve</button></div></body></html>',
+  w2gone: HEAD + '<main><h1>Synthetic page</h1><p>Nothing open.</p></main>'
+    + '<div id="wh-ai-trigger" data-companion-launcher style="visibility:hidden"><svg width="20" height="20"><circle cx="10" cy="10" r="8"/></svg></div>'
+    + '<div id="wh-hub" aria-hidden="true" style="position:fixed;right:16px;bottom:16px;visibility:hidden"><button id="wh-hub-fab" style="width:56px;height:56px">Hub</button></div></body></html>',
+  // ★2026-11-07 (GJ M11): a list the shared skeleton held while it loaded carries data-wh-reserved after its rows are
+  // replaced - I2 must credit it; the same loaded list with no mark and no reserve still fails.
+  i2mark: HEAD + '<main><h1>Synthetic seller</h1><p>Listings from this seller.</p><div id="grid" data-wh-reserved="skeleton">'
+    + '<div class="listing"><p>Pump seal kit</p></div><div class="listing"><p>Bearing 6204</p></div></div></main><script src="utils.js"></script></body></html>',
+  i2none: HEAD + '<main><h1>Synthetic seller</h1><p>Listings from this seller.</p><div id="grid">'
+    + '<div class="listing"><p>Pump seal kit</p></div><div class="listing"><p>Bearing 6204</p></div></div></main><script src="utils.js"></script></body></html>',
+  // ★2026-11-07 (GJ M11): a page widened by one nowrap line - Z2 must fail AND name that line, not the fixed hub the
+  // wider page carried out with it, nor cells scrolling inside their own wrapper.
+  z2cause: HEAD + '<main><h1>Synthetic links</h1><p id="wideline" style="white-space:nowrap">Cable Sizing (Voltage Drop): MCC feeder for compressor, linked by Christine Dizon on Nov 6</p>'
+    + '<div style="overflow-x:auto"><table><tr><td style="white-space:nowrap">a scrolling cell wider than the screen, inside its own wrapper, never the cause</td></tr></table></div></main>'
+    + '<div id="wh-hub" style="position:fixed;right:16px;bottom:16px"><button id="wh-hub-fab" style="width:56px;height:56px">Hub</button></div></body></html>',
+  // ★2026-11-07 (GJ M11): a sheet that declares itself print is graded as paper - no way back, status region or help
+  // asked of it; the same sheet undeclared is still an app page that owes them.
+  printdoc: '<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width"><meta name="wh-page-kind" content="print">'
+    + '<style>body{background:#fff;color:#111;margin:0;padding:24px}</style></head><body><main><h1>Shift Handover Report</h1><h2>Completed this shift</h2>'
+    + '<p>Pump seal replaced on P-101.</p><h2>Carried forward</h2><p>Conveyor belt tracking off.</p></main></body></html>',
+  printundeclared: '<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width">'
+    + '<style>body{background:#fff;color:#111;margin:0;padding:24px}</style></head><body><main><h1>Shift Handover Report</h1><h2>Completed this shift</h2>'
+    + '<p>Pump seal replaced on P-101.</p><h2>Carried forward</h2><p>Conveyor belt tracking off.</p></main><script src="utils.js"></script></body></html>',
   // ...and a notice floating in the lower half over a link the page can scroll clear (logbook offline) is a fold too;
   // a FAB over a STICKY Save is not - the Save is fixed and can never be scrolled out from under it.
   v1float: HEAD + '<main><h1 style="margin:0;height:40px">Synthetic notice</h1><div style="height:560px">Content</div>'
@@ -159,12 +262,15 @@ const PAGES = {
     + ' manager to choose one project now</a></p></main></body></html>',
 };
 
-async function grade(page, html, root = 'main') {
+async function grade(page, html, root = 'main', scrollY = 0) {
   await page.setContent(html, { waitUntil: 'load' });
+  // always set: setContent rewrites the document in the same frame and keeps its scroll, so a fixture graded after a
+  // scrolled one would otherwise start scrolled (v1topstart read green at the previous fixture's 190px)
+  await page.evaluate((y) => window.scrollTo(0, y), scrollY);
   await page.evaluate((src) => (0, eval)('(' + src + ')')(), RUBRIC);
   const res = await page.evaluate((r) => window.__RUBRIC.survey({ pageId: 'synthetic', root: r }), root);
   const dim = (id) => (res.dims || []).find((d) => d.dim === id) || {};
-  return { V1: dim('V1'), R6: dim('R6'), B3: dim('B3'), B4: dim('B4'), J1: dim('J1'), K2: dim('K2'), G3: dim('G3'), Z3: dim('Z3'), T1: dim('T1'), G1: dim('G1') };
+  return { A1: dim('A1'), R3: dim('R3'), C4: dim('C4'), V1: dim('V1'), R6: dim('R6'), B3: dim('B3'), B4: dim('B4'), J1: dim('J1'), K2: dim('K2'), G3: dim('G3'), Z3: dim('Z3'), T1: dim('T1'), G1: dim('G1'), W2: dim('W2'), I2: dim('I2'), Z2: dim('Z2'), W1: dim('W1'), O2: dim('O2') };
 }
 
 const b = await chromium.launch();
@@ -206,6 +312,34 @@ const vfo = await grade(page, PAGES.v1fold);
 if (vfo.V1.pass !== 1) fails.push(`V1 must pass a control at the fold the page can still scroll clear of its bottom bar - got "${(vfo.V1.note || '').slice(0, 120)}"`);
 const ven = await grade(page, PAGES.v1end);
 if (ven.V1.pass !== 0) fails.push(`V1 must still fail the last control left under a bottom bar with no room to lift it - got "${(ven.V1.note || '').slice(0, 120)}"`);
+// scrolled 190px: the CSV button (document top ~200) sits at ~10px, under the 57px nav, with 190px of scroll above it
+const vtf = await grade(page, PAGES.v1topfold, 'main', 190);
+if (vtf.V1.pass !== 1) fails.push(`V1 must pass a control a scrolled page carried under its top nav - got "${(vtf.V1.note || '').slice(0, 120)}"`);
+const vts = await grade(page, PAGES.v1topstart);
+if (vts.V1.pass !== 0) fails.push(`V1 must still fail a control under the top nav at rest, with no scroll above it - got "${(vts.V1.note || '').slice(0, 120)}"`);
+const vin = await grade(page, PAGES.v1inner, 'body');
+if (vin.V1.pass !== 1) fails.push(`V1 must pass buttons a panel's scrolled body carried behind its header - got "${(vin.V1.note || '').slice(0, 120)}"`);
+const vic = await grade(page, PAGES.v1innerctl, 'body');
+if (vic.V1.pass !== 0) fails.push(`V1 must still fail a panel header laid over buttons in an unclipped body - got "${(vic.V1.note || '').slice(0, 120)}"`);
+const vcl = await grade(page, PAGES.v1clip);
+if (vcl.V1.pass !== 1) fails.push(`V1 must pass list buttons a sidebar scroller clips away under a later section - got "${(vcl.V1.note || '').slice(0, 120)}"`);
+const vcc = await grade(page, PAGES.v1clipctl);
+if (vcc.V1.pass !== 0) fails.push(`V1 must still fail a list spilling out of an unclipped box onto a later section - got "${(vcc.V1.note || '').slice(0, 120)}"`);
+const w2s = await grade(page, PAGES.w2stand);
+if (w2s.W2.pass !== 3) fails.push(`W2 must credit a hub standing down for an open sheet - got "${(w2s.W2.note || '').slice(0, 100)}"`);
+const w2g = await grade(page, PAGES.w2gone);
+if (w2g.W2.pass === 3) fails.push(`W2 must still fail a hub hidden with no dialog open - got "${(w2g.W2.note || '').slice(0, 100)}"`);
+const i2m = await grade(page, PAGES.i2mark);
+if (i2m.I2.pass !== 1) fails.push(`I2 must credit a list the shared skeleton held - got "${(i2m.I2.note || '').slice(0, 100)}"`);
+const i2n = await grade(page, PAGES.i2none);
+if (i2n.I2.pass !== 0) fails.push(`I2 must still fail a loaded list with no reserve and no mark - got "${(i2n.I2.note || '').slice(0, 100)}"`);
+const z2c = await grade(page, PAGES.z2cause);
+if (z2c.Z2.pass !== 0 || !/p#wideline/.test(z2c.Z2.note || '') || /wh-hub|td/.test(z2c.Z2.note || ''))
+  fails.push(`Z2 must fail and name the nowrap line, not the hub or a wrapped cell - got "${(z2c.Z2.note || '').slice(0, 160)}"`);
+const prd = await grade(page, PAGES.printdoc);
+if (prd.W1.kind !== 'N/A' || prd.G1.kind !== 'N/A' || prd.O2.kind !== 'N/A') fails.push(`a declared print sheet must not owe a way back, status or help - got W1 ${prd.W1.kind} G1 ${prd.G1.kind} O2 ${prd.O2.kind}`);
+const pru = await grade(page, PAGES.printundeclared);
+if (pru.W1.kind === 'N/A' || pru.G1.kind === 'N/A') fails.push(`an undeclared sheet is still an app page - got W1 ${pru.W1.kind} G1 ${pru.G1.kind}`);
 const vfl = await grade(page, PAGES.v1float);
 if (vfl.V1.pass !== 1) fails.push(`V1 must pass a lower-half notice over a link the page can scroll clear - got "${(vfl.V1.note || '').slice(0, 120)}"`);
 const vst = await grade(page, PAGES.v1sticky, 'body');
@@ -244,11 +378,32 @@ if (!/>20w=0\b/.test(brj.B3.note || ''))
   fails.push(`B3 must read a <br> as a line break (no 25-word merge of a sentence and the link below it) - got note="${(brj.B3.note || '').slice(0, 140)}"`);
 const g3m = await grade(page, PAGES.g3modal, 'body');
 if (g3m.G3.pass !== 1) fails.push(`G3 must not count buttons behind an open modal (inert) - got ${g3m.G3.pass}/${g3m.G3.total} "${(g3m.G3.note || '').slice(0, 80)}"`);
+const g3a = await grade(page, PAGES.g3ariamodal, 'body');
+if (g3a.G3.pass !== 1) fails.push(`G3 must not count buttons behind an open aria-modal dialog - got ${g3a.G3.pass}/${g3a.G3.total} "${(g3a.G3.note || '').slice(0, 80)}"`);
+const g3o = await grade(page, PAGES.g3dlgout, 'main');
+if (!/cta=1\b/.test(g3o.A1.note || '') || g3o.G3.pass !== 1) fails.push(`A1/G3 must count an open dialog's own primary even outside <main>, and nothing behind it - got A1 "${(g3o.A1.note || '').slice(0, 100)}" G3 ${g3o.G3.pass}/${g3o.G3.total}`);
+const g3c = await grade(page, PAGES.g3ariaclosed, 'body');
+if (!/cta=1\b/.test(g3c.A1.note || '')) fails.push(`A1 must count the page primary while an aria-modal panel is CLOSED (aria-hidden / off-canvas) - got "${(g3c.A1.note || '').slice(0, 100)}"`);
+const g3s = await grade(page, PAGES.g3switch, 'body');
+if (g3s.G3.pass !== 1) fails.push(`G3 must not count a role=switch as a primary action - got ${g3s.G3.pass}/${g3s.G3.total} "${(g3s.G3.note || '').slice(0, 80)}"`);
+const g3rf = await grade(page, PAGES.g3rowform, 'body');
+if (g3rf.G3.pass !== 1) fails.push(`G3 must read a row's own form submit as a row action - got ${g3rf.G3.pass}/${g3rf.G3.total} "${(g3rf.G3.note || '').slice(0, 80)}"`);
+const g3fc = await grade(page, PAGES.g3formcard, 'main');
+if (!/cta=1\b/.test(g3fc.A1.note || '')) fails.push(`A1 must count a page's own form Save in a .card as its primary (not a row form) - got "${(g3fc.A1.note || '').slice(0, 100)}"`);
+const g3rn = await grade(page, PAGES.g3rownofield, 'body');
+if (g3rn.G3.pass !== 0) fails.push(`G3 must still count lone filled buttons with no field as primaries - got ${g3rn.G3.pass}/${g3rn.G3.total} "${(g3rn.G3.note || '').slice(0, 80)}"`);
 const g3b = await grade(page, PAGES.g3bare, 'body');
 if (g3b.G3.pass !== 0) fails.push(`G3 must still fail three reachable filled buttons - got ${g3b.G3.pass}/${g3b.G3.total} "${(g3b.G3.note || '').slice(0, 80)}"`);
 const k2o = await grade(page, PAGES.k2ordinal);
 if (!(k2o.K2.kind === 'MEASURED' && k2o.K2.pass === k2o.K2.total))
   fails.push(`K2 must not read zero-padded stage badges as KPIs - got ${k2o.K2.pass}/${k2o.K2.total} "${(k2o.K2.note || '').slice(0, 100)}"`);
+const k2i = await grade(page, PAGES.k2ident);
+if (!(k2i.K2.pass === k2i.K2.total && k2i.C4.kind === 'N/A'))
+  fails.push(`K2/C4 must read a 10-digit part number as an identifier, not a KPI - got K2 ${k2i.K2.pass}/${k2i.K2.total} C4 ${k2i.C4.kind} "${(k2i.K2.note || '').slice(0, 80)}"`);
+const r3c = await grade(page, PAGES.r3cards, 'main');
+if (r3c.R3.pass !== r3c.R3.total) fails.push(`R3 must grade a clickable card with the cards, not as a control shape - got ${r3c.R3.pass}/${r3c.R3.total} "${(r3c.R3.note || '').slice(0, 120)}"`);
+const r3r = await grade(page, PAGES.r3rogue, 'main');
+if (r3r.R3.pass === r3r.R3.total) fails.push(`R3 must still fail four text-button silhouettes for two roles - got ${r3r.R3.pass}/${r3r.R3.total} "${(r3r.R3.note || '').slice(0, 120)}"`);
 const k2s = await grade(page, PAGES.k2small);
 if (!(k2s.K2.kind === 'MEASURED' && k2s.K2.pass < k2s.K2.total && /0\/1 glanceable/.test(k2s.K2.note || '')))
   fails.push(`K2 must still fail a real 16px KPI (and count only it, not the badge) - got ${k2s.K2.pass}/${k2s.K2.total} "${(k2s.K2.note || '').slice(0, 100)}"`);

@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { logWizard } from './live_page_journeys.registry.mjs';
 import { spawnSync } from 'child_process';
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'fs';
 import { createHash } from 'crypto';
 
 const ORIGIN = 'http://127.0.0.1:5000/workhive';
@@ -200,20 +200,49 @@ const RUBRIC_SHA = SURVEY ? createHash('sha256').update(readFileSync('survey_ufa
 const _graded = new Set();
 // the settle times the critic batch runner grades these pages with (their reports render after their reads return)
 const SURVEY_SETTLE = { 'analytics.html': 3000, 'analytics-report.html': 3000, 'project-report.html': 2500 };
-async function surveyScreen(s, path) {
+// A script four or more pages load is shared chrome (utils.js, the nav hub, the feedback panel...), graded once on its
+// own; a script fewer pages load is that page's own code (the founder console's operator-actions.js), and the rubric
+// reads it beside the inline scripts (window.__WH_PAGE_OWN_JS) - its whConfirm guards were invisible otherwise.
+const SHARED_SCRIPTS = (() => {
+  if (!SURVEY) return new Set();
+  const uses = new Map();
+  const htmls = [...readdirSync('.').filter((f) => f.endsWith('.html')),
+    ...['feedback', 'learn', 'tools'].flatMap((d) => { try { return readdirSync(d, { withFileTypes: true }).filter((x) => x.isDirectory()).map((x) => `${d}/${x.name}/index.html`); } catch (_) { return []; } }),
+    'feedback/index.html'];
+  for (const h of new Set(htmls)) {
+    let src = '';
+    try { src = readFileSync(h, 'utf8'); } catch (_) { continue; }
+    for (const m of src.matchAll(/<script[^>]*\bsrc="([^"]+)"/g)) {
+      const base = m[1].split('?')[0].split('/').pop();
+      uses.set(base, (uses.get(base) || 0) + 1);
+    }
+  }
+  return new Set([...uses].filter(([, n]) => n >= 4).map(([b]) => b));
+})();
+async function surveyScreen(s, path, opts = {}) {
   if (!SURVEY || !s || !s.m || !s.page || s.vp === 'n/a') return;
   let rel = String(path).split('#')[0].split('?')[0];
   if (rel === '' || rel.endsWith('/')) rel += 'index.html';
   const parts = rel.split('/');
   const pid = (parts[parts.length - 1] === 'index.html' && parts.length > 1) ? parts[parts.length - 2] : parts[parts.length - 1].replace(/\.html$/, '');
   const key = `${s.m.key}|${s.vp}|${pid}`;
-  if (_graded.has(key)) return;
+  if (_graded.has(key) && !opts.force) return;
   // ★GRADE THE PAGE, NOT ITS LOADING SHELL (2026-11-06, the first J4 --survey walk): analytics-report was graded 5 s after
   // its first paint - h1=0, no headings, one block - while its report was still on the way. Wait for the network to go
   // quiet and the page's settle time (the critic batch runner's own pace), never a reveal click (that would change the
   // journey); a screen that still reads as a bare shell gets one more wait and is graded again.
   await s.page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
   await sleep(SURVEY_SETTLE[rel] || 1500);
+  // the page's own same-origin scripts, read as its code (see SHARED_SCRIPTS)
+  await s.page.evaluate(async (shared) => {
+    let t = '';
+    for (const sc of [...document.scripts].filter((x) => x.src && new URL(x.src).origin === location.origin)) {
+      const base = new URL(sc.src).pathname.split('/').pop();
+      if (shared.includes(base)) continue;
+      try { t += '\n' + await (await fetch(sc.src)).text(); } catch (_) { /* a script that cannot be re-read is left out */ }
+    }
+    window.__WH_PAGE_OWN_JS = t;
+  }, [...SHARED_SCRIPTS]).catch(() => {});
   try {
     const grade = () => s.page.evaluate(({ src, pid, rel, anon }) => {
       eval('(' + src + ')')();
@@ -247,26 +276,29 @@ async function surveyScreen(s, path) {
 // container holding the "All workers" filter, so the sender's name was "found" in a dropdown and U's who-reading proved
 // nothing. The card is now the nearest record-shaped ancestor of the marker (an entry card, a list item, a row, an
 // article), never a block that merely contains it.
-async function findText(s, marker, ms = 15000) {
+async function findText(s, marker, ms = 15000, must = null) {
   for (let t = 0; t < ms; t += 500) {
-    const hit = await s.page.evaluate((mk) => {
-      let best = null;
+    const hit = await s.page.evaluate(({ mk, must }) => {
+      // GJ M11: with `must`, every element carrying the marker is a candidate, smallest first, and the record is the first
+      // whose card also says `must` (J10: the truck's tag sat in a PM row before its parts-cost row)
+      const cands = [];
       for (const el of document.querySelectorAll('body *')) {
         if (!el.checkVisibility || !el.checkVisibility()) continue;
         const tx = (el.innerText || '').trim();
-        if (tx.includes(mk) && (!best || tx.length < best.t.length)) best = { el, t: tx };
+        if (tx.includes(mk)) cands.push({ el, t: tx });
       }
-      if (!best) return null;
+      cands.sort((a, b) => a.t.length - b.t.length);
+      for (const best of cands) {
       // climb until the node is one of a REPEATED set of siblings (a list's item: same tag and class beside it) - that is
       // the record; stop before a block grows past a card's size
       // a record that names itself (the logbook's cards carry data-entry-id) is the card; otherwise the sibling climb
       // (a change order's card and a scope item's row name themselves too - 2026-11-06, J8: the climb stopped at the
       // card's title row and read a CO as having no author while its card said "Raised by ... · date")
       const named = best.el.closest('[data-entry-id], [data-alert-id], [data-node-id], [data-record-id], [data-co-id], [data-item-id], [data-link-id]');
-      if (named && (named.innerText || '').trim().length < 1500) return { text: best.t, card: (named.innerText || '').trim() };
+      if (named && (named.innerText || '').trim().length < 1500) { const c = (named.innerText || '').trim(); if (!must || c.includes(must)) return { text: best.t, card: c }; continue; }
       // a record opened in its own view (a dialog) IS that view - its author and date sit beside the marker, not in it
       const dlg = best.el.closest('[role="dialog"], [aria-modal="true"]');
-      if (dlg && (dlg.innerText || '').trim().length < 2500) return { text: best.t, card: (dlg.innerText || '').trim() };
+      if (dlg && (dlg.innerText || '').trim().length < 2500) { const c = (dlg.innerText || '').trim(); if (!must || c.includes(must)) return { text: best.t, card: c }; continue; }
       let node = best.el;
       for (let i = 0; i < 10 && node.parentElement; i++) {
         const par = node.parentElement;
@@ -278,8 +310,12 @@ async function findText(s, marker, ms = 15000) {
         if (pl > 1200 || pl > Math.max(400, 2.5 * (node.innerText || '').trim().length)) break;
         node = par;
       }
-      return { text: best.t, card: (node.innerText || '').trim().slice(0, 1200) };
-    }, marker).catch(() => null);
+      const card = (node.innerText || '').trim().slice(0, 1200);
+      if (must && !card.includes(must)) continue;
+      return { text: best.t, card };
+      }
+      return null;
+    }, { mk: marker, must }).catch(() => null);
     if (hit) return hit;
     await sleep(500);
   }
@@ -355,6 +391,8 @@ async function readRefusal(R, r, ms = 20000) {
   await sleep(2500);
   const after = await R.page.evaluate(() => document.body.innerText || '').catch(() => '');
   if (r.marker && after.includes(r.marker)) leaked = true;
+  // GJ M11: the refusal IS the screen this member meets (a foreign member holding a record's link) - grade it as met
+  await surveyScreen(R, r.path, { force: true });
   return { ok: !!said && !leaked, refused: true, said, leaked,
     ...(said ? {} : { why: 'no sentence said why the record was not shown' }), ...(leaked ? { why: 'the record was drawn for a reader outside its hive' } : {}) };
 }
@@ -1137,6 +1175,16 @@ RECIPES['G-SHIFT'] = {
     const { o, i } = X.S;
     const e = X.rec.entry || {};
     const read = await printHandoverAs(o, i.m.name);
+    // GJ M11: the incoming worker is HANDED the printout - grade the printed page they read, rendered in their own session
+    if (SURVEY && read.html) {
+      await i.page.goto(`${ORIGIN}/hive.html`, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
+      // GJ M11: hive's own pending timers (the guide chip's, the board's polls) survive document.open() on the window and
+      // landed on the paper - "New to this page? Read the guide" graded 1:1 on white. A real print window runs none of
+      // them, so every timer and interval is cleared before the printout is written.
+      await i.page.evaluate((h) => { const top = setTimeout(() => {}, 0); for (let k = 0; k <= top; k++) { clearTimeout(k); clearInterval(k); }
+        document.open(); document.write(h); document.close(); }, read.html).catch(() => {});
+      await surveyScreen(i, 'hive.html', { force: true });
+    }
     return { act: { ok: read.generated && read.printed && read.text.includes(i.m.name),
         detail: `hive.html "Generate Shift Handover Report" as ${o.m.name} ${read.generated}, "Handover to" ${i.m.name}, Print ${read.printed} -> `
           + `the printed page names ${read.text.includes(i.m.name) ? i.m.name : 'NOBODY'} as incoming and ${read.text.includes(o.m.name) ? o.m.name : 'nobody'} as outgoing` },
@@ -1171,7 +1219,8 @@ async function printHandoverAs(sx, incoming) {
     const d = new DOMParser().parseFromString(h, 'text/html');
     return (d.body && d.body.textContent) || '';
   }).catch(() => '');
-  return { generated, printed, text };
+  const html = await sx.page.evaluate(() => window.__whPrinted || '').catch(() => '');
+  return { generated, printed, text, html };
 }
 
 // ── G-SENSOR · reading to PM: the machine's alert, the worker's acknowledgement on the supervisor's alert, the PM the
@@ -1448,10 +1497,11 @@ RECIPES.J24 = {
   },
   4: async (X) => {   // the incident is one more safety-risk failure in the report
     const b = X.rec.before || {};
-    return { act: { ok: b.safety != null, detail: `the report's engine before the worker logged: ${b.safety ?? 'unread'} failures classified as a safety risk` },
+    return { act: { ok: b.safety != null, detail: `the report's engine before the worker logged: ${b.safety ?? 'unread'} safety-risk failures` },
       marker: null, path: 'analytics-report.html', prepare: generateReport,
       figure: async (R) => {
-        const line = await R.page.evaluate(() => ((document.body.innerText || '').match(/(\d+) failures classified as a safety risk/) || [])[0] || null).catch(() => null);
+        // the report's wording (GJ M11): "N safety-risk failure(s)" - singular when N is 1, so the plural-only reader missed it
+        const line = await R.page.evaluate(() => ((document.body.innerText || '').match(/(\d+) safety-risk failures?/) || [])[0] || null).catch(() => null);
         const v = line ? Number(line.match(/\d+/)[0]) : null;
         const ok = v != null && b.safety != null && v === b.safety + 1;
         return { ok, said: line, before: b.safety ?? null,
@@ -1477,7 +1527,7 @@ RECIPES.J14 = {
     X.rec.member = mid;
     return { act: { ok: !!id && removed && st === 'kicked' && by === s.m.name,
       detail: `${l.m.name} logged ${id || 'NO ROW'} (${r.toast || 'no toast'}); Remove on the roster as ${s.m.name}: status ${st}, removed_by ${by || '(none)'} at ${at || '(none)'}` },
-      marker: 'removed from', markerRx: /stay yours|still yours/i, path: 'hive.html',
+      marker: 'removed you', markerRx: /stay yours|still yours/i, path: 'hive.html',
       rec: { table: 'hive_members', id: mid, where: `and status = 'kicked'` } };
   },
   2: async (X) => {   // the leaver's entries stay in the supervisor's logbook, still theirs
@@ -2286,7 +2336,7 @@ RECIPES.J7 = {
     const rep = X.rec.reply || {};
     const xp = psql(`select coalesce(sum(xp_earned), 0) from achievement_xp_log where source_action = 'best_answer' and source_id = '${q(rep.id)}' and reversed_at is null`);
     return { act: { ok: Number(xp) === 30, detail: `achievement_xp_log best_answer for ${r.m.name}'s chosen reply ${rep.id}: +${xp}` },
-      marker: 'Your answer was chosen as the best', whoRx: /\+30\b/, path: 'achievements.html',
+      marker: 'Best answer chosen', whoRx: /\+30\b/, path: 'achievements.html',
       rec: { table: 'v_achievement_xp_log', idCol: 'source_id', id: rep.id, where: `and source_action = 'best_answer'` } };
   },
 };
@@ -2657,6 +2707,8 @@ RECIPES['G-PUBLIC'] = {
     await x.page.goto(link || `${ORIGIN}/tools/oee-calculator/index.html`, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
     await sleep(3500);
     const theirs = await calcFigures(x);
+    // GJ M11: the shared result is the screen this stranger meets - graded as they meet it (opened by goto, not go())
+    await surveyScreen(x, 'tools/oee-calculator/index.html', { force: true });
     const same = mine.figs.length > 0 && mine.figs[0] === theirs.figs[0];
     const carriesNoOne = !!link && !link.includes(encodeURIComponent(w.m.name)) && !link.includes(w.m.name) && !link.includes(HIVE_ID);
     return { act: { ok: /#kpi=/.test(link) && same, detail: `"Copy share link" on the OEE calculator as ${w.m.name}: ${link ? link.slice(0, 90) + '...' : 'NOTHING'}; the stranger read ${theirs.figs[0] || 'nothing'} (the worker's: ${mine.figs[0] || 'nothing'})` },
@@ -3259,7 +3311,7 @@ RECIPES.J10 = {
     const shown = '₱' + expect.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return { act: { ok: Number(said.split('|')[0]) === expect, detail: `${n.name}: "${pt.name}" x${pt.qty} at ₱${pt.cost} (set on the part) = ${shown}; parts_cost_by_asset read as ${o.m.name}: ${said || 'NO ROW'}` },
       marker: X.tag, markerRx: new RegExp(reEsc(shown)), path: 'analytics.html',
-      reach: async (R2, ms) => { await go(R2, 'analytics.html'); await sleep(4000); return findText(R2, X.tag, ms); },
+      reach: async (R2, ms) => { await go(R2, 'analytics.html'); await sleep(4000); return findText(R2, X.tag, ms, shown); },
       rec: { table: 'logbook', id: X.rec.entry },
       F: () => { const v = got(); return { ok: Number(v.split('|')[0]) === expect, detail: `parts_cost_by_asset(${HIVE_ID}, 90) for ${n.name} read as ${o.m.name}: ${v || 'NO ROW'} (expected ${shown})` }; },
       I: (witness) => {
@@ -3459,7 +3511,7 @@ RECIPES.J21 = {
     const row = psql(`select federated_benchmark_opted_in || '|' || coalesce(federated_opt_in_by,'') || '|' || coalesce(federated_opt_in_at::text,'') from hives where id = '${HIVE_ID}'`);
     const [on, by] = row.split('|');
     return { act: { ok: /^t(rue)?$/.test(on || '') && by === s.m.name, detail: `"Share benchmarks" on the hive menu as ${s.m.name} (pressed ${pressed}, confirmed ${confirmed}): ${row}` },
-      marker: 'shares its anonymised figures', path: 'hive.html', rec: { table: 'hives', id: HIVE_ID, where: 'and federated_benchmark_opted_in' } };
+      marker: 'shares anonymised figures', path: 'hive.html', rec: { table: 'hives', id: HIVE_ID, where: 'and federated_benchmark_opted_in' } };
   },
   2: async (X) => {   // the hive's contribution reaches the sector view another hive's supervisor reads - as a count, never a name
     const { f, s } = X.S;
@@ -3834,6 +3886,9 @@ async function walkPass(browser, pass, foreign) {
       let r;
       try { r = await recipe(X); } catch (e) { out.push({ ...res, act: { ok: false, detail: String(e.message || e).slice(0, 200) } }); continue; }
       res.act = r.act;
+      // the page the receiver actually read on (a re-premised hand-off reads somewhere other than the census page) -
+      // tools/bank_gj_ux.py owes the receiver a grade of THIS page
+      res.path = r.path || null;
       res.sender = `${hop.sender}:${S[hop.sender].m.name}@${S[hop.sender].vp}`;
       res.receiver = `${hop.receiver}:${R.m.name}@${R.vp}`;
       if (r.refused || r.absent) {
@@ -3855,6 +3910,10 @@ async function walkPass(browser, pass, foreign) {
       let seen = r.preRead || null;
       // a page whose statement needs the person's own tap first (analytics-report's "Generate Report") says so in prepare()
       if (!seen) { if (r.marker) seen = await reach(R, 20000); else { await go(R, r.path); if (r.prepare) await r.prepare(R); } }
+      // ★THE RECEIVER'S PAGE IS GRADED AS THEY READ IT (GJ M11, 2026-11-06). The first grade comes at arrival, and for
+      // analytics-report that was the report's chooser - the walk presses Generate only in prepare(). Re-grade the page
+      // here, where the hand-off's statement is on screen, and keep this grade.
+      if (SURVEY && r.path && !r.preRead) await surveyScreen(R, r.path, { force: true });
       if (r.marker) {
         // a receiver who arrives by a push reads the push first: its words are part of what they were told
         const card = (seen ? seen.card : '') + (r.channelSaid ? ` || the push: ${r.channelSaid}` : '');

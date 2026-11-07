@@ -230,7 +230,11 @@
     .empty-state { opacity: 1; }
 
     /* Search highlight */
-    mark { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); color: var(--wh-orange-light); border-radius: 0; padding: 0 2px; }
+    /* GJ M11 (C4): every stock figure (the card's qty, the detail's on-hand and minimum) lines its digits up */
+    [data-fig] { font-variant-numeric: tabular-nums; }
+    /* GJ M11 (C2): a search match measured 4.32:1 - orange-light ink on the 30% orange tint over the card. The tint marks
+       the match; the text keeps the light ink so it stays readable. */
+    mark { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); color: var(--wh-cloud); border-radius: 0; padding: 0 2px; }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
@@ -2732,8 +2736,11 @@ function openDetailModal(id) {
       <p class="text-sm text-white/85 leading-relaxed">${escHtml(item.notes)}</p>
     </div>` : ''}
 
-    <div class="flex gap-2 mb-4">
-      <button onclick="closeDetailModal();openUseModal('${escJsAttr(item.id)}')" class="btn-danger flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''} data-i="usestock">Use Stock</button>
+    <!-- A1 (GJ M11 round 2, J23): the part's own screen had no primary - Use Stock and Restock were both tints. Issuing a
+         part against a job is what a part record is opened for on the floor, so Use Stock is the one filled action; it
+         still opens the Use sheet (quantity + job) before anything is deducted. Z3: 24px to Restock. -->
+    <div class="flex mb-4" style="gap:1.5rem;">
+      <button onclick="closeDetailModal();openUseModal('${escJsAttr(item.id)}')" class="btn-primary flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''} data-i="usestock">Use Stock</button>
       <button onclick="closeDetailModal();openRestockModal('${escJsAttr(item.id)}')" class="btn-green flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''} data-i="restock">Restock</button>
       ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || _ownsItem(item)) ? `<button onclick="closeDetailModal();openAddModal('${escJsAttr(item.id)}')" class="btn-secondary px-3 text-sm" data-i="edit">Edit</button>` : ''}
     </div>

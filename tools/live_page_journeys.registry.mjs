@@ -22,7 +22,7 @@ import { dirname, resolve } from 'node:path';
 const _K6_DIR = dirname(fileURLToPath(import.meta.url));
 const CSV_IN1 = resolve(_K6_DIR, '..', '.tmp', 'k6_in1_wo.csv'); // K6/IN1 work-order import fixture
 
-const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'; // Baguio Textile Mills
+const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d'; // Baguio Textile Mills
 const HIVE_NAME = 'Baguio Textile Mills';
 
 // computed-display "is hidden" (display:none) — exists() already requires visible, but for
@@ -631,7 +631,7 @@ export const JOURNEYS = [
               .eq('auth_uid', uid).eq('status', 'active').limit(1).maybeSingle() : { data: null };
             if (mem && mem.hive_id) realHive = mem.hive_id;
           } catch (_) {}
-          localStorage.setItem('wh_active_hive_id', realHive || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'); // hive fallback only
+          localStorage.setItem('wh_active_hive_id', realHive || '084c113b-99c0-45c6-a8e8-b4b8349da46d'); // hive fallback only
           localStorage.setItem('wh_last_worker', 'Bryan Garcia');
           localStorage.setItem('wh_hive_name', 'Baguio Textile Mills');
           localStorage.setItem('wh_hive_role', 'worker');
@@ -743,7 +743,7 @@ export async function logWizard(page, h, { tag, maintType = 'Breakdown / Correct
 }
 
 function logbookJourneys() {
-  const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+  const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
   const reachLogbook = async (h) => { await h.goto('logbook.html'); return h.waitFor('#log-form, #entries-list, #asset-picker-btn', 12000); };
   return [
     {
@@ -879,7 +879,7 @@ function logbookJourneys() {
 // path, drive Use/Restock through the UI, verify the qty delta in DB, then delete the part
 // + its transactions (fully reversible, no real inventory touched).
 function inventoryJourneys() {
-  const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+  const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
   const AUTH = 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd'; // Bryan Garcia auth_uid
   // A same-URL goto is a reload to Chromium, which RESTORES form values: INV3's search-first term (a probe part
   // since deleted) came back in #search-input and INV4 counted 0 cards (K2 2026-09-05). Clear it after landing.
@@ -1006,7 +1006,7 @@ function inventoryJourneys() {
 // via the privileged path, drive the UI, verify, then delete. DAY3 is the cross-page write
 // nerve (closes the linked logbook → home/hive Open Jobs KPI drops, journey_trace-proven).
 function dayplannerJourneys() {
-  const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+  const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
   const AUTH = 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd';
   const reachDP = async (page, h) => { const url = await h.goto('dayplanner.html'); await page.waitForTimeout(1500); const ok = (await h.exists('#dp-verdict-label')) || (await h.exists('#calendar-wrap')) || (await h.exists('.btn-primary')); return ok && !/signin/.test(url); };
   const clickByText = (h, re) => h.evalIn((r) => { const rx = new RegExp(r, 'i'); const b = [...document.querySelectorAll('button')].find(x => rx.test((x.textContent || '') + ' ' + (x.getAttribute('onclick') || ''))); if (b) { b.click(); return true; } return false; }, re);
@@ -1109,7 +1109,7 @@ function dayplannerJourneys() {
 // Reset-PW is DESTRUCTIVE to a real auth account → verify the affordance + supervisor-gate only
 // (the actual reset is covered by the prior-arc validate_password_recovery gate).
 function hiveJourneys() {
-  const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+  const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
   const reachHive = async (page, h) => { const url = await h.goto('hive.html'); await page.waitForTimeout(800); const ok = (await h.exists('#view-board')) || (await h.exists('#stat-members')) || (await h.exists('#board-hive-name')); return ok && !/signin/.test(url); };
   return [
     {
@@ -1231,7 +1231,7 @@ function hiveJourneys() {
 // PM nerves (overdue/due-soon/compliance) PROVEN in journey_trace. PM3 (complete) is own-data;
 // PM4 (add asset) is SUPERVISOR-only + tests the worker negative-path. Seed/cleanup own rows only.
 function pmSchedulerJourneys() {
-  const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+  const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
   const reachPM = async (page, h) => { const url = await h.goto('pm-scheduler.html'); await page.waitForTimeout(1500); const ok = (await h.exists('#asset-list')) || (await h.exists('#pm-verdict-label')) || (await h.exists('#stat-overdue')); return ok && !/signin/.test(url); };
   return [
     {
@@ -1327,7 +1327,7 @@ function pmSchedulerJourneys() {
 // ═══════════════════ K3 — YOUR TEAM · community.html ═══════════════════
 // role='all' → tested as WORKER. All write; create via UI + verify by tagged nonce + clean up.
 function communityJourneys() {
-  const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+  const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
   const reachCommunity = async (page, h) => { const url = await h.goto('community.html'); await page.waitForTimeout(1500); const ok = (await h.exists('#feed-list')) || (await h.exists('#fab-post')); return ok && !/signin/.test(url); };
   return [
     {
@@ -1421,7 +1421,7 @@ function communityJourneys() {
 // ═══════════════════ K4 — INTELLIGENCE ═══════════════════
 // Read-heavy dashboards (truthful KPI render) + AI pages (real LLM → resetRates + envelope
 // check, deep value-parity attributed to journey_trace nerves) + a few writes (seed/verify).
-const K4HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'; // hive fallback only — oracles use h.hive (resolved)
+const K4HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d'; // hive fallback only — oracles use h.hive (resolved)
 // poll until a label element's text no longer matches a loading regex (dashboard hydration)
 async function waitResolved(page, h, sel, loadingRe, t = 16000) {
   const end = Date.now() + t;
@@ -2030,7 +2030,7 @@ function analyticsReportJourneys() {
 }
 
 // ═══════════════════ K5 — BUILD & GROW ═══════════════════
-const K5HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+const K5HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
 const K5AUTH = 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd'; // Bryan Garcia auth_uid
 const K5CAP = '67ddf15d-1ea0-4917-8820-dd07330541b0'; // CAP-2026-001 row-id fallback only (rots per reseed) — use liveCap(h)
 // Resolve CAP-2026-001's CURRENT row-id from the DB (a reseed re-mints project ids exactly like
@@ -2446,7 +2446,7 @@ function resumeJourneys() {
 // saved-search — all locally completable. Write journeys tag rows (K6-*) + delete via the
 // privileged path. seller_name/worker_name = the DISPLAY name 'Bryan Garcia' (wh_last_worker).
 function marketplaceJourneys() {
-  const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+  const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
   const reachMkt = async (h) => { await h.goto('marketplace.html'); return h.waitFor('.listing-grid, #listing-grid, .listing-card', 12000); };
   return [
     {
@@ -2570,7 +2570,7 @@ function marketplaceJourneys() {
 // exists → role 'worker'. FREE PLATFORM: no Stripe Connect; the seller's job is list →
 // receive inquiries → reply + share a Messenger handle (free direct contact).
 function marketplaceSellerJourneys() {
-  const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+  const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
   const reachSeller = async (h) => { await h.goto('marketplace-seller.html'); return h.waitFor('#profile-name, #main-content', 9000); };
   const tab = (h, t) => h.evalIn((tt) => { const b = document.querySelector(`[data-tab='${tt}']`); if (b) { b.click(); return true; } return false; }, t);
   return [
@@ -2658,7 +2658,7 @@ function marketplaceSellerJourneys() {
 // is a genuine EXTERNAL ceiling (needs a reachable real CMMS API — not Stripe). IN1 does a
 // REAL tagged CSV import and verifies external_sync + logbook rows, then deletes them.
 function integrationsJourneys() {
-  const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+  const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
   return [
     {
       id: 'IN1', phase: 'K6', page: 'integrations.html', role: 'supervisor', state: 'authed',
@@ -2733,7 +2733,7 @@ function integrationsJourneys() {
 // Supervisor-only read-only observability (Phase-5 Track C). FREE admin console, no payment.
 // Cards render from live hive-scoped tables; T verifies the card tone matches the DB counts.
 function plantConnectionsJourneys() {
-  const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+  const HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da46d';
   const reachPC = async (h) => { await h.goto('plant-connections.html'); return h.waitFor('.simple-card, .verdict, [class*="verdict"]', 9000); };
   return [
     {

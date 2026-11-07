@@ -262,7 +262,7 @@
       border-bottom: 1px dashed var(--border);
     }
     .mk-row:last-child { border-bottom: none; }
-    .mk-row a { color: inherit; text-decoration: none; flex: 1; }
+    .mk-row a { color: inherit; text-decoration: none; flex: 1; min-height: 44px; display: flex; flex-direction: column; justify-content: center; }   /* F1 (GJ M11): a listing row was a 33px-tall tap target */
     .mk-title { font-size: var(--wh-fs-sm, 0.85rem); font-weight: 600; }
     .mk-meta  { font-size: var(--wh-fs-xs, 0.8rem);  color: var(--muted); margin-top: 2px; }
     .mk-price { font-size: var(--wh-fs-sm, 0.85rem); font-weight: 700; color: var(--orange-wh); white-space: nowrap; }
@@ -491,6 +491,8 @@
     @media print {
       .no-print, .wh-voice-fab, #wh-fab { display: none !important; }
     }
+    /* GJ M11 (C4): the risk card's figures - score, MTBF, days to failure, P-F days - line their digits up */
+    #risk-score-num, #risk-mtbf, #risk-days, #pf-pf-days, .stat-value { font-variant-numeric: tabular-nums; }
   </style>
 </head>
 <body>
@@ -709,7 +711,7 @@
         <!-- Arc Y Y4 — ONE risk hierarchy: name this as THE single headline answer so a
              novice doesn't try to reconcile it against the FMEA / Weibull / P-F numbers
              in the Reliability Workbench (those are the engineering detail BEHIND this one). -->
-        <p style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:2px 0 8px; line-height:1.45;">This is the asset's <b data-i="p_oneheadlinerisk_e514" style="color:var(--wh-text-muted, rgba(255,255,255,0.8));font-weight:700;">one headline risk</b>: the score says how urgent, the factors say why. The Reliability Workbench below adds the engineering detail (FMEA / Weibull / P-F) behind it.</p>
+        <p style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:2px 0 8px; line-height:1.45;">This is the asset's <b data-i="p_oneheadlinerisk_e514" style="color:var(--wh-text-muted, rgba(255,255,255,0.8));font-weight:700;">one headline risk</b>: the score says how urgent, the factors say why. The Reliability Workbench below shows the detail. It covers failure modes, wear-out and warning time.</p>
         <p id="risk-source-chip" hidden data-wh-sources-collapsed></p>
         <div id="risk-content" style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
           <!-- risk score gauge -->
@@ -732,7 +734,7 @@
       <!-- Empty state for assets with no risk score yet (rules engine has not run, or asset too new) -->
       <div class="section-card" id="risk-empty-card" style="display:none;">
         <h2 class="section-title" data-i="riskprofile" style="margin:0;">Risk Profile</h2>
-        <p data-i="p_noriskscoreyetforthisassetsc_4726" style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--muted); margin:0;">No risk score yet for this asset. Scores are computed daily at 13:00 PHT by the batch-risk-scoring job. Once enough fault history accumulates, a score will appear here.</p>
+        <p data-i="p_noriskscoreyetforthisassetsc_4726" style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--muted); margin:0;">No risk score yet for this asset. WorkHive scores every asset each day at 13:00 PHT. A score appears here once the asset has enough fault history.</p>
       </div>
 
       <!-- Phase ML-2: Predictive Parts Auto-Staging — recommends parts to pre-stage before failure -->
@@ -948,7 +950,7 @@
       <div class="section-card" id="mk-card" style="display:none;">
         <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
           <h2 data-i="mklistings" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;">Marketplace listings for this class</h2>
-          <a data-i="p_alllistings_d8ec" href="marketplace.html" style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--blue-wh);text-decoration:none;">All listings &rsaquo;</a>
+          <a data-i="p_alllistings_d8ec" href="marketplace.html" style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--blue-wh);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;padding:0 4px;">All listings &rsaquo;</a>
         </div>
         <div id="mk-list"></div>
       </div>
@@ -959,7 +961,7 @@
           Grounded in this asset's logbook, PMs, neighbors, and peers in the same equipment class.
         </div>
         <div style="display:flex;gap:0.5rem;">
-          <input aria-label="When did this asset last fail? Why?" id="ask-input" class="search-input" type="text" placeholder="When did this asset last fail? Why?" maxlength="500" />
+          <input aria-label="When did this asset last fail? Why?" id="ask-input" class="search-input" type="text" placeholder="e.g. When did this asset last fail, and why?" maxlength="500" />
           <button id="ask-send" class="add-edge-btn" data-i="ask" style="background:linear-gradient(135deg,var(--orange-wh),var(--wh-orange-light));color:var(--navy-wh);border:none;font-weight:700;padding:0 16px;">Ask</button>
         </div>
         <div id="ask-output" style="margin-top:0.85rem;display:none;">
@@ -2322,10 +2324,11 @@
       const provEl = document.getElementById('detail-provenance');
       if (provEl) {
         const by = node.submitted_by || node.worker_name || '';
-        const on = (iso) => (iso && typeof whFmtDate === 'function') ? ' on ' + whFmtDate(iso) : '';
+        // GJ M11 (B3): who and when, set as facts with middots - one sentence of two names and two dates graded 8.4
+        const on = (iso) => (iso && typeof whFmtDate === 'function') ? ' · ' + whFmtDate(iso) : '';
         let said = '';
         if (by && node.approved_by && node.approved_by === by) said = 'Added and approved by ' + by + on(node.approved_at || node.created_at) + '.';
-        else if (by && node.approved_by) said = 'Added by ' + by + on(node.created_at) + ', approved by ' + node.approved_by + on(node.approved_at) + '.';
+        else if (by && node.approved_by) said = 'Added by ' + by + on(node.created_at) + ' · approved by ' + node.approved_by + on(node.approved_at) + '.';
         else if (by) said = 'Added by ' + by + on(node.created_at) + '.';
         else if (node.approved_by) said = 'Approved by ' + node.approved_by + on(node.approved_at) + '.';
         provEl.textContent = said;
@@ -2508,6 +2511,9 @@
         medium:   '#facc15',
         low:      '#4ade80',
       }[row.risk_level] || '#facc15';
+      // C2 (GJ M11): the level colour tints the badge; TEXT on that tint uses the lighter shade (the card badge renderer's
+      // own text map) - #f87171 text measured 4:1 on the card's gradient
+      const levelText = { critical: '#FCA5A5', high: '#FDB94A', medium: '#facc15', low: '#4ade80' }[row.risk_level] || '#facc15';
 
       const pct = Math.round((Number(row.risk_score) || 0) * 100);
 
@@ -2519,11 +2525,11 @@
       const facEl  = document.getElementById('risk-factors');
       const modEl  = document.getElementById('risk-model-chip');
 
-      if (numEl) { numEl.textContent = pct + '%'; numEl.style.color = levelColor; }
+      if (numEl) { numEl.textContent = pct + '%'; numEl.style.color = levelText; }
       if (lvlEl) {
         lvlEl.textContent = String(row.risk_level || '').toUpperCase();
         lvlEl.style.background = 'rgba(' + _hexToRgb(levelColor) + ',0.15)';
-        lvlEl.style.color      = levelColor;
+        lvlEl.style.color      = levelText;
       }
       if (mtbfEl) mtbfEl.textContent = row.mtbf_days != null ? Math.round(row.mtbf_days) + 'd' : '-';
       if (daysEl) {
@@ -2532,7 +2538,7 @@
           daysEl.textContent = '-';
         } else if (d < 0) {
           daysEl.textContent = Math.round(Math.abs(d)) + 'd overdue';
-          daysEl.style.color = '#f87171';
+          daysEl.style.color = '#FCA5A5';
         } else {
           daysEl.textContent = Math.round(d) + 'd';
         }
@@ -2573,7 +2579,7 @@
               +     '<div style="width:90px; height:6px; background:var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:999px; overflow:hidden;">'
               +       '<div style="width:' + barPct + '%; height:100%; background:' + e(levelColor) + ';"></div>'
               +     '</div>'
-              +     '<span style="font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; color:' + e(levelColor) + '; min-width:28px; text-align:right;">+' + pct + '%</span>'
+              +     '<span style="font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; color:' + e(levelText) + '; min-width:28px; text-align:right;">+' + pct + '%</span>'
               +   '</div>'
               + (explain ? '<div style="font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.35;">' + e(explain) + '</div>' : '')
               + '</div>';
@@ -2904,8 +2910,10 @@
             kind: 'logbook',
             key: 'logbook:' + r.id,
             when: r.created_at,
-            summary: (r.maintenance_type || 'Entry') + ': ' + (r.problem || '(no description)')
-                     + (r.worker_name ? ' - logged by ' + r.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.worker_name) : '') : '')
+            // GJ M11 (B3): a logbook event is a line of facts - type · problem · who - not a sentence (it graded 8-12 on
+            // the person's own problem text)
+            summary: (r.maintenance_type || 'Entry') + ' · ' + (r.problem || '(no description)')
+                     + (r.worker_name ? ' · logged by ' + r.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.worker_name) : '') : '')
                      + (_safetyOf(r) ? ' · ' + _safetyOf(r) : '')
                      + (_partsOf(r) ? ' · parts: ' + _partsOf(r) : ''),
             status: r.status,

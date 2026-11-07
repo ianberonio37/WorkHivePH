@@ -105,9 +105,12 @@
     /* ── Clickable author identity (person card trigger) ── */
     .author-link {
       background: none; border: none; padding: 0; margin: 0; font: inherit; font-weight: 700;
-      color: inherit; cursor: pointer; text-align: left; display: inline-flex; align-items: center; gap: 4px;
+      color: var(--wh-cloud); cursor: pointer; text-align: left; display: inline-flex; align-items: center; gap: 4px;   /* GJ M11 (C5): a name reads in one ink wherever it sits - inherited, it took a category's violet (Lc 45) */
       min-height: 44px; /* WCAG 2.5.8 / F1 — name links are primary identity taps */
     }
+    /* GJ M11 (C5): a post card carries its category class (cat-announcement, cat-technical), which tints the card and
+       inks its text - so an author's name came out violet (#a78bfa, Lc 45) on an announcement and blue on a technical
+       post. A name is not a category: it reads in the same ink on every card. */
     .author-link:hover { color: var(--wh-orange); text-decoration: underline; }
     .author-link:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; border-radius: 8px; }
     .avatar-btn { background: none; border: none; padding: 0; cursor: pointer; border-radius: 999px; }
@@ -166,11 +169,11 @@
     }
     .filter-chip { flex: 0 0 auto; white-space: nowrap; }   /* phone fit (2026-09-06) */
     .filter-chip:hover { border-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.6); color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
-    .filter-chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color: var(--wh-orange); }
+    .filter-chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color: var(--wh-orange-text); }
     .filter-chip.cat-safety.active     { background: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.12); border-color: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.4); color: var(--wh-red-text); }
-    .filter-chip.cat-technical.active  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.4); color: var(--wh-blue); }
-    .filter-chip.cat-announce.active   { background: rgba(var(--wh-purple-500-rgb, 168, 85, 247), 0.12); border-color: rgba(var(--wh-purple-500-rgb, 168, 85, 247), 0.4); color: var(--wh-violet); }
-    .filter-chip.cat-marketplace.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color: var(--wh-orange); }
+    .filter-chip.cat-technical.active  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.4); color: var(--wh-blue-text); }
+    .filter-chip.cat-announce.active   { background: rgba(var(--wh-purple-500-rgb, 168, 85, 247), 0.12); border-color: rgba(var(--wh-purple-500-rgb, 168, 85, 247), 0.4); color: var(--wh-violet-text); }
+    .filter-chip.cat-marketplace.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color: var(--wh-orange-text); }
 
     /* ── Post cards ── */
     /* ★A WORKMATE'S POST WAS SPENDING ITS SPACE ON CHROME (Ian, 2026-10-29: "previous posts of my workmates has been
@@ -237,7 +240,7 @@
     }
     .cat-general     { background: var(--wh-white-08, rgba(255,255,255,0.08)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); }
     .cat-safety      { background: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.15); color: var(--wh-red-text); }
-    .cat-technical   { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--wh-blue, #29B6D9); }   /* C2: AA-safe blue on the 12% tint (was --wh-blue var(--wh-blue,#29B6D9) @ 4.03:1 → var(--wh-blue, #29B6D9) ~4.7:1) */
+    .cat-technical   { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--wh-blue-text); }   /* C2/C5 (GJ M11): measured 4.48:1 with --wh-blue on the translucent card; --wh-blue-text is the token for blue text on dark */
     /* C2/BH: --wh-orange (var(--wh-orange,#F7A21B)) measures 4.06:1 on this tint at 10px, under the 4.5 AA floor.
        The card underneath is itself a SEMI-TRANSPARENT gradient (rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) ->
        rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7)), so the effective background is page -> translucent card -> tint, and a
@@ -245,7 +248,7 @@
        token that exists for text on dark and clears the floor. Same move .cat-technical already made
        (--wh-blue 4.03:1 -> var(--wh-blue, #29B6D9)). */
     .cat-marketplace { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color: var(--wh-orange-text); }
-    .cat-announcement{ background: rgba(var(--wh-purple-500-rgb, 168, 85, 247), 0.12); color: var(--wh-violet); }
+    .cat-announcement{ background: rgba(var(--wh-purple-500-rgb, 168, 85, 247), 0.12); color: var(--wh-violet-text); }   /* C5 (GJ M11): --wh-violet is the accent, --wh-violet-text the ink for text on dark */
     .badge-pinned    { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--wh-orange-text); }
     .badge-mod       { background: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.12); color: var(--wh-red-text); }
 
@@ -259,6 +262,9 @@
     .avatar-initial.mine { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); color: var(--wh-orange); }
 
     /* ── Reaction buttons ── */
+    /* GJ M11 (R3): Reply opens the thread - a press, so it wears the 8px press shape; the pill beside it is a reaction
+       you turn on and off (aria-pressed). It borrowed the reaction pill and read as a toggle. */
+    .reaction-btn.reply-btn { border-radius: 8px; }
     .reaction-btn {
       display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
       border-radius: 999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
@@ -363,7 +369,7 @@
     #undo-toast button:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25); }
 
     /* ── FAB (new post) ── */
-    var(--wh-rose-200, #fab)-post {
+    #fab-post {
       position: fixed; bottom: calc(24px + env(safe-area-inset-bottom)); right: 24px;
       z-index: var(--wh-z-fab-2, 40); width: 56px; height: 56px; border-radius: 50%;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none;
@@ -373,15 +379,15 @@
       box-shadow: 0 4px 20px var(--wh-black-45, rgba(0,0,0,0.45));
       transition: box-shadow 0.2s var(--wh-ease-out, ease-out), transform 0.2s var(--wh-ease-out, ease-out);
     }
-    var(--wh-rose-200, #fab)-post:hover { transform: scale(1.08); box-shadow: 0 6px 28px var(--wh-black-55, rgba(0,0,0,0.55)); }
-    var(--wh-rose-200, #fab)-post:active { transform: scale(0.95); }
+    #fab-post:hover { transform: scale(1.08); box-shadow: 0 6px 28px var(--wh-black-55, rgba(0,0,0,0.55)); }
+    #fab-post:active { transform: scale(0.95); }
     /* D1 U5 (FAB shell-occlusion fork — Ian 2026-06-19: move page FABs bottom-LEFT on
        mobile, away from the global bottom-right widget stack nav-hub/conn-chip/feedback
        that caused the axe target-size proximity flag at 390px). Desktop keeps bottom-right. */
-    @media (max-width: 767px) { var(--wh-rose-200, #fab)-post { left: 24px; right: auto; } }
+    @media (max-width: 767px) { #fab-post { left: 24px; right: auto; } }
     /* ★C18 (wave-4 narrow-320 nav-hub walk, 2026-09-14): at 320 the filter chips WRAP onto several lines and the
        page's tall header pushes the last of them to y~663 at rest - exactly the band this bottom-LEFT FAB owns
-       (24..80 x 640..696): elementFromPoint at the "All" chip's centre returned var(--wh-rose-200, #fab)-post, so a tap meant for a
+       (24..80 x 640..696): elementFromPoint at the "All" chip's centre returned #fab-post, so a tap meant for a
        category opened the composer. Below 360px the chip block reserves BOTH FAB columns - this page's post FAB on
        the left and the shared hub FAB on the right (the first fix reserved only the left column, and the re-walk
        found the "Safety" chip under #wh-hub-fab at 248,640 instead) - the same "make room for the chrome" rule
@@ -390,7 +396,7 @@
     /* ★AND THE SAME CHIP WAS COVERED ONE BREAKPOINT UP (nav-hub ratchet, phone-390 en, 2026-09-15). The
        C18 fix above was scoped to the width it was FOUND at, not to the condition that causes it: the FAB
        is bottom-LEFT at every width up to 767px, so the chip block owes it room at every one of them. The
-       re-walk at 390 read `button.filter-chip "Parts / Service" @16,773 118x44 covered by var(--wh-rose-200, #fab)-post`, the
+       re-walk at 390 read `button.filter-chip "Parts / Service" @16,773 118x44 covered by #fab-post`, the
        identical defect with a different chip. The LEFT column is reserved wherever the FAB sits there; the
        360 rule below keeps reserving BOTH, because only there does the right-hand hub FAB reach a chip
        too. Fixing the measured width and not the mechanism is how the same defect gets found twice. */
@@ -415,7 +421,7 @@
        width, so keep the FAB bottom-LEFT on desktop too (clear of the stack), mirroring the
        pm-scheduler.html fix. Bottom-left is clear of all wh-* widgets (verified ≥24px). */
     @media (min-width: 768px) {
-      var(--wh-rose-200, #fab)-post { bottom: 32px; left: 32px; right: auto; }
+      #fab-post { bottom: 32px; left: 32px; right: auto; }
     }
     /* D3 A1 (responsive 360→1920): the 1fr + rigid-320px sidebar can't coexist below
        ~1024px — at 768px the main column hits its min-content floor and the grid
@@ -459,7 +465,7 @@
     .reaction-btn:focus-visible,
     .filter-chip:focus-visible,
     .tab-btn:focus-visible,
-    var(--wh-rose-200, #fab)-post:focus-visible {
+    #fab-post:focus-visible {
       outline: 2px solid var(--wh-orange);
       outline-offset: 2px;
     }
@@ -744,7 +750,8 @@
         <div class="wh-card" style="padding:1.25rem;" id="svc-hail-bridge-card">
           <p data-i="p_needahandonsite_d03b" style="font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 0.5rem;">Need a hand on site?</p>
           <p data-i="p_hailavettedserviceproviderel_406e" style="font-size:var(--wh-fs-xs, 0.8rem); margin:0 0 0.5rem; opacity:0.9;">Hail a vetted service provider - electrical, HVAC, mechanical and more. Nearby providers accept like ride-hailing drivers.</p>
-          <a data-i="p_hailaservice_6819" href="marketplace.html?section=services" style="display:inline-flex;align-items:center;min-height:44px;padding:0 1rem;border-radius:var(--wh-radius-sm, 8px);background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:var(--wh-fs-xs, 0.8rem);text-decoration:none;">Hail a service →</a>
+          <!-- GJ M11 (A3/G3): a way to the marketplace, drawn as a secondary - the community's primary is posting -->
+          <a data-i="p_hailaservice_6819" href="marketplace.html?section=services" style="display:inline-flex;align-items:center;min-height:44px;padding:0 1rem;border-radius:var(--wh-radius-sm, 8px);background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35);color:var(--wh-orange-text);font-weight:700;font-size:var(--wh-fs-xs, 0.8rem);text-decoration:none;">Hail a service →</a>
         </div>
         <div class="wh-card" style="padding:1.25rem;" id="leaderboard-card">
           <!-- Was "Top Posters", but the sort key is xp_total, and XP is earned by more than
@@ -2096,10 +2103,11 @@ function _isMinePost(p) {
       ? ((document.querySelector('#report-reason option[value="' + CSS.escape(_rr.reason) + '"]') || {}).textContent || _rr.reason)
       : 'no reason picked';
     const reportReasonLine = _rr
-      ? `<p class="text-xs mt-1" style="color:var(--wh-orange);" data-wh-report-reason>&#9873; Reported${_rr.by ? ' by ' + escHtml(_rr.by) : ''}${_rr.at && typeof whFmtDate === 'function' ? ', ' + escHtml(whFmtDate(_rr.at, { time: true })) : ''}: ${escHtml(_rrWords)}${_rr.details ? ' - ' + escHtml(_rr.details) : ''}</p>`
+      // GJ M11 (C5): the flag stays orange; the sentence reads in the light text tone (orange ink measured Lc 66 of 75)
+      ? `<p class="text-xs mt-1" style="color:var(--wh-text-faint, rgba(255,255,255,0.86));" data-wh-report-reason><span style="color:var(--wh-orange-text);" aria-hidden="true">&#9873;</span> Reported${_rr.by ? ' by ' + escHtml(_rr.by) : ''}${_rr.at && typeof whFmtDate === 'function' ? ', ' + escHtml(whFmtDate(_rr.at, { time: true })) : ''}: ${escHtml(_rrWords)}${_rr.details ? ' - ' + escHtml(_rr.details) : ''}</p>`
       // SL LB1: a flagged post whose reason was not among the reports read says so, rather than showing no reason
       : (_supFlag && _reportReasonsPartial)
-        ? '<p class="text-xs mt-1" style="color:var(--wh-orange);" data-wh-more-note data-wh-report-reason role="note">&#9873; Reported - the reason was not loaded (more reports than this page reads). The Audit log has it.</p>'
+        ? '<p class="text-xs mt-1" style="color:var(--wh-text-faint, rgba(255,255,255,0.86));" data-wh-more-note data-wh-report-reason role="note"><span style="color:var(--wh-orange-text);" aria-hidden="true">&#9873;</span> Reported - the reason was not loaded (more reports than this page reads). The Audit log has it.</p>'
         : '';
     const publicBadge  = p.public  ? `<span class="cat-badge" style="background:rgba(var(--wh-green-500-rgb, 34, 197, 94), 0.12);color:var(--wh-green);">PUBLIC</span>` : '';
     const catBadge     = `<span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>`;
@@ -2151,7 +2159,7 @@ function _isMinePost(p) {
         ${_rxButton(p, _rx, 'wrench','Wrench','🔧')}
         ${_rxButton(p, _rx, 'fire','Fire','🔥')}
         ${_rxButton(p, _rx, 'eyes','Eyes','👀')}
-        <button class="reaction-btn" onclick="openThread('${escJsAttr(p.id)}')" aria-haspopup="dialog" aria-label="${escHtml(_t('Open thread and reply', 'Buksan ang thread at tumugon'))}" id="reply-btn-${escHtml(p.id)}">
+        <button class="reaction-btn reply-btn" onclick="openThread('${escJsAttr(p.id)}')" aria-haspopup="dialog" aria-label="${escHtml(_t('Open thread and reply', 'Buksan ang thread at tumugon'))}" id="reply-btn-${escHtml(p.id)}">
           <span class="ic ic-message" aria-hidden="true"></span><span class="rx-n" id="reply-count-${escHtml(p.id)}">${_rxCount(replyCountMap[p.id])}</span><span class="rx-word">${escHtml(_t('Reply', 'Sumagot'))}</span>
         </button>
       </div>
@@ -2649,8 +2657,13 @@ function _isMinePost(p) {
     if (!fresh.length) { box.hidden = true; box.innerHTML = ''; return; }
     const when = (t) => (t && typeof whFmtDate === 'function') ? whFmtDate(t, { time: true }) : '';
     const line = (r) => {
-      const words = '"' + (r.words || '').trim() + (String(r.words || '').length >= 60 ? '…' : '') + '"';
-      const why = r.note ? ': ' + r.note : '';
+      // GJ M11 (B3): one short sentence for what was decided, by whom and when; the reason as a sentence of its own. The
+      // first cut quoted 60 characters of the post and ran the reason on after a colon - 28 words in one sentence.
+      // GJ M11 (B3): the post's words are a placeholder here; the list item swaps in a <q data-user-content> - escaped on
+      // its own - so the sentence is the page's words and the quote is marked as the poster's
+      const words = '\u0001';
+      const end = (t) => (/[.!?]$/.test(t) ? t : t + '.');
+      const why = r.note ? '. ' + (r.kind === 'escalation' ? 'WorkHive said: ' : 'Reason: ') + end(String(r.note).trim()) : '';
       if (r.kind === 'your_post') {
         return (r.moderated_by || 'A supervisor') + (r.outcome === 'removed' ? ' removed your post ' : ' kept your post ')
           + words + (r.moderated_at ? ' on ' + when(r.moderated_at) : '') + (why || '.');
@@ -2671,7 +2684,11 @@ function _isMinePost(p) {
       // my_moderation_news reads at most the 20 newest of this person's reports (30 days): a full list says so
       + (fresh.length >= 20 ? '<p data-wh-more-note role="note" style="margin:0 0 0.4rem; font-size:var(--wh-fs-xs, 0.8rem);">The 20 most recent from the last 30 days.</p>' : '')
       + '<ul style="margin:0; padding-left:1.1rem; display:flex; flex-direction:column; gap:0.3rem;">'
-      + fresh.slice(0, 5).map((r) => '<li data-wh-modnews="' + escHtml(r.kind) + '">' + escHtml(line(r)) + '</li>').join('')
+      + fresh.slice(0, 5).map((r) => {
+        const raw = String(r.words || '').trim();
+        const q = '<q data-user-content>' + escHtml(raw.slice(0, 40) + (raw.length > 40 ? '…' : '')) + '</q>';
+        return '<li data-wh-modnews="' + escHtml(r.kind) + '">' + escHtml(line(r)).split('\u0001').join(q) + '</li>';
+      }).join('')
       + '</ul>'
       + '<button type="button" class="btn-ghost" style="min-height:44px; margin-top:0.5rem; width:auto;" data-wh-modnews-dismiss>Dismiss</button>';
     box.hidden = false;

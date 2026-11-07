@@ -514,7 +514,8 @@
     .doc-panel .hbar-fill.red   { background: var(--wh-red-700, #b91c1c); }
     .doc-panel .hbar-fill.amber { background: var(--wh-amber-700, #b45309); }
     .doc-panel .hbar-fill.green { background: var(--wh-doc-emerald-800, #15803d); }
-    .doc-panel .hbar-value { font-size: var(--wh-fs-xs, 0.8rem); color: var(--wh-grey-700, #555); text-align: right; font-weight: 600; }
+    /* min-width:0 + overflow-wrap: a value longer than its 60px column wraps inside it; it never widens the page (GJ M11) */
+    .doc-panel .hbar-value { font-size: var(--wh-fs-xs, 0.8rem); color: var(--wh-grey-700, #555); text-align: right; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 
     /* Stacked bar (one row, multiple colored segments — for RCM consequence split) */
     .doc-panel .stack-bar {
@@ -1130,7 +1131,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           traceId: whTraceIdOf(data),   // LM-E: the id the analytics-orchestrator report reply returned
           question: 'Action plan for the analytics report, last ' + _period + ' days',
           answer: _aiAnswer,
-          groundedOn: 'this report\'s logbook, PM, parts and risk figures for the last ' + _period + ' days' });
+          groundedOn: 'this report\'s logbook, PM, parts and risk figures for the last ' + _period + ' days',
+          // GJ M11 (E3): the chip says when the report it summarises was generated - the same time its header prints
+          generatedAt: (data && data.generated_at) || new Date().toISOString() });
       }
     }
 
@@ -1161,9 +1164,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // ★OFF BY ONE, AND 'TIED' WAS THE WRONG WORD (design lens critique, 2026-09-15): counts.p1 is the
         // TOTAL P1 count and includes the asset this sentence is about, so the page claimed one more than
         // its own tile; and these assets are RANKED by risk score, not tied.
-        heroSub   = 'Highest-ranked of ' + counts.p1 + ' Critical (P1) asset' + (counts.p1 === 1 ? '' : 's') +
-                    ' and ' + counts.p2 + ' At-Risk (P2) asset' + (counts.p2 === 1 ? '' : 's') +
-                    ' over the last ' + _period + ' days.' +
+        // GJ M11 (B3): the ranking is a set of facts - a middot line, not a 17-word sentence (grade 8.4)
+        heroSub   = 'Ranked first · ' + counts.p1 + ' Critical (P1) asset' + (counts.p1 === 1 ? '' : 's') +
+                    ' · ' + counts.p2 + ' At-Risk (P2) asset' + (counts.p2 === 1 ? '' : 's') +
+                    ' · last ' + _period + ' days.' +
                     (bits ? ' ' + topP1.machine + ': ' + bits + '.' : '');
       } else if (counts.p2 > 0) {
         heroCls = 'hero-finding amber'; heroLabel = '⚠ HEADLINE';
@@ -1172,11 +1176,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } else {
         heroCls = 'hero-finding green'; heroLabel = '✓ HEADLINE';
         heroText = 'Fleet healthy: no Critical or At-Risk priorities this period.';
-        heroSub  = 'Good baseline. Use this report to confirm current cadence and refresh PM intervals where warranted.';
+        heroSub  = 'Good baseline. Use this report to check your PM schedule and update the intervals that need it.';
       }
 
       return '' +
-        '<div class="tip-banner no-print">Tip: click any dashed field to edit it before saving as PDF - the project or site, who prepared it, and who reviews and approves it.</div>' +
+        '<div class="tip-banner no-print">Tip: before saving as PDF, click any dashed field to edit it. That covers the site, who prepared it, and who reviews and approves it.</div>' +
         '<div class="doc-header-row">' +
           '<div class="doc-title-block">' +
             '<div class="doc-logo">WORKHIVE</div>' +
@@ -1324,14 +1328,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       opts = opts || {};
       var max = opts.max || rows.reduce(function(m, r){ return Math.max(m, Number(r.value) || 0); }, 0);
       if (max <= 0) max = 1;
-      var fmt = opts.fmt || function(v){ return String(v); };
+      // GJ M11: a value that is not a whole number is shown to one decimal - the health bars printed
+      // "17.400000000000006/100", and the unbroken string pushed the phone page 74px sideways
+      var _r1 = function(v){ var n = Number(v); return (isFinite(n) && n % 1) ? String(Math.round(n * 10) / 10) : String(v); };
+      var fmt = opts.fmt || _r1;
       return '<div class="hbar-chart">' + rows.map(function(r){
         var pct = Math.max(2, Math.min(100, (Number(r.value) / max) * 100));
         var sevCls = r.severity ? ' ' + r.severity : '';
         return '<div class="hbar">' +
           '<div class="hbar-label">' + escHtml(safeText(r.label)) + '</div>' +
           '<div class="hbar-track"><div class="hbar-fill' + sevCls + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
-          '<div class="hbar-value">' + escHtml(fmt(r.value)) + '</div>' +
+          '<div class="hbar-value">' + escHtml(fmt(r.value, r, _r1)) + '</div>' +
         '</div>';
       }).join('') + '</div>';
     }
@@ -1699,8 +1706,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           }) +
           (topMode
             ? '<div class="chart-caption"><b>What this means:</b> ' + escHtml(topMode.root_cause || 'top cause') +
-              ' is responsible for ' + topPctTxt + ' of all breakdowns. Targeting this single cause ' +
-              'has the biggest payoff, so review your PM tasks specific to this failure mode.</div>'
+              ' causes ' + topPctTxt + ' of all breakdowns. Fixing this one cause pays off most. ' +
+              'Review the PM tasks that target it.</div>'
             : '');
       }
 
@@ -1721,12 +1728,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         });
         var stoppedCount = segs.find(function(s){ return s.label === 'Stopped production'; });
         var safetyCount  = segs.find(function(s){ return s.label === 'Safety risk'; });
-        var stoppedTxt   = stoppedCount ? stoppedCount.value + ' production stops' : '';
+        // GJ M11 (B3): every count agrees with its noun - the report printed "Of 1 failures"
+        var _n = function (k, one, many) { return k + ' ' + (Number(k) === 1 ? one : many); };
+        var stoppedTxt   = stoppedCount ? _n(stoppedCount.value, 'production stop', 'production stops') : '';
         // ★A CLASSIFICATION IS NOT AN INCIDENT REGISTER (design lens critique, 2026-09-15). This printed
         // 'N safety incidents this period' from the count of failures whose RCM CONSEQUENCE CATEGORY is
         // 'Safety risk'. A supervisor cannot substantiate that sentence from any log he keeps, and it sits
         // in a document with three signature lines. Say what the number is.
-        var safetyTxt    = safetyCount ? safetyCount.value + ' failures classified as a safety risk' : '';
+        var safetyTxt    = safetyCount ? _n(safetyCount.value, 'safety-risk failure', 'safety-risk failures') : '';
         var bits = [stoppedTxt, safetyTxt].filter(function(x){ return x; }).join(' and ');
         // ★THE BAR PRESENTED ITS CLASSIFIED SUBSET AS THE WHOLE (design lens critique, 2026-09-15): the four
         // segments summed to 211 while the report's own KPI strip said 313 total failures, so 102 failures -
@@ -1736,17 +1745,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // the same sum the executive KPI strip prints as 'Total Failures', computed from the same rows
         // (failFreq is already in scope here) rather than from a field invented for this sentence
         var allFailures = failFreq.reduce(function(a, r){ return a + (Number(r.failure_count) || 0); }, 0);
+        // GJ M11 (B3): one fact per sentence - the count with a consequence, then the unclassified rest, then the split
         var denomTxt = segTotal
-          ? 'Of ' + segTotal + ' failures with a consequence recorded'
-            + (allFailures > segTotal ? ' (' + (allFailures - segTotal) + ' of ' + allFailures + ' not yet classified)' : '')
-            + ': '
+          ? _n(segTotal, 'failure has', 'failures have') + ' a consequence recorded. '
+            + (allFailures > segTotal ? _n(allFailures - segTotal, 'more is', 'more are') + ' not yet classified. ' : '')
           : '';
         html +=
           '<h3 style="margin-top:1rem;font-size:var(--wh-fs-sm, 0.85rem);color:var(--wh-violet-950, #1a1132);">2.3 Failure Consequences (RCM, SAE JA1011)</h3>' +
           stackedBar(segs) +
           '<div class="chart-caption"><b>What this means:</b> ' +
-            denomTxt + (bits ? bits + ' this period. ' : '') +
-            'Stopped + safety bars are your highest-priority categories: RCM ranks these above the others.' +
+            denomTxt + (bits ? 'This period: ' + bits + '. ' : '') +
+            'Stopped production and safety risk come first. RCM ranks them above the others.' +
           '</div>';
       }
 
@@ -1768,12 +1777,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         var pVal = pmCorr.p_value != null ? Number(pmCorr.p_value).toFixed(3) : '-';
         var sig  = pmCorr.p_value != null && Number(pmCorr.p_value) < 0.05 && Math.abs(Number(pmCorr.correlation || 0)) >= 0.5;
         var sigCls = sig ? 'red' : 'gray';
+        var _rWord = function (r) { var m = Math.abs(Number(r)); return m < 0.3 ? 'weak link' : m < 0.5 ? 'moderate link' : 'strong link'; };
         var interp = pmCorr.interpretation || (sig ? 'Significant relationship: investigate.' : 'Not statistically significant.');
         html +=
           '<h3 style="margin-top:1rem;font-size:var(--wh-fs-sm, 0.85rem);color:var(--wh-violet-950, #1a1132);">2.5 Are PMs Preventing Failures?</h3>' +
           '<div style="display:flex;gap:0.75rem;align-items:center;margin:0.4rem 0 0.4rem;flex-wrap:wrap;">' +
-            '<span class="sev-chip stat ' + sigCls + '">r = ' + rVal + '</span>' +
-            '<span class="sev-chip stat gray">p = ' + pVal + '</span>' +
+            // GJ M11 (E4): a coefficient alone means nothing to a non-statistician - each chip says what its number means
+            '<span class="sev-chip stat ' + sigCls + '">r = ' + rVal + (pmCorr.correlation != null ? ' · ' + _rWord(pmCorr.correlation) : '') + '</span>' +
+            '<span class="sev-chip stat gray">p = ' + pVal + (pmCorr.p_value != null ? (Number(pmCorr.p_value) < 0.05 ? ' · significant' : ' · not significant') : '') + '</span>' +
             '<span class="doc-fine">' + escHtml(safeText(interp)) + '</span>' +
           '</div>' +
           '<div class="chart-caption"><b>Plain English:</b> ' +
@@ -1812,7 +1823,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         '<h2>3. What\'s Next - Predictive Outlook</h2>' +
         '<p style="color:var(--wh-grey-700, #555);font-size:var(--wh-fs-xs, 0.8rem);margin-bottom:0.5rem;">' +
           'Forecasted from MTBF (mean time between failures) per <i>ISO 13381-1:2015</i>. ' +
-          'Negative "days" means the asset has already lasted longer than its MTBF predicted - failure is overdue.' +
+          'A negative number of days means the asset has outlasted its MTBF. Its failure is overdue.' +
         '</p>';
 
       if (overdueCnt || soonCnt) {
@@ -1842,16 +1853,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                 days = Math.round((_a - _b) / 86400000);
               }
               var isOverdue = days < 0;
-              var daysTxt = isOverdue ? 'Overdue ' + Math.abs(days) + ' days' : 'In ' + days + ' days';
+              var _dd = function (k) { return k + (Math.abs(k) === 1 ? ' day' : ' days'); };   // GJ M11: "In 1 days"
+              var daysTxt = isOverdue ? 'Overdue ' + _dd(Math.abs(days)) : 'In ' + _dd(days);
               var risk = (p.risk || '').toLowerCase();
               var sevCls = risk === 'high' ? 'red' : risk === 'medium' ? 'amber' : 'green';
               var stats =
                 '<b>' + daysTxt + '</b>' + (dateTxt ? ' (' + dateTxt + ')' : '') +
                 ' &middot; MTBF ' + (p.mtbf_days != null ? Number(p.mtbf_days).toFixed(1) + 'd' : '-') +
-                ' &middot; ' + (p.failure_count != null ? p.failure_count : '?') + ' prior failures';
+                ' &middot; ' + (p.failure_count != null ? p.failure_count : '?') + (Number(p.failure_count) === 1 ? ' prior failure' : ' prior failures');
+              // GJ M11 (E4): each card says ITS machine's fact - one sentence repeated under every overdue machine told the
+              // reader nothing about any of them
+              var _mtbf = p.mtbf_days != null ? Math.round(Number(p.mtbf_days)) : null;
               var why = isOverdue
-                ? 'Last failure was longer ago than its average MTBF - statistically due now.'
-                : 'Predicted from average interval between this asset\'s past failures.';
+                ? (_mtbf != null
+                    ? 'Its last failure was ' + _dd(_mtbf + Math.abs(days)) + ' ago; it usually fails every ' + _dd(_mtbf) + '.'
+                    : 'Its last failure was longer ago than its usual interval, so it is due now.')
+                : (_mtbf != null ? 'It usually fails every ' + _dd(_mtbf) + '.' : 'Predicted from the gaps between its past failures.');
               return assetCard({
                 name:  p.machine,
                 chip:  '<span class="sev-chip ' + sevCls + '">' + (p.risk || 'Watch') + '</span>',
@@ -1876,7 +1893,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         });
         html +=
           '<h3 style="margin-top:1rem;font-size:var(--wh-fs-sm, 0.85rem);color:var(--wh-violet-950, #1a1132);">3.2 Asset Health Scores (0-100)</h3>' +
-          hbarChart(healthBars, { max: 100, fmt: function(v){ return (100 - v) + '/100'; } }) +
+          hbarChart(healthBars, { max: 100, fmt: function(v, r, r1){ return r1(r._score) + '/100'; } }) +
           '<div class="chart-caption"><b>Reading the chart:</b> ' +
             'a LONGER bar is further from healthy. Red = under 30 (critical), amber = 30-60 (degrading), green = 60+ (healthy). ' +
             'Composite of failure count, downtime, MTBF, and recency.' +
@@ -2003,7 +2020,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         pmTable =
           '<p style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-grey-800, #444);margin:0.25rem 0 0.5rem;">' +
             'Across ' + pmIntervals.length + ' assets: ' + summaryBits + '. ' +
-            'The 6 assets below have the biggest gap between their current PM interval and their measured MTBF: fix these first.' +
+            'The 6 assets below have the widest gap between their PM interval and their measured MTBF. Fix these first.' +
           '</p>' +
           '<div class="asset-card-grid">' +
             topAdjust.map(function(r){
@@ -2027,7 +2044,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                     escHtml(r.asset_name || ''),
                 why: isRoot
                   ? 'Already at the tightest schedulable interval and still failing early: inspecting more often cannot help.'
-                  : 'Failures hitting more often than the current PM cadence catches.',
+                  // GJ M11 (E4): each row says ITS numbers - one sentence repeated six times said nothing about any machine
+                  // and names its machine: three machines with the same two numbers printed one identical sentence
+                  : (r.machine_code || r.asset_name || 'It') + ' fails about every ' + mtbf.toFixed(0) + ' days, but its PM runs every ' + cur.toFixed(0) + '.',
               });
             }).join('') +
           '</div>' +

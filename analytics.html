@@ -2424,12 +2424,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const costed = rows.filter((r) => r.parts_cost != null);
     const total = costed.reduce((n, r) => n + Number(r.parts_cost || 0), 0);
     const basis = '<p class="card-note" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0.5rem 0 0;">'
-      + escHtml('Priced ' + priced + ' of ' + (priced + unpriced) + ' parts used')
-      + (unpriced ? escHtml(' - ' + unpriced + ' have no unit cost on record, so they are not in the totals (set one on the part\'s Edit form in Inventory)') : '')
-      + escHtml('. Labour and outside services are not counted.') + '</p>';
+      // GJ M11: short sentences, each saying one thing (the first cut ran 30 words and the empty state repeated it)
+      + escHtml('Priced ' + priced + ' of ' + (priced + unpriced) + ' parts used.')
+      + (unpriced ? escHtml(' The other ' + unpriced + ' have no unit cost, so they are left out.') : '')
+      + escHtml(' Labour and outside services are not counted.') + '</p>';
     if (!costed.length) {
       slot.innerHTML = '<div class="card"><h2 class="card-title">' + escHtml(title) + ' <span class="card-standard">' + escHtml(std) + '</span></h2>'
-        + '<div class="empty">' + escHtml('None of the ' + unpriced + ' parts used in the last ' + days + ' days has a unit cost yet, so no peso figure can be given.') + '</div>' + basis + '</div>';
+        + '<div class="empty">' + escHtml('No part used in the last ' + days + ' days has a unit cost yet. Add one on the part\'s Edit form in Inventory.') + '</div></div>';
       return;
     }
     const list = renderListWithShowAll({

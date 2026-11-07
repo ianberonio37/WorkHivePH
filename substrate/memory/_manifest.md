@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1093-files
-source_sha: 617209e54fdae6a0
+source: memory-curated:1099-files
+source_sha: 5a1a7b772474f854
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1093 durable topic files)
+## memory · curated auto-memory (1099 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=694 · project=306 · reference=93
+**By type:** feedback=700 · project=306 · reference=93
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -28,6 +28,7 @@ Entries (name · type · sha):
 - `feedback_42501_told_a_signed_in_buyer_to_sign_in` · feedback · e6bf2d7684259756
 - `feedback_87pct_of_entries_could_not_be_edited_by_their_authors` · feedback · 0a7626785c7a31ff
 - `feedback_a_backtick_in_a_comment_broke_the_page` · feedback · dd06367dad4e9dba
+- `feedback_a_base_layer_injected_late_beats_the_page` · feedback · a120dcb2029cc5ee
 - `feedback_a_baseline_page_must_be_served_like_the_page` · feedback · 3da261006cc1b31c
 - `feedback_a_basis_must_describe_the_page_in_its_own_receipt` · feedback · 1fce6d5fc53aa694
 - `feedback_a_big_finding_set_is_a_signal_to_check_the_record` · feedback · 664e95e988ba2da8
@@ -55,6 +56,7 @@ Entries (name · type · sha):
 - `feedback_a_confirm_dialog_can_pass_a_double_tap_test` · feedback · e6fe81cb20f5d50d
 - `feedback_a_contrast_reading_needs_the_canvas_the_page_paints` · feedback · 9c6d99afad924b13
 - `feedback_a_control_is_reached_the_way_its_person_reaches_it` · feedback · 6240ff288d3b3868
+- `feedback_a_copy_edit_breaks_the_walks_marker` · feedback · e202e30e94168321
 - `feedback_a_count_of_small_targets_is_not_a_count_of_defects` · feedback · 2c87f0c547a163dc
 - `feedback_a_crashlooping_sidecar_failed_26_tests` · feedback · 5d9635f833659a4e
 - `feedback_a_credential_lived_where_no_gate_looked` · feedback · 89ae2e7af003f369
@@ -109,6 +111,7 @@ Entries (name · type · sha):
 - `feedback_a_hand_set_fixture_is_not_a_reachable_state` · feedback · d597a08046039864
 - `feedback_a_healthy_page_shows_neither_its_errors_nor_its_buttons` · feedback · 9a91c83de2bcc335
 - `feedback_a_heredoc_halves_backslashes_so_an_apostrophe_broke_the_page` · feedback · a9d37151ec1da382
+- `feedback_a_hex_boundary_is_not_a_name_boundary` · feedback · ec92eee2b05d3bea
 - `feedback_a_journey_path_is_a_route_not_a_list` · feedback · 24bf309aa7f1ac28
 - `feedback_a_journey_prover_has_four_blind_spots` · feedback · d637f954b3c4f68f
 - `feedback_a_killed_walk_skips_its_cleanup` · feedback · b07ef3d1eef2e36b
@@ -133,7 +136,7 @@ Entries (name · type · sha):
 - `feedback_a_migration_must_carry_the_rules_that_targeted_the_old_element` · feedback · 4cbd474ba1f5b8e3
 - `feedback_a_mirror_guarantees_agreement_not_correctness` · feedback · bc5c3bbb3df3713f
 - `feedback_a_more_specific_label_on_unchanged_behaviour_is_a_lie` · feedback · 5a19f1c03ab2a664
-- `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 3be8c11ca39adf91
+- `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 8623f1fa395ee797
 - `feedback_a_name_is_not_an_identity` · feedback · 33f4821e7a1aeaeb
 - `feedback_a_needs_ian_list_is_a_stop` · feedback · 2ebd443668a5d1d1
 - `feedback_a_new_audience_reveals_the_lane_you_forgot` · feedback · a09bf8f30cb84ea7
@@ -154,6 +157,7 @@ Entries (name · type · sha):
 - `feedback_a_policy_that_hides_a_row_refuses_the_update_that_hides_it` · feedback · da7b9c23a31e27ac
 - `feedback_a_predicate_that_never_checks_a_caller_is_not_an_access_rule` · feedback · 0e224662e0ecf3a7
 - `feedback_a_preservation_rule_on_one_side_of_a_paired_write` · feedback · 20e48974ab853425
+- `feedback_a_print_window_is_paper` · feedback · b533c7789469e0a5
 - `feedback_a_promise_that_never_settles_is_invisible` · feedback · b57e2eb1534f2cff
 - `feedback_a_prompt_built_for_a_field_no_server_reads` · feedback · ca86552684b0eb6a
 - `feedback_a_prose_comment_was_expiring_evidence` · feedback · 2fc3af5a33d21220
@@ -217,6 +221,7 @@ Entries (name · type · sha):
 - `feedback_a_truth_view_exposes_the_flag_callers_must_filter` · feedback · 179705228b426243
 - `feedback_a_typeof_guard_made_the_missing_file_silent` · feedback · a706437e4ce648ea
 - `feedback_a_valid_session_is_not_a_cast_persona` · feedback · b26dc65169c62fb9
+- `feedback_a_value_rebuilt_by_undoing_a_transform_prints_float_noise` · feedback · 6ef95bb8c16030b2
 - `feedback_a_value_that_is_not_a_key_falls_back_silently` · feedback · ec7fdf78192bca96
 - `feedback_a_vector_copied_from_the_engine_locks_its_error` · feedback · 040d25e4b7747168
 - `feedback_a_vector_search_tested_with_literals_hides_its_real_plan` · feedback · b22348ed24e36f57
@@ -344,6 +349,7 @@ Entries (name · type · sha):
 - `feedback_error_on_returning_is_not_a_failed_write` · feedback · 226c0693c07f5df4
 - `feedback_eval_refusal_detection_multilingual` · feedback · c9a771b27fb1a81b
 - `feedback_every_ai_answer_needs_the_same_three_things` · feedback · 3041f30b2837c4ff
+- `feedback_every_screen_of_a_page_is_a_page` · feedback · 46b44d7392382f59
 - `feedback_every_video_shipped_10db_quiet_no_one_measured` · feedback · ab5fc253b6bc06c2
 - `feedback_expand_dimensions_not_reverify` · feedback · cb9386cdf70a09d6
 - `feedback_expansion_arc_flywheel_with_inloop_crawl` · feedback · 1e46290519d16bee
@@ -510,12 +516,6 @@ Entries (name · type · sha):
 - `feedback_playwright_mcp_dont_inject_signin_instead` · feedback · 4ae9c1a1f56e43e2
 - `feedback_post_test_run_be_proactive_no_ask` · feedback · 853ee3a3e14af367
 - `feedback_powershell_ascii` · feedback · ecc8275e5564f4ea
-- `feedback_pptxgenjs_rounding_clips_to_an_ellipse` · feedback · 24ec0bd777ff1720
-- `feedback_proactive_flywheel_no_meta_questions` · feedback · b194359dc5fb3f9b
-- `feedback_production_cron_never_reached_a_function` · feedback · 93f9f253a782798a
-- `feedback_production_fixes_log` · feedback · 88ce8203d05a21f5
-- `feedback_proposal_first_ux_mockup_loop` · feedback · b63fd33f3c5501e4
-- `feedback_provenance_user_voice_not_internals` · feedback · d625e82bd6e7f509
-- … +593 more (all included in the fingerprint)
+- … +599 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

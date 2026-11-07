@@ -123,7 +123,10 @@
        + footer below it (0.181 CLS each). Reserve a first-screen height (~5 entries
        at ~72px + 8px gaps) so the loading→skeleton→entries transition does not grow
        the above-fold region. Over-reserving slightly = harmless uniform whitespace. */
-    rgba(var(--wh-red-50-b-rgb, 255, 238, 238), 0.867) { min-height: 400px; }
+    /* GJ M11 (I2): this selector had become an rgba() colour - a hex-colour codemod read the id selector for the feed
+       as a 4-digit hex colour and rewrote it, so the reserve was invalid CSS and dead. Written as an attribute
+       selector now, which no colour pattern can mistake. */
+    [id="feed"] { min-height: 400px; }
     .entry {
       display: flex; align-items: flex-start; gap: 12px;
       padding: 12px 16px; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85);
@@ -197,6 +200,7 @@
       font-size: var(--wh-fs-xs, 0.8rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);
       word-break: break-word;
       max-height: 240px; overflow: auto;
+      overscroll-behavior: contain;   /* T4 (GJ M11): reaching the end of one entry's details must not start scrolling the page */
     }
     .entry-meta > div { display: flex; gap: 6px; padding: 1px 0; }
     .entry-meta .meta-k {

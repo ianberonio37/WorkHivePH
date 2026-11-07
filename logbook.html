@@ -176,13 +176,13 @@
     .consequence-btn:active { transform: scale(0.97); }
     .consequence-btn.selected {
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);
-      color: var(--wh-orange);
+      color: var(--wh-orange-text);   /* C2/C5 (GJ M11): accent text on a dark tint uses the -text token */
     }
     .consequence-btn[data-value="Safety risk"].selected {
-      background: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.12); border-color: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.4); color: var(--wh-red);
+      background: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.12); border-color: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.4); color: var(--wh-red-text);
     }
     .consequence-btn[data-value="Stopped production"].selected {
-      background: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.12); border-color: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.4); color: var(--wh-red);
+      background: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.12); border-color: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.4); color: var(--wh-red-text);
     }
     .consequence-icon { font-size: var(--wh-fs-lead-plus, 1.125rem); line-height: 1; }
     .consequence-title { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; color: inherit; }
@@ -416,10 +416,11 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Search highlight */
+    /* Search highlight. GJ M11 (C2): orange-light ink on this 30% orange tint measured 4.32:1 on inventory's identical rule;
+       the tint marks the match and the text keeps the light ink. */
     mark {
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);
-      color: var(--wh-orange-light);
+      color: var(--wh-cloud);
       border-radius: 0;
       padding: 0 2px;
     }
@@ -4949,10 +4950,10 @@ function consequenceBadge(e) {
   const severe = t.indexOf('safety') >= 0 || t.indexOf('stopped') >= 0;
   const mid    = t.indexOf('reduced') >= 0;
   const style = severe
-    ? 'background:rgba(239,68,68,0.12);color:var(--wh-red);border:1px solid rgba(239,68,68,0.3);'
+    ? 'background:rgba(239,68,68,0.12);color:var(--wh-red-text);border:1px solid rgba(239,68,68,0.3);'   // C2 (GJ M11): 4.31:1 with --wh-red
     : mid
       ? 'background:rgba(247,162,27,0.12);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);'
-      : 'background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);';
+      : 'background:rgba(255,255,255,0.06);color:var(--wh-text-muted, rgba(255,255,255,0.80));border:1px solid rgba(255,255,255,0.12);';
   return '<span class="text-xs font-semibold px-2 py-0.5 rounded-full" title="What this failure did to the plant"'
     + ' style="' + style + '">' + escHtml(String(v)) + '</span>';
 }
@@ -5015,14 +5016,15 @@ function statusBadge(status) {
 // to match the workflow stage. Includes the assignee initials when present.
 function woStateBadge(wo_state, wo_assigned_to) {
   if (!wo_state) return '';
+  // C2 (GJ M11): pill TEXT uses the -text tokens; the 400-weight accents stay as the tint (assigned read 3.96:1)
   const colors = {
-    requested:   { bg: 'rgba(247,162,27,0.12)',  fg: '#F7A21B', border: 'rgba(247,162,27,0.3)'  },
-    approved:    { bg: 'rgba(41,182,217,0.12)',  fg: '#29B6D9', border: 'rgba(41,182,217,0.3)'  },
-    assigned:    { bg: 'rgba(167,139,250,0.12)', fg: '#a78bfa', border: 'rgba(167,139,250,0.3)' },
-    in_progress: { bg: 'rgba(251,146,60,0.15)',  fg: '#f7a21b', border: 'rgba(251,146,60,0.3)'  },
+    requested:   { bg: 'rgba(247,162,27,0.12)',  fg: 'var(--wh-orange-text, #FDB94A)', border: 'rgba(247,162,27,0.3)'  },
+    approved:    { bg: 'rgba(41,182,217,0.12)',  fg: 'var(--wh-blue-text, #5FCCE8)', border: 'rgba(41,182,217,0.3)'  },
+    assigned:    { bg: 'rgba(167,139,250,0.12)', fg: 'var(--wh-violet-text, #C4B5FD)', border: 'rgba(167,139,250,0.3)' },
+    in_progress: { bg: 'rgba(251,146,60,0.15)',  fg: 'var(--wh-orange-text, #FDB94A)', border: 'rgba(251,146,60,0.3)'  },
     completed:   { bg: 'rgba(74,222,128,0.12)',  fg: '#4ade80', border: 'rgba(74,222,128,0.3)'  },
     verified:    { bg: 'rgba(34,197,94,0.15)',   fg: '#4ade80', border: 'rgba(34,197,94,0.3)'   },
-    rejected:    { bg: 'rgba(239,68,68,0.15)',   fg: '#f87171', border: 'rgba(239,68,68,0.3)'   },
+    rejected:    { bg: 'rgba(239,68,68,0.15)',   fg: 'var(--wh-red-text, #FDC9C9)', border: 'rgba(239,68,68,0.3)'   },
   };
   const c = colors[wo_state] || colors.requested;
   const label = wo_state.replace('_', ' ');
@@ -5580,7 +5582,9 @@ async function openModal(id) {
     ${_canMoveWorkOrder(entry) ? `
     <div id="wo-actions" class="pt-2 mt-2">
       <p class="text-xs mb-2" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">As supervisor you move its work order: assign it, approve it, verify the work or reject it. What ${escHtml(entry.worker_name || 'they')} wrote stays theirs.</p>
-      <button type="button" onclick="pickWorkOrderMove('${escJsAttr(entry.id)}')" class="btn-secondary w-full text-sm">Move the work order</button>
+      <!-- A1 (GJ M11 round 2, J23): the supervisor's one action on a member's entry is its primary - it was the only button
+           on the screen and wore the secondary outline -->
+      <button type="button" onclick="pickWorkOrderMove('${escJsAttr(entry.id)}')" class="btn-primary w-full text-sm">Move the work order</button>
     </div>` : ''}
     ${_canAdvanceAssigned(entry) ? `
     <div id="wo-assignee-actions" class="pt-2 mt-2">
@@ -8360,7 +8364,7 @@ function renderOpenJobs(entries) {
         </div>
         <div class="text-right flex-shrink-0 ml-2">
           <p class="text-xs" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month:'short', day:'numeric' }) : ''}</p>
-          <p class="text-xs font-bold mt-0.5" style="color:var(--wh-red);">Open</p>
+          <p class="text-xs font-bold mt-0.5" style="color:var(--wh-red-text, #FDC9C9);">Open</p>
         </div>
       </div>
     </div>`).join('') + overflowMsg;

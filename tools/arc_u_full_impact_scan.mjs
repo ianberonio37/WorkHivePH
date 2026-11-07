@@ -20,7 +20,7 @@ const AXE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.2/axe.min.
 // field-tech mobile persona (mirror of browser_ci_persona_walk.mjs).
 const PERSONA = {
   email: 'bryangarcia@auth.workhiveph.com', worker: 'Bryan Garcia', role: 'worker',
-  hive: '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7', vw: 390, vh: 780,
+  hive: '084c113b-99c0-45c6-a8e8-b4b8349da46d', vw: 390, vh: 780,
 };
 const PAGE_QUERY = { 'marketplace-seller-profile.html': '?worker=Bryan%20Garcia' };
 const PAGES = [

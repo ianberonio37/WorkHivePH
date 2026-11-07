@@ -60,6 +60,56 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
+# M11 release (2026-11-07) - the group's UX face
+
+> **Prepared and verified locally on 2026-11-07.** M11 is the fifth group-journey milestone (§GJ.12): every screen each
+> member meets in a group walk, graded where they meet it, at phone-390 and desktop-1280. 80/80 rows locking; all
+> 127 hand-offs hold at both viewports. Walking
+> them found a public page with no way to send feedback (it pointed at a button retired in July), a report printing
+> `17.400000000000006/100`, a printed shift handover whose section label printed white on white, and - already in
+> production since `cadf57fa` - two "post" buttons (community's Write a new post, marketplace's Post a listing) rendering
+> unstyled because a colour codemod had rewritten their selector `#fab-post` as `var(--wh-rose-200, #fab)-post`. M11 ships what landed since M10 (`7c957609`, production serves
+> `workhive-shell-v593`).
+>
+> | Leg | Payload | Measured how |
+> |---|---|---|
+> | **A · DB** | none | `git diff 7c957609..HEAD -- supabase/migrations` empty |
+> | **B · Edge** | `intelligence-report` (one sentence of its not-enough-hives summary, active voice) | stamp, deploy, `verify_function_builds.py --target prod` |
+> | **C · Frontend** | 27 pages (incl. the 3 calculator pages and feedback/), `utils.js` (skeleton container mark; figures named by what they show; one error sentence; the presence row's "+N more" is a button), `nav-hub.js` (no second tokens.css after a page's own styles), `kpi-calc.js`, `operator-actions.js` (regenerated), `wh-feedback-fab.js` ("Your reports" scrolls its own body), `sw.js` v594 | the pre-push board, then smoke at v594 |
+>
+> **Order: B -> C** (independent; B first so the summary sentence and the page agree).
+
+### What a person using WorkHive will notice (release notes)
+
+> - The round "post" buttons on Community and the Marketplace are back to their orange circle in the corner (they had
+>   shown as a plain grey button under the page since an earlier release).
+> - The public feedback board has a Send feedback button again, and a short guide to how voting and statuses work.
+> - An opened project and an opened PM asset each say what they are, where their figures come from, and lead with their
+>   main action (log progress; add a PM task).
+> - Reports read cleanly on a phone: no sideways scroll, rounded health scores, plain-language statistics.
+> - The printed shift handover is legible on paper and says when it was generated.
+> - Many sentences are shorter and say who did what; text that was hard to read on dark backgrounds is brighter.
+
+### The skipped gates this release reaches (`tools/skipped_gates_for_diff.py`)
+Seven skip_if_fast gates pin words M11 changed. Six PASS: kicked-rejoin-is-explained, fixture-hive-exists,
+lifecycle-state-reachability, removal-tells-the-worker, fixture_capability_coverage, public-feed-walk.
+**recovery-path is red, and was red long before M11.** The gate's own 20-minute limit killed it on this host, so it was
+run directly, without a limit (it presses destructive controls and restores them): **40/42 reached controls work; 2 BAD
+and 29 NOT REACHED.**
+- **The two BADs were stale fixtures, fixed and re-read:** the duplicate-hail path named a consumer service ("Aircon
+  Repair") that a hive member is never offered (the rate card is segmented), and the duplicate-asset path typed a name
+  but no category, so Next stopped at "Please select a category". Each now reads its fixture from what the page offers;
+  marketplace 4/4, pm-scheduler 3/3. The FMEA-mode delete path named BLR-001, whose modes the 2026-10-26 reseed
+  approved (a mode's Delete renders only before approval); it now opens the first asset with a pending mode: asset-hub 3/3.
+  The duplicate-hail and duplicate-asset guards both work.
+- **The 29 NOT REACHED are rostered confirms and prompts no path was ever authored for**, added between May and
+  November: password reset and set (index, 7), the operator console's actions on the retired platform-actions and
+  marketplace-admin pages (9), community moderation and sharing (4), change orders (3), and one each on alert-hub,
+  dayplanner, inventory, logbook (2) and shift-brain. They are owed paths, not page defects. Authoring them is the first
+  unit after this release.
+
+---
+
 # M10 release (2026-11-06) - founder and public hand-offs ✅ DEPLOYED
 
 > **✅ M10 DEPLOYED 2026-11-06: the founder and public hand-offs are in production.** Production serves

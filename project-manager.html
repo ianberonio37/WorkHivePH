@@ -174,19 +174,22 @@
   .status-planning  { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: var(--muted); }
   .status-active    { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
   .status-on_hold   { background: rgba(var(--wh-amber-rgb, 250, 204, 21), 0.18); color: var(--amber); }
-  .status-complete  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
+  .status-complete  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--wh-blue-text, #5FCCE8); }   /* C2 (GJ M11): brand blue on its own tint read 3.9:1; the text-tuned blue, as cancelled uses red-text */
   .status-cancelled { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.18);  color: var(--wh-red-text, #FDC9C9); }
   .status-archived  { background: var(--wh-white-04, rgba(255,255,255,0.04)); color: var(--muted); }
   /* A scope item's status pill is a BUTTON (2026-10-12, W4673). It was a <span onclick>: utils.js's polyfill made it
      focusable, but as a bare "in progress, button" - a name that never said pressing it changes the task's status -
      and ~20px tall. A native button named "<status>: change to <next>", same look; 24px is the WCAG 2.5.8 minimum. */
-  button.status-pill { border: 0; font-family: inherit; cursor: pointer; min-height: 24px; line-height: 1.2; }
+  /* GJ M11 (F1): the tap target is 44px tall and the pill still draws at its own size - a transparent 10px top and bottom
+     border takes the taps, and the background is clipped to the padding box so only the pill is painted */
+  button.status-pill { border-style: solid; border-color: transparent; border-width: 10px 0; background-clip: padding-box;
+    font-family: inherit; cursor: pointer; min-height: 44px; line-height: 1.2; }
 
   /* ── Detail view ──────────────────────────────────────────── */
   #detail-view { display: none; }
   #detail-view.open { display: block; }
   .detail-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; }
-  .detail-head h2 { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 700; margin: 4px 0; }
+  .detail-head h1, .detail-head h2 { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 700; margin: 4px 0; }
   .detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; overflow-x: auto; scroll-behavior: smooth; }
   .detail-tabs button {
     background: transparent; border: none; border-bottom: 2px solid transparent;
@@ -210,7 +213,10 @@
     .detail-tabs button { padding: 12px 12px; }
   }
   .detail-pane { display: none; }
-  .detail-pane.active { display: block; }
+  /* GJ M11 (I2): the pane fills after six reads land; it holds its place meanwhile instead of starting at zero height */
+  .detail-pane.active { display: block; min-height: 240px; }
+  /* GJ M11 (A2/C3): the scope pane is tables only - it sits on one bordered surface, so the WBS reads as a region */
+  #pane-scope.active { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
 
   /* ── KPI tiles ────────────────────────────────────────────── */
   .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
@@ -219,7 +225,7 @@
     padding: 12px 16px;
   }
   .kpi-label { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-  .kpi-value { font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; margin-top: 4px; }
+  .kpi-value { font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }   /* C4 (GJ M11) */
   .kpi-sub { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); margin-top: 2px; }
   .kpi.green .kpi-value { color: var(--green); }
   .kpi.amber .kpi-value { color: var(--amber); }
@@ -274,9 +280,23 @@
     /* HS L1/L5 (2026-10-30): a role pill carries a name, who assigned it and when ("Rodel Ignacio (former member) · by
        Ernesto Villareal Oct 10") - on a phone it ran past the screen's edge. It wraps inside the screen instead. */
     max-width: 100%; flex-wrap: wrap; overflow-wrap: anywhere;
+    /* GJ M11 (Z2/T2): tokens.css sets every [class$="-pill"] nowrap (a status chip is one word); a link pill carries a
+       record's whole title, and on a phone "Cable Sizing (Voltage Drop): MCC feeder ... (Christine Dizon, Oct 14, 2026)"
+       pushed the page 130px sideways. This pill's text wraps. */
+    white-space: normal;
   }
-  .link-pill button { background: transparent; border: none; color: var(--muted); padding: 0 0 0 4px; font-size: var(--wh-fs-lead-plus, 1.125rem); line-height: 1; cursor: pointer; }
+  /* GJ M11 (F1): the × that removes a link or a person was 17px wide - a 44px square, pulled into the pill's padding */
+  .link-pill button { background: transparent; border: none; color: var(--muted); padding: 0; min-width: 44px; min-height: 44px; margin: -12px -12px -12px -8px; display: inline-flex; align-items: center; justify-content: center; font-size: var(--wh-fs-lead-plus, 1.125rem); line-height: 1; cursor: pointer; }
+  /* GJ M11 (A3): a WBS phase folds; the flex summary draws the platform's chevron (the native triangle is lost to flex) */
+  .pm-phase > summary { list-style: none; }
+  .pm-phase > summary::-webkit-details-marker { display: none; }
+  .pm-phase > summary::after { content: ''; margin-left: auto; flex: 0 0 auto; width: 8px; height: 8px; border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor; color: var(--muted); transform: rotate(45deg) translateY(-2px); transition: transform 150ms ease-out; }
+  .pm-phase[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
+  @media (prefers-reduced-motion: reduce) { .pm-phase > summary::after { transition: none; } }
   .link-type { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  /* GJ M11 (F1): a suggestion is a tap that links work to the project - a real button, 44px tall (it was a 27px span) */
+  .link-pill.link-suggest { min-height: 44px; cursor: pointer; font: inherit; font-size: var(--wh-fs-xs, 0.8rem); color: inherit; text-align: left; }
 
   /* ── Toast ────────────────────────────────────────────────── */
   #toast-container { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: var(--wh-z-toast-4, 1000); pointer-events: none; }
@@ -543,15 +563,26 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <div class="detail-head">
       <div>
         <span class="pcode" id="d-code"></span>
-        <h2 id="d-name" translate="no"></h2>
+        <!-- GJ M11 (A1): an opened project is the page's subject, so its name is the page's heading; the list's
+             "Project Manager" h1 is hidden while a project is open, which left the detail view with no h1 at all -->
+        <h1 id="d-name" translate="no"></h1>
         <div class="row" style="gap: 6px; margin-top: 4px;">
           <span class="ptype-pill" id="d-type"></span>
           <span class="status-pill" id="d-status"></span>
           <span class="small" id="d-priority" style="color: var(--muted);"></span>
         </div>
+        <!-- GJ M11 (E3/G1): where the figures below come from and when they were read, filled with the project -->
+        <div id="d-source"></div>
       </div>
-      <div class="row" style="gap: 6px;">
-        <button class="btn small" onclick="openEditProject()" data-i="edit">Edit</button>
+      <!-- GJ M11 (Z3): Delete stands clear of Edit - a slip from one to the other deletes a project. 28px, not 24: the
+           buttons sit on sub-pixel edges and an exact 24px gap measured 23.99 -->
+      <div class="row" style="gap: 28px;">
+        <!-- GJ M11 (A1): an opened project's main job is its daily progress report - the page's one field-capture
+             write - so the header leads with it, not only the Daily log tab -->
+        <div class="row" style="gap: 6px;">
+          <button class="btn primary small" onclick="openProgressLog()" data-i="logprogress">+ Log progress</button>
+          <button class="btn small" onclick="openEditProject()" data-i="edit">Edit</button>
+        </div>
         <button class="btn small danger" onclick="deleteProject()" data-i="delete">Delete</button>
       </div>
     </div>
@@ -2309,6 +2340,14 @@ async function openDetail(id) {
   $('d-status').className = 'status-pill status-' + data.status;
   $('d-status').textContent = data.status.replace('_', ' ');
   $('d-priority').textContent = '· ' + data.priority + ' priority';
+  if (typeof renderSourceChip === 'function') {
+    $('d-source').innerHTML = renderSourceChip({
+      freshness: 'Live data',
+      source: 'v_project_items_truth',
+      sourceLabel: "this project's scope, links, team and progress reports",
+      possessive: false,
+    });
+  }
   buildDetailTabs(data.project_type);
 
   // Load children + rollup + roles + change_orders in parallel
@@ -2578,22 +2617,29 @@ function renderScope() {
     const items = byPhase[p];
     const phaseLabel = p ? PHASE_LABELS[p] : 'Other';
     const phaseClass = p ? `phase-${p}` : 'phase-pre';
+    // GJ M11 (A3): a phase is a disclosure - a finished phase folds once the scope is long; work still open stays open
+    const _open = _items.length <= 12 || items.some(it => it.status !== 'done');
     return `
-      <div style="margin-bottom: 16px;">
-        <div style="display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); margin-bottom:6px;">
+      <details class="pm-phase" ${_open ? 'open' : ''} style="margin-bottom: 16px;">
+        <summary style="display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); margin-bottom:6px; min-height:44px; cursor:pointer;">
           <span class="phase-tag ${phaseClass}">${e(phaseLabel)}</span>
-          <span class="small" style="color:var(--muted);">${items.length} item${items.length === 1 ? '' : 's'}</span>
-        </div>
+          <span class="small" style="color:var(--muted);">${items.length} item${items.length === 1 ? '' : 's'}${items.every(it => it.status === 'done') ? ' · all done' : ''}</span>
+        </summary>
         <!-- table-name-allow: project WBS / scope data table --> <div class="wh-scroll-x"><table>
           <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th>Progress</th><th>Due</th><th>Est</th><th></th></tr></thead>
           <tbody>${items.map(renderRow).join('')}</tbody>
         </table></div>
-      </div>`;
+      </details>`;
   }).join('') : `
+    <details class="pm-phase" open>
+      <summary style="display:flex; gap:8px; align-items:center; padding:6px 0; margin-bottom:6px; min-height:44px; cursor:pointer;">
+        <span class="small" style="color:var(--muted);">All ${_items.length} scope item${_items.length === 1 ? '' : 's'}</span>
+      </summary>
     <!-- table-name-allow: project WBS / scope data table --> <div class="wh-scroll-x"><table>
       <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th>Progress</th><th>Due</th><th>Est</th><th></th></tr></thead>
       <tbody>${_items.map(renderRow).join('')}</tbody>
-    </table></div>`;
+    </table></div>
+    </details>`;
 
   $('pane-scope')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
@@ -2820,7 +2866,7 @@ function renderLinked() {
     return `<div style="margin-bottom: 12px;">
       <h4 style="font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${labels[k]}</h4>
       <div>${items.map(l => `
-        <span class="link-pill" data-link-id="${e(l.id)}">${e(l.label || l.link_id || '-')}${l.linked_by ? ` <span class="small" style="color: var(--muted);">· linked by ${e(l.linked_by)}, ${e(fmtDate(l.created_at))}</span>` : ''} <button onclick="removeLink('${escJsAttr(l.id)}')" title="Remove" aria-label="Remove link ${e(l.label || l.link_id || '')}">×</button></span>
+        <span class="link-pill" data-link-id="${e(l.id)}"><span data-user-content>${e(l.label || l.link_id || '-')}</span>${l.linked_by ? ` <span class="small" style="color: var(--muted);">· linked by ${e(l.linked_by)}, ${e(fmtDate(l.created_at))}</span>` : ''} <button onclick="removeLink('${escJsAttr(l.id)}')" title="Remove" aria-label="Remove link ${e(l.label || l.link_id || '')}">×</button></span>
       `).join('')}</div>
     </div>`;
   }).join('');
@@ -2830,14 +2876,15 @@ function renderLinked() {
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">Consider linking related work to this project.</div>
       <div>
         ${_linkSuggestions.map((c, i) => `
-          <span class="link-pill" style="cursor:pointer;" onclick="linkSuggested(${escJsAttr(i)})" title="Click to link">
+          <button type="button" class="link-pill link-suggest" onclick="linkSuggested(${escJsAttr(i)})" aria-label="${e('Link ' + (c.machine || '?') + ': ' + (c.problem || '').slice(0, 50) + ' to this project')}">
             ${e((c.machine || '?') + ': ' + (c.problem || '').slice(0, 50))} <span style="color: var(--gold);">+ link</span>
-          </span>`).join('')}
+          </button>`).join('')}
       </div>
     </div>` : '';
   $('pane-linked')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-      <div class="small" style="color: var(--muted);">${_links.length} ${escHtml(_t('linked item(s): pull existing logbook entries, PMs, parts, contractor info into this project', 'naka-link na item: hilahin ang mga umiiral na logbook entry, PM, parts at contractor info papasok sa proyektong ito'))}</div>
+      <!-- GJ M11 (B3): the count, then what can be linked - one short sentence each (it read at grade 10) -->
+      <div class="small" style="color: var(--muted);">${escHtml(_links.length === 1 ? '1 linked item.' : _links.length + ' linked items.')} ${escHtml('Link logbook entries, PMs, parts or a contractor.')}</div>
       <span class="row" style="gap: 8px;">
         <!-- D3 (2026-10-16): a removed link waits in Recently deleted for 30 days. -->
         <button class="btn small" type="button" aria-haspopup="dialog" aria-expanded="false" onclick="_pmRecentlyRemoved(this)" data-table="project_links" data-title="Recently removed links">Recently removed</button>
