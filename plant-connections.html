@@ -276,7 +276,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the page's own reads say what failed */ }
       await _hiveSeated;   // BRH-H: the hive (and its role) as the account holds them, before the no-hive redirect
       HIVE_ID = whHiveId() || '';
-      if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
+      if (!HIVE_ID) {
+        if (typeof whNoHiveGate === 'function') whNoHiveGate('Join or create a hive to set up Connections',
+          "Connections links your hive's CMMS, sensors and gateway. It is a team tool, so you need a hive first.");
+        else window.location.href = 'hive.html?return=plant-connections.html';
+        return;
+      }
       HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
       const _rr = await _roleReady;
       if (_rr) HIVE_ROLE = _rr.now || '';

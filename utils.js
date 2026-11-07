@@ -1101,6 +1101,39 @@ if (typeof window !== 'undefined') window.whCleanNumericPaste = whCleanNumericPa
 // (logbook / asset-hub / engineering-design / alert-hub / audit-log / integrations / ...)
 // instead of editing each gate. Runs at DOMContentLoaded for static gates AND on click
 // (capture) so a gate rendered later is still covered.
+// ★A HIVE-ONLY PAGE SAYS WHY, IN PLACE (critic BRH39/BRH63, 2026-11-07). ai-quality, plant-connections and community sent a
+// signed-in person with no hive to hive.html - two with no return - so a solo owner who opened AI Quality arrived on a
+// different page with no reason given. ph-intelligence's gate is the model: it replaces <main> (the page's own h1 goes
+// with it, so the gate carries the screen's h1), sits on one card, and its way forward is hive.html?return=<this page>,
+// whose banner names the page and brings the person back once they have a hive. Static copy from the caller; escaped.
+function whNoHiveGate(title, body, opts) {
+  try {
+    opts = opts || {};
+    var main = document.querySelector('main') || document.body;
+    // a <main> with no side padding of its own (community) would put the card on the screen's edge: give it the 16px gutter
+    var gut = 0;
+    try { gut = parseFloat(getComputedStyle(main).paddingLeft) < 12 ? 16 : 0; } catch (_) { /* empty-catch-allow: no gutter */ }
+    // controls outside <main> that act on the hive (community's post button) have nothing to act on behind the gate
+    (opts.hide || []).forEach(function (sel) { try { var x = document.querySelector(sel); if (x) x.style.display = 'none'; } catch (_) { /* empty-catch-allow */ } });
+    var page = (location.pathname.split('/').pop() || '');
+    var href = 'hive.html' + (page && page !== 'hive.html' ? '?return=' + encodeURIComponent(page) : '');
+    var btn = 'display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;'
+      + 'border-radius:var(--wh-radius,12px);font-weight:700;text-decoration:none;'
+      + 'background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);';
+    main.innerHTML = (gut ? '<div style="padding:0 ' + gut + 'px">' : '') + '<div class="empty-state hive-gate" data-wh-gate="no-hive" style="padding:40px 24px;text-align:center;'
+      + 'max-width:560px;margin:0 auto;background:var(--wh-surface-card,rgba(255,255,255,0.03));'
+      + 'border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));border-radius:var(--wh-radius,12px)">'
+      + '<h1 style="font-size:var(--wh-fs-base, 1rem);font-weight:700;line-height:1.5;margin:0 0 8px">' + escHtml(title) + '</h1>'
+      + '<p style="opacity:.8;line-height:1.5;margin:0">' + escHtml(body) + '</p>'
+      + '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">'
+      + '<a href="' + escHtml(href) + '" style="' + btn + '">Join or create a hive</a></div></div>' + (gut ? '</div>' : '');
+    return true;
+  } catch (_) {
+    location.href = 'hive.html';   // the gate could not draw: the old behaviour, still a way forward
+    return false;
+  }
+}
+
 (function whWireGateReturn() {
   try {
     if (typeof document === 'undefined') return;

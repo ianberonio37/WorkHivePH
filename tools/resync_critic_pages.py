@@ -94,10 +94,15 @@ def main() -> int:
     ap.add_argument("--apply", action="store_true")
     a = ap.parse_args()
 
-    doc = json.loads(io.open(CRITIC, encoding="utf-8").read())
-    rows = doc["rows"] if isinstance(doc, dict) and "rows" in doc else doc
-    tdoc = json.loads(io.open(TRAJ, encoding="utf-8").read())
-    tlist = tdoc["trajectories"] if isinstance(tdoc, dict) and "trajectories" in tdoc else tdoc
+    # ★BOTH REGISTRIES ARE UNIONS (2026-11-07). The critic rows and their trajectories each live in a main file plus
+    # CX and GJ shards (registry_io). Read through the main files alone, this saw 17,851 of 50,086 critic rows and none of
+    # the CX/GJ trajectories, so a cube walk whose trajectory had moved on (BRH23: platform-actions retired into
+    # founder-console) was walked on the new path and refused at bank time on the old one.
+    sys.path.insert(0, str(ROOT / "tools"))
+    import registry_io as _rio  # noqa: E402
+    doc = _rio.load_critic()
+    rows = doc["rows"]
+    tlist = _rio.load_doc()["trajectories"]
     traj_pages = {x.get("id"): list(x.get("pages") or []) for x in tlist}
 
     repaired, skipped = resync(rows, traj_pages)
@@ -113,10 +118,13 @@ def main() -> int:
     if not a.apply:
         print("  re-run with --apply to write critic_registry.json")
         return 0
-    tmp = CRITIC.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(doc, indent=1, ensure_ascii=False), encoding="utf-8")
-    os.replace(tmp, CRITIC)
-    print(f"  wrote {CRITIC.name}")
+    # keep the main file's own indent; the shards are written compact by registry_io (same as bank_critic_walk)
+    with io.open(CRITIC, encoding="utf-8") as fh:
+        fh.readline()
+        second = fh.readline()
+    indent = max(1, len(second) - len(second.lstrip(" "))) if second.strip() else 1
+    _rio.save_critic(doc, indent=indent)
+    print(f"  wrote {CRITIC.name} and its shards")
     return 0
 
 

@@ -239,7 +239,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } else {
         HIVE_ID = whHiveId() || '';
       }
-      if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
+      if (!HIVE_ID) {
+        if (typeof whNoHiveGate === 'function') whNoHiveGate('Join or create a hive to see AI Quality',
+          "AI Quality shows your hive's AI spend, how useful the answers were, and the savings they predict. It is a team tool, so you need a hive first.");
+        else window.location.href = 'hive.html?return=ai-quality.html';
+        return;
+      }
       // ★WHO MAY READ THE HIVE'S AI SPEND (SL AU4, 2026-10-14). The cost log, the reply feedback and the agentic traces
       // behind this page were readable through the API by EVERY member - a worker could read what a teammate asked the AI
       // and its answer. Their reads now follow the page (migration 20261014000004): the hive's supervisor or a platform

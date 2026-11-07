@@ -1050,7 +1050,11 @@
       if (HIVE_ID) return;
       let signedIn = false;
       try { signedIn = !!(await db.auth.getSession()).data.session; } catch (_) { /* empty-catch-allow: read as signed out - the wall decides */ }
-      if (signedIn) window.location.href = 'hive.html?return=community.html';
+      if (signedIn) {
+        if (typeof whNoHiveGate === 'function') whNoHiveGate('Join or create a hive to use Community',
+          'Community is where your hive posts, asks and answers. You need a hive first.', { hide: ['#fab-post'] });
+        else window.location.href = 'hive.html?return=community.html';
+      }
       else if (typeof whSignInWall === 'function') whSignInWall();
       else window.location.href = 'index.html?signin=1&return=community.html';
     });
