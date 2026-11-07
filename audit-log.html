@@ -124,9 +124,10 @@
        at ~72px + 8px gaps) so the loading→skeleton→entries transition does not grow
        the above-fold region. Over-reserving slightly = harmless uniform whitespace. */
     /* GJ M11 (I2): this selector had become an rgba() colour - a hex-colour codemod read the id selector for the feed
-       as a 4-digit hex colour and rewrote it, so the reserve was invalid CSS and dead. Written as an attribute
-       selector now, which no colour pattern can mistake. */
-    [id="feed"] { min-height: 400px; }
+       as a 4-digit hex colour and rewrote it, so the reserve was invalid CSS and dead. The codemod now ends a hex at a
+       name character and skips selectors (tools/fix_token_literals.py), and design-source-drift fails on a var() in a
+       selector, so the plain id selector is safe again - an attribute selector here was counted as a second element with the feed's id. */
+    #feed { min-height: 400px; }
     .entry {
       display: flex; align-items: flex-start; gap: 12px;
       padding: 12px 16px; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85);

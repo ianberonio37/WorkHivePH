@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1099-files
-source_sha: 5a1a7b772474f854
+source: memory-curated:1100-files
+source_sha: 32ff82ef4b6eefa6
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1099 durable topic files)
+## memory · curated auto-memory (1100 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=700 · project=306 · reference=93
+**By type:** feedback=701 · project=306 · reference=93
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -90,6 +90,7 @@ Entries (name · type · sha):
 - `feedback_a_forced_choice_outlived_its_reason` · feedback · df2a5f116b8b1d29
 - `feedback_a_frozen_page_is_perfectly_settled` · feedback · ae1acc9cb745f569
 - `feedback_a_full_hive_finds_what_a_demo_hive_hides` · feedback · e34620c39b6bd6eb
+- `feedback_a_gate_nobody_runs_rots_by_its_fixtures` · feedback · 993f0ff37825870c
 - `feedback_a_gate_read_a_month_old_reading_and_called_it_D0` · feedback · 1c2e1785edfaa753
 - `feedback_a_gate_reddened_because_the_code_improved` · feedback · 32bf6e2608eaa28a
 - `feedback_a_gate_that_exhausts_its_own_rate_budget` · feedback · 225cf26e51228b75
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_playwright_live_every_phase` · feedback · c689bd379b113956
 - `feedback_playwright_mcp_dont_inject_signin_instead` · feedback · 4ae9c1a1f56e43e2
 - `feedback_post_test_run_be_proactive_no_ask` · feedback · 853ee3a3e14af367
-- `feedback_powershell_ascii` · feedback · ecc8275e5564f4ea
-- … +599 more (all included in the fingerprint)
+- … +600 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

@@ -64,7 +64,8 @@ SCRIPT_RX = re.compile(r"<script\b[\s\S]*?</script>|<style\b[\s\S]*?</style>|<!-
 # \b first: without it a long run of word characters (an inline data: URI) is retried from every position inside it,
 # which is quadratic - one page took 80 s.
 CALL_RX = re.compile(r"\b(\w+)\s*(?:/\*[^*]*\*+(?:[^/*][^*]*\*+)*/\s*)?\.innerHTML\s*=\s*(?:[^;=]*\?\s*)?renderSourceChip\(")
-DIRECT_CALL_RX = re.compile(r"getElementById\(['\"]([\w-]+)['\"]\)\s*\.innerHTML\s*=\s*renderSourceChip\(")
+# GJ M11: a page's own `$('id')` shorthand is the same call - project-manager's #d-source escaped this gate written that way
+DIRECT_CALL_RX = re.compile(r"(?:getElementById|\$)\(['\"]([\w-]+)['\"]\)\s*\.innerHTML\s*=\s*renderSourceChip\(")
 COLLAPSED = "data-wh-sources-collapsed"
 # a reserve rule kept for a slot that is now collapsed: only box-size declarations, nothing a page would miss
 RESERVE_PROPS = {"min-height", "height", "margin", "margin-top", "margin-bottom", "padding", "max-width", "box-sizing"}

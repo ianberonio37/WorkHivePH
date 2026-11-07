@@ -292,49 +292,49 @@
     ],
     "pm-scheduler.html": [
       {
-        "line": 2444,
+        "line": 2446,
         "message_head": "Auto-hail this asset’s PM work? When an item falls due, WorkHive files a service request for you and providers nearby can accept it."
       },
       {
-        "line": 3211,
+        "line": 3213,
         "message_head": "\"${name}\" is already registered as an asset.\\n\\nOpen it to add more tasks instead?"
       },
       {
-        "line": 3482,
+        "line": 3484,
         "message_head": "Delete \"${currentAsset.asset_name}\"? Its ${_blast} go with it into Recently deleted, where you can restore them for at least 30 days."
       }
     ],
     "project-manager.html": [
       {
-        "line": 2006,
+        "line": 2007,
         "message_head": "No scope items checked. Create an empty project?"
       },
       {
-        "line": 2298,
+        "line": 2299,
         "message_head": "Hide project"
       },
       {
-        "line": 3021,
+        "line": 3022,
         "message_head": "Remove this link?"
       },
       {
-        "line": 3359,
+        "line": 3360,
         "message_head": "Remove this role?"
       },
       {
-        "line": 3494,
+        "line": 3495,
         "message_head": "Approve this change order? Cost / schedule impact will be reflected in the project."
       },
       {
-        "line": 3521,
+        "line": 3522,
         "message_head": "Reason for rejection (visible to requester):"
       },
       {
-        "line": 3552,
+        "line": 3553,
         "message_head": "Cancel this change order? It will be hidden from the active queue but kept for history."
       },
       {
-        "line": 3795,
+        "line": 3796,
         "message_head": "Mark project as complete? ${WAY_BACK}"
       }
     ],

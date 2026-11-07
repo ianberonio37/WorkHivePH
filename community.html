@@ -2686,7 +2686,7 @@ function _isMinePost(p) {
       + '<ul style="margin:0; padding-left:1.1rem; display:flex; flex-direction:column; gap:0.3rem;">'
       + fresh.slice(0, 5).map((r) => {
         const raw = String(r.words || '').trim();
-        const q = '<q data-user-content>' + escHtml(raw.slice(0, 40) + (raw.length > 40 ? '…' : '')) + '</q>';
+        const q = '<q data-user-content>' + escHtml(raw.slice(0, 40) + (raw.length > 40 ? '…' : '')) + '</q>';   // cap-ok: the post's first 40 CHARACTERS, quoted - a quote's length, not a list read
         return '<li data-wh-modnews="' + escHtml(r.kind) + '">' + escHtml(line(r)).split('\u0001').join(q) + '</li>';
       }).join('')
       + '</ul>'

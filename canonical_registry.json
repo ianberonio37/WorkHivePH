@@ -11708,7 +11708,7 @@
         "audit_filter_vocab"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 95.4
+      "size_kb": 95.6
     },
     "community.html": {
       "tables_read": [
@@ -11743,7 +11743,7 @@
         "wh_trash"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 289.8
+      "size_kb": 289.9
     },
     "dayplanner.html": {
       "tables_read": [
@@ -12205,7 +12205,7 @@
         "get_pm_ontime_delivery"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 223.5
+      "size_kb": 223.8
     },
     "project-manager.html": {
       "tables_read": [
@@ -12246,7 +12246,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 270.5
+      "size_kb": 270.7
     },
     "project-report.html": {
       "tables_read": [

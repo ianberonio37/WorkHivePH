@@ -565,6 +565,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <span class="pcode" id="d-code"></span>
         <!-- GJ M11 (A1): an opened project is the page's subject, so its name is the page's heading; the list's
              "Project Manager" h1 is hidden while a project is open, which left the detail view with no h1 at all -->
+        <!-- heading-allow: a screen of this single-page app names itself with its own h1, and only one screen shows at a time (GJ M11) -->
         <h1 id="d-name" translate="no"></h1>
         <div class="row" style="gap: 6px; margin-top: 4px;">
           <span class="ptype-pill" id="d-type"></span>
@@ -572,7 +573,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
           <span class="small" id="d-priority" style="color: var(--muted);"></span>
         </div>
         <!-- GJ M11 (E3/G1): where the figures below come from and when they were read, filled with the project -->
-        <div id="d-source"></div>
+        <div id="d-source" hidden data-wh-sources-collapsed></div>
       </div>
       <!-- GJ M11 (Z3): Delete stands clear of Edit - a slip from one to the other deletes a project. 28px, not 24: the
            buttons sit on sub-pixel edges and an exact 24px gap measured 23.99 -->
