@@ -186631,7 +186631,7 @@
     {
       "id": "W37",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "index.html",
         "asset-hub.html",
@@ -186762,12 +186762,16 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 2 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 2-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical a solo technician with no hive, cast junvanowner pinned to live-membership hive. 9 page(s) surveyed live, denied=false on all. 2 failing dim(s). 2 of 9 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: asset-hub 91 dims, 0 sub-100 | hive 91 dims, 0 sub-100 | index 91 dims, 0 sub-100 | learn 91 dims, 0 sub-100 | logbook 91 dims, 0 sub-100 | oee-calculator 91 dims, 0 sub-100 | what-is-oee-how-to-calculate 91 dims, 2 sub-100.",
-      "banked_at": "2026-10-13T21:34:54"
+      "banked_at": "2026-10-13T21:34:54",
+      "improvement_refs": [
+        "CF36 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF48 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W38",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "index.html",
         "asset-hub.html",
@@ -186898,7 +186902,11 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 2 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 2-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical a solo technician with no hive, cast junvanowner pinned to live-membership hive. 9 page(s) surveyed live, denied=false on all. 2 failing dim(s). 2 of 9 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: asset-hub 91 dims, 0 sub-100 | hive 91 dims, 0 sub-100 | index 91 dims, 0 sub-100 | learn 91 dims, 0 sub-100 | logbook 91 dims, 0 sub-100 | oee-calculator 91 dims, 0 sub-100 | what-is-oee-how-to-calculate 91 dims, 2 sub-100.",
-      "banked_at": "2026-10-13T21:34:54"
+      "banked_at": "2026-10-13T21:34:54",
+      "improvement_refs": [
+        "CF36 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF48 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W39",
@@ -197635,7 +197643,7 @@
     {
       "id": "W374",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -197781,12 +197789,18 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 5 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 5-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. 8 page(s) surveyed live, denied=false on all. 4 failing dim(s). 1 of 8 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: engineering-design 91 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 91 dims, 2 sub-100 | learn 91 dims, 0 sub-100 | load-estimation-calculator 91 dims, 0 sub-100 | project-manager 91 dims, 0 sub-100 | project-report 91 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 91 dims, 2 sub-100 | report-sender 91 dims, 0 sub-100.",
-      "banked_at": "2026-10-13T21:35:25"
+      "banked_at": "2026-10-13T21:35:25",
+      "improvement_refs": [
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W375",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -197932,12 +197946,18 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 5 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 5-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. 8 page(s) surveyed live, denied=false on all. 4 failing dim(s). 1 of 8 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: engineering-design 91 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 91 dims, 2 sub-100 | learn 91 dims, 0 sub-100 | load-estimation-calculator 91 dims, 0 sub-100 | project-manager 91 dims, 0 sub-100 | project-report 91 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 91 dims, 2 sub-100 | report-sender 91 dims, 0 sub-100.",
-      "banked_at": "2026-10-13T21:35:25"
+      "banked_at": "2026-10-13T21:35:25",
+      "improvement_refs": [
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W376",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -198083,7 +198103,13 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 5 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 5-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. 8 page(s) surveyed live, denied=false on all. 4 failing dim(s). 1 of 8 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: engineering-design 91 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 91 dims, 2 sub-100 | learn 91 dims, 0 sub-100 | load-estimation-calculator 91 dims, 0 sub-100 | project-manager 91 dims, 0 sub-100 | project-report 91 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 91 dims, 2 sub-100 | report-sender 91 dims, 0 sub-100.",
-      "banked_at": "2026-10-13T21:35:25"
+      "banked_at": "2026-10-13T21:35:25",
+      "improvement_refs": [
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W377",
@@ -207472,7 +207498,7 @@
     {
       "id": "W3149",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "index.html",
         "asset-hub.html",
@@ -207603,12 +207629,16 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 2 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 2-row critic walk (batch, critic_walk_batch.mjs): solo-owner at desktop-1280 in en, vertical a solo technician with no hive, cast junvanowner pinned to live-membership hive. 9 page(s) surveyed live, denied=false on all. 2 failing dim(s). 2 of 9 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: asset-hub 91 dims, 0 sub-100 | hive 91 dims, 0 sub-100 | index 91 dims, 0 sub-100 | learn 91 dims, 0 sub-100 | logbook 91 dims, 0 sub-100 | oee-calculator 91 dims, 0 sub-100 | what-is-oee-how-to-calculate 91 dims, 2 sub-100.",
-      "banked_at": "2026-10-13T21:35:55"
+      "banked_at": "2026-10-13T21:35:55",
+      "improvement_refs": [
+        "CF36 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF48 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3152",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "index.html",
         "asset-hub.html",
@@ -207739,7 +207769,11 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 2 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 2-row critic walk (batch, critic_walk_batch.mjs): solo-owner at desktop-1280 in en, vertical a solo technician with no hive, cast junvanowner pinned to live-membership hive. 9 page(s) surveyed live, denied=false on all. 2 failing dim(s). 2 of 9 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: asset-hub 91 dims, 0 sub-100 | hive 91 dims, 0 sub-100 | index 91 dims, 0 sub-100 | learn 91 dims, 0 sub-100 | logbook 91 dims, 0 sub-100 | oee-calculator 91 dims, 0 sub-100 | what-is-oee-how-to-calculate 91 dims, 2 sub-100.",
-      "banked_at": "2026-10-13T21:35:55"
+      "banked_at": "2026-10-13T21:35:55",
+      "improvement_refs": [
+        "CF36 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF48 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3155",
@@ -216886,7 +216920,7 @@
     {
       "id": "W3350",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -217032,12 +217066,18 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 4 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 4-row critic walk (batch, critic_walk_batch.mjs): solo-owner at desktop-1280 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. 8 page(s) surveyed live, denied=false on all. 4 failing dim(s). 1 of 8 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: engineering-design 91 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 91 dims, 2 sub-100 | learn 91 dims, 0 sub-100 | load-estimation-calculator 91 dims, 0 sub-100 | project-manager 91 dims, 0 sub-100 | project-report 91 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 91 dims, 2 sub-100 | report-sender 91 dims, 0 sub-100.",
-      "banked_at": "2026-10-13T21:36:54"
+      "banked_at": "2026-10-13T21:36:54",
+      "improvement_refs": [
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3353",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -217183,12 +217223,18 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 4 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 4-row critic walk (batch, critic_walk_batch.mjs): solo-owner at desktop-1280 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. 8 page(s) surveyed live, denied=false on all. 4 failing dim(s). 1 of 8 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: engineering-design 91 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 91 dims, 2 sub-100 | learn 91 dims, 0 sub-100 | load-estimation-calculator 91 dims, 0 sub-100 | project-manager 91 dims, 0 sub-100 | project-report 91 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 91 dims, 2 sub-100 | report-sender 91 dims, 0 sub-100.",
-      "banked_at": "2026-10-13T21:36:54"
+      "banked_at": "2026-10-13T21:36:54",
+      "improvement_refs": [
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3356",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -217334,7 +217380,13 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 4 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 4-row critic walk (batch, critic_walk_batch.mjs): solo-owner at desktop-1280 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. 8 page(s) surveyed live, denied=false on all. 4 failing dim(s). 1 of 8 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: engineering-design 91 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 91 dims, 2 sub-100 | learn 91 dims, 0 sub-100 | load-estimation-calculator 91 dims, 0 sub-100 | project-manager 91 dims, 0 sub-100 | project-report 91 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 91 dims, 2 sub-100 | report-sender 91 dims, 0 sub-100.",
-      "banked_at": "2026-10-13T21:36:54"
+      "banked_at": "2026-10-13T21:36:54",
+      "improvement_refs": [
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3359",
@@ -241705,7 +241757,7 @@
     {
       "id": "W3627",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -241889,12 +241941,21 @@
       ],
       "walked_at": "2026-09-11",
       "lens_sha": "8b8c44943883",
-      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Lucena Pharmaceutical Mfg., cast junvanowner pinned to live-membership hive. CONDITION offline-3g: SW cache primed by an online visit to each page, then network cut (context.setOffline) - the survey grades the OFFLINE-served experience (cached page / offline banner / fallback). SW confirmed to register + activate on localhost. 8 page(s) surveyed live, denied=false on all. 9 failing dim(s). Surveyed: engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100."
+      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Lucena Pharmaceutical Mfg., cast junvanowner pinned to live-membership hive. CONDITION offline-3g: SW cache primed by an online visit to each page, then network cut (context.setOffline) - the survey grades the OFFLINE-served experience (cached page / offline banner / fallback). SW confirmed to register + activate on localhost. 8 page(s) surveyed live, denied=false on all. 9 failing dim(s). Surveyed: engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100.",
+      "improvement_refs": [
+        "CF2 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF20 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF21 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3628",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -242078,12 +242139,21 @@
       ],
       "walked_at": "2026-09-11",
       "lens_sha": "8b8c44943883",
-      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Baguio Textile Mills, cast junvanowner pinned to live-membership hive. CONDITION dependency-down: every edge-function call stubbed to 503 for this context (browser-side, no DB mutation) - the survey grades the DEGRADED state (legible fallback vs crash). 8 page(s) surveyed live, denied=false on all. 9 failing dim(s). Surveyed: engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100."
+      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Baguio Textile Mills, cast junvanowner pinned to live-membership hive. CONDITION dependency-down: every edge-function call stubbed to 503 for this context (browser-side, no DB mutation) - the survey grades the DEGRADED state (legible fallback vs crash). 8 page(s) surveyed live, denied=false on all. 9 failing dim(s). Surveyed: engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100.",
+      "improvement_refs": [
+        "CF2 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF20 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF21 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3629",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -242267,12 +242337,21 @@
       ],
       "walked_at": "2026-09-11",
       "lens_sha": "8b8c44943883",
-      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. CONDITION release-mid-way surveyed at present-state: the version-skew a release introduces is a JOURNEY-prover concern (does the in-flight journey survive an SW update); the critic RUBRIC dims (structure/copy/ergonomics) do not vary with it, so this grades the page as-is. 8 page(s) surveyed live, denied=false on all. 9 failing dim(s). Surveyed: engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100."
+      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. CONDITION release-mid-way surveyed at present-state: the version-skew a release introduces is a JOURNEY-prover concern (does the in-flight journey survive an SW update); the critic RUBRIC dims (structure/copy/ergonomics) do not vary with it, so this grades the page as-is. 8 page(s) surveyed live, denied=false on all. 9 failing dim(s). Surveyed: engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100.",
+      "improvement_refs": [
+        "CF2 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF20 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF21 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3630",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -242456,12 +242535,21 @@
       ],
       "walked_at": "2026-09-11",
       "lens_sha": "8b8c44943883",
-      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Lucena Pharmaceutical Mfg., cast junvanowner pinned to live-membership hive. MOMENT month-3 surveyed at the CURRENT fully-seeded state (the 5-year history is seeded; the moment is the trajectory-timeline label, already proven on the locked trajectory row). The critic rubric is largely moment-independent; data-volume-sensitive dims (empty-state X1, KPI density DD1/K2) reflect current data, not the month-3 slice. 8 page(s) surveyed live, denied=false on all. 9 failing dim(s). Surveyed: engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100."
+      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Lucena Pharmaceutical Mfg., cast junvanowner pinned to live-membership hive. MOMENT month-3 surveyed at the CURRENT fully-seeded state (the 5-year history is seeded; the moment is the trajectory-timeline label, already proven on the locked trajectory row). The critic rubric is largely moment-independent; data-volume-sensitive dims (empty-state X1, KPI density DD1/K2) reflect current data, not the month-3 slice. 8 page(s) surveyed live, denied=false on all. 9 failing dim(s). Surveyed: engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100.",
+      "improvement_refs": [
+        "CF2 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF20 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF21 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3631",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -242645,12 +242733,21 @@
       ],
       "walked_at": "2026-09-11",
       "lens_sha": "8b8c44943883",
-      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Baguio Textile Mills, cast junvanowner pinned to live-membership hive. MOMENT year-2 surveyed at the CURRENT fully-seeded state (the 5-year history is seeded; the moment is the trajectory-timeline label, already proven on the locked trajectory row). The critic rubric is largely moment-independent; data-volume-sensitive dims (empty-state X1, KPI density DD1/K2) reflect current data, not the year-2 slice. 8 page(s) surveyed live, denied=false on all. 9 failing dim(s). Surveyed: engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100."
+      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Baguio Textile Mills, cast junvanowner pinned to live-membership hive. MOMENT year-2 surveyed at the CURRENT fully-seeded state (the 5-year history is seeded; the moment is the trajectory-timeline label, already proven on the locked trajectory row). The critic rubric is largely moment-independent; data-volume-sensitive dims (empty-state X1, KPI density DD1/K2) reflect current data, not the year-2 slice. 8 page(s) surveyed live, denied=false on all. 9 failing dim(s). Surveyed: engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100.",
+      "improvement_refs": [
+        "CF2 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF20 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF21 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3632",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -242796,12 +242893,18 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 5 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 5-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. 8 page(s) surveyed live, denied=false on all. 4 failing dim(s). 1 of 8 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: engineering-design 91 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 91 dims, 2 sub-100 | learn 91 dims, 0 sub-100 | load-estimation-calculator 91 dims, 0 sub-100 | project-manager 91 dims, 0 sub-100 | project-report 91 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 91 dims, 2 sub-100 | report-sender 91 dims, 0 sub-100.",
-      "banked_at": "2026-10-13T21:35:25"
+      "banked_at": "2026-10-13T21:35:25",
+      "improvement_refs": [
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3633",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -242947,12 +243050,18 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 5 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 5-row critic walk (batch, critic_walk_batch.mjs): solo-owner at phone-390 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. 8 page(s) surveyed live, denied=false on all. 4 failing dim(s). 1 of 8 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: engineering-design 91 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 91 dims, 2 sub-100 | learn 91 dims, 0 sub-100 | load-estimation-calculator 91 dims, 0 sub-100 | project-manager 91 dims, 0 sub-100 | project-report 91 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 91 dims, 2 sub-100 | report-sender 91 dims, 0 sub-100.",
-      "banked_at": "2026-10-13T21:35:25"
+      "banked_at": "2026-10-13T21:35:25",
+      "improvement_refs": [
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3634",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -243098,12 +243207,18 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): solo-owner at narrow-320 in en, vertical Lucena Pharmaceutical Mfg., cast junvanowner pinned to live-membership hive. 8 page(s) surveyed live, denied=false on all. 4 failing dim(s). Surveyed: engineering-design 91 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 91 dims, 2 sub-100 | learn 91 dims, 0 sub-100 | load-estimation-calculator 91 dims, 0 sub-100 | project-manager 91 dims, 0 sub-100 | project-report 91 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 91 dims, 2 sub-100 | report-sender 91 dims, 0 sub-100.",
-      "banked_at": "2026-10-13T21:39:55"
+      "banked_at": "2026-10-13T21:39:55",
+      "improvement_refs": [
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3635",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -243249,7 +243364,13 @@
       "walked_at": "2026-10-13",
       "lens_sha": "f91ac0a85b5e",
       "clean_note": "One in-motion MCP walk, banked onto 4 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 4-row critic walk (batch, critic_walk_batch.mjs): solo-owner at desktop-1280 in en, vertical Manila Electronics Assembly, cast junvanowner pinned to live-membership hive. 8 page(s) surveyed live, denied=false on all. 4 failing dim(s). 1 of 8 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: engineering-design 91 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 91 dims, 2 sub-100 | learn 91 dims, 0 sub-100 | load-estimation-calculator 91 dims, 0 sub-100 | project-manager 91 dims, 0 sub-100 | project-report 91 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 91 dims, 2 sub-100 | report-sender 91 dims, 0 sub-100.",
-      "banked_at": "2026-10-13T21:36:54"
+      "banked_at": "2026-10-13T21:36:54",
+      "improvement_refs": [
+        "CF19 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF33 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF45 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF47 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3636",
@@ -256303,7 +256424,7 @@
     {
       "id": "W3723",
       "wave": "W3-JN",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
         "learn/index.html",
@@ -256504,7 +256625,16 @@
       ],
       "walked_at": "2026-09-11",
       "lens_sha": "8b8c44943883",
-      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): fleet-supervisor at desktop-1280 in en, vertical Baguio Textile Mills, cast leandromarquez pinned to live-membership hive. MOMENT day-1+month-3+year-2 surveyed at the CURRENT fully-seeded state (the 5-year history is seeded; the moment is the trajectory-timeline label, already proven on the locked trajectory row). The critic rubric is largely moment-independent; data-volume-sensitive dims (empty-state X1, KPI density DD1/K2) reflect current data, not the day-1+month-3+year-2 slice. 17 page(s) surveyed live, denied=false on all. 10 failing dim(s). Surveyed: analytics-report 90 dims, 0 sub-100 | analytics 90 dims, 1 sub-100 | audit-log 90 dims, 0 sub-100 | engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | hive 90 dims, 0 sub-100 | integrations 90 dims, 0 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | logbook 90 dims, 0 sub-100 | plant-connections 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100."
+      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): fleet-supervisor at desktop-1280 in en, vertical Baguio Textile Mills, cast leandromarquez pinned to live-membership hive. MOMENT day-1+month-3+year-2 surveyed at the CURRENT fully-seeded state (the 5-year history is seeded; the moment is the trajectory-timeline label, already proven on the locked trajectory row). The critic rubric is largely moment-independent; data-volume-sensitive dims (empty-state X1, KPI density DD1/K2) reflect current data, not the day-1+month-3+year-2 slice. 17 page(s) surveyed live, denied=false on all. 10 failing dim(s). Surveyed: analytics-report 90 dims, 0 sub-100 | analytics 90 dims, 1 sub-100 | audit-log 90 dims, 0 sub-100 | engineering-design 90 dims, 0 sub-100 | free-engineering-calculators-philippine-plants 90 dims, 6 sub-100 | hive 90 dims, 0 sub-100 | integrations 90 dims, 0 sub-100 | learn 90 dims, 0 sub-100 | load-estimation-calculator 90 dims, 0 sub-100 | logbook 90 dims, 0 sub-100 | plant-connections 90 dims, 0 sub-100 | project-manager 90 dims, 0 sub-100 | project-report 90 dims, 0 sub-100 | ra-11285-energy-efficiency-plant-checklist 90 dims, 3 sub-100 | report-sender 90 dims, 0 sub-100.",
+      "improvement_refs": [
+        "CF1 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF16 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF17 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF18 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF32 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF44 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF46 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "W3724",
@@ -1862675,7 +1862805,7 @@
     {
       "id": "SL33",
       "wave": "SL-F",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "llm-observability.html"
       ],
@@ -1862798,7 +1862928,11 @@
       "walked_at": "2026-11-04",
       "banked_at": "2026-11-04T14:49:08",
       "lens_sha": "6c16cee05865",
-      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): oversight at phone-390 in en, vertical Ramos Jeepney Line, cast leandromarquez pinned to live-membership hive. 1 page(s) surveyed live, denied=false on all. 2 failing dim(s). Surveyed: llm-observability 91 dims, 2 sub-100."
+      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): oversight at phone-390 in en, vertical Ramos Jeepney Line, cast leandromarquez pinned to live-membership hive. 1 page(s) surveyed live, denied=false on all. 2 failing dim(s). Surveyed: llm-observability 91 dims, 2 sub-100.",
+      "improvement_refs": [
+        "CF37 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF49 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "SL34",
@@ -1866777,7 +1866911,7 @@
     {
       "id": "SL97",
       "wave": "SL-F",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "llm-observability.html"
       ],
@@ -1866900,7 +1867034,11 @@
       "walked_at": "2026-11-04",
       "banked_at": "2026-11-04T14:50:56",
       "lens_sha": "6c16cee05865",
-      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): oversight at desktop-1280 in en, vertical Ramos Jeepney Line, cast leandromarquez pinned to live-membership hive. 1 page(s) surveyed live, denied=false on all. 2 failing dim(s). Surveyed: llm-observability 91 dims, 2 sub-100."
+      "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): oversight at desktop-1280 in en, vertical Ramos Jeepney Line, cast leandromarquez pinned to live-membership hive. 1 page(s) surveyed live, denied=false on all. 2 failing dim(s). Surveyed: llm-observability 91 dims, 2 sub-100.",
+      "improvement_refs": [
+        "CF37 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)",
+        "CF49 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-08)"
+      ]
     },
     {
       "id": "SL98",

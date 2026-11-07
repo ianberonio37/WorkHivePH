@@ -7393,6 +7393,16 @@ function _whAuditGeneric(action) {
   return (m && _whAuditOwn(WH_AUDIT_THINGS, m[2])) ? { verb: m[1], key: m[2], thing: WH_AUDIT_THINGS[m[2]] } : null;
 }
 
+// ★AN IDENTIFIER IN A PERSON'S TEXT IS SHOWN AS AN IDENTIFIER (CF11, 2026-11-08). A listing report's subject carries the
+// listing's id - "Report listing: Set of Filter Cartridges (8 pcs) (145ad22d-6fae-...)" - and the audit trail repeats it
+// as the row's target. Useful to a founder, who searches by it, but read as stray internals in a sentence (the critic's B5
+// found six on the operator console). operator-actions' feedback list already set it as code; this is that rule, shared.
+// Input must be ALREADY ESCAPED: only hex-and-dash runs are wrapped, so nothing a person typed becomes markup.
+function whIdAsCode(escaped) {
+  return String(escaped == null ? '' : escaped).replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}[0-9a-f-]*…?/gi,
+    function (m) { return '<code style="font-size:0.85em;opacity:0.85;">' + m + '</code>'; });
+}
+
 // The words for one trail row's action. meta is the row's meta (the generic trail's changed columns live there).
 function whAuditLabel(action, meta) {
   const a = _whAuditOwn(WH_AUDIT_ACTIONS, action);

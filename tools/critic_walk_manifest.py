@@ -62,7 +62,9 @@ def rows(path):
 
 
 def main():
-    only_normal = '--all' not in sys.argv
+    # --ids names the walks to repeat whatever their condition or moment (Wave CF evidence walks, 2026-11-08: W3723 is a
+    # day-1+month-3+year-2 walk, and the present-moment filter dropped it from the evidence manifest)
+    only_normal = '--all' not in sys.argv and '--ids' not in sys.argv
     # --rewalk (2026-10-13): walk CRITIQUED rows that carry findings, as their own cast, so bank_critic_walk.py can close
     # a row whose fixes landed (none of its findings recur -> improving). --pages a.html,b.html limits it to the rows
     # whose path touches a fixed page. Without --rewalk the manifest is the pending queue, as before.

@@ -862,7 +862,7 @@
           const reason = r.meta && r.meta.reason ? ' · reason: ' + r.meta.reason : '';
           return `
           <div class="mod-row">
-            <div class="mod-main"><strong>${e(v.label)}${v.target ? ': <span data-user-content>' + e(v.target) + '</span>' : ''}</strong>
+            <div class="mod-main"><strong>${e(v.label)}${v.target ? ': <span data-user-content>' + (typeof whIdAsCode === 'function' ? whIdAsCode(e(v.target)) : e(v.target)) + '</span>' : ''}</strong>
               <span class="mod-sub">${e(r.actor || 'unknown')} · ${e(new Date(r.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))}${e(reason)}</span></div>
           </div>`;
         }).join('');

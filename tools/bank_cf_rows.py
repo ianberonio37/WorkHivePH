@@ -71,10 +71,17 @@ def surveys() -> list:
             if not cast.get("persona") or s.get("_denied"):
                 continue
             vp = (s.get("viewport") or {}).get("w") or _width_of_device(cast.get("device", ""))
+            dims = [d for d in (s.get("dims") or []) if isinstance(d, dict)]
+            measured = {d.get("dim") for d in dims if d.get("pct") is not None}
+            # ★A DEFECT WHOSE CLASS NO LONGER APPLIES IS GONE (2026-11-08). After a fix a class can turn N/A on the screen:
+            # the retired overlay is a declared gate (E3 "permission wall: no data is shown"), and a figure inside a
+            # sentence is no KPI (C4 "no numeric els"). The defect cannot be present where its class does not apply - but
+            # only on a screen that really rendered, so an N/A counts as clean only when 10+ other classes were measured.
+            na = {d.get("dim") for d in dims if d.get("kind") == "N/A"} if len(measured) >= 10 else set()
             out.append({"page": page_file(s.get("pageId") or ""), "persona": cast["persona"], "width": int(vp),
                         "t": _epoch(cast.get("at") or "") or os.path.getmtime(f), "lens": s.get("lens") or s.get("_lens"),
                         "failing": {m.group(1) for x in (s.get("failing") or []) for m in [FAIL_RE.match(str(x))] if m},
-                        "graded": {d.get("dim") for d in (s.get("dims") or []) if isinstance(d, dict) and d.get("pct") is not None},
+                        "graded": measured | na, "na": na,
                         "src": os.path.relpath(f, ROOT).replace("\\", "/")})
     return out
 
@@ -124,7 +131,8 @@ def verdict(cf: dict, ev: list, anon_state: dict) -> tuple:
     clean = [e for e in mine if dim == "SCREEN" or dim not in e["failing"]]
     phone = max((e for e in clean if e["width"] <= PHONE_MAX), key=lambda e: e["t"], default=None)
     desk = max((e for e in clean if e["width"] >= DESKTOP_MIN), key=lambda e: e["t"], default=None)
-    fmt = lambda e: f"{e['src']} @{e['width']}px {datetime.fromtimestamp(e['t']).isoformat(timespec='minutes')}"  # noqa: E731
+    fmt = lambda e: (f"{e['src']} @{e['width']}px {datetime.fromtimestamp(e['t']).isoformat(timespec='minutes')}"  # noqa: E731
+                     + (f" ({dim} N/A there: the class no longer applies)" if dim in (e.get('na') or set()) else ""))
     if phone and desk:
         return "locking", 60, f"phone {fmt(phone)}; desktop {fmt(desk)}", fmt(phone), fmt(desk)
     have = phone or desk

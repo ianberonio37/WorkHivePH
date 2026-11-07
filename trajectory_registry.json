@@ -1209890,8 +1209890,8 @@
     },
     {
       "id": "CF1",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "F1 Mobile / touch >= 44px - free engineering calculators philippine plants · fleet-supervisor: F1 98% - under-44: FCU(31x44), OEE(32x44)",
       "pages": [
@@ -1209956,7 +1209956,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "F1 graded clean on free engineering calculators philippine plants for fleet-supervisor by a walk after the fix, at both viewports"
+        "closes": "F1 graded clean on free engineering calculators philippine plants for fleet-supervisor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:52"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): F1 (Mobile / touch >= 44px) on learn/free-engineering-calculators-philippine-plants/index.html as fleet-supervisor after the find of 2026-09-11 (free-engineering-calculators-philippine-plants: F1 98% - under-44: FCU(31x44), OEE(32x44)) - phone .tmp/cf_ev/phone/W3723_free-engineering-calculators-philippine-plants.json @390px 2026-11-08T09:50; desktop .tmp/cf_ev/desktop/W3723_free-engineering-calculators-philippine-plants.json @1280px 2026-11-08T09:51. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1210809,8 +1210816,8 @@
     },
     {
       "id": "CF11",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - founder console · oversight: B3 67%: sentences=113 · >20w=0 · passive=0 · grade>8=1",
       "pages": [
@@ -1210906,13 +1210913,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on founder console for oversight by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on founder console for oversight by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on founder-console.html as oversight after the find of 2026-11-07T23:25 (founder-console: B3 67%: sentences=113 · >20w=0 · passive=0 · grade>8=1) - phone .tmp/cf_ev/phone/SL32_founder-console.json @390px 2026-11-08T09:40; desktop .tmp/cf_ev/desktop/SL32_founder-console.json @1280px 2026-11-08T09:43. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF12",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "J1 Prevent slips - founder console · oversight: J1 0%: 8 destructive control(s)",
       "pages": [
@@ -1211008,7 +1211022,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "J1 graded clean on founder console for oversight by a walk after the fix, at both viewports"
+        "closes": "J1 graded clean on founder console for oversight by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): J1 (Prevent slips) on founder-console.html as oversight after the find of 2026-11-07T23:25 (founder-console: J1 0%: 8 destructive control(s)) - phone .tmp/cf_ev/phone/SL32_founder-console.json @390px 2026-11-08T09:40; desktop .tmp/cf_ev/desktop/SL32_founder-console.json @1280px 2026-11-08T09:43. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1211165,8 +1211186,8 @@
     },
     {
       "id": "CF15",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - ai companion hezekiah zaniah personas · a person: B3 0%: sentences=94 · >20w=16 · passive=2 · grade>8=30 · worst(35w): \"",
       "pages": [
@@ -1211229,13 +1211250,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on ai companion hezekiah zaniah personas for a person by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on ai companion hezekiah zaniah personas for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/ai-companion-hezekiah-zaniah-personas/index.html as any after the find of 2026-11-07T23:25 (ai-companion-hezekiah-zaniah-personas: B3 0%: sentences=94 · >20w=16 · passive=2 · grade>8=30 · worst(35w): \"Both ground) - phone .tmp/cf_ev/phone/BRH222_ai-companion-hezekiah-zaniah-personas.json @390px 2026-11-08T09:38; desktop .tmp/cf_ev/desktop/BRH222_ai-companion-hezekiah-zaniah-personas.json @1280px 2026-11-08T09:41. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF16",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - free engineering calculators philippine plants · fleet-supervisor: B1 67% - marketese=0 verboseBlocks=4",
       "pages": [
@@ -1211300,13 +1211328,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on free engineering calculators philippine plants for fleet-supervisor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on free engineering calculators philippine plants for fleet-supervisor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:52"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/free-engineering-calculators-philippine-plants/index.html as fleet-supervisor after the find of 2026-09-11 (free-engineering-calculators-philippine-plants: B1 67% - marketese=0 verboseBlocks=4) - phone .tmp/cf_ev/phone/W3723_free-engineering-calculators-philippine-plants.json @390px 2026-11-08T09:50; desktop .tmp/cf_ev/desktop/W3723_free-engineering-calculators-philippine-plants.json @1280px 2026-11-08T09:51. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF17",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "C1 Visual hierarchy - free engineering calculators philippine plants · fleet-supervisor: C1 67% - bigSizes=[43,28,22] distinct=13",
       "pages": [
@@ -1211371,13 +1211406,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "C1 graded clean on free engineering calculators philippine plants for fleet-supervisor by a walk after the fix, at both viewports"
+        "closes": "C1 graded clean on free engineering calculators philippine plants for fleet-supervisor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:52"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): C1 (Visual hierarchy) on learn/free-engineering-calculators-philippine-plants/index.html as fleet-supervisor after the find of 2026-09-11 (free-engineering-calculators-philippine-plants: C1 67% - bigSizes=[43,28,22] distinct=13) - phone .tmp/cf_ev/phone/W3723_free-engineering-calculators-philippine-plants.json @390px 2026-11-08T09:50; desktop .tmp/cf_ev/desktop/W3723_free-engineering-calculators-philippine-plants.json @1280px 2026-11-08T09:51. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF18",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "K2 Field legibility & reach - free engineering calculators philippine plants · fleet-supervisor: K2 50% - 0/no glanceable KPI(s), 2 under-44 target(s)",
       "pages": [
@@ -1211442,13 +1211484,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "K2 graded clean on free engineering calculators philippine plants for fleet-supervisor by a walk after the fix, at both viewports"
+        "closes": "K2 graded clean on free engineering calculators philippine plants for fleet-supervisor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:52"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): K2 (Field legibility & reach) on learn/free-engineering-calculators-philippine-plants/index.html as fleet-supervisor after the find of 2026-09-11 (free-engineering-calculators-philippine-plants: K2 50% - 0/no glanceable KPI(s), 2 under-44 target(s)) - phone .tmp/cf_ev/phone/W3723_free-engineering-calculators-philippine-plants.json @390px 2026-11-08T09:50; desktop .tmp/cf_ev/desktop/W3723_free-engineering-calculators-philippine-plants.json @1280px 2026-11-08T09:51. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF19",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - free engineering calculators philippine plants · solo-owner: B1 67% - marketese=0 verboseBlocks=4",
       "pages": [
@@ -1211527,7 +1211576,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on free engineering calculators philippine plants for solo-owner by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on free engineering calculators philippine plants for solo-owner by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/free-engineering-calculators-philippine-plants/index.html as solo-owner after the find of 2026-09-11 (free-engineering-calculators-philippine-plants: B1 67% - marketese=0 verboseBlocks=4) - phone .tmp/cf_ev/phone/W374_free-engineering-calculators-philippine-plants.json @390px 2026-11-08T09:38; desktop .tmp/cf_ev/desktop/W374_free-engineering-calculators-philippine-plants.json @1280px 2026-11-08T09:41. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1211696,8 +1211752,8 @@
     },
     {
       "id": "CF22",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - free pm checklist templates · a person: B1 67%: marketese=0 verboseBlocks=7",
       "pages": [
@@ -1211760,13 +1211816,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on free pm checklist templates for a person by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on free pm checklist templates for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/free-pm-checklist-templates/index.html as any after the find of 2026-11-07T23:25 (free-pm-checklist-templates: B1 67%: marketese=0 verboseBlocks=7) - phone .tmp/cf_ev/phone/BRH223_free-pm-checklist-templates.json @390px 2026-11-08T09:39; desktop .tmp/cf_ev/desktop/BRH223_free-pm-checklist-templates.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF23",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - free pm checklist templates · a person: B3 0%: sentences=155 · >20w=10 · passive=2 · grade>8=20 · worst(42w): ",
       "pages": [
@@ -1211829,13 +1211892,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on free pm checklist templates for a person by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on free pm checklist templates for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/free-pm-checklist-templates/index.html as any after the find of 2026-11-07T23:25 (free-pm-checklist-templates: B3 0%: sentences=155 · >20w=10 · passive=2 · grade>8=20 · worst(42w): \"Note that the limit ) - phone .tmp/cf_ev/phone/BRH223_free-pm-checklist-templates.json @390px 2026-11-08T09:39; desktop .tmp/cf_ev/desktop/BRH223_free-pm-checklist-templates.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF24",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - gamifying maintenance for engagement · a person: B1 67%: marketese=0 verboseBlocks=5",
       "pages": [
@@ -1211898,13 +1211968,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on gamifying maintenance for engagement for a person by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on gamifying maintenance for engagement for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/gamifying-maintenance-for-engagement/index.html as any after the find of 2026-11-07T23:25 (gamifying-maintenance-for-engagement: B1 67%: marketese=0 verboseBlocks=5) - phone .tmp/cf_ev/phone/BRH224_gamifying-maintenance-for-engagement.json @390px 2026-11-08T09:39; desktop .tmp/cf_ev/desktop/BRH224_gamifying-maintenance-for-engagement.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF25",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - gamifying maintenance for engagement · a person: B3 0%: sentences=68 · >20w=14 · passive=4 · grade>8=25 · worst(37w): \"",
       "pages": [
@@ -1211967,13 +1212044,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on gamifying maintenance for engagement for a person by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on gamifying maintenance for engagement for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/gamifying-maintenance-for-engagement/index.html as any after the find of 2026-11-07T23:25 (gamifying-maintenance-for-engagement: B3 0%: sentences=68 · >20w=14 · passive=4 · grade>8=25 · worst(37w): \"The Achievem) - phone .tmp/cf_ev/phone/BRH224_gamifying-maintenance-for-engagement.json @390px 2026-11-08T09:39; desktop .tmp/cf_ev/desktop/BRH224_gamifying-maintenance-for-engagement.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF26",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - maintenance metrics reliability guide · a person: B1 67%: marketese=0 verboseBlocks=5",
       "pages": [
@@ -1212036,13 +1212120,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on maintenance metrics reliability guide for a person by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on maintenance metrics reliability guide for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/maintenance-metrics-reliability-guide/index.html as any after the find of 2026-11-07T23:25 (maintenance-metrics-reliability-guide: B1 67%: marketese=0 verboseBlocks=5) - phone .tmp/cf_ev/phone/BRH226_maintenance-metrics-reliability-guide.json @390px 2026-11-08T09:39; desktop .tmp/cf_ev/desktop/BRH226_maintenance-metrics-reliability-guide.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF27",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - maintenance metrics reliability guide · a person: B3 0%: sentences=33 · >20w=9 · passive=2 · grade>8=12 · worst(40w): \"W",
       "pages": [
@@ -1212105,13 +1212196,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on maintenance metrics reliability guide for a person by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on maintenance metrics reliability guide for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/maintenance-metrics-reliability-guide/index.html as any after the find of 2026-11-07T23:25 (maintenance-metrics-reliability-guide: B3 0%: sentences=33 · >20w=9 · passive=2 · grade>8=12 · worst(40w): \"When mainten) - phone .tmp/cf_ev/phone/BRH226_maintenance-metrics-reliability-guide.json @390px 2026-11-08T09:39; desktop .tmp/cf_ev/desktop/BRH226_maintenance-metrics-reliability-guide.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF28",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "C4 Typography (tabular KPIs) - maintenance metrics reliability guide · a person: C4 0%: 0/2 numeric els tabular",
       "pages": [
@@ -1212174,13 +1212272,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "C4 graded clean on maintenance metrics reliability guide for a person by a walk after the fix, at both viewports"
+        "closes": "C4 graded clean on maintenance metrics reliability guide for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:52"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): C4 (Typography (tabular KPIs)) on learn/maintenance-metrics-reliability-guide/index.html as any after the find of 2026-11-07T23:25 (maintenance-metrics-reliability-guide: C4 0%: 0/2 numeric els tabular) - phone .tmp/cf_ev/phone/BRH226_maintenance-metrics-reliability-guide.json @390px 2026-11-08T09:39 (C4 N/A there: the class no longer applies); desktop .tmp/cf_ev/desktop/BRH226_maintenance-metrics-reliability-guide.json @1280px 2026-11-08T09:42 (C4 N/A there: the class no longer applies). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF29",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "K2 Field legibility & reach - maintenance metrics reliability guide · a person: K2 50%: 0/2 glanceable KPI(s), 0 under-44 target(s)",
       "pages": [
@@ -1212243,13 +1212348,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "K2 graded clean on maintenance metrics reliability guide for a person by a walk after the fix, at both viewports"
+        "closes": "K2 graded clean on maintenance metrics reliability guide for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): K2 (Field legibility & reach) on learn/maintenance-metrics-reliability-guide/index.html as any after the find of 2026-11-07T23:25 (maintenance-metrics-reliability-guide: K2 50%: 0/2 glanceable KPI(s), 0 under-44 target(s)) - phone .tmp/cf_ev/phone/BRH226_maintenance-metrics-reliability-guide.json @390px 2026-11-08T09:39; desktop .tmp/cf_ev/desktop/BRH226_maintenance-metrics-reliability-guide.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF30",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - ph industrial benchmarks intelligence · a person: B1 67%: marketese=0 verboseBlocks=4",
       "pages": [
@@ -1212312,13 +1212424,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on ph industrial benchmarks intelligence for a person by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on ph industrial benchmarks intelligence for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/ph-industrial-benchmarks-intelligence/index.html as any after the find of 2026-11-07T23:25 (ph-industrial-benchmarks-intelligence: B1 67%: marketese=0 verboseBlocks=4) - phone .tmp/cf_ev/phone/BRH227_ph-industrial-benchmarks-intelligence.json @390px 2026-11-08T09:40; desktop .tmp/cf_ev/desktop/BRH227_ph-industrial-benchmarks-intelligence.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF31",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - ph industrial benchmarks intelligence · a person: B3 0%: sentences=66 · >20w=26 · passive=2 · grade>8=33 · worst(40w): \"",
       "pages": [
@@ -1212381,13 +1212500,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on ph industrial benchmarks intelligence for a person by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on ph industrial benchmarks intelligence for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/ph-industrial-benchmarks-intelligence/index.html as any after the find of 2026-11-07T23:25 (ph-industrial-benchmarks-intelligence: B3 0%: sentences=66 · >20w=26 · passive=2 · grade>8=33 · worst(40w): \"A cross-pla) - phone .tmp/cf_ev/phone/BRH227_ph-industrial-benchmarks-intelligence.json @390px 2026-11-08T09:40; desktop .tmp/cf_ev/desktop/BRH227_ph-industrial-benchmarks-intelligence.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF32",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - ra 11285 energy efficiency plant checklist · fleet-supervisor: B1 67% - marketese=0 verboseBlocks=25",
       "pages": [
@@ -1212452,13 +1212578,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on ra 11285 energy efficiency plant checklist for fleet-supervisor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on ra 11285 energy efficiency plant checklist for fleet-supervisor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:52"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/ra-11285-energy-efficiency-plant-checklist/index.html as fleet-supervisor after the find of 2026-09-11 (ra-11285-energy-efficiency-plant-checklist: B1 67% - marketese=0 verboseBlocks=25) - phone .tmp/cf_ev/phone/W3723_ra-11285-energy-efficiency-plant-checklist.json @390px 2026-11-08T09:50; desktop .tmp/cf_ev/desktop/W3723_ra-11285-energy-efficiency-plant-checklist.json @1280px 2026-11-08T09:51. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF33",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - ra 11285 energy efficiency plant checklist · solo-owner: B1 67% - marketese=0 verboseBlocks=25",
       "pages": [
@@ -1212537,13 +1212670,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on ra 11285 energy efficiency plant checklist for solo-owner by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on ra 11285 energy efficiency plant checklist for solo-owner by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/ra-11285-energy-efficiency-plant-checklist/index.html as solo-owner after the find of 2026-09-11 (ra-11285-energy-efficiency-plant-checklist: B1 67% - marketese=0 verboseBlocks=25) - phone .tmp/cf_ev/phone/W374_ra-11285-energy-efficiency-plant-checklist.json @390px 2026-11-08T09:38; desktop .tmp/cf_ev/desktop/W374_ra-11285-energy-efficiency-plant-checklist.json @1280px 2026-11-08T09:41. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF34",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - what is oee how to calculate · a person: B1 67%: marketese=0 verboseBlocks=6",
       "pages": [
@@ -1212606,13 +1212746,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on what is oee how to calculate for a person by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on what is oee how to calculate for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/what-is-oee-how-to-calculate/index.html as any after the find of 2026-11-07T23:25 (what-is-oee-how-to-calculate: B1 67%: marketese=0 verboseBlocks=6) - phone .tmp/cf_ev/phone/BRH228_what-is-oee-how-to-calculate.json @390px 2026-11-08T09:40; desktop .tmp/cf_ev/desktop/BRH228_what-is-oee-how-to-calculate.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF35",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - what is oee how to calculate · a person: B3 0%: sentences=122 · >20w=22 · passive=3 · grade>8=39 · worst(56w): ",
       "pages": [
@@ -1212675,13 +1212822,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on what is oee how to calculate for a person by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on what is oee how to calculate for a person by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/what-is-oee-how-to-calculate/index.html as any after the find of 2026-11-07T23:25 (what-is-oee-how-to-calculate: B3 0%: sentences=122 · >20w=22 · passive=3 · grade>8=39 · worst(56w): \"Of the bars this li) - phone .tmp/cf_ev/phone/BRH228_what-is-oee-how-to-calculate.json @390px 2026-11-08T09:40; desktop .tmp/cf_ev/desktop/BRH228_what-is-oee-how-to-calculate.json @1280px 2026-11-08T09:42. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF36",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - what is oee how to calculate · solo-owner: B1 67% - marketese=0 verboseBlocks=6",
       "pages": [
@@ -1212749,13 +1212903,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on what is oee how to calculate for solo-owner by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on what is oee how to calculate for solo-owner by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/what-is-oee-how-to-calculate/index.html as solo-owner after the find of 2026-10-13T21:34 (what-is-oee-how-to-calculate: B1 67% - marketese=0 verboseBlocks=6) - phone .tmp/cf_ev/phone/W37_what-is-oee-how-to-calculate.json @390px 2026-11-08T09:38; desktop .tmp/cf_ev/desktop/W37_what-is-oee-how-to-calculate.json @1280px 2026-11-08T09:40. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF37",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "E3 Trust / transparency - llm observability · oversight: E3 50% - chip: \"Loading the cost and cache rollups...\"",
       "pages": [
@@ -1212813,7 +1212974,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "E3 graded clean on llm observability for oversight by a walk after the fix, at both viewports"
+        "closes": "E3 graded clean on llm observability for oversight by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:52"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): E3 (Trust / transparency) on llm-observability.html as oversight after the find of 2026-11-04T14:49 (llm-observability: E3 50% - chip: \"Loading the cost and cache rollups...\") - phone .tmp/cf_ev/phone/SL33_llm-observability.json @390px 2026-11-08T09:48 (E3 N/A there: the class no longer applies); desktop .tmp/cf_ev/desktop/SL33_llm-observability.json @1280px 2026-11-08T09:48 (E3 N/A there: the class no longer applies). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1212971,8 +1213139,8 @@
     },
     {
       "id": "CF40",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "C5 Perceptual contrast (APCA Lc) — WCAG 2.x ratio overestimates legibility on DARK backgrounds; APCA scores by lightness AND font size/weight - platform actions · oversight: C5 67%: 1 pass WCAG but miss APCA Lc (worst: \"Its Operations tab now h",
       "pages": [
@@ -1213068,13 +1213236,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "C5 graded clean on platform actions for oversight by a walk after the fix, at both viewports"
+        "closes": "C5 graded clean on platform actions for oversight by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): C5 (Perceptual contrast (APCA Lc) — WCAG 2.x ratio overestimates legibility on DARK backgrounds; APCA scores by lightness AND font size/weight) on platform-actions.html as oversight after the find of 2026-11-07T23:25 (platform-actions: C5 67%: 1 pass WCAG but miss APCA Lc (worst: \"Its Operations tab now h\" Lc 47/75 at 15px)) - phone .tmp/cf_ev/phone/SL35_platform-actions.json @390px 2026-11-08T09:40; desktop .tmp/cf_ev/desktop/SL35_platform-actions.json @1280px 2026-11-08T09:43. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF41",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "W1 Back / escape affordance - platform actions · oversight: W1 0%: NO in-layout way back (only the floating nav-hub) — Nielsen #3",
       "pages": [
@@ -1213170,13 +1213345,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "W1 graded clean on platform actions for oversight by a walk after the fix, at both viewports"
+        "closes": "W1 graded clean on platform actions for oversight by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): W1 (Back / escape affordance) on platform-actions.html as oversight after the find of 2026-11-07T23:25 (platform-actions: W1 0%: NO in-layout way back (only the floating nav-hub) — Nielsen #3) - phone .tmp/cf_ev/phone/SL35_platform-actions.json @390px 2026-11-08T09:40; desktop .tmp/cf_ev/desktop/SL35_platform-actions.json @1280px 2026-11-08T09:43. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF42",
-      "status": "walked",
-      "pct": 25,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "A1 5-second test - project manager · solo-owner: A1 75%: h1=0 focalTier=24px×1 bigTiers=1 cta=1",
       "pages": [
@@ -1213278,9 +1213460,15 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "A1 graded clean on project manager for solo-owner by a walk after the fix, at both viewports"
+        "closes": "A1 graded clean on project manager for solo-owner by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
       },
-      "basis": "[2026-11-08] WALKED pct -> 25. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): A1 (5-second test) on project-manager.html as solo-owner after the find of 2026-11-07T23:25 (project-manager: A1 75%: h1=0 focalTier=24px×1 bigTiers=1 cta=1) - clean at .tmp/cf_ev/desktop/BRH131_project-manager.json @1280px 2026-11-08T08:54; phone-390 owed (critic_walk_batch.mjs --ids BRH131 --device phone-390 --outdir .tmp/cf_ev/phone). Gate cf-rows-hold."
+      "basis": "[2026-11-08] WALKED pct -> 25. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): A1 (5-second test) on project-manager.html as solo-owner after the find of 2026-11-07T23:25 (project-manager: A1 75%: h1=0 focalTier=24px×1 bigTiers=1 cta=1) - clean at .tmp/cf_ev/desktop/BRH131_project-manager.json @1280px 2026-11-08T08:54; phone-390 owed (critic_walk_batch.mjs --ids BRH131 --device phone-390 --outdir .tmp/cf_ev/phone). Gate cf-rows-hold. || [2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): A1 (5-second test) on project-manager.html as solo-owner after the find of 2026-11-07T23:25 (project-manager: A1 75%: h1=0 focalTier=24px×1 bigTiers=1 cta=1) - phone .tmp/cf_ev/phone/BRH131_project-manager.json @390px 2026-11-08T09:38; desktop .tmp/cf_ev/desktop/BRH131_project-manager.json @1280px 2026-11-08T09:41. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
+      }
     },
     {
       "id": "CF43",
@@ -1213355,8 +1213543,8 @@
     },
     {
       "id": "CF44",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - free engineering calculators philippine plants · fleet-supervisor: B3 0% - sentences=90 · >20w=18 · passive=3 · grade>8=36 · worst(62w): ",
       "pages": [
@@ -1213421,13 +1213609,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on free engineering calculators philippine plants for fleet-supervisor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on free engineering calculators philippine plants for fleet-supervisor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:52"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/free-engineering-calculators-philippine-plants/index.html as fleet-supervisor after the find of 2026-09-11 (free-engineering-calculators-philippine-plants: B3 0% - sentences=90 · >20w=18 · passive=3 · grade>8=36 · worst(62w): \"W) - phone .tmp/cf_ev/phone/W3723_free-engineering-calculators-philippine-plants.json @390px 2026-11-08T09:50; desktop .tmp/cf_ev/desktop/W3723_free-engineering-calculators-philippine-plants.json @1280px 2026-11-08T09:51. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF45",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - free engineering calculators philippine plants · solo-owner: B3 0% - sentences=90 · >20w=18 · passive=3 · grade>8=36 · worst(62w): ",
       "pages": [
@@ -1213506,13 +1213701,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on free engineering calculators philippine plants for solo-owner by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on free engineering calculators philippine plants for solo-owner by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/free-engineering-calculators-philippine-plants/index.html as solo-owner after the find of 2026-09-11 (free-engineering-calculators-philippine-plants: B3 0% - sentences=90 · >20w=18 · passive=3 · grade>8=36 · worst(62w): \"W) - phone .tmp/cf_ev/phone/W374_free-engineering-calculators-philippine-plants.json @390px 2026-11-08T09:38; desktop .tmp/cf_ev/desktop/W374_free-engineering-calculators-philippine-plants.json @1280px 2026-11-08T09:41. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF46",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - ra 11285 energy efficiency plant checklist · fleet-supervisor: B3 0% - sentences=131 · >20w=37 · passive=9 · grade>8=92 · worst(38w):",
       "pages": [
@@ -1213577,13 +1213779,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on ra 11285 energy efficiency plant checklist for fleet-supervisor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on ra 11285 energy efficiency plant checklist for fleet-supervisor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:52"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/ra-11285-energy-efficiency-plant-checklist/index.html as fleet-supervisor after the find of 2026-09-11 (ra-11285-energy-efficiency-plant-checklist: B3 0% - sentences=131 · >20w=37 · passive=9 · grade>8=92 · worst(38w): \"The ) - phone .tmp/cf_ev/phone/W3723_ra-11285-energy-efficiency-plant-checklist.json @390px 2026-11-08T09:50; desktop .tmp/cf_ev/desktop/W3723_ra-11285-energy-efficiency-plant-checklist.json @1280px 2026-11-08T09:51. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF47",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - ra 11285 energy efficiency plant checklist · solo-owner: B3 0% - sentences=131 · >20w=37 · passive=9 · grade>8=92 · worst(38w):",
       "pages": [
@@ -1213662,13 +1213871,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on ra 11285 energy efficiency plant checklist for solo-owner by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on ra 11285 energy efficiency plant checklist for solo-owner by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/ra-11285-energy-efficiency-plant-checklist/index.html as solo-owner after the find of 2026-09-11 (ra-11285-energy-efficiency-plant-checklist: B3 0% - sentences=131 · >20w=37 · passive=9 · grade>8=92 · worst(38w): \"The ) - phone .tmp/cf_ev/phone/W374_ra-11285-energy-efficiency-plant-checklist.json @390px 2026-11-08T09:38; desktop .tmp/cf_ev/desktop/W374_ra-11285-energy-efficiency-plant-checklist.json @1280px 2026-11-08T09:41. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF48",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - what is oee how to calculate · solo-owner: B3 0% - sentences=121 · >20w=22 · passive=3 · grade>8=39 · worst(56w):",
       "pages": [
@@ -1213736,7 +1213952,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on what is oee how to calculate for solo-owner by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on what is oee how to calculate for solo-owner by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T09:44"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/what-is-oee-how-to-calculate/index.html as solo-owner after the find of 2026-10-13T21:34 (what-is-oee-how-to-calculate: B3 0% - sentences=121 · >20w=22 · passive=3 · grade>8=39 · worst(56w): \"Of the bars this l) - phone .tmp/cf_ev/phone/W37_what-is-oee-how-to-calculate.json @390px 2026-11-08T09:38; desktop .tmp/cf_ev/desktop/W37_what-is-oee-how-to-calculate.json @1280px 2026-11-08T09:40. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
