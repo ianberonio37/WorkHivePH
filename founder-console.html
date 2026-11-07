@@ -3121,7 +3121,7 @@
         return `<div class="audit-item">
           <span class="audit-dot ${dotCls}"></span>
           <div style="flex:1;">
-            <div class="audit-action">${escHtml(v.label)}${v.target ? ': ' + escHtml(v.target) : ''}</div>
+            <div class="audit-action">${escHtml(v.label)}${v.target ? ': <span data-user-content>' + escHtml(v.target) + '</span>' : ''}</div>
             <div class="audit-meta">by ${escHtml(ev.actor || '?')} · ${escHtml(ev.hive_name || ('hive ' + (ev.hive_id || '').slice(0, 8)))} · ${escHtml(when)}</div>
           </div>
         </div>`;

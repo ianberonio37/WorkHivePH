@@ -449,7 +449,9 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <!-- Hive gate -->
 <div id="hive-gate" data-wh-gate="no-hive">
   <div class="gate-card">
-    <h2 style="margin-bottom: 10px;" data-i="joinhivefirst">Join a hive first</h2>
+    <!-- heading-allow: one of two mutually exclusive views (this gate shows instead of the page) - the screen's h1 when it
+         shows (CF42, 2026-11-08: a hive-less solo owner met a screen with no h1) -->
+    <h1 style="margin-bottom: 10px; font-size: var(--wh-fs-lg, 1.25rem); font-weight: 700;" data-i="joinhivefirst">Join a hive first</h1>
     <p data-i="p_projectmanageristeamdatajoin_ae15" class="sub" style="margin-bottom: 18px;">Project Manager is team data. Join or create a hive to plan and track projects with your crew.</p>
     <a data-i="p_gotohive_f399" href="hive.html" class="btn primary">Go to Hive</a>
   </div>

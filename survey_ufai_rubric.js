@@ -853,6 +853,8 @@
     const MARKETESE = /\b(revolutionary|cutting-edge|seamless|empower|game-chang|best-in-class|synerg)|\bworld-class\s+(?:platform|product|support|service|team|experience|software|solution|tool|app)\b/i;
     const marketese = textEls.filter(e => MARKETESE.test(ownText(e)));
     const longBlocks = textEls.filter(e => ownText(e).split(/\s+/).length > 60);
+    // opts.full (Wave CF, 2026-11-08): every verbose block's own text, untruncated - the list a rewrite works from
+    if (opts && opts.full) out._b1full = longBlocks.map((e) => ownText(e));
     out.push(M('B1', 'Microcopy / concision', [
       marketese.length === 0,
       longBlocks.length <= 3,
@@ -1093,6 +1095,9 @@
       + (_fkLangEN ? `grade>8=${overGrade.length}` : 'grade=n/a (FK is English-calibrated; +4.5 grades on this platform’s own FIL/EN parallel corpus)')
       + (worstLong ? ` · worst(${worstLong.t.split(/\s+/).length}w): "${worstLong.t.slice(0, 60)}…"` : '')));
     // expose the offenders so the caller can REWRITE them, not just score them
+    // opts.full (Wave CF, 2026-11-08): every offending sentence, untruncated - the scored lists below stop at 8/5/5
+    if (opts && opts.full) out._b3full = { long: longOnes.map((x) => x.t), passive: passiveOnes.map((x) => x.t),
+      overGrade: overGrade.map((x) => ({ grade: +fk(x.t).toFixed(1), text: x.t })) };
     out._b3 = {
       long: longOnes.slice(0, 8).map((s) => ({ words: s.t.split(/\s+/).length, text: s.t.slice(0, 110) })),
       passive: passiveOnes.slice(0, 5).map((s) => s.t.slice(0, 90)),
@@ -3722,6 +3727,8 @@
         } catch (e) { return { error: String(e).slice(0, 60) }; }
       })(),
       b3_offenders: out._b3,   // the exact sentences to REWRITE — scoring alone fixes nothing
+      b3_full: out._b3full,    // opts.full only: every offender, untruncated (tools/copy_offenders.mjs)
+      b1_full: out._b1full,    // opts.full only: every block over 60 words
       c2_offenders: out._c2,   // every below-floor text el (worst-stop scored) — the C2 fix list
       num_els: out._nums,      // GJ M11: the number-only elements C4 (tabular) and K2 (>=20px) counted
       // ★C5 COULD NOT SHOW ITS WORK (2026-09-11). The APCA offender list was computed, spent on ONE

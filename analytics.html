@@ -3156,8 +3156,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const watchItems = (plan.watch_list || []).map(w => `<span style="font-size:var(--wh-fs-xs, 0.8rem);padding:0.2rem 0.5rem;border-radius:999px;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);margin-right:0.4rem;">${escHtml(w)}</span>`).join('');
     return `<div class="card" style="border-color:var(--wh-violet-text);background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.07);margin-bottom:1rem;">
       <div class="card-title" style="color:var(--wh-violet-text);">⚡ AI Action Plan <span class="card-standard">WorkHive AI · ISO 55000:2014</span></div>
-      ${plan.summary ? `<p style="font-size:var(--wh-fs-xs, 0.8rem);font-weight:600;color:var(--wh-white, #fff);margin-bottom:0.75rem;max-width:70ch;">${escHtml(plan.summary)}</p>` : ''}
-      <ul style="padding-left:1.25rem;font-size:var(--wh-fs-2xs, 0.75rem);line-height:1.7;">${items}</ul>
+      ${plan.summary ? `<p data-ai-generated style="font-size:var(--wh-fs-xs, 0.8rem);font-weight:600;color:var(--wh-white, #fff);margin-bottom:0.75rem;max-width:70ch;">${escHtml(plan.summary)}</p>` : ''}
+      <ul data-ai-generated style="padding-left:1.25rem;font-size:var(--wh-fs-2xs, 0.75rem);line-height:1.7;">${items}</ul>
       ${watchItems ? `<div style="margin-top:0.75rem;"><p style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.4rem;">Watch list:</p>${watchItems}</div>` : ''}
     </div>`;
   }
@@ -3679,9 +3679,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const aiSummary = presc?.action_plan?.summary;
     let aiBlock = '';
     if (aiSummary) {
+      // the model's words are marked as the model's (CF7/CF9, 2026-11-08): the critic graded a stored action-plan summary -
+      // nine asset tags in a persona's voice - as this page's own copy (E4 "raw ids dumped"); the AI lenses grade it instead
       aiBlock = `<div class="role-ai-rec">
         <div class="role-ai-rec-label">⚡ AI recommendation</div>
-        <p class="role-ai-rec-text">${escHtml(aiSummary)}</p>
+        <p class="role-ai-rec-text" data-ai-generated>${escHtml(aiSummary)}</p>
       </div>`;
     }
 

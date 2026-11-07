@@ -194,10 +194,11 @@
 <div id="wh-retired-overlay" role="main" data-wh-gate="retired" style="position:fixed; inset:0; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); box-sizing:border-box; z-index:var(--wh-z-retired, 100000); background:rgba(var(--wh-ink-darkest-rgb, 11, 15, 26), 0.98); color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.92); display:none; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <h1 style="font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; margin:0 0 0.6rem; color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.95);">Platform Actions has moved into the operator console</h1>
-    <p style="color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.6); font-size:var(--wh-fs-md, 0.95rem); line-height:1.5; margin:0 0 1.6rem;">Its Operations tab now holds the top-ups and the receipts. It also holds the listings and sellers to review, and the feedback inbox.</p>
+    <p style="color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.9); font-size:var(--wh-fs-md, 0.95rem); line-height:1.5; margin:0 0 1.6rem;">Its Operations tab now holds the top-ups and the receipts. It also holds the listings and sellers to review, and the feedback inbox.</p>
     <nav aria-label="Where this page moved" style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
       <a href="founder-console.html#operations" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color:var(--wh-orange-light, #FDB94A); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); text-decoration:none; font-weight:700; min-height:44px; border-radius:8px;">Open the Operations tab →</a>
-    </nav>
+          <a href="index.html" data-wh-back style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.9); border:1px solid rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.25); text-decoration:none; font-weight:600; min-height:44px; border-radius:8px;">← WorkHive home</a>
+</nav>
   </div>
 </div>
 <!-- W45988 audit: this page had NO skip link by any route. The platform's shared one lives in
@@ -861,7 +862,7 @@
           const reason = r.meta && r.meta.reason ? ' · reason: ' + r.meta.reason : '';
           return `
           <div class="mod-row">
-            <div class="mod-main"><strong>${e(v.label)}${v.target ? ': ' + e(v.target) : ''}</strong>
+            <div class="mod-main"><strong>${e(v.label)}${v.target ? ': <span data-user-content>' + e(v.target) + '</span>' : ''}</strong>
               <span class="mod-sub">${e(r.actor || 'unknown')} · ${e(new Date(r.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))}${e(reason)}</span></div>
           </div>`;
         }).join('');

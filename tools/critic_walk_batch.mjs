@@ -13,7 +13,7 @@
 // BOTH wh_hive_id and wh_active_hive_id (+ role/worker/lang) - pages read one or the other.
 import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
-import { PAGE_QUERY, PAGE_REVEAL, revealWorkedState } from './page_walk_state.mjs';   // one copy of the state a page needs to be graded
+import { PAGE_QUERY, PAGE_REVEAL, revealWorkedState, loadPageOwnJs } from './page_walk_state.mjs';   // one copy of the state a page needs to be graded
 import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, statSync } from 'fs';
 import { execFileSync } from 'child_process';
 
@@ -220,6 +220,7 @@ try {
         // on every walk (E3, O2, C3, S1). The reveal lives once in page_walk_state.mjs, shared with the sweep, and one
         // that finds nothing to act on is reported, never silent.
         if (PAGE_REVEAL[rel] && !(await revealWorkedState(page, rel))) console.log(`    note ${w.ids[0]}: ${rel} reveal found nothing to act on`);
+        await loadPageOwnJs(page);   // the page's own script files, read as its code (J1's guards)
         const pid = pageIdOf(rel);
         const survey = await page.evaluate(({ src, pid, rel, anon }) => {
           eval('(' + src + ')')();

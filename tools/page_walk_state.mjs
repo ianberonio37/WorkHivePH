@@ -5,6 +5,42 @@
 // walk (E3, O2, C3, S1). What a page needs in order to be the page is a fact about the page, not about whichever tool
 // happens to walk it. Settle times stay per tool: they are about the tool's pace, not the page's state.
 
+import { readdirSync, readFileSync } from 'fs';
+
+// ★THE PAGE'S OWN SCRIPT FILES ARE ITS CODE (CF12, 2026-11-08; the GJ prover's rule of 2026-11-06, now one copy). The rubric's
+// J1 looks for a destructive control's guard in the page's code - the inline scripts, plus window.__WH_PAGE_OWN_JS. The
+// founder console confirms "Remove", "Reject" and the rest through whConfirm in operator-actions.js, loaded by src, so a
+// walker that did not fill __WH_PAGE_OWN_JS graded J1 0/8 on eight guarded controls (critic walk SL32, as oversight). A
+// script four or more pages load is shared chrome (utils.js, the nav hub), graded once on its own; fewer is the page's own.
+let _shared = null;
+export function sharedScripts() {
+  if (_shared) return _shared;
+  const uses = new Map();
+  const htmls = [...readdirSync('.').filter((f) => f.endsWith('.html')),
+    ...['feedback', 'learn', 'tools'].flatMap((d) => { try { return readdirSync(d, { withFileTypes: true }).filter((x) => x.isDirectory()).map((x) => `${d}/${x.name}/index.html`); } catch (_) { return []; } })];
+  for (const h of new Set(htmls)) {
+    let src = '';
+    try { src = readFileSync(h, 'utf8'); } catch (_) { continue; }
+    for (const m of src.matchAll(/<script[^>]*\bsrc="([^"]+)"/g)) {
+      const base = m[1].split('?')[0].split('/').pop();
+      uses.set(base, (uses.get(base) || 0) + 1);
+    }
+  }
+  _shared = new Set([...uses].filter(([, n]) => n >= 4).map(([b]) => b));
+  return _shared;
+}
+export async function loadPageOwnJs(page) {
+  await page.evaluate(async (shared) => {
+    let t = '';
+    for (const sc of [...document.scripts].filter((x) => x.src && new URL(x.src).origin === location.origin)) {
+      const base = new URL(sc.src).pathname.split('/').pop();
+      if (shared.includes(base)) continue;
+      try { t += '\n' + await (await fetch(sc.src)).text(); } catch (_) { /* a script that cannot be re-read is left out */ }
+    }
+    window.__WH_PAGE_OWN_JS = t;
+  }, [...sharedScripts()]).catch(() => {});
+}
+
 // Deep-link state a page's REAL use requires (never measure a bounced shell).
 export const PAGE_QUERY = { 'marketplace-seller-profile.html': '?worker=Bryan%20Garcia' };
 

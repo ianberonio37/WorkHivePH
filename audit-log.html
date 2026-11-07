@@ -1185,7 +1185,7 @@
               collapses to "(own profile)" when it is the actor; the record keeps both fields and Show details.
               SL L2: the same holds for any row about the person themselves (their seller profile, their account). */
            +       (isSelf ? (selfLabel(en.target_type) ? '<span class="entry-target-type">(' + e(selfLabel(en.target_type)) + ')</span>' : '')
-                     : ((v.target ? '<span class="entry-target">' + e(typeof whMarkFormerIn === 'function' ? whMarkFormerIn(v.target) : v.target) + '</span>' : '')
+                     : ((v.target ? '<span class="entry-target" data-user-content>' + e(typeof whMarkFormerIn === 'function' ? whMarkFormerIn(v.target) : v.target) + '</span>' : '')
                       + (typeLabel ? '<span class="entry-target-type">(' + e(typeLabel) + ')</span>' : '')))
            +       '<span class="entry-time" title="' + e(en.created_at || '') + '">' + e(fmtRelative(en.created_at)) + '</span>'
            +     '</div>'

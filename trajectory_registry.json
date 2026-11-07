@@ -1210043,8 +1210043,8 @@
     },
     {
       "id": "CF3",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "A1 5-second test - agentic rag observability · oversight: A1 75% - h1=1 focalTier=24px×1 bigTiers=2 cta=0",
       "pages": [
@@ -1210102,7 +1210102,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "A1 graded clean on agentic rag observability for oversight by a walk after the fix, at both viewports"
+        "closes": "A1 graded clean on agentic rag observability for oversight by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T08:59"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): A1 (5-second test) on agentic-rag-observability.html as oversight after the find of 2026-11-04T14:48 (agentic-rag-observability: A1 75% - h1=1 focalTier=24px×1 bigTiers=2 cta=0) - phone .tmp/cf_ev/phone/SL28_agentic-rag-observability.json @390px 2026-11-08T08:53; desktop .tmp/cf_ev/desktop/SL28_agentic-rag-observability.json @1280px 2026-11-08T08:57. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1210335,8 +1210342,8 @@
     },
     {
       "id": "CF7",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "E4 Digest, don't dump (answer not working) - analytics · fleet-supervisor: E4 67%: repeatedVerdicts=0 · rawIdDumps=1 · untranslatedStats=0 · dump",
       "pages": [
@@ -1210440,7 +1210447,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "E4 graded clean on analytics for fleet-supervisor by a walk after the fix, at both viewports"
+        "closes": "E4 graded clean on analytics for fleet-supervisor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T08:59"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): E4 (Digest, don't dump (answer not working)) on analytics.html as fleet-supervisor after the find of 2026-11-07T23:25 (analytics: E4 67%: repeatedVerdicts=0 · rawIdDumps=1 · untranslatedStats=0 · dump: 9 ids inline) - phone .tmp/cf_ev/phone/SL21_analytics.json @390px 2026-11-08T08:53; desktop .tmp/cf_ev/desktop/SL21_analytics.json @1280px 2026-11-08T08:57. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1210522,8 +1210536,8 @@
     },
     {
       "id": "CF9",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "E4 Digest, don't dump (answer not working) - analytics · supervisor: E4 67%: repeatedVerdicts=0 · rawIdDumps=1 · untranslatedStats=0 · dump",
       "pages": [
@@ -1210707,7 +1210721,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "E4 graded clean on analytics for supervisor by a walk after the fix, at both viewports"
+        "closes": "E4 graded clean on analytics for supervisor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T08:59"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): E4 (Digest, don't dump (answer not working)) on analytics.html as supervisor after the find of 2026-11-07T23:25 (analytics: E4 67%: repeatedVerdicts=0 · rawIdDumps=1 · untranslatedStats=0 · dump: 9 ids inline) - phone .tmp/cf_ev/phone/BRH150_analytics.json @390px 2026-11-08T08:51; desktop .tmp/cf_ev/desktop/BRH150_analytics.json @1280px 2026-11-08T08:55. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1213154,8 +1213175,8 @@
     },
     {
       "id": "CF42",
-      "status": "specced",
-      "pct": 5,
+      "status": "walked",
+      "pct": 25,
       "wave": "CF-FOUND",
       "title": "A1 5-second test - project manager · solo-owner: A1 75%: h1=0 focalTier=24px×1 bigTiers=1 cta=1",
       "pages": [
@@ -1213258,12 +1213279,13 @@
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
         "closes": "A1 graded clean on project manager for solo-owner by a walk after the fix, at both viewports"
-      }
+      },
+      "basis": "[2026-11-08] WALKED pct -> 25. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): A1 (5-second test) on project-manager.html as solo-owner after the find of 2026-11-07T23:25 (project-manager: A1 75%: h1=0 focalTier=24px×1 bigTiers=1 cta=1) - clean at .tmp/cf_ev/desktop/BRH131_project-manager.json @1280px 2026-11-08T08:54; phone-390 owed (critic_walk_batch.mjs --ids BRH131 --device phone-390 --outdir .tmp/cf_ev/phone). Gate cf-rows-hold."
     },
     {
       "id": "CF43",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "R4 Regions & whitespace (no orphan voids) - agentic rag observability · oversight: R4 0% - 1 orphan void(s)",
       "pages": [
@@ -1213321,7 +1213343,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "R4 graded clean on agentic rag observability for oversight by a walk after the fix, at both viewports"
+        "closes": "R4 graded clean on agentic rag observability for oversight by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T08:59"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): R4 (Regions & whitespace (no orphan voids)) on agentic-rag-observability.html as oversight after the find of 2026-11-04T14:48 (agentic-rag-observability: R4 0% - 1 orphan void(s)) - phone .tmp/cf_ev/phone/SL28_agentic-rag-observability.json @390px 2026-11-08T08:53; desktop .tmp/cf_ev/desktop/SL28_agentic-rag-observability.json @1280px 2026-11-08T08:57. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1213712,8 +1213741,8 @@
     },
     {
       "id": "CF49",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "E2 Empty / loading / error - llm observability · oversight: E2 0% - 0/2 empties explain themselves",
       "pages": [
@@ -1213771,13 +1213800,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "E2 graded clean on llm observability for oversight by a walk after the fix, at both viewports"
+        "closes": "E2 graded clean on llm observability for oversight by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T08:59"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): E2 (Empty / loading / error) on llm-observability.html as oversight after the find of 2026-11-04T14:49 (llm-observability: E2 0% - 0/2 empties explain themselves) - phone .tmp/cf_ev/phone/SL33_llm-observability.json @390px 2026-11-08T08:53; desktop .tmp/cf_ev/desktop/SL33_llm-observability.json @1280px 2026-11-08T08:57. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF50",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "R4 Regions & whitespace (no orphan voids) - marketplace admin · oversight: R4 0% - 1 orphan void(s)",
       "pages": [
@@ -1213835,7 +1213871,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "R4 graded clean on marketplace admin for oversight by a walk after the fix, at both viewports"
+        "closes": "R4 graded clean on marketplace admin for oversight by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-08T08:59"
+      },
+      "basis": "[2026-11-08] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): R4 (Regions & whitespace (no orphan voids)) on marketplace-admin.html as oversight after the find of 2026-11-04T14:39 (marketplace-admin: R4 0% - 1 orphan void(s)) - phone .tmp/cf_ev/phone/SL34_marketplace-admin.json @390px 2026-11-08T08:53; desktop .tmp/cf_ev/desktop/SL34_marketplace-admin.json @1280px 2026-11-08T08:57. Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {

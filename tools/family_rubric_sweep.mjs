@@ -28,7 +28,7 @@
 
 import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
-import { PAGE_QUERY, PAGE_REVEAL, revealWorkedState } from './page_walk_state.mjs';   // one copy of the state a page needs to be graded
+import { PAGE_QUERY, PAGE_REVEAL, revealWorkedState, loadPageOwnJs } from './page_walk_state.mjs';   // one copy of the state a page needs to be graded
 import { writeFileSync, readFileSync } from 'fs';
 import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
@@ -271,6 +271,7 @@ async function surveyPage(context, file) {
     // the page's worked state (page_walk_state.mjs, shared with critic_walk_batch.mjs); a reveal that found nothing to
     // act on is said out loud, because a silent one graded project-report's chooser as the report for a whole batch
     if (PAGE_REVEAL[file] && !(await revealWorkedState(page, file))) console.log(`[rubric-sweep] ${file}: reveal found nothing to act on`);
+    await loadPageOwnJs(page);   // the page's own script files, read as its code (J1's guards)
     const res = await page.evaluate((src) => {
       eval('(' + src + ')')();
       return window.__RUBRIC.survey({ pageId: location.pathname.split('/').pop() });
