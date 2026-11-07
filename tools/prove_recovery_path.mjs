@@ -28,13 +28,21 @@ const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? 
 const psql = (sql) => { try { return execSync(`docker exec -i supabase_db_workhive psql -U postgres -d postgres -tA -c "${sql.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim(); } catch { return ''; } };
 
 // the roster, grouped by page: [{page, heads: [message_head...]}]
+const HOST = { 'operator-actions.js': 'founder-console.html' };   // a shared script -> the page it renders on
+const RETIRED = [];
 const ROSTER = (() => {
   const d = JSON.parse(readFileSync('substrate/reference/destructive_control_registry.json', 'utf8'));
   const out = {};
   for (const [path, items] of Object.entries(d.controls || {})) {
-    const page = path.split('/').pop();
+    // ★A SHARED SCRIPT'S CONFIRMS ARE COUNTED WHERE IT RENDERS, A RETIRED PAGE'S ARE NOT (GJ M11 release, 2026-11-07).
+    // operator-actions.js holds the operator console's six live confirms and was skipped (not a page); the retired
+    // platform-actions / marketplace-admin, whose copies no person can reach behind their "has moved" overlay, were
+    // walked instead and read NOT REACHED forever. HOST maps the script to its page; a retired page is reported.
+    const page = HOST[path.split('/').pop()] || path.split('/').pop();
     if (!page.endsWith('.html') || path.includes('/')) continue;      // root pages only, as the wave seeded
-    out[page] = (items || []).map((c) => String(c.message_head || '').replace(/\\$/, '').trim()).filter(Boolean);
+    let _src = ''; try { _src = readFileSync(page, 'utf8'); } catch (_) { /* empty-catch-allow: an unreadable page is walked as before */ }
+    if (/id="wh-retired-overlay"/.test(_src)) { RETIRED.push(`${page} (${(items || []).length})`); continue; }
+    out[page] = (out[page] || []).concat((items || []).map((c) => String(c.message_head || '').replace(/\\$/, '').trim()).filter(Boolean));
   }
   return out;
 })();
@@ -59,6 +67,11 @@ const FMEA_PENDING_TAG = psql(`select n.tag from public.rcm_fmea_modes m join pu
 // industrial services only - and the path named a consumer service, so nothing was selected and Hail stopped at "Pick a
 // service first". Read in the page's own order (category, id), industrial, active.
 const HAIL_ITEM = psql("select id from public.service_catalog where segment = 'industrial' and active order by category, id limit 1");
+// the staged-part guard needs an approved part with stock to Use (GJ M11 release: the pinned id left with the reseed)
+const STAGE_ITEM = psql("select id from public.inventory_items where hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d' and status = 'approved' and qty_on_hand > 1 order by id limit 1");
+// the operator console is a founder's (GJ M11 release): the controls Platform Actions held live there now
+const FOUNDER = { name: 'Pablo Aguilar', first: 'Pablo', role: 'supervisor', email: 'pabloaguilar@auth.workhiveph.com', password: 'test1234' };
+const PAGE_AS = { 'founder-console.html': FOUNDER };   // a page walked as the person it belongs to (GJ M11 release)
 const REACH = {
   'hive.html': [
     { steps: ['#btn-hive-menu'], trigger: '#btn-deactivate-account', heads: ['Deactivate your account?', 'Your account has been deactivated'] },
@@ -68,6 +81,20 @@ const REACH = {
   ],
   'community.html': [
     { steps: ['button[onclick^="openThread"]'], trigger: 'button[onclick="copyThreadLink()"]', heads: ['Copy this link:'] },
+    // GJ M11 release: each control is in ONE post's menu (#pm-<id>), and shows only for a post in a state - private, public,
+    // or someone else's and reported. The prep puts the newest suitable post in that state (and back), and the path opens
+    // that post's own menu. Every prompt and confirm is cancelled, so nothing is recorded or sent.
+    { prep: "select id from community_posts where id = (select id from community_posts where hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d' and deleted_at is null and not flagged and not public order by created_at desc limit 1)",
+      steps: ['[aria-controls="pm-{id}"]'], trigger: '#pm-{id} [aria-label="Make post public"]', heads: ['Make this post public?'] },
+    { prep: "update community_posts set public = true where id = (select id from community_posts where hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d' and deleted_at is null and not flagged and not public order by created_at desc limit 1) returning id",
+      cleanup: "update community_posts set public = false where id = '{id}'",
+      steps: ['[aria-controls="pm-{id}"]'], trigger: '#pm-{id} [aria-label="Copy public link"]', heads: ['Copy this public link:'] },
+    { prep: "update community_posts set flagged = true where id = (select id from community_posts where hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d' and deleted_at is null and not flagged and author_name <> 'Leandro Marquez' order by created_at desc limit 1) returning id",
+      cleanup: "update community_posts set flagged = false where id = '{id}'",
+      steps: ['[aria-controls="pm-{id}"]'], trigger: '#pm-{id} [aria-label="Keep post (clear the report)"]', heads: ['Keep this post. Say why'] },
+    { prep: "update community_posts set flagged = true where id = (select id from community_posts where hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d' and deleted_at is null and not flagged and author_name <> 'Leandro Marquez' order by created_at desc limit 1) returning id",
+      cleanup: "update community_posts set flagged = false where id = '{id}'",
+      steps: ['[aria-controls="pm-{id}"]'], trigger: '#pm-{id} [aria-label="Send to WorkHive"]', heads: ['Send this reported post to WorkHive'] },
   ],
   'dayplanner.html': [
     // the harness worker has nothing scheduled, so the item is seeded for the walk and removed after it - a
@@ -76,6 +103,8 @@ const REACH = {
     { prep: "insert into schedule_items (id, worker_name, auth_uid, title, date, start_time, end_time, item_status, category) values (gen_random_uuid(), 'Leandro Marquez', (select id from auth.users where email='leandromarquez@auth.workhiveph.com'), 'RV probe item (delete me)', to_char(now() at time zone 'Asia/Manila', 'YYYY-MM-DD'), '09:00', '10:00', 'pending', 'Other') returning id",
       cleanup: "delete from schedule_items where id = '{id}'",
       steps: ['[onclick*="openEditModal"]'], trigger: '#m-delete-btn', heads: ['Remove this scheduled item?'] },
+    // a link from outside WorkHive (no same-origin referrer) is ASKED, never written: arriving raises the confirm (GJ M11)
+    { at: 'dayplanner.html?add=1&title=RV%20probe%20item%20(delete%20me)&cat=Other', steps: [], heads: ['A link wants to add'] },
   ],
   'asset-hub.html': [
     { steps: [], trigger: 'button[data-action="asset-reject"]', heads: ['Reject this asset? It stays in the queue'] },
@@ -87,19 +116,34 @@ const REACH = {
   ],
   'alert-hub.html': [
     { steps: [], trigger: '#amc-reject-btn', heads: ['Reject today'] },
+    // the Approve beside it (GJ M11 release): cancelled, so nothing goes out under anyone's name
+    { steps: [], trigger: '#amc-approve-btn', heads: ["Approve today's brief"] },
   ],
   'founder-console.html': [
-    // OPC (2026-10-22): the top-up queue is Platform Actions' delegated one now (operator-actions.js); the voucher mint
-    // left the console - vouchers are retired and the database refuses a new one (guard_vouchers_retired)
-    { steps: [], trigger: '#sec-svc-topups button[data-topup-act="reject"]', heads: ['Reject this top-up?'] },
-    // the listing-moderation reject is its own control (wireMktModeration, delegated data-mkt-act), not the top-up reject
-    { steps: [], trigger: '#sec-mkt-mod button[data-mkt-act="reject-listing"]', heads: ['Reject this listing. Tell the seller'] },
+    // GJ M11 release: the operator console's own controls (operator-actions.js), walked as a founder (PAGE_AS). Each
+    // confirm or prompt is cancelled: no credits minted, no listing moved, no badge removed, nothing published.
+    { steps: [], trigger: '#sec-svc-topups button[data-topup-act="verify"]', heads: ['Verify this top-up?'] },
+    // a listing awaiting review is a draft (the console's worklist); one is seeded and removed after
+    { prep: "insert into marketplace_listings (hive_id, seller_name, section, category, title, description, price, status) values ('084c113b-99c0-45c6-a8e8-b4b8349da46d', 'Leandro Marquez', 'parts', 'Other', 'RV probe review listing (delete me)', 'probe', 1, 'draft') returning id",
+      cleanup: "delete from marketplace_listings where id = '{id}'",
+      steps: [], trigger: '#mkt-listings-content button[data-mkt-act="reject-listing"]', heads: ['Reject this listing. Tell the seller why'] },
+    { steps: [], trigger: '#mkt-published-content button[data-mkt-act="unpublish-listing"]', heads: ['Unpublish "${'] },
+    { steps: [], trigger: '#mkt-verified-content button[data-mkt-act="unverify-kyb"], #mkt-verified-content button[data-mkt-act="unverify-cert"]', heads: ["Remove ${_who}'s"] },
+    // the dispute note follows "Side with the client": that confirm is ACCEPTED (its OK) so the note prompt appears, and
+    // the prompt is cancelled - the handler records nothing when the note is cancelled. A disputed job is seeded.
+    { prep: "insert into service_requests (client_auth_uid, client_worker_name, hive_id, mode, custom_scope, status) values ((select id from auth.users where email = 'leandromarquez@auth.workhiveph.com'), 'Leandro Marquez', '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'instant', 'RV probe disputed job (delete me)', 'disputed') returning id",
+      cleanup: "delete from service_requests where id = '{id}'",
+      steps: ['#sec-svc-disputes button[data-dispute-act="client"]'], trigger: '[id^="wh-modal-ov-"] [data-wh-modal-ok]', heads: ['A line both parties will read'] },
+    { steps: ['#fb-list .fb-card', '#fb-d-public'], trigger: '#fb-d-save', heads: ['Publish this feedback to the PUBLIC'] },
   ],
   'index.html': [
     // the signed-in person's menu (avatar -> user-menu) carries "Deactivate account"; the confirm is Cancelled here -
     // the RPC anonymizes the harness worker for good, so the way back is proven by declining, not by undoing.
     { steps: ['js:(()=>{let n=document.getElementById("user-menu");while(n&&n!==document.body){n.classList.remove("hidden");if(getComputedStyle(n).display==="none")n.style.display="block";n=n.parentElement;}})()'], trigger: '#user-menu button[onclick="deactivateAccount()"]', heads: ['Deactivate your account?', 'Your account has been deactivated'] },
-    { steps: [], trigger: 'button[onclick="forgotPassword(event)"]', heads: ['Enter the email on your account', 'Could not send the reset link', 'Set a new password (at least 8', 'Password must be at least 8'] },
+    // "Forgot password?" lives in the sign-in dialog, which a signed-in person never sees (GJ M11 release: the path ran
+    // signed in and read "1 in DOM, not visible"); the reset flow's later prompts ride it, the two newest included
+    { anon: true, steps: ['#wh-consent button', 'js:openSignIn(new Event("click"))'], trigger: 'button[onclick="forgotPassword(event)"]',
+      heads: ['Enter the email on your account', 'Could not send the reset link', 'Set a new password (at least 8', 'Password must be at least 8', 'Type the new password once more', 'That password has appeared in a public'] },
     // the sign-in form: a signed-out person's control - the consent banner is answered first, then "Sign In" by its words
     { anon: true, steps: ['#wh-consent button', 'js:openSignIn(new Event("click"))'], trigger: '#si-sso-btn', heads: ['Enter your company email domain'] },
   ],
@@ -118,24 +162,28 @@ const REACH = {
   'inventory.html': [
     { steps: ['button[onclick^="openDetailModal"]'], trigger: 'button[onclick^="confirmDeleteItem"]', heads: ['Remove "${item.part_name}"'] },
     // the "staged for an asset" guard on Use stock: a reservation is seeded on a known approved part and removed after
-    { prep: "insert into parts_staged_reservations (hive_id, asset_name, item_id, qty_reserved, reserved_by, notes) values ('084c113b-99c0-45c6-a8e8-b4b8349da46d', 'RV probe asset', 'inv-65e6c3991b3e', 1, 'Leandro Marquez', 'RV probe (delete me)') returning id",
+    { prep: `insert into parts_staged_reservations (hive_id, asset_name, item_id, qty_reserved, reserved_by, notes) values ('084c113b-99c0-45c6-a8e8-b4b8349da46d', 'RV probe asset', '${STAGE_ITEM}', (select qty_on_hand from inventory_items where id = '${STAGE_ITEM}'), 'Leandro Marquez', 'RV probe (delete me)') returning id`,
       cleanup: "delete from parts_staged_reservations where id = '{id}'",
-      steps: ["button[onclick=\"openUseModal('inv-65e6c3991b3e')\"]"], trigger: '#use-submit-btn', heads: ['${_uResv} ${_uUnit} of this part is stag'] },
+      // the part's card may sit below the list's first screen, so its opener is called by hand (the convention: an opener
+      // may be, the control under test never is); the guard fires when a use would dip into staged stock, so the seed
+      // stages the part's whole stock and the sheet's default 1 reaches it (GJ M11 release)
+      steps: [`js:openUseModal(${JSON.stringify(STAGE_ITEM)})`], trigger: '#use-submit-btn', heads: ['${_uResv} ${_uUnit} of this part is stag'] },
   ],
   'logbook.html': [
     // the registry list lives in the asset modal's "manage" view (openAssetModal(tab)); the button opens "register"
     { steps: ['#open-asset-modal-btn', 'js:openAssetModal("manage")'], trigger: 'button[onclick^="deleteAsset"]', heads: ['Remove this asset from the registry?'] },
     // an entry's Delete lives in its modal (openModal on the row); the button shows only on the person's own entry
     { steps: ['text=^My Entries', '[onclick^="openModal"]'], trigger: 'button[onclick^="deleteEntry"]', heads: ['Delete this entry? This cannot be undone'] },
-  ],
-  'marketplace-admin.html': [
-    // each queue is a tab (#tab-published / #tab-sellers / #tab-disputes); the buttons are delegated data-action
-    { steps: ['#tab-published'], trigger: 'button[data-action="unpublish"]', heads: ['${_verb} "${(listing'] },
-    { steps: ['#tab-sellers'], trigger: 'button[data-action="unverify"], button[data-action="cert-unverify"]', heads: ["Remove ${workerName}'s ${noun}?"] },
-    // an open dispute is seeded so the queue has one to resolve, and removed after
-    { prep: "insert into marketplace_disputes (opened_by, seller_name, reason, description, status) values ('Wilfredo Malabanan', 'Leandro Marquez', 'RV probe dispute (delete me)', 'probe', 'open') returning id",
-      cleanup: "delete from marketplace_disputes where id = '{id}'",
-      steps: ['#tab-disputes'], trigger: 'button[data-action="refund"], button[data-action="release"], button[data-action="escalate"]', heads: ['${verb} for this dispute?'] },
+    // GJ M11 release: a save the server never took, parked in the page's own offline queue (a stalled item is never
+    // synced), is offered back as Discard - the queue lives in this browser context and leaves with it
+    { steps: ['js:(async()=>{await queueEntryOffline({id:"rvprobe-stalled",machine:"RV probe",problem:"RV probe (delete me)",created_at:new Date().toISOString(),_stalled:true,_retryCount:1,_stallReason:"RV probe"});await updateOfflineBadge();})()', 'js:void 0'],
+      trigger: '#lb-stuck-panel [data-stuck-act="discard"]', heads: ['Discard this offline save?'] },
+    // an open job of a member who left falls to the supervisor: one is seeded under the departed fixture's name (an
+    // account on it, as the policy needs) and opened by its own link
+    { prep: "insert into logbook (hive_id, worker_name, auth_uid, date, machine, problem, status) values ('084c113b-99c0-45c6-a8e8-b4b8349da46d', 'Former Member (kicked fixture)', (select id from auth.users where email = 'wilfredomalabanan@auth.workhiveph.com'), current_date, 'RV probe machine', 'RV probe open job (delete me)', 'Open') returning id",
+      cleanup: "delete from logbook where id = '{id}'",
+      // the link's one-entry read and modal take ~8 s on a loaded host: three idle steps, not one (measured live)
+      at: 'logbook.html?id={id}', steps: ['js:void 0', 'js:void 0', 'js:void 0'], trigger: 'button[onclick^="closeDepartedEntry"]', heads: ["Close ${who}'s open job?"] },
   ],
   'marketplace-seller.html': [
     // Delete shows only on a DRAFT listing; one is seeded for the harness worker and removed after
@@ -174,10 +222,11 @@ const REACH = {
     // each control lives on its own detail pane (#detail-tabs button[data-pane=…]); the panes render from data
     { steps: ['.pcard', '#detail-tabs button[data-pane="linked"]'], trigger: 'button[onclick^="removeLink"]', heads: ['Remove this link?'] },
     { steps: ['.pcard', '#detail-tabs button[data-pane="roles"]'], trigger: 'button[onclick^="removeRole"]', heads: ['Remove this role?'] },
-    // a pending change order is seeded on the active Baguio project and that project is opened by its name
-    { prep: "insert into project_change_orders (project_id, hive_id, co_number, title, scope_change, reason, requested_by, status) values ('539e0d9a-9ff7-474b-ab03-9254406ca7dc', '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'RV-PROBE', 'RV probe change order', 'probe scope', 'probe', 'Leandro Marquez', 'pending') returning id", cleanup: "delete from project_change_orders where id = '{id}'", steps: ['text=Centrifugal Pump Annual Overhaul', '#detail-tabs button[data-pane="changes"]'], trigger: 'button[onclick^="approveCO"]', heads: ['Approve this change order?'] },
-    { prep: "insert into project_change_orders (project_id, hive_id, co_number, title, scope_change, reason, requested_by, status) values ('539e0d9a-9ff7-474b-ab03-9254406ca7dc', '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'RV-PROBE', 'RV probe change order', 'probe scope', 'probe', 'Leandro Marquez', 'pending') returning id", cleanup: "delete from project_change_orders where id = '{id}'", steps: ['text=Centrifugal Pump Annual Overhaul', '#detail-tabs button[data-pane="changes"]'], trigger: 'button[onclick^="rejectCO"]', heads: ['Reason for rejection'] },
-    { prep: "insert into project_change_orders (project_id, hive_id, co_number, title, scope_change, reason, requested_by, status) values ('539e0d9a-9ff7-474b-ab03-9254406ca7dc', '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'RV-PROBE', 'RV probe change order', 'probe scope', 'probe', 'Leandro Marquez', 'pending') returning id", cleanup: "delete from project_change_orders where id = '{id}'", steps: ['text=Centrifugal Pump Annual Overhaul', '#detail-tabs button[data-pane="changes"]'], trigger: 'button[onclick^="cancelCO"]', heads: ['Cancel this change order?'] },
+    // a pending change order is seeded on the active Baguio project and that project is opened by its name - the project
+    // is found BY that name (GJ M11 release: the 2026-10-26 reseed dropped the id this path pinned, so the seed failed silently)
+    { prep: "insert into project_change_orders (project_id, hive_id, co_number, title, scope_change, reason, requested_by, status) values ((select id from projects where hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d' and name = 'Centrifugal Pump Annual Overhaul' limit 1), '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'RV-PROBE', 'RV probe change order', 'probe scope', 'probe', 'Leandro Marquez', 'pending') returning id", cleanup: "delete from project_change_orders where id = '{id}'", steps: ['text=Centrifugal Pump Annual Overhaul', '#detail-tabs button[data-pane="changes"]'], trigger: 'button[onclick^="approveCO"]', heads: ['Approve this change order?'] },
+    { prep: "insert into project_change_orders (project_id, hive_id, co_number, title, scope_change, reason, requested_by, status) values ((select id from projects where hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d' and name = 'Centrifugal Pump Annual Overhaul' limit 1), '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'RV-PROBE', 'RV probe change order', 'probe scope', 'probe', 'Leandro Marquez', 'pending') returning id", cleanup: "delete from project_change_orders where id = '{id}'", steps: ['text=Centrifugal Pump Annual Overhaul', '#detail-tabs button[data-pane="changes"]'], trigger: 'button[onclick^="rejectCO"]', heads: ['Reason for rejection'] },
+    { prep: "insert into project_change_orders (project_id, hive_id, co_number, title, scope_change, reason, requested_by, status) values ((select id from projects where hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d' and name = 'Centrifugal Pump Annual Overhaul' limit 1), '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'RV-PROBE', 'RV probe change order', 'probe scope', 'probe', 'Leandro Marquez', 'pending') returning id", cleanup: "delete from project_change_orders where id = '{id}'", steps: ['text=Centrifugal Pump Annual Overhaul', '#detail-tabs button[data-pane="changes"]'], trigger: 'button[onclick^="cancelCO"]', heads: ['Cancel this change order?'] },
     { steps: ['.pcard', '#detail-tabs button[data-pane="signoff"]'], trigger: 'button[onclick="markComplete()"]', heads: ['Mark project as complete?'] },
   ],
   'report-sender.html': [
@@ -188,12 +237,12 @@ const REACH = {
   ],
   'shift-brain.html': [
     { steps: [], trigger: 'text=^Archive', heads: ['Archive this shift plan?'] },
-  ],
-  'platform-actions.html': [
-    // the publish confirm only fires when the "public" box is ticked before Save - the person's own sequence
-    { steps: ['.fb-card', '#fb-d-public'], trigger: '#fb-d-save', heads: ['Publish this feedback to the PUBLIC'] },
-    // moderation buttons are delegated on #sec-mkt-mod by data-mkt-act; a pending listing must exist to show one
-    { steps: [], trigger: '#sec-mkt-mod button[data-mkt-act="reject-listing"]', heads: ['Reject this listing. Tell the seller'] },
+    // GJ M11 release: Publish is pressable only on a FRESH draft for the current shift window, so whether it showed
+    // depended on the clock. A draft for the current PHT window is inserted if absent (today's own draft is reused if
+    // present) and only the probe's own row is removed after.
+    { prep: "with w as (select case when extract(hour from now() at time zone 'Asia/Manila') between 6 and 13 then '06-14' when extract(hour from now() at time zone 'Asia/Manila') between 14 and 21 then '14-22' else '22-06' end as win, (case when extract(hour from now() at time zone 'Asia/Manila') < 6 then (now() at time zone 'Asia/Manila')::date - 1 else (now() at time zone 'Asia/Manila')::date end) as d), ins as (insert into shift_plans (hive_id, shift_window, shift_date, status, generated_by, payload) select '084c113b-99c0-45c6-a8e8-b4b8349da46d', w.win, w.d, 'draft', 'RV probe', '{}'::jsonb from w on conflict (hive_id, shift_date, shift_window) do nothing returning id) select id from ins union all select sp.id from shift_plans sp, w where sp.hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d' and sp.shift_window = w.win and sp.shift_date = w.d and sp.status = 'draft' limit 1",
+      cleanup: "delete from shift_plans where id = '{id}' and generated_by = 'RV probe'",
+      steps: [], trigger: '#publish-btn', heads: ['Publish this shift plan to your crew?'] },
   ],
 };
 // a template head ("Reset ${workerName}'s password?") matches on its static words
@@ -214,7 +263,7 @@ for (const [file, heads] of Object.entries(ROSTER)) {
   if (ONLY && file !== ONLY) continue;
   const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
   await ctx.addInitScript(ALL_ROWS_DRAWN);
-  await assertSignedIn(signIn(ctx));
+  await assertSignedIn(signIn(ctx, PAGE_AS[file] || {}));
   const p = await ctx.newPage();
   let dialogs = 0, lastDialog = '';
   p.on('dialog', async (d) => { dialogs++; lastDialog = d.message(); await d.dismiss().catch(() => {}); });   // always cancel a native dialog
@@ -265,29 +314,39 @@ for (const [file, heads] of Object.entries(ROSTER)) {
     }, VIS_JS).catch(() => 0);
     if (typeof label === 'object') {
       if (process.env.RV_DEBUG) console.log(`        (path -> ${label.trigger} via ${label.steps.length} step(s))`);
+      const home = `${SEEDER}/workhive/${file}${PAGE_QUERY[file] || ''}`;
       if (label.prep) {
         label._id = psql(label.prep).split('\n')[0].trim();
         if (!label._id) { console.log(`        (prep write did not land for "${label.heads[0]}" - control left NOT REACHED)`); continue; }
-        await p.reload({ waitUntil: 'load' }).catch(() => {}); await p.waitForTimeout(SETTLE_MS);
+        await p.goto(home, { waitUntil: 'load', timeout: 30000 }).catch(() => {}); await p.waitForTimeout(SETTLE_MS);
       }
       // ★EVERY AUTHORED PATH STARTS FROM A FRESH PAGE (2026-09-07). pm-scheduler's delete read "no confirm"
       // only when it ran AFTER the auto-hail entry on the same page: the detail dialog and the cancelled confirm
       // left state behind, and the second path pressed into it. The person's path begins at page load.
       // (every entry, not only the second onwards: the pre-click sweep of menu buttons had folded report-sender's
       // contacts list before the first entry's trigger was looked for)
-      if (!label.prep && !label.anon) { await p.reload({ waitUntil: 'load' }).catch(() => {}); await p.waitForTimeout(SETTLE_MS); }
-      // an anonymous entry (the sign-in form) walks its steps on a fresh, signed-out page
+      if (!label.prep && !label.anon && !label.as) { await p.goto(home, { waitUntil: 'load', timeout: 30000 }).catch(() => {}); await p.waitForTimeout(SETTLE_MS); }
+      // an entry that is not the signed-in harness worker on the roster page walks on a page of its own: signed out (the
+      // sign-in form), signed in as someone else (`as`: the operator console is a founder's), or on another page (`at`:
+      // a retired page's controls live on where they moved, a deep-link confirm needs its query) (GJ M11 release)
       let pAnon = null;
-      if (label.anon) {
+      label._pAnon = null;
+      const withId = (x) => (label._id ? String(x).split('{id}').join(label._id) : x);   // the prep's row, named in the path (GJ M11)
+      const where = label.at ? `${SEEDER}/workhive/${withId(label.at)}` : home;
+      if (label.anon || label.as) {
         const c2 = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
         await c2.addInitScript(ALL_ROWS_DRAWN);
+        if (label.as) await assertSignedIn(signIn(c2, label.as));
         pAnon = await c2.newPage();
         pAnon.on('dialog', async (d) => { dialogs++; lastDialog = d.message(); await d.dismiss().catch(() => {}); });
-        await pAnon.goto(`${SEEDER}/workhive/${file}${PAGE_QUERY[file] || ''}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
+        await pAnon.goto(where, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
         await pAnon.waitForTimeout(SETTLE_MS);
         label._pAnon = pAnon;
+      } else if (label.at) {
+        await p.goto(where, { waitUntil: 'load', timeout: 30000 }).catch(() => {}); await p.waitForTimeout(SETTLE_MS);
       }
-      for (const st of label.steps) {
+      for (const st0 of label.steps) {
+        const st = withId(st0);
         await (pAnon || p).evaluate((sel) => {
           const vis = (e) => e.checkVisibility && e.checkVisibility();
           // a `js:` step calls the page's own opener (index's openSignIn) when the landing's overlays hide the button
@@ -304,7 +363,8 @@ for (const [file, heads] of Object.entries(ROSTER)) {
         }, st).catch(() => {});
         await p.waitForTimeout(2500);   // a tab's list is fetched after the click (the disputes queue took >1.5 s)
       }
-      const pressed = await (pAnon || p).evaluate((sel) => {
+      // no trigger: ARRIVAL is the press (a confirm a link raises on load has nothing to click) (GJ M11 release)
+      const pressed = !label.trigger ? true : await (pAnon || p).evaluate((sel) => {
         const vis = (e) => e.checkVisibility && e.checkVisibility() && !e.disabled;
         const pool = sel.startsWith('text=')
           ? [...document.querySelectorAll('button, [role="button"], [role="menuitem"], a')].filter((e) => new RegExp(sel.slice(5), 'i').test((e.innerText || e.getAttribute('aria-label') || '').trim()))
@@ -312,15 +372,17 @@ for (const [file, heads] of Object.entries(ROSTER)) {
         const el = pool.find(vis); if (el) { el.click(); return true; }
         const scene = ((document.querySelector('#content-area, [role="dialog"]:not([hidden]), main') || document.body).innerText || '').replace(/\s+/g, ' ').slice(0, 140);
         return `no visible match for ${sel} (${pool.length} in DOM, url ${location.pathname.split('/').pop()}) · scene: ${scene}`;   // the instrument explains its number
-      }, label.trigger).catch((e) => `read failed: ${String(e && e.message).slice(0, 80)}`);
-      if (pressed !== true) { console.log(`        (${pressed})`); if (label.cleanup && label._id) psql(label.cleanup.replace('{id}', label._id)); continue; }   // NOT REACHED, never clean - and the seed is reversed
+      }, withId(label.trigger)).catch((e) => `read failed: ${String(e && e.message).slice(0, 80)}`);
+      if (pressed !== true) { console.log(`        (${pressed})`); if (label.cleanup && label._id) psql(label.cleanup.replace('{id}', label._id)); if (label._pAnon) { await label._pAnon.context().close().catch(() => {}); label._pAnon = null; } continue; }   // NOT REACHED, never clean - and the seed is reversed
     } else await p.evaluate((label) => {
       const vis = (e) => e.checkVisibility && e.checkVisibility({ opacityProperty: true, visibilityProperty: true });
       const e = [...document.querySelectorAll('button, [role="button"], [role="menuitem"], a')].find((x) => vis(x) && (x.innerText || x.getAttribute('aria-label') || '').trim() === label);
       if (e) e.click();
     }, label).catch(() => {});
     await p.waitForTimeout(2600);   // an undo toast needs time to render (T50's lesson)
-    const after = await ((typeof label === 'object' && label.anon && label._pAnon) ? label._pAnon : p).evaluate((VIS_JS) => {
+    // the page this press happened on: an entry's own page when it has one, else the roster page
+    const q = (typeof label === 'object' && label._pAnon) ? label._pAnon : p;
+    const after = await q.evaluate((VIS_JS) => {
       const vis = (0, eval)(VIS_JS);
       const modals = [...document.querySelectorAll('[id^="wh-modal-ov-"], [role="dialog"]')].filter(vis);
       const confirmText = modals.map((m) => (m.innerText || '').replace(/\s+/g, ' ').trim()).join(' | ');
@@ -338,7 +400,7 @@ for (const [file, heads] of Object.entries(ROSTER)) {
       // a confirm: cancel it - no damage, and the way back was the Cancel. An entry marked accept:true presses
       // the confirm's OK instead (the vehicle wizard's Undo IS the way back) and is judged by the rows after it.
       const accept = typeof label === 'object' && label.accept === true;
-      await p.evaluate((accept) => {
+      await q.evaluate((accept) => {
         const vis = (e) => e.checkVisibility && e.checkVisibility();
         for (const o of [...document.querySelectorAll('[id^="wh-modal-ov-"], [role="dialog"]')].filter(vis)) {
           const btns = [...o.querySelectorAll('button, [role="button"]')].filter(vis);
@@ -353,7 +415,7 @@ for (const [file, heads] of Object.entries(ROSTER)) {
       reachable = true;
       restored = accept ? WATCH.every((t) => census()[t] === before[t]) : true;   // an accepted undo must put every row back
     } else if (after.undo) {
-      reachable = await p.evaluate(() => {
+      reachable = await q.evaluate(() => {
         const vis = (e) => e.checkVisibility && e.checkVisibility({ opacityProperty: true, visibilityProperty: true });
         const u = [...document.querySelectorAll('button, [role="button"], a')].find((e) => /^\s*(undo|restore)\b/i.test(e.innerText || '') && vis(e));
         if (u) { u.click(); return true; } return false;
@@ -364,10 +426,11 @@ for (const [file, heads] of Object.entries(ROSTER)) {
     } else if (dialogs > dlgBefore) {
       reachable = true; restored = true;   // native dialog, cancelled
     }
-    const verdict = { label: typeof label === 'object' ? label.trigger : label, offered, reachable, restored, said: said.slice(0, 60),
+    const verdict = { label: typeof label === 'object' ? (label.trigger || `arrival at ${label.at || file}`) : label, offered, reachable, restored, said: said.slice(0, 60),
       why: `dialogs ${dlgBefore}->${dialogs} · modals ${modalsBefore}->${after.modals} (raw ${after.raw}) · undo ${after.undo} · at ${after.url}` };   // the instrument explains its number
     if (process.env.RV_DEBUG && typeof label === 'object') console.log(`        (verdict ${JSON.stringify(verdict).slice(0, 170)} · heads ${heads.map((h) => headKey(h).slice(0, 20)).join(' | ')})`);
     if (typeof label === 'object' && label.cleanup && label._id) { psql(label.cleanup.replace('{id}', label._id)); }
+    if (typeof label === 'object' && label._pAnon) { await label._pAnon.context().close().catch(() => {}); label._pAnon = null; }
     if (typeof label === 'object') {
       for (const h of heads) if (label.heads.some((lh) => headKey(h) === headKey(lh) || headKey(h).startsWith(headKey(lh).slice(0, 16)))) matched.set(h, verdict);
     }
@@ -388,6 +451,7 @@ for (const [file, heads] of Object.entries(ROSTER)) {
   }
 }
 await b.close();
+if (RETIRED.length) console.log(`  note retired page(s), whose copies no person reaches (each says where its controls moved): ${RETIRED.join(', ')}`);
 if (notReached.length) console.log(`  note ${notReached.length} rostered control(s) NOT REACHED, not clean: ${notReached.slice(0, 6).join('; ')}`);
 console.log(`${(bad || notReached.length) ? 'FAIL' : 'PASS'} recovery-path -${rowsChecked - bad - notReached.length}/${rowsChecked - notReached.length} reached destructive control(s) offer a way back that works`);
 // ★A GATE THAT REACHED NOTHING MUST NOT PASS (2026-09-07). The first run reported "PASS recovery-path - 0/0

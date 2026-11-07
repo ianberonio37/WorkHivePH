@@ -78,8 +78,12 @@ Two full runs were needed; the other two were the wrong loop.
 > - **Post-deploy, read on production:** public smoke **120/120** and app smoke **26/26** at `EXPECT_SW=v594`, both clean
 >   at 390. community.html serves the restored `#fab-post` rules (no `var(--wh-rose-200, #fab)-post` left). IndexNow: no
 >   URL to send (M11's public-page edits are copy and layout polish; no sitemap `lastmod` moved).
-> - **recovery-path** stays red as recorded below - pre-existing, 29 rostered controls with no authored path. Its paths
->   are the first unit after this release.
+> - **recovery-path, after the release (same day): 68/68 PASS**, run directly (its 20-minute gate limit is too short on
+>   this host). Every one of the 31 reds was the prover: stale ids from the 2026-10-26 reseed, fixtures the product
+>   outgrew, the wrong person or page, retired pages' dead copies walked while operator-actions.js (the console's six
+>   live confirms) was never walked, and paths never authored. Each control now has a path; the retired pages are
+>   reported as retired. No probe row was left behind. Instrument-only (tools/prove_recovery_path.mjs); it ships with
+>   the next push.
 
 > **Prepared and verified locally on 2026-11-07.** M11 is the fifth group-journey milestone (§GJ.12): every screen each
 > member meets in a group walk, graded where they meet it, at phone-390 and desktop-1280. 80/80 rows locking; all
