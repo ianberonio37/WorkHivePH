@@ -86,6 +86,9 @@ const PAGES = {
     + '<main class="page" style="display:none"><h1>Marketplace Admin</h1><div class="card"><h2>Queue</h2></div></main></body></html>',
   gatehidden: HEAD + '<div id="supervisor-gate" data-wh-gate="no-access" style="display:none"><h1>Platform Admins Only</h1></div>'
     + '<main class="page"><h1>Marketplace Admin</h1><p>Review listings and verify sellers.</p></main></body></html>',
+  // CF26-29 (2026-11-08): a bold result inside a sentence of a worked example is prose, not a KPI tile
+  k2prose: HEAD + '<main><h1>Synthetic guide</h1><p style="font-size:16px">For a bottling line the worked example gives OEE = 0.90 x 0.95 x 0.98 = '
+    + '<strong style="font-size:16px">83.8%</strong> for the shift.</p></main></body></html>',
   // GJ M11 round 2: a ten-digit part number is an identifier - no KPI to enlarge, nothing to set tabular
   k2ident: HEAD + '<main><h1>Synthetic shelf</h1><div class="card"><span style="font-size:14px;font-weight:900">3991971430</span>'
     + '<p>Deep-groove bearing</p></div></main></body></html>',
@@ -411,6 +414,9 @@ if (!/h1=1 /.test(gto.A1.note || '') || !/permission wall/.test(gto.O2.note || '
 const gth = await grade(page, PAGES.gatehidden, null);
 if (!/h1=1 /.test(gth.A1.note || '') || /permission wall/.test(gth.O2.note || ''))
   fails.push(`root must stay the rendered <main> when the gate is hidden (a page, not a wall) - got A1 "${(gth.A1.note || '').slice(0, 90)}" O2 "${(gth.O2.note || '').slice(0, 80)}"`);
+const k2p = await grade(page, PAGES.k2prose);
+if (!(k2p.C4.kind === 'N/A' && k2p.K2.pass === k2p.K2.total))
+  fails.push(`K2/C4 must read a bold figure inside a sentence as prose, not a KPI tile - got C4 ${k2p.C4.kind} K2 ${k2p.K2.pass}/${k2p.K2.total} "${(k2p.K2.note || '').slice(0, 80)}"`);
 const k2i = await grade(page, PAGES.k2ident);
 if (!(k2i.K2.pass === k2i.K2.total && k2i.C4.kind === 'N/A'))
   fails.push(`K2/C4 must read a 10-digit part number as an identifier, not a KPI - got K2 ${k2i.K2.pass}/${k2i.K2.total} C4 ${k2i.C4.kind} "${(k2i.K2.note || '').slice(0, 80)}"`);

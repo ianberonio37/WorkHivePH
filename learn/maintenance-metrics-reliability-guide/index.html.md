@@ -6,7 +6,9 @@ Source: https://workhiveph.com/learn/maintenance-metrics-reliability-guide/
 
 By WorkHive Editorial Team · Published 2026-08-05 · 9 min read
 
-The five metrics every Philippine plant should track are **OEE** (Overall Equipment Effectiveness = Availability × Performance × Quality; the TPM benchmark is 85%), **MTBF** (Mean Time Between Failures = operating hours ÷ number of failures), **MTTR** (Mean Time To Repair = total repair time ÷ number of repairs), **Availability** (MTBF ÷ (MTBF + MTTR)), and **PM compliance** (PMs completed on time ÷ PMs scheduled; the SMRP benchmark is ≥90%). Together they turn “the line keeps breaking” into a number you can act on.
+The five metrics every Philippine plant should track are **OEE** (Overall Equipment Effectiveness = Availability × Performance × Quality; the TPM benchmark is 85%), **MTBF** (Mean Time Between Failures = operating hours ÷ number of failures) and **MTTR** (Mean Time To Repair = total repair time ÷ number of repairs).
+
+**Availability** = MTBF ÷ (MTBF + MTTR). **PM compliance** = PMs completed on time ÷ PMs scheduled; the SMRP benchmark is ≥90%. Together they turn “the line keeps breaking” into a number you can act on.
 
 Who this is for
 
@@ -19,19 +21,25 @@ Who this is for
 
 ## Why maintenance metrics matter
 
-Most Philippine plants run maintenance on memory and firefighting: the senior mechanic knows which pump is “always a problem,” and everyone reacts when a line stops. The trouble is that memory does not scale, does not transfer when the senior mechanic retires, and cannot be put in a budget request. Metrics fix that. A plant that measures reliability can say “this filler cost us 62 hours of downtime last quarter, and 80% of it was the same bearing” a sentence that unlocks a purchase order.
+Most Philippine plants run maintenance on memory and firefighting. The senior mechanic knows which pump is “always a problem,” and everyone reacts when a line stops. But memory does not scale. It leaves when the senior mechanic retires, and it cannot go in a budget request.
 
-Reliability metrics also standardise language across shifts and disciplines. When maintenance, production, and management all agree that availability means `MTBF ÷ (MTBF + MTTR)`, the morning meeting stops being an argument about whose fault the downtime was and starts being a decision about where to spend the next peso.
+Metrics fix that. A plant that measures reliability can name its losses. It can say, “this filler cost us 62 hours of downtime last quarter, and 80% was one bearing”. That sentence unlocks a purchase order.
+
+Reliability metrics also standardise language across shifts and disciplines. Say every team agrees availability means `MTBF ÷ (MTBF + MTTR)`. Then the morning meeting stops being an argument about whose fault the downtime was. It becomes a choice about where to spend the next peso.
 
 ## OEE: Overall Equipment Effectiveness
 
-**OEE = Availability × Performance × Quality.** It is the single number that captures how much saleable output a line actually produced versus its theoretical maximum. Worked example for a bottling line: available 90% of planned time, running at 95% of rated speed, producing 98% good bottles → OEE = 0.90 × 0.95 × 0.98 = **83.8%**. The TPM benchmark is 85%; a typical plant sits at 40–60%, so the gap is usually enormous and cheap to close.
+**OEE = Availability × Performance × Quality.** It is the single number that captures how much saleable output a line actually produced versus its theoretical maximum.
 
-The trap is measuring only one factor. A line that looks 90% “available” but runs slow and scraps 5% of output is really at ~80% OEE. See the full method in [What is OEE and how to calculate it](https://workhiveph.com/learn/what-is-oee-how-to-calculate/), and read the four maturity stages in [the four phases of maintenance analytics](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/).
+Worked example for a bottling line: available 90% of planned time, running at 95% of rated speed, producing 98% good bottles → OEE = 0.90 × 0.95 × 0.98 = **83.8%**. The TPM benchmark is 85%; a typical plant sits at 40–60%, so the gap is usually enormous and cheap to close.
+
+The trap is measuring only one factor. A line that looks 90% “available” but runs slow and scraps 5% of output is really at ~80% OEE. The full method is in [What is OEE and how to calculate it](https://workhiveph.com/learn/what-is-oee-how-to-calculate/). The four stages of growth are in [the four phases of maintenance analytics](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/).
 
 ## MTBF and MTTR: the reliability pair
 
-**MTBF** measures how *reliable* an asset is; **MTTR** measures how *maintainable* it is. A pump that runs 4,000 hours and fails 5 times has MTBF = 4,000 ÷ 5 = **800 hours**. If those five repairs took 40 hours total, MTTR = 40 ÷ 5 = **8 hours**. Push MTBF up with better PM and root-cause fixes; push MTTR down with spares availability, standard work, and good documentation.
+**MTBF** measures how *reliable* an asset is; **MTTR** measures how *maintainable* it is. A pump that runs 4,000 hours and fails 5 times has MTBF = 4,000 ÷ 5 = **800 hours**. If those five repairs took 40 hours total, MTTR = 40 ÷ 5 = **8 hours**.
+
+Push MTBF up with better PM and root-cause fixes. Push MTTR down with spares on hand, standard work and good records.
 
 The two are often confused, which leads to the wrong fix (buying spares when the real problem is repeat failures). The plain-language breakdown is in [MTBF vs MTTR for supervisors](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/).
 
@@ -49,15 +57,19 @@ The two are often confused, which leads to the wrong fix (buying spares when the
 
 ## PM compliance: the leading indicator
 
-OEE, MTBF, and MTTR are *lagging* indicators: they tell you what already broke. **PM compliance**: the percentage of preventive tasks done on schedule: is the *leading* indicator that predicts them. The SMRP benchmark is ≥90% schedule compliance; plants that hold that line see MTBF climb within a quarter. Start with a real checklist, not a spreadsheet that nobody updates: [free PM checklist templates](https://workhiveph.com/learn/free-pm-checklist-templates/).
+OEE, MTBF, and MTTR are *lagging* indicators: they tell you what already broke. **PM compliance** is the *leading* one that predicts them. It counts the share of preventive tasks done on schedule. The SMRP benchmark is ≥90% schedule compliance; plants that hold that line see MTBF climb within a quarter. Start with a real checklist, not a spreadsheet that nobody updates: [free PM checklist templates](https://workhiveph.com/learn/free-pm-checklist-templates/).
 
 ## Climbing the reliability ladder: RCM, FMEA, and predictive alerts
 
-Once the basics are measured, the next rungs are analytical. **FMEA** (Failure Mode and Effects Analysis) ranks what to fix first by risk: see a full [FMEA worked example on a Philippine bottling line](https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/). **RCM** (Reliability-Centered Maintenance) then decides the right strategy per failure mode: [RCM for Philippine plants](https://workhiveph.com/learn/reliability-centered-maintenance-philippine-plants/). Finally, **condition-based alert thresholds** catch failures before they happen: the vibration severity zones of ISO 20816-3 (the 2022 standard that replaced ISO 10816-3 and keeps its A-to-D zones) and how to set alerts on them are in [predictive alert thresholds](https://workhiveph.com/learn/predictive-alert-thresholds-plants/).
+Once you measure the basics, the next steps are analysis. **FMEA** (Failure Mode and Effects Analysis) ranks what to fix first by risk. See a full [FMEA worked example on a Philippine bottling line](https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/).
+
+**RCM** (Reliability-Centered Maintenance) then picks the plan for each failure mode. See [RCM for Philippine plants](https://workhiveph.com/learn/reliability-centered-maintenance-philippine-plants/). Last, **condition-based alert thresholds** catch failures before they happen. ISO 20816-3 sets the vibration zones, A to D. It replaced ISO 10816-3 in 2022. How to set alerts on them is in [predictive alert thresholds](https://workhiveph.com/learn/predictive-alert-thresholds-plants/).
 
 ## Free calculators and next steps
 
-Turn the formulas into numbers with the free WorkHive calculators: each shows a worked example and works offline: [Bearing Life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [Vibration Isolation](https://workhiveph.com/tools/vibration-isolation-calculator/), and the full [engineering calculator suite](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/). To start recording the raw data these metrics need, begin with a [digital logbook](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/): undocumented downtime cannot be measured, and unmeasured downtime never gets fixed.
+Turn the formulas into numbers with the free WorkHive calculators. Each one shows a worked example and works offline. Try [Bearing Life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [Vibration Isolation](https://workhiveph.com/tools/vibration-isolation-calculator/) or [all the calculators](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/).
+
+To record the raw data these metrics need, start with a [digital logbook](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/). You cannot measure downtime no one wrote down, and you never fix what you do not measure.
 
 ## Frequently asked questions
 
@@ -81,7 +93,7 @@ The [Society for Maintenance and Reliability Professionals (SMRP)](https://smrp.
 
 No. You can start with a disciplined logbook and a checklist. The value is in consistent recording, not the tool. WorkHive is a free, offline-first platform that captures the downtime, repair, and PM data these metrics need without any subscription.
 
-**Track these metrics free in WorkHive Analytics**: OEE, MTBF, MTTR and PM compliance from your own logbook data.
+**Track these metrics free in WorkHive Analytics.** It reads OEE, MTBF, MTTR and PM compliance from your own logbook.
 
 ## Sources
 
@@ -92,4 +104,4 @@ No. You can start with a disciplined logbook and a checklist. The value is in co
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 291ca74316a85f25 -->
+<!-- md-twin source-sha: 7be0233bfcdc1815 -->

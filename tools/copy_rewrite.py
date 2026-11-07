@@ -68,8 +68,18 @@ def plain(h: str) -> str:
     return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", h))).strip()
 
 
+FORMULA = (re.compile(r"\S\s*=\s*\S"), re.compile(r"[×÷*/+%]|\d"))
+
+
 def ruler(text: str) -> list:
-    sents = [s for s in re.split(r"(?<=[.!?])\s+", plain(text)) if len(s.split()) >= 4]
+    # grade each block the way the lens does: an element whose text holds a formula ("=" with numbers or operators) is
+    # not graded for B3 at all (survey_ufai_rubric.js skips it), so neither is its chunk here
+    sents = []
+    for chunk in re.split(r"</p>|<p\b[^>]*>|</div>|<div\b[^>]*>|</li>|<li\b[^>]*>", text):
+        pc = plain(chunk)
+        if not pc or (FORMULA[0].search(pc) and FORMULA[1].search(pc)):
+            continue
+        sents += [s for s in re.split(r"(?<=[.!?])\s+", pc) if len(s.split()) >= 4]
     if not sents:
         return []
     r = subprocess.run(["node", str(ROOT / "tools" / "b3_ruler.mjs"), "--json", *sents], capture_output=True, text=True,

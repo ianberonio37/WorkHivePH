@@ -14,7 +14,9 @@ Updated 24 Aug 2026
 ·
 7 min read
 
-**Short answer:** WorkHive PH Industrial Intelligence is a set of free quarterly benchmark reports built from anonymised data across participating Philippine plants. Plants see how their OEE, MTBF, MTTR, PM compliance, and downtime cost compare to the sector average (manufacturing, food and beverage, power generation, water utilities, electronics, petrochemicals, BMS). Reading it needs a hive of your own at Stair 3 (Predictive-Ready); aggregation is anonymous and has no separate consent step. This is the only Philippine-specific industrial benchmark dataset that exists. This is why context matters more than the number: a borrowed **85 percent OEE** benchmark from a German automotive plant tells a Cabuyao food plant nothing about whether its own **62 percent** is good or bad.
+**Short answer:** WorkHive PH Industrial Intelligence gives Philippine plants free benchmarks. It draws on anonymised data from the plants that take part. Plants see how their OEE, MTBF, MTTR, PM compliance and downtime cost compare to their sector. Sectors include food and beverage, power, water and electronics.
+
+To read it, your own hive must reach Stair 3 (Predictive-Ready). Pooling is anonymous, with no separate consent step. It is the only Philippine-specific industrial benchmark set that exists. Context matters more than the number. A German car plant's **85 percent OEE** tells a Cabuyao food plant nothing about its own **62 percent**.
 
 Who this is for
 
@@ -28,46 +30,50 @@ Who this is for
 
 ## Why PH plants need PH benchmarks
 
-Most industrial KPI (key performance indicator) benchmarks available to Philippine plants come from North American or European sources (SMRP, ARC, Plant Engineering surveys). The benchmarks are useful but the context is wrong: those plants run with different ambient temperatures, different labor cost structures, different supplier ecosystems, different regulatory regimes, and different power-quality conditions. A borrowed "85 percent OEE (overall equipment effectiveness)" benchmark from a German automotive plant tells a Cabuyao food plant nothing useful about whether their 62 percent is good.
+Most KPI benchmarks come from North America or Europe. KPI means key performance indicator. Think SMRP, ARC and Plant Engineering surveys. The numbers help, but the context is wrong. Those plants differ in heat, labor costs, suppliers, rules and power quality.
 
-PH-specific benchmarks fix this. When a Pampanga beverage plant sees that the median PH beverage-sector MTTR (mean time to repair) is 4.2 hours and their MTTR is 5.8 hours, the gap is actionable. When the same plant sees the global best is 1.5 hours, the gap is demoralising and unactionable.
+Take a borrowed 85 percent OEE from a German car plant. It tells a Cabuyao food plant nothing about its own 62 percent.
+
+PH-specific benchmarks fix this. Say a Pampanga beverage plant has an MTTR of 5.8 hours. MTTR is the mean time to repair. The sector's median is 4.2 hours. That gap is one it can act on. Now say it sees the global best is 1.5 hours. That gap just demoralises.
 
 ## What the reports cover
 
-The report is generated monthly by default and can be produced for a quarter instead; each edition is stored as one row per period. It has six sections:
+The report comes out monthly by default, or quarterly on request. Each edition is one row per period. It has six sections:
 
 - **Summary:** key statistics across all contributing hives
-- **MTBF rankings:** the equipment categories with the best and worst mean time between failures
+- **MTBF rankings:** which kinds of equipment last longest and shortest between failures
 - **Failure modes:** the most common root causes, anonymised
-- **Parts risk:** the parts running chronically low across several plants at once: a shortage you can see coming before your own store does
-- **Seasonal:** failure-rate variance by month, with a typhoon-season flag. This is the section with no overseas equivalent, and the reason a Philippine benchmark is worth having at all
+- **Parts risk:** parts that run low across several plants at once. You see a shortage coming before your own store does
+- **Seasonal:** failure-rate variance by month, with a typhoon-season flag. No overseas report has this section. It is why a Philippine benchmark is worth having
 - **Narrative:** an AI-written executive summary over the sections above
 
-Worth saying plainly what is *not* in it yet: there is no OEE distribution, no MTTR breakdown, no PM-compliance curve and no downtime-cost-per-hour figure. Those are the numbers a business case wants, and they are on the roadmap rather than in the report.
+Here is what is *not* in it yet. There is no OEE spread, no MTTR breakdown and no PM-compliance curve. There is no downtime cost per hour either. Those are the numbers a business case wants, and they are on the roadmap rather than in the report.
 
 ## How anonymity actually works
 
-Anonymity has to be real for plants to participate, and the guards below are the ones the platform enforces today rather than a policy it intends to adopt:
+Plants only take part if anonymity is real. These guards are the ones the platform enforces today, not a policy for later:
 
-- **A segment stays locked until you can hide inside it.** Peer benchmarks do not unlock for a segment until at least 5 hives in that segment are contributing. Below that the page says so plainly rather than showing a number built from two plants.
-- **A thin insight is withheld, not published thin.** An individual insight needs a network of at least 20 records behind it; under that the platform publishes nothing for it.
-- **Your own history has to be long enough too.** Your plant is not placed against the segment until you have 30 days of logbook history, so a single new joiner cannot be read off a moving median.
-- **What leaves is aggregates, not records.** The report carries how many hives contributed, how many work orders and assets sit behind the figure, and the KPI distributions.
+- **A segment stays locked until you can hide inside it.** A segment's peer benchmarks stay locked until at least 5 of its hives contribute. Below that the page says so plainly rather than showing a number built from two plants.
+- **A thin insight is withheld, not published thin.** An insight needs at least 20 records behind it. With fewer, the platform shows nothing for it.
+- **Your own history has to be long enough too.** Your plant joins in only after 30 days of logbook history. That way no one can pick a new joiner out of a moving median.
+- **What leaves is aggregates, not records.** The report shows how many hives took part. It shows how many work orders and assets sit behind each figure, and the KPI spreads.
 
 ## Who can read it, and what it costs you
 
-Be clear-eyed about this before you plan around it: **there is no opt-in switch, and there is no public edition you can read without a hive of your own.** Reading the intelligence report requires a hive of your own that has reached **Stair 3, Predictive-Ready** — which the readiness score derives from PM compliance at or above 70 percent and logbook hygiene at or above 80 percent. A plant that has not adopted WorkHive cannot open the page.
+Know this before you plan around it. **There is no opt-in switch. There is no public edition you can read without a hive of your own.** To read the report, your own hive must reach **Stair 3, Predictive-Ready**. The readiness score needs PM compliance of 70 percent or more. It also needs logbook hygiene of 80 percent or more. A plant that has not adopted WorkHive cannot open the page.
 
-So the bargain is not “contribute and get early access”. It is: run your own maintenance well enough that the platform has something real to aggregate, and the aggregate opens to you. Your data joins the pool by reaching those thresholds; there is no separate consent step, which is precisely why the anonymity floors below matter and why they are stated in terms of what the code enforces.
+So the deal is not “contribute and get early access”. It is this: run your own maintenance well enough to give the platform something real to pool. Then the pool opens to you.
 
-Two different rules are easy to confuse here, and only one of them is yours to satisfy. **The gate** is your hive’s Stair 3. **The report’s own floors** are five contributing hives in your segment and twenty records behind an insight, and the five-hives one is other plants adopting WorkHive, which no amount of work on your part can hurry.
+Your data joins the pool when you reach those thresholds. There is no separate consent step. That is why the anonymity floors below matter. It is also why we state them as what the code enforces.
+
+Two rules are easy to confuse here, and only one is yours to meet. **The gate** is your hive’s Stair 3. **The report’s own floors** are five hives in your segment. Each insight also needs twenty records behind it. The five-hive floor depends on other plants joining WorkHive. No work on your part can hurry it.
 
 ## How plants use the reports
 
-1. **Capex justification.** "Our MTBF is 600 hours; the median for our sector is 1,400 hours. Closing half the gap to 1,000 hours saves PHP X per year in downtime." This argument lands with finance teams; "the global best is 8,000" does not.
-2. **Vendor negotiation.** Showing a supplier that the sector median lead time is 21 days when they are quoting 45 days surfaces a real conversation.
-3. **Internal stretch targets.** Setting next year's PM compliance target at "75 percent (current sector P75)" is more credible than "85 percent (global benchmark)" and more motivating than the current 62 percent.
-4. **Insurance and audit conversations.** Showing an insurer that the plant's MTTR is in the top quartile of the sector supports rate negotiation.
+1. **Capex justification.** "Our MTBF is 600 hours; the median for our sector is 1,400 hours. Closing half the gap saves PHP X a year in downtime." Finance teams listen to that. They do not listen to "the global best is 8,000".
+2. **Vendor negotiation.** Say a supplier quotes 45 days, and the sector median lead time is 21. Showing them that starts a real talk.
+3. **Internal stretch targets.** Set next year's PM compliance target at "75 percent (current sector P75)". It is more believable than "85 percent (global benchmark)". It also motivates more than the current 62 percent.
+4. **Insurance and audit conversations.** Show an insurer that your MTTR is in the sector's top quarter. That helps you bargain on rates.
 
 ## Sector coverage roadmap
 
@@ -79,13 +85,15 @@ Initial sector coverage (by participation count threshold):
 - Petrochemicals and refining
 - BMS / facilities (commercial buildings, hospitals, malls)
 
-Sub-sector breakdowns appear as participation grows. The first quarterly report for a sector lands once at least 5 hives in it are contributing and an insight has 20 records behind it.
+Sub-sector breakdowns appear as participation grows. A sector's first quarterly report lands once at least 5 of its hives contribute. Each insight also needs 20 records behind it.
 
 The tool this guide is about
 
 ### WorkHive PH Intelligence is the Philippine-specific benchmark
 
-A cross-plant report generated monthly (quarterly on request): MTBF rankings by equipment category, the commonest anonymised failure modes, parts running low across several plants at once, seasonal failure variance with a typhoon-season flag, and an AI-written summary over the lot. A segment stays locked until at least 5 hives in it are contributing, and an individual insight is withheld until 20 records stand behind it. It opens once your own hive reaches Stair 3 (Predictive-Ready), and then shows your plant's metrics beside the benchmark. Built for Philippine plants by the WorkHive hive of hives.
+A cross-plant report, monthly or quarterly on request. It ranks MTBF by kind of equipment and lists the most common failure modes, anonymised. It shows parts running low across several plants at once. It flags seasonal swings in failures, including typhoon season. An AI-written summary sits over the lot.
+
+A segment stays locked until at least 5 of its hives contribute. An insight stays hidden until 20 records stand behind it. It opens once your own hive reaches Stair 3 (Predictive-Ready). Then it shows your plant's metrics beside the benchmark. Built for Philippine plants by the WorkHive hive of hives.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -125,4 +133,4 @@ Yes for the public reports, with attribution to "WorkHive PH Industrial Intellig
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ddd3f4e1a5b12bee -->
+<!-- md-twin source-sha: aaf606796a31b87c -->

@@ -1270,7 +1270,11 @@
     // prove_rubric_teeth.mjs (k2ordinal must pass, k2small must still fail a real 16px KPI).
     // GJ M11: seven or more digits with no separator is an IDENTIFIER (a part number, a GCash reference, a phone number), not
     // a quantity - a KPI that size is written 3,991,971 - so it is neither asked for tabular figures nor to be 20px tall
-    const nums = textEls.filter(e => /^[\d,.]+\s*(%|h|d|hrs)?$/.test(ownText(e)) && !/^0\d$/.test(ownText(e)) && !/^\d{7,}$/.test(ownText(e)) && parseFloat(getComputedStyle(e).fontSize) >= 14);
+    // CF26-29 (2026-11-08): a figure set in bold INSIDE a sentence ("OEE = 0.90 x 0.95 x 0.98 = <strong>83.8%</strong>") is a
+    // highlighted result in running prose, not a KPI tile - asking it to be 20px tall with tabular figures mid-sentence
+    // would be bad type. An inline number whose sentence carries 8+ words is prose; a block or tile number is still a KPI.
+    const _inProse = (e) => _isInlineEl(e) && (flowText(_flowParent(e) || e).split(/\s+/).filter(Boolean).length >= 8);
+    const nums = textEls.filter(e => /^[\d,.]+\s*(%|h|d|hrs)?$/.test(ownText(e)) && !/^0\d$/.test(ownText(e)) && !/^\d{7,}$/.test(ownText(e)) && parseFloat(getComputedStyle(e).fontSize) >= 14 && !_inProse(e));
     const tab = nums.filter(e => /tabular-nums/.test(getComputedStyle(e).fontVariantNumeric));
     // GJ M11: the numbers C4 and K2 counted, so a fixer reads the element instead of guessing it
     out._nums = nums.slice(0, 12).map((e) => ({ t: ownText(e).slice(0, 16), px: Math.round(parseFloat(getComputedStyle(e).fontSize)),
