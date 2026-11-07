@@ -86,6 +86,12 @@ const PAGES = {
     + '<main class="page" style="display:none"><h1>Marketplace Admin</h1><div class="card"><h2>Queue</h2></div></main></body></html>',
   gatehidden: HEAD + '<div id="supervisor-gate" data-wh-gate="no-access" style="display:none"><h1>Platform Admins Only</h1></div>'
     + '<main class="page"><h1>Marketplace Admin</h1><p>Review listings and verify sellers.</p></main></body></html>',
+  // CF22 (2026-11-08): four 70-word copyable checklists in <pre> (one task a line) are lists - B1 passes; the same words as
+  // four paragraphs are verbose prose - B1 still fails
+  b1pre: HEAD + '<main><h1>Synthetic templates</h1>' + Array.from({ length: 4 }, () => '<pre>'
+    + Array.from({ length: 10 }, () => '[ ] check the pump seal and log it').join('\n') + '</pre>').join('') + '</main></body></html>',
+  b1prose: HEAD + '<main><h1>Synthetic guide</h1>' + Array.from({ length: 4 }, () => '<p>'
+    + Array.from({ length: 10 }, () => 'check the pump seal and log it').join(' and ') + '.</p>').join('') + '</main></body></html>',
   // CF26-29 (2026-11-08): a bold result inside a sentence of a worked example is prose, not a KPI tile
   k2prose: HEAD + '<main><h1>Synthetic guide</h1><p style="font-size:16px">For a bottling line the worked example gives OEE = 0.90 x 0.95 x 0.98 = '
     + '<strong style="font-size:16px">83.8%</strong> for the shift.</p></main></body></html>',
@@ -281,7 +287,7 @@ async function grade(page, html, root = 'main', scrollY = 0) {
   await page.evaluate((src) => (0, eval)('(' + src + ')')(), RUBRIC);
   const res = await page.evaluate((r) => window.__RUBRIC.survey({ pageId: 'synthetic', root: r }), root);
   const dim = (id) => (res.dims || []).find((d) => d.dim === id) || {};
-  return { A1: dim('A1'), R3: dim('R3'), C4: dim('C4'), V1: dim('V1'), R6: dim('R6'), B3: dim('B3'), B4: dim('B4'), J1: dim('J1'), K2: dim('K2'), G3: dim('G3'), Z3: dim('Z3'), T1: dim('T1'), G1: dim('G1'), W2: dim('W2'), I2: dim('I2'), Z2: dim('Z2'), W1: dim('W1'), O2: dim('O2') };
+  return { B1: dim('B1'), A1: dim('A1'), R3: dim('R3'), C4: dim('C4'), V1: dim('V1'), R6: dim('R6'), B3: dim('B3'), B4: dim('B4'), J1: dim('J1'), K2: dim('K2'), G3: dim('G3'), Z3: dim('Z3'), T1: dim('T1'), G1: dim('G1'), W2: dim('W2'), I2: dim('I2'), Z2: dim('Z2'), W1: dim('W1'), O2: dim('O2') };
 }
 
 const b = await chromium.launch();
@@ -414,6 +420,10 @@ if (!/h1=1 /.test(gto.A1.note || '') || !/permission wall/.test(gto.O2.note || '
 const gth = await grade(page, PAGES.gatehidden, null);
 if (!/h1=1 /.test(gth.A1.note || '') || /permission wall/.test(gth.O2.note || ''))
   fails.push(`root must stay the rendered <main> when the gate is hidden (a page, not a wall) - got A1 "${(gth.A1.note || '').slice(0, 90)}" O2 "${(gth.O2.note || '').slice(0, 80)}"`);
+const b1p = await grade(page, PAGES.b1pre);
+if (b1p.B1.pass !== b1p.B1.total) fails.push(`B1 must read a <pre> checklist line by line, not as one verbose block - got ${b1p.B1.pass}/${b1p.B1.total} "${(b1p.B1.note || '').slice(0, 80)}"`);
+const b1q = await grade(page, PAGES.b1prose);
+if (b1q.B1.pass === b1q.B1.total) fails.push(`B1 must still fail four 70-word paragraphs - got ${b1q.B1.pass}/${b1q.B1.total} "${(b1q.B1.note || '').slice(0, 80)}"`);
 const k2p = await grade(page, PAGES.k2prose);
 if (!(k2p.C4.kind === 'N/A' && k2p.K2.pass === k2p.K2.total))
   fails.push(`K2/C4 must read a bold figure inside a sentence as prose, not a KPI tile - got C4 ${k2p.C4.kind} K2 ${k2p.K2.pass}/${k2p.K2.total} "${(k2p.K2.note || '').slice(0, 80)}"`);

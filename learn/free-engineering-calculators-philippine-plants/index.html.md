@@ -14,8 +14,8 @@ Updated 27 Oct 2026
 ·
 10 min read
 
-**Short answer:** WorkHive Engineering Design is a free set of 60 standards-referenced calculators across eight disciplines: electrical and power (15), plumbing and pumps (14), HVAC and cooling (10), mechanical and machine design (10), fire protection (5), reliability and metrics (2), vertical transport (2), and boiler and utilities (2). Each calculator is built on the relevant standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and applies Philippine tropical-climate constants where they matter. It replaces 30 minutes of careful spreadsheet work with 30 seconds of structured input, and produces a PDF report a licensed PME or PEE can sign off. Built for the full engineering team: junior engineers, design and project engineers, licensed engineers, consultants, contractors, and engineering students building a portfolio.
- The pattern it replaces: three engineers, three spreadsheets, three different answers: wastes **2 to 4 hours per design** and produces inconsistent results.
+**Short answer:** WorkHive Engineering Design is 60 free calculators. They cover eight disciplines, from electrical and power to fire protection. Each one follows its standard: PEC 2017, ASHRAE, PSME, NFPA or ISO. Each uses Philippine tropical constants where they matter. Thirty minutes of spreadsheet work becomes 30 seconds of input. The PDF report is ready for a licensed PME or PEE to sign. It is for the whole team. That means junior and licensed engineers, consultants, contractors and students.
+ Three engineers, three spreadsheets, three different answers. That pattern wastes **2 to 4 hours per design**. It also gives results that do not match.
 
 Who this is for
 
@@ -29,35 +29,35 @@ Who this is for
 
 ## Why every Philippine plant engineer needs design calculators
 
-Walk into any Philippine engineering office and you will see the same workflow: open a 5-year-old Excel sheet inherited from a senior engineer, change three numbers, hope the formula still works, manually look up a coefficient in a printed ASHRAE handbook, type it in, get an answer, doubt the answer, redo it differently, get a different answer, pick one, send it off.
+Walk into any Philippine engineering office and you will see the same steps. Someone opens a 5-year-old Excel sheet from a senior engineer. They change three numbers and hope the formula still works. They look up a coefficient in a printed ASHRAE handbook and type it in. They get an answer, doubt it and redo it another way. Then they get a different answer, pick one and send it off.
 
-This pattern wastes 2 to 4 hours per design and produces inconsistent answers because:
+This pattern wastes 2 to 4 hours per design. The answers do not match, because:
 
-- The spreadsheet was written by someone who left in 2021 and nobody has reviewed the formula since
-- The coefficient table is the 2012 edition; ASHRAE 2021 has different values
-- The standard temperate constants do not match Philippine 35 degree C ambient
-- The licensed PME or PEE doing final sign-off has no time to redo the calculation, so they sign what they get
+- Someone who left in 2021 wrote the spreadsheet, and no one has checked the formula since
+- The coefficient table is from 2012. ASHRAE 2021 has different values
+- The temperate constants do not match the Philippine 35 degree C heat
+- The licensed PME or PEE has no time to redo the math at sign-off. So they sign what they get
 
-A standards-referenced calculator fixes all four. It uses the current standard, the right tropical constants, the same formula for every junior engineer in the team, and produces a structured report the senior engineer can verify in 60 seconds. This is the same productivity case that the digital logbook makes for technicians at [Stage 1](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/): replace ad-hoc memory with structured records.
+A calculator built on the standard fixes all four. It uses the current standard and the right tropical constants. Every junior engineer on the team uses the same formula. And it gives a structured report the senior engineer can check in 60 seconds. The digital logbook makes the same case for technicians at [Stage 1](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/). Swap memory for structured records.
 
 ## The 8 disciplines covered
 
 | Discipline | Calculators included |
 | --- | --- |
-| **Electrical & Power** (15) | [Transformer sizing](https://workhiveph.com/tools/transformer-sizing-calculator/), [cable and conductor sizing](https://workhiveph.com/tools/wire-sizing-calculator/) (PEC 2017), [voltage drop](https://workhiveph.com/tools/voltage-drop-calculator/), [short circuit](https://workhiveph.com/tools/short-circuit-calculator/), [power factor correction](https://workhiveph.com/tools/power-factor-correction-calculator/), [generator sizing](https://workhiveph.com/tools/generator-sizing-calculator/), [solar PV](https://workhiveph.com/tools/solar-pv-calculator/) |
-| **Plumbing & Pumps** (14) | [Pump TDH](https://workhiveph.com/tools/pump-tdh-calculator/), [water supply pipe sizing](https://workhiveph.com/tools/water-supply-pipe-calculator/), [pipe sizing and velocity](https://workhiveph.com/tools/pipe-sizing-calculator/), [expansion-tank sizing](https://workhiveph.com/tools/expansion-tank-calculator/), [septic tank](https://workhiveph.com/tools/septic-tank-calculator/), [storm drain](https://workhiveph.com/tools/storm-drain-calculator/) |
-| **HVAC & Cooling** (10) | [Cooling load](https://workhiveph.com/tools/hvac-cooling-load-calculator/), [ventilation and air changes (ACH)](https://workhiveph.com/tools/ventilation-ach-calculator/), [duct sizing](https://workhiveph.com/tools/duct-sizing-calculator/) (ASHRAE equal-friction), [chiller sizing](https://workhiveph.com/tools/chiller-sizing-calculator/), [FCU](https://workhiveph.com/tools/fcu-selection-calculator/) and [AHU selection](https://workhiveph.com/tools/ahu-sizing-calculator/) |
+| **Electrical & Power** (15) | [Transformer sizing](https://workhiveph.com/tools/transformer-sizing-calculator/) · [cable and conductor sizing](https://workhiveph.com/tools/wire-sizing-calculator/) (PEC 2017) · [voltage drop](https://workhiveph.com/tools/voltage-drop-calculator/) · [short circuit](https://workhiveph.com/tools/short-circuit-calculator/) · [power factor correction](https://workhiveph.com/tools/power-factor-correction-calculator/) · [generator sizing](https://workhiveph.com/tools/generator-sizing-calculator/) · [solar PV](https://workhiveph.com/tools/solar-pv-calculator/) |
+| **Plumbing & Pumps** (14) | [Pump TDH](https://workhiveph.com/tools/pump-tdh-calculator/) · [water supply pipe sizing](https://workhiveph.com/tools/water-supply-pipe-calculator/) · [pipe sizing and velocity](https://workhiveph.com/tools/pipe-sizing-calculator/) · [expansion-tank sizing](https://workhiveph.com/tools/expansion-tank-calculator/) · [septic tank](https://workhiveph.com/tools/septic-tank-calculator/) · [storm drain](https://workhiveph.com/tools/storm-drain-calculator/) |
+| **HVAC & Cooling** (10) | [Cooling load](https://workhiveph.com/tools/hvac-cooling-load-calculator/) · [ventilation and air changes (ACH)](https://workhiveph.com/tools/ventilation-ach-calculator/) · [duct sizing](https://workhiveph.com/tools/duct-sizing-calculator/) (ASHRAE equal-friction) · [chiller sizing](https://workhiveph.com/tools/chiller-sizing-calculator/) · [FCU selection](https://workhiveph.com/tools/fcu-selection-calculator/) · [AHU selection](https://workhiveph.com/tools/ahu-sizing-calculator/) |
 | **Mechanical & Machine Design** (10) | [Bearing life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [V-belt drive](https://workhiveph.com/tools/v-belt-drive-calculator/), [shaft design](https://workhiveph.com/tools/shaft-design-calculator/), [bolt torque](https://workhiveph.com/tools/bolt-torque-calculator/), [pressure vessel shell](https://workhiveph.com/tools/pressure-vessel-calculator/), [heat exchanger LMTD](https://workhiveph.com/tools/heat-exchanger-calculator/) |
-| **Fire Protection** (5) | [Sprinkler hydraulics](https://workhiveph.com/tools/fire-sprinkler-calculator/) (NFPA 13), [fire alarm battery](https://workhiveph.com/tools/fire-alarm-battery-calculator/) (NFPA 72), [fire pump selection](https://workhiveph.com/tools/fire-pump-calculator/), [clean agent suppression](https://workhiveph.com/tools/clean-agent-suppression-calculator/), [stairwell pressurization](https://workhiveph.com/tools/stairwell-pressurization-calculator/) |
-| **Reliability & Metrics** (2) | [MTBF and MTTR](https://workhiveph.com/tools/mtbf-calculator/), [OEE](https://workhiveph.com/tools/oee-calculator/) |
+| **Fire Protection** (5) | [Sprinkler hydraulics](https://workhiveph.com/tools/fire-sprinkler-calculator/) (NFPA 13) · [fire alarm battery](https://workhiveph.com/tools/fire-alarm-battery-calculator/) (NFPA 72) · [fire pump selection](https://workhiveph.com/tools/fire-pump-calculator/) · [clean agent suppression](https://workhiveph.com/tools/clean-agent-suppression-calculator/) · [stairwell pressurization](https://workhiveph.com/tools/stairwell-pressurization-calculator/) |
+| **Reliability & Metrics** (2) | [MTBF and MTTR](https://workhiveph.com/tools/mtbf-calculator/), [OEE calculator](https://workhiveph.com/tools/oee-calculator/) |
 | **Vertical Transport** (2) | [Elevator traffic](https://workhiveph.com/tools/elevator-traffic-calculator/), [hoist capacity](https://workhiveph.com/tools/hoist-capacity-calculator/) |
 | **Boiler & Utilities** (2) | [Boiler and steam duty](https://workhiveph.com/tools/boiler-steam-calculator/), [boiler system sizing](https://workhiveph.com/tools/boiler-system-calculator/) |
 
-Total: 60 specific calculators across 8 disciplines, each tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO).
+Total: 60 calculators across 8 disciplines. Each one names the standard it applies.
 
 ## Tropical constants: why the temperate defaults are wrong here
 
-Most engineering design software ships with default constants from temperate climates (20 degree C, sea level). The Philippines runs at 30 to 35 degree C with humidity well above the temperate default. The difference matters for any calculation that depends on air density, viscosity, or saturation pressure.
+Most design software ships with constants for cool climates: 20 degree C at sea level. The Philippines runs at 30 to 35 degree C, with much higher humidity. That matters for any calculation that uses air density. It also matters for viscosity and saturation pressure.
 
 | Property | Temperate (20 degree C) | Tropical (35 degree C, PH) | Affects |
 | --- | --- | --- | --- |
@@ -70,7 +70,7 @@ The duct-sizing K constant in the equal-friction formula is K = 0.01811 for temp
 
 ## Worked example: HVAC duct sizing for a 100 kW office cooling load
 
-A real Philippine project: a 1,200 m2 BPO office in BGC needs HVAC duct sizing for a 100 kW total cooling load split across 4 zones.
+A real Philippine project: a 1,200 m2 BPO office in BGC. It needs HVAC duct sizing for a 100 kW cooling load across 4 zones.
 
 ### Step 1: Calculate volume flow per branch
 
@@ -86,21 +86,25 @@ Using ASHRAE De equation, target a:b = 2:1:
 
 ### Step 5: Recompute D_h for pressure-drop calc
 
-If a junior engineer uses De (541 mm) instead of D_h (467 mm) in the pressure-drop calculation, the result is 15 percent low. The fan gets undersized. The plant runs the fan flat-out and still gets warm zones in Manila humidity. The WorkHive HVAC calculator shows the formula and an input field reference for each calculation, so you can verify which diameter it expects before trusting the result.
+Say a junior engineer uses De (541 mm) instead of D_h (467 mm) for the pressure drop. The result comes out 15 percent low. The fan gets undersized. The plant runs the fan flat-out and still gets warm zones in Manila humidity.
+
+The WorkHive HVAC calculator shows the formula and names each input. So you can check which diameter it wants before you trust the result.
 
 The tool this guide is about
 
 ### WorkHive Engineering Design replaces 30 minutes of spreadsheet work with 30 seconds
 
-60 standards-referenced calculators across 8 disciplines (electrical and power, plumbing and pumps, HVAC and cooling, mechanical and machine design, fire protection, reliability and metrics, vertical transport, boiler and utilities). Each output is tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and Philippine tropical constants where they matter. PDF report ready for licensed PME or PEE sign-off. Saved designs build your engineering portfolio. Free at the worker tier forever.
+60 calculators across 8 disciplines, each built on its standard. Every result names the standard it applied: PEC 2017, ASHRAE, PSME, NFPA or ISO. It uses Philippine tropical constants where they matter. PDF report ready for a licensed PME or PEE to sign. Saved designs build your engineering portfolio. Free at the worker tier forever.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## All 60 calculators
 
-Every calculator below is free, works offline, and shows the formula plus a worked example with real numbers. Grouped by discipline:
+Every calculator below is free and works offline. Each shows the formula and a worked example with real numbers. Grouped by discipline:
 
-**New since the last update (October 2026):** the [Solar PV System Calculator](https://workhiveph.com/tools/solar-pv-calculator/) now carries an off-grid power-station planner. List the appliances and their hours of use, and it adds up the daily energy with the losses stated, sizes for the starting surge and the days without sun, then sizes the battery by chemistry and depth of discharge, the panels from your location's peak sun hours, the inverter, the MPPT charge controller, and the battery voltage (the lowest of 12, 24 or 48 V that keeps both DC currents within 100 A). It prices the station in pesos with prices you replace, keeps the plan on your device, shares it as a link, and prints a spec sheet referenced to IEEE 1562 and IEEE 1013 sizing and PEC 2017 Article 6.90. It needs no account.
+**New (October 2026):** the [Solar PV System Calculator](https://workhiveph.com/tools/solar-pv-calculator/). It now plans off-grid power stations. List your appliances and their hours of use. It adds up the daily energy, with the losses shown. It sizes for the starting surge and for days without sun.
+
+Then it sizes the battery by chemistry and depth of discharge. It sizes the panels from your peak sun hours, then the inverter and the MPPT charge controller. It picks the battery voltage too. That is the lowest of 12, 24 or 48 V that keeps both DC currents within 100 A. It prices the station in pesos, with prices you can replace. It keeps the plan on your device and shares it as a link. It prints a spec sheet tied to IEEE 1562, IEEE 1013 and PEC 2017 Article 6.90. It needs no account.
 
 ### Reliability & Metrics (2)
 
@@ -210,20 +214,24 @@ Every calculator below is free, works offline, and shows the formula plus a work
 
 A common question: "If the calculator gives me the answer, do I still need a PME or PEE to sign?"
 
-Yes. The calculator gives you an engineering-grade answer that a junior engineer would produce in 30 minutes of careful work. The licensed engineer is responsible for:
+Yes. The calculator gives a careful junior engineer's answer in seconds. The licensed engineer is responsible for:
 
-- **Code compliance** (NSCP 2015 for structural, PEC 2017 for electrical, NFPA for fire) and Philippine regulatory submissions
-- **Site-specific judgment** (the calculator does not know that this BGC site has limited overhead clearance, or that this plant has 5 percent extra voltage drop on the upstream feeder)
-- **Professional liability** for the design under the Philippine Mechanical Engineering Act, Electrical Engineering Law, or Civil Engineering Law
-- **Coordination across disciplines** (the electrical engineer's design must respect the HVAC engineer's load and the structural engineer's space)
+- **Code compliance**: NSCP 2015 for structure, PEC 2017 for power, NFPA for fire. Also the Philippine permit filings
+- **Site-specific judgment**. The calculator cannot know that this BGC site has little overhead room. Nor does it know this plant loses 5 percent more voltage on the upstream feeder
+- **Professional liability** for the design. The Mechanical, Electrical or Civil Engineering law sets it
+- **Coordination across disciplines**. The electrical design must fit the HVAC load and the structural space
 
-What changes: the licensed engineer's review time drops from "redo the calculation from scratch" (3 hours per design) to "verify the inputs and sanity-check the output" (15 minutes). That capacity gain is the real value of standards-referenced calculators.
+What changes is the licensed engineer's review time. It drops from 3 hours a design, redoing the math from scratch. It becomes 15 minutes, checking the inputs and the output. That time saved is the real value of calculators built on standards.
 
 ## Your design history as a career portfolio
 
-This is the part most Filipino engineers underuse, and there is one condition attached to it that decides whether it works at all, so it comes first. A calculation you save inside a hive belongs to that hive's records: you can read it while your membership is active, and you cannot once it ends. That is the correct rule: a plant's design work is the plant's, but it means the saved history is not, by itself, a portfolio you take with you.
+Most Filipino engineers underuse this part. One condition decides whether it works at all, so it comes first. A calculation you save inside a hive belongs to that hive's records. You can read it while you are a member, and not once you leave.
 
-**The PDF report is the part that travels.** Every calculation can be downloaded as a dated, standards-referenced PDF, and a downloaded file sits on your own device where no access rule reaches it. So build the portfolio as you go: download the PDF for every calculation worth keeping, on the day you run it, into a folder you own. Engineers who do that have their evidence at the interview; engineers who plan to export it later discover that later is after their account lost access.
+That is the right rule, since a plant's design work belongs to the plant. But it means your saved history is not a portfolio you take with you.
+
+**The PDF report is the part that travels.** You can download any calculation as a dated PDF that names its standard. A downloaded file sits on your own device, where no access rule reaches it.
+
+So build the portfolio as you go. Download the PDF for every calculation worth keeping, on the day you run it. Keep it in a folder you own. Engineers who do that have their proof at the interview. Engineers who plan to export later find that later came after they lost access.
 
 When a Filipino engineer applies for:
 
@@ -232,19 +240,21 @@ When a Filipino engineer applies for:
 - A consulting engagement with a new client
 - A PRC licensure interview
 
-The hiring manager or reviewer wants to see verifiable work, and a folder of dated PDF reports naming the standard each one applied is exactly that: it shows what you sized, when, and under which code. It is the engineering counterpart of the documented logbook history we make the worker-protection case for in the [Skill Matrix guide](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/), with the same caveat that guide records: the records held inside a hive stay with the hive, so what leaves with you is what you exported while you were there.
+A hiring manager wants to see work they can check. A folder of dated PDF reports, each naming its standard, is just that. It shows what you sized, when, and under which code.
 
-Engineers whose work is documented get promoted; engineers whose work lives only in one senior colleague's memory get bypassed. Document your designs, and keep your own copy of the documentation.
+It is the engineering twin of the logbook history in the [Skill Matrix guide](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/). That guide has the same caveat. Records inside a hive stay with the hive. What leaves with you is what you exported while you were there.
+
+Engineers who record their work get promoted. Engineers whose work lives only in one senior's memory get passed over. Document your designs, and keep your own copy of the documentation.
 
 ## Common mistakes when using design calculators
 
 - **Skipping the standard check.** If the calculator does not tell you which standard it applied, do not use it. Anonymous calculators on random websites give wrong answers with confidence.
-- **Using temperate constants in a Philippine design.** Always verify the calculator is using tropical defaults for air, water, and humidity properties.
-- **Treating the output as final without coordination.** A 100 kW HVAC design that ignores the electrical room load and the structural ceiling height will fail in installation regardless of how correct the HVAC math is.
-- **Not saving the calculation report.** Six months later when the owner asks "why is this fan 30 kW and not 25 kW?", you need the dated calculation. Save every design.
+- **Using temperate constants in a Philippine design.** Always check that it uses tropical values. That means for air, water and humidity.
+- **Treating the output as final without coordination.** Say a 100 kW HVAC design ignores the electrical room load and the ceiling height. It will fail at installation, however right the HVAC math is.
+- **Not saving the calculation report.** Six months later, the owner may ask why this fan is 30 kW and not 25. Then you need the dated calculation. Save every design.
 - **Letting the senior engineer skip review.** The calculator removes the redo burden, not the review burden. The PME or PEE still owns the design.
 
-**The bigger picture:** Standards-referenced calculators do for engineering what the digital logbook does for maintenance. They replace ad-hoc tribal knowledge with structured, verifiable, portable records. Plants and engineers that adopt them compound their work over years. Plants and engineers that resist them stay dependent on the senior engineer's memory.
+**The bigger picture:** think of them as the logbook for engineering. They swap tribal knowledge for records you can check and carry. Teams that adopt them build on their work for years. Teams that resist them stay tied to one senior engineer's memory.
 
 ## Frequently asked questions
 
@@ -287,4 +297,4 @@ Your saved calculations stay in your hive's project history, and you can read an
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 4881f63d633873a9 -->
+<!-- md-twin source-sha: e269f5477fa8fc5b -->

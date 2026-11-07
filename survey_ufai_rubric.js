@@ -852,7 +852,18 @@
     // this week to meet the platform's own vocabulary and lose.
     const MARKETESE = /\b(revolutionary|cutting-edge|seamless|empower|game-chang|best-in-class|synerg)|\bworld-class\s+(?:platform|product|support|service|team|experience|software|solution|tool|app)\b/i;
     const marketese = textEls.filter(e => MARKETESE.test(ownText(e)));
-    const longBlocks = textEls.filter(e => ownText(e).split(/\s+/).length > 60);
+    // ★A PREFORMATTED CHECKLIST IS A LIST, NOT A PARAGRAPH (CF22, 2026-11-08). free-pm-checklist-templates ships five copyable
+    // PM checklists in <pre>: "PM CHECKLIST | Centrifugal Pump | ..." then one "[ ] task" per line. B1 read each as ONE
+    // 70-120-word block of prose. A whitespace-preserving element is read line by line, as B3 already does: its longest
+    // LINE is its block. A paragraph of 80 words still fails.
+    const _blockWords = (e) => {
+      let ws = 'normal';
+      try { ws = getComputedStyle(e).whiteSpace || 'normal'; } catch (_) { /* empty-catch-allow: read as prose */ }
+      const t = ownText(e);
+      if (!/^pre/.test(ws)) return t.split(/\s+/).filter(Boolean).length;
+      return Math.max(0, ...e.textContent.split(/\n+/).map((ln) => ln.split(/\s+/).filter(Boolean).length));
+    };
+    const longBlocks = textEls.filter(e => _blockWords(e) > 60);
     // opts.full (Wave CF, 2026-11-08): every verbose block's own text, untruncated - the list a rewrite works from
     if (opts && opts.full) out._b1full = longBlocks.map((e) => ownText(e));
     out.push(M('B1', 'Microcopy / concision', [

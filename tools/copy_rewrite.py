@@ -75,9 +75,10 @@ def ruler(text: str) -> list:
     # grade each block the way the lens does: an element whose text holds a formula ("=" with numbers or operators) is
     # not graded for B3 at all (survey_ufai_rubric.js skips it), so neither is its chunk here
     sents = []
-    for chunk in re.split(r"</p>|<p\b[^>]*>|</div>|<div\b[^>]*>|</li>|<li\b[^>]*>", text):
+    for chunk in re.split(r"</p>|<p\b[^>]*>|</div>|<div\b[^>]*>|</li>|<li\b[^>]*>|</td>|<td\b[^>]*>|</th>|<th\b[^>]*>", text):
         pc = plain(chunk)
-        if not pc or (FORMULA[0].search(pc) and FORMULA[1].search(pc)):
+        # ...and a middle-dot list (two or more "·") is a list of facts, not prose - the lens skips it too
+        if not pc or (FORMULA[0].search(pc) and FORMULA[1].search(pc)) or pc.count("·") >= 2:
             continue
         sents += [s for s in re.split(r"(?<=[.!?])\s+", pc) if len(s.split()) >= 4]
     if not sents:

@@ -326,7 +326,7 @@
     </div>
 
     <div class="answer-first">
-      <strong>Short answer:</strong> A useful preventive maintenance checklist has five sections: pre-work safety, inspection or service tasks (one tick box each), measurement readings with normal-range guides, parts replaced with quantities, and technician sign-off with time. This guide gives you ready-to-use templates for pumps, motors, compressors, HVAC, and electrical panels, plus the rules for setting PM frequency and getting your compliance from 50 percent to 90 percent.
+      <strong>Short answer:</strong> A useful PM checklist has five sections. First comes pre-work safety, then one tick box per task. Next come readings with normal ranges and the parts used. Last is the technician's sign-off with the time. This guide has ready-to-use templates for five kinds of asset. They cover pumps, motors, compressors, HVAC and electrical panels. It also gives the rules for PM frequency. And it shows how to lift compliance from 50 to 90 percent.
     </div>
 
     <div class="audience-block">
@@ -360,23 +360,23 @@
     </div>
 
     <div class="prose-wh">
-      <div class="callout">Part of the <a href="/learn/start-digital-maintenance-guide/">guide to starting digital maintenance in a Philippine factory</a>: the four-step, zero-budget rollout this article is one step of.</div>
+      <div class="callout">Part of the <a href="/learn/start-digital-maintenance-guide/">digital maintenance starter guide</a>. That guide is a four-step rollout with zero budget, and this is one step.</div>
 
 
       <h2 id="why-pms-fail">Why most PMs do not prevent failures</h2>
-      <p>Most Philippine plants run PMs. Most Philippine plants also have unplanned downtime caused by the exact assets they PM. This is not because PM is the wrong strategy; it is because the PM as designed is not catching the failure modes that actually happen.</p>
+      <p>Most Philippine plants run PMs. Most Philippine plants also have unplanned downtime caused by the exact assets they PM. PM is not the wrong plan. The PM, as written, just misses the failure modes that really happen.</p>
       <p>Three patterns kill PM effectiveness in Philippine plants:</p>
       <ul>
         <li><strong>The checklist is too vague.</strong> "Inspect motor" is not a PM task. "Measure vibration at DE and NDE bearings with 4-second VA reading; flag above 2.8 mm/s" is.</li>
         <li><strong>The technician ticks the box but does not do the work.</strong> This is the most common failure mode. The PM looks 100 percent complete in the dashboard, and the asset still fails 3 weeks later.</li>
-        <li><strong>The frequency is wrong.</strong> Annual PMs on equipment that fails every 4 months are theatre. Monthly PMs on equipment that fails every 8 years are wasteful. Frequency should match the asset's failure pattern (MTBF: mean time between failures), not a one-size schedule.</li>
+        <li><strong>The frequency is wrong.</strong> Annual PMs on equipment that fails every 4 months are theatre. Monthly PMs on equipment that fails every 8 years are wasteful. Match the frequency to how often the asset fails. That is its MTBF, the mean time between failures. Do not use one schedule for all.</li>
       </ul>
-      <p>The fix is structural: better checklists, supervisor-enforced sign-off, and frequencies tied to actual MTBF data. The rest of this guide is the template plus the rule.</p>
+      <p>The fix is in the system. Use better checklists and sign-off that supervisors enforce. Tie each frequency to real MTBF data. The rest of this guide is the template plus the rule.</p>
 
       <h2 id="five-sections">The 5 sections every PM checklist needs</h2>
       <ol>
-        <li><strong>Pre-work safety.</strong> LOTO (lock-out/tag-out) confirmed, PPE (personal protective equipment) on, permit-to-work valid, work area cleared. This is not bureaucratic; this is the section DOLE inspectors sample first.</li>
-        <li><strong>Inspection or service tasks.</strong> One tick box per task. Specific verb plus specific object. Not &ldquo;check belts&rdquo; but &ldquo;check belt tension by deflection at midspan under the OEM deflection force; re-tension if it exceeds 1/64 of the span&rdquo;. Note that the limit is a RATIO, not a fixed millimetre figure: a number like &ldquo;13 mm&rdquo; is only meaningful beside the span it was derived from, and writing it without the span is the same vagueness this bullet is arguing against.</li>
+        <li><strong>Pre-work safety.</strong> LOTO (lock-out/tag-out) in place and PPE on. PPE means personal protective equipment. Permit-to-work valid and work area clear. This is not red tape. It is the section DOLE inspectors check first.</li>
+        <li><strong>Inspection or service tasks.</strong> One tick box per task. Use a specific verb and a specific object. Do not write &ldquo;check belts&rdquo;. Write &ldquo;press the belt at midspan with the OEM force; re-tension if it sags past 1/64 of the span&rdquo;. The limit is a RATIO, not a fixed number of millimetres. A figure like &ldquo;13 mm&rdquo; only means something beside the span it came from. Writing it without the span is the same vagueness this bullet warns against.</li>
         <li><strong>Measurement readings.</strong> Numerical readings with normal-range guides printed on the checklist. Vibration, temperature, current, pressure, flow rate. The reading is the data; the tick box is the evidence the work was done.</li>
         <li><strong>Parts replaced.</strong> Part number, quantity, reason replaced (preventive vs corrective). This feeds inventory and MTBF tracking.</li>
         <li><strong>Sign-off.</strong> Technician name (not initials), time started, time completed, supervisor verification. Time-stamped on the server, not on the technician's phone clock.</li>
@@ -397,7 +397,7 @@ Date: ___________  Technician: ___________
 2. INSPECTION / SERVICE TASKS
    [ ] External casing inspection (cracks, paint condition, support bolts torque)
    [ ] Coupling inspection (rubber spider, alignment marks visible)
-   [ ] Mechanical seal area inspection (no leakage; if leaking, log finding)
+   [ ] Mechanical seal: no leaks (log any leak found)
    [ ] Greasing of bearings (2 to 3 strokes of NLGI 2 grease at DE and NDE)
    [ ] Strainer / suction filter cleaned (if applicable)
    [ ] Discharge gauge isolation valve operability test
@@ -526,7 +526,7 @@ Asset: ___________  Asset ID: ___________  Voltage: _____ V
    [ ] Permit-to-work valid (PTW #_____)
 
 2. INSPECTION / SERVICE TASKS
-   [ ] Panel front and rear inspection (no overheating signs, no discoloration)
+   [ ] Panel front and rear: no heat marks or discoloration
    [ ] All cable terminations torque check (per manufacturer spec, recorded)
    [ ] Busbar inspection (no pitting, no signs of arcing)
    [ ] Breaker operation test (manual close and trip on each breaker)
@@ -552,7 +552,7 @@ Asset: ___________  Asset ID: ___________  Voltage: _____ V
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
         <h3>WorkHive PM Scheduler runs these checklists with the right asset, the right technician, the right time</h3>
-        <p>Every PM you upload becomes a scheduled task with the right frequency, assigned to a technician who is qualified per the Skill Matrix, with the checklist on their phone at the asset. PM compliance dashboard updates live. Tie completion to a logbook entry to stop the "ticked but not done" failure mode. Free at the worker tier.</p>
+        <p>Every PM you upload becomes a scheduled task at the right frequency. It goes to a technician the Skill Matrix lists as qualified. The checklist sits on their phone at the asset. PM compliance dashboard updates live. Tie completion to a logbook entry to stop the "ticked but not done" failure mode. Free at the worker tier.</p>
         <a href="/pm-scheduler.html" class="cta-btn">Open the PM Scheduler</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
@@ -570,19 +570,19 @@ Asset: ___________  Asset ID: ___________  Voltage: _____ V
           <tr><td>Instrumentation calibration</td><td>Annual</td><td>Drift readings and compliance</td></tr>
         </tbody>
       </table></div>
-      <p>Once you have 12 months of MTBF data per asset (see our <a href="/learn/mtbf-vs-mttr-for-supervisors/">MTBF vs <abbr title="mean time to repair">MTTR</abbr> guide</a>), tighten frequency on assets with falling MTBF and loosen frequency on assets that have not failed in 3+ years.</p>
+      <p>Wait until you have 12 months of MTBF data per asset. Our <a href="/learn/mtbf-vs-mttr-for-supervisors/">MTBF vs <abbr title="mean time to repair">MTTR</abbr> guide</a> explains it. Then do PMs more often on assets whose MTBF is falling. Do them less often on assets that have not failed in 3+ years.</p>
 
       <h2 id="compliance">How to drive PM compliance from 50 to 90 percent</h2>
-      <p>A first honest PM-compliance measurement typically sits at 50 to 75 percent. The path to 90 percent has four steps:</p>
+      <p>A first honest PM-compliance reading often sits at 50 to 75 percent. The path to 90 percent has four steps:</p>
       <ol>
-        <li><strong>Use a tool, not a spreadsheet.</strong> Excel-based PM schedules silently drop tasks during the busy weeks. A scheduler that pushes the task to the technician's phone and tracks compliance live (like WorkHive PM Scheduler) prevents that.</li>
-        <li><strong>Tie completion to a logbook entry.</strong> A PM is not complete unless there is a matching logbook entry from the technician at the asset within the PM window. This stops "ticked but not done."</li>
+        <li><strong>Use a tool, not a spreadsheet.</strong> Excel-based PM schedules silently drop tasks during the busy weeks. A scheduler prevents that. It pushes the task to the technician's phone. It tracks compliance live too, like WorkHive PM Scheduler.</li>
+        <li><strong>Tie completion to a logbook entry.</strong> A PM is not done until the technician logs it at the asset, inside the PM window. This stops "ticked but not done."</li>
         <li><strong>Review compliance weekly with the supervisor.</strong> Not monthly. By month-end, the misses are unrecoverable. Weekly review catches a missed PM while there is still time to do it.</li>
-        <li><strong>Match PMs to the Skill Matrix.</strong> Assigning a pump PM to a technician not qualified on rotating equipment guarantees it gets ticked but not done. The Skill Matrix tells the planner who can actually do the PM.</li>
+        <li><strong>Match PMs to the Skill Matrix.</strong> Give a pump PM to someone not trained on rotating equipment. It will get ticked but not done. The Skill Matrix tells the planner who can actually do the PM.</li>
       </ol>
 
       <div class="callout">
-        <strong>The bigger picture:</strong> A PM checklist alone is necessary but not sufficient. The checklist + the scheduler + the skill matrix + the logbook entry + the weekly compliance review is the system that takes a plant from 50 to 90 percent. Each piece without the others is theatre.
+        <strong>The bigger picture:</strong> A PM checklist alone is not enough. A plant goes from 50 to 90 percent with the whole system. That means the checklist, the scheduler and the skill matrix. It also means the logbook entry and a weekly compliance review. Each piece without the others is theatre.
       </div>
 
       <h2 id="faq">Frequently asked questions</h2>
