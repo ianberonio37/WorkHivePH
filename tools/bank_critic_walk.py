@@ -34,6 +34,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CRITIC = ROOT / "critic_registry.json"
+# ★THE BANK IS THE UNION (2026-11-07). critic_walk_manifest groups a walk across the whole critic registry - main rows
+# with the CX and GJ shards (registry_io.CRITIC_SHARDS) - and this banker read the main file alone, so every mixed walk
+# was refused ("not in the critic bank: CX7 ..."). Read and write through registry_io, as every other core tool does.
+import sys as _sys
+_sys.path.insert(0, str(ROOT / "tools"))
+import registry_io as _rio  # noqa: E402
 SPEC = ROOT / "ufai-rubric-spec.json"
 
 
@@ -144,7 +150,7 @@ def main() -> int:
         print("refused: not one graded dim survived the rubric spec - nothing to bank")
         return 1
 
-    reg = json.loads(io.open(CRITIC, encoding="utf-8").read())
+    reg = _rio.load_critic()
     by = {r["id"]: r for r in reg.get("rows") or []}
     missing = [i for i in ids if i not in by]
     if missing:
@@ -220,7 +226,7 @@ def main() -> int:
                 return 1
             _time.sleep(0.25)
     try:
-        reg = json.loads(io.open(CRITIC, encoding="utf-8").read())
+        reg = _rio.load_critic()
         by = {r["id"]: r for r in reg.get("rows") or []}
         wrong = [i for i in ids if i not in by or by[i].get("status") not in ("pending", "critiqued")]
         if wrong:
@@ -264,26 +270,12 @@ def _write_bank(reg, by, ids, lens_sha, graded, findings, note) -> int:
             r["improvement_refs"] = [f"{today}: re-walked as the same cast ({r.get('cell') or '?'}) with the full lens; "
                                      f"none of its {len(prior)} earlier finding(s) recur; lock = family-rubric-ratchet on the full board"]
             closed += 1
-    tmp = str(CRITIC) + ".tmp"
-    # ★KEEP THE FILE'S OWN INDENT (2026-11-04). This wrote indent=1 while registry_io.save_critic (every other writer)
-    # keeps the file at 2, so one bank reformatted all 61 MB: a whole-file diff that cannot merge with any other branch's
-    # edit of the registry. The indent is read from the file itself, as bank_cx_ux_rows._save reads its registry's.
+    # keep the main file's own indent (2026-11-04); the shards are written compact by registry_io
     with io.open(CRITIC, encoding="utf-8") as fh:
         fh.readline()
         second = fh.readline()
     indent = max(1, len(second) - len(second.lstrip(" "))) if second.strip() else 2
-    io.open(tmp, "w", encoding="utf-8").write(json.dumps(reg, indent=indent, ensure_ascii=False) + "\n")
-    # Windows refuses to replace a file another process has OPEN (an editor, an indexer, a reader script) - the lock
-    # serialises writers, not readers. Five banks in one batch run failed on exactly this; a short retry clears it.
-    import time as _t
-    for _attempt in range(20):
-        try:
-            os.replace(tmp, CRITIC)
-            break
-        except PermissionError:
-            if _attempt == 19:
-                raise
-            _t.sleep(0.25)
+    _rio.save_critic(reg, indent=indent)   # main + shards, each atomically, retrying a reader's Windows lock
     print(f"banked {len(ids)} row(s) -> critiqued | {len(graded)} dims | {len(findings)} findings"
           + (f" | {closed} re-walked row(s) found clean -> improving" if closed else ""))
     return 0

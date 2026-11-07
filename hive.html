@@ -7002,7 +7002,8 @@ async function loadTodaysBrief() {
         const _horizon = new Date(String(high.predicted_next || ''));
         const _past = !isNaN(_horizon.getTime()) && _horizon.getTime() < (Date.now() - 86400000);
         bullets.push({ color: '#F7A21B', text: escHtml(_past
-          ? `${high.machine} was predicted to fail by ${high.predicted_next} - past due; check its recent entries and rerun the prediction`
+          // B3 (critic batch, 2026-11-07): one 21-word sentence read as two - the fact, then what to do
+          ? `${high.machine}: predicted to fail by ${high.predicted_next}, which has passed. Check its recent entries and run the prediction again.`
           : `Predicted failure: ${high.machine} by ${high.predicted_next}`) });
       }
     }
