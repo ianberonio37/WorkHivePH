@@ -78,6 +78,14 @@ const PAGES = {
   // a real KPI at 16px beside a label must still fail K2's glanceable check.
   k2ordinal: HEAD + '<main><h1>Synthetic stages</h1><div class="card"><span class="step-dot" style="font-size:16px">01</span>'
     + '<h2>Find the gap</h2></div><div class="card"><span class="step-dot" style="font-size:16px">02</span><h2>Close it</h2></div></main></body></html>',
+  // critic BRH17 (2026-11-07): the refusal sits OUTSIDE a hidden <main class="page">. The survey must grade the gate the
+  // person sees (its h1, its one way on), not the empty hidden page - and a page whose <main> renders keeps <main>.
+  gateoutside: HEAD + '<div id="supervisor-gate" data-wh-gate="no-access" style="display:flex;flex-direction:column">'
+    + '<h1>Platform Admins Only</h1><p>This page is for platform admins. Need access? Ask an admin to add you.</p>'
+    + '<a href="#m" style="display:inline-flex;min-height:44px">Back to Marketplace</a></div>'
+    + '<main class="page" style="display:none"><h1>Marketplace Admin</h1><div class="card"><h2>Queue</h2></div></main></body></html>',
+  gatehidden: HEAD + '<div id="supervisor-gate" data-wh-gate="no-access" style="display:none"><h1>Platform Admins Only</h1></div>'
+    + '<main class="page"><h1>Marketplace Admin</h1><p>Review listings and verify sellers.</p></main></body></html>',
   // GJ M11 round 2: a ten-digit part number is an identifier - no KPI to enlarge, nothing to set tabular
   k2ident: HEAD + '<main><h1>Synthetic shelf</h1><div class="card"><span style="font-size:14px;font-weight:900">3991971430</span>'
     + '<p>Deep-groove bearing</p></div></main></body></html>',
@@ -397,6 +405,12 @@ if (g3b.G3.pass !== 0) fails.push(`G3 must still fail three reachable filled but
 const k2o = await grade(page, PAGES.k2ordinal);
 if (!(k2o.K2.kind === 'MEASURED' && k2o.K2.pass === k2o.K2.total))
   fails.push(`K2 must not read zero-padded stage badges as KPIs - got ${k2o.K2.pass}/${k2o.K2.total} "${(k2o.K2.note || '').slice(0, 100)}"`);
+const gto = await grade(page, PAGES.gateoutside, null);
+if (!/h1=1 /.test(gto.A1.note || '') || !/permission wall/.test(gto.O2.note || ''))
+  fails.push(`root must be the visible declared gate outside a hidden <main> (h1=1, graded as a wall) - got A1 "${(gto.A1.note || '').slice(0, 90)}" O2 "${(gto.O2.note || '').slice(0, 80)}"`);
+const gth = await grade(page, PAGES.gatehidden, null);
+if (!/h1=1 /.test(gth.A1.note || '') || /permission wall/.test(gth.O2.note || ''))
+  fails.push(`root must stay the rendered <main> when the gate is hidden (a page, not a wall) - got A1 "${(gth.A1.note || '').slice(0, 90)}" O2 "${(gth.O2.note || '').slice(0, 80)}"`);
 const k2i = await grade(page, PAGES.k2ident);
 if (!(k2i.K2.pass === k2i.K2.total && k2i.C4.kind === 'N/A'))
   fails.push(`K2/C4 must read a 10-digit part number as an identifier, not a KPI - got K2 ${k2i.K2.pass}/${k2i.K2.total} C4 ${k2i.C4.kind} "${(k2i.K2.note || '').slice(0, 80)}"`);

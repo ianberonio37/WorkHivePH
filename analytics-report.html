@@ -613,7 +613,8 @@
        rest. An inline font-size could not be restored for paper without !important. */
     .doc-panel .doc-fine { font-size: var(--wh-fs-xs, 0.8rem); color: var(--wh-grey-700, #555); }
     .doc-panel .appendix-note {
-      font-size: var(--wh-fs-xs, 0.8rem); color: var(--wh-gray-500, #6b7280); font-style: italic;
+      /* gray-500 on the cloud panel read 4.47:1, under 4.5 (critic BRH4, 2026-11-07); gray-600 clears it */
+      font-size: var(--wh-fs-xs, 0.8rem); color: var(--wh-gray-600, #4b5563); font-style: italic;
       margin: 0.4rem 0 0.75rem; padding: 0.55rem 0.75rem;
       background: var(--wh-cloud, #F4F6FA); border-left: 3px solid var(--wh-steel-bright, #CFD7E0); border-radius: 12px;
     }
@@ -2064,7 +2065,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!subSections.length) {
         return '' +
           '<section id="ar-action"><h2>4. Action Plan</h2>' +
-            '<p style="color:var(--wh-grey-700, #555);font-size:var(--wh-fs-xs, 0.8rem);">No prescriptive actions yet. Run the analytics engine end-to-end (logbook → PMs → priorities) to populate this section.</p>' +
+            '<p style="color:var(--wh-grey-700, #555);font-size:var(--wh-fs-xs, 0.8rem);">No prescriptive actions yet. Log jobs, keep PMs current, and set priorities to fill this section.</p>' +
           '</section>';
       }
 

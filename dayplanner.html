@@ -1961,7 +1961,7 @@ function renderDayplannerSummary() {
                // credits old work as current progress is worse than no bar.
                :                     _t('All planned tasks', 'Lahat ng item sa plano');
     const done = pool.filter(i => getItemStatus(i) === 'done').length;
-    dpProg.innerHTML = whProgressStrip(lbl, done, pool.length);
+    dpProg.innerHTML = whProgressStrip(lbl, done, pool.length, { empty: 'Nothing planned yet. This bar counts the tasks you finish.' });
   }
 
   const setCard = (name, hero, sub, tag, tone) => {

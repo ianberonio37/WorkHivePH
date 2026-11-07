@@ -17,6 +17,10 @@ export const PAGE_QUERY = { 'marketplace-seller-profile.html': '?worker=Bryan%20
 // matched nothing, silently, so every walk graded the chooser. Its worked state is the first recent project's report.
 export const PAGE_REVEAL = {
   'project-report.html': { follow: 'a[href*="project-report.html?project_id="]' },
+  // ★the report, not the generator's empty area (2026-11-07): every critic walk that met analytics-report graded its
+  // pre-Generate area (h1=0, headings=0, cta=0). Its worked state is the generated report; the batch's model-call wire
+  // (critic_walk_batch.mjs) makes the generation local - the plan comes from the records.
+  'analytics-report.html': { click: /^Generate Report$/, noModel: 'analytics-orchestrator' },
 };
 
 // Run the page's reveal, if it has one. Returns what was done (a label or href) or null when nothing applied.
@@ -37,6 +41,19 @@ export async function revealWorkedState(page, rel) {
     return href;
   }
   if (r.click) {
+    // ★NO REVEAL SPENDS A MODEL CALL (2026-11-07). A generator whose result ends in a model-written section carries the
+    // group walks' local-only flag (debug_fault_inject, honoured only on kong/localhost), so it renders from the records.
+    // route.fallback hands the flagged request on, so a context-level dependency-down 503 still answers it.
+    if (r.noModel) {
+      await page.route(`**/functions/v1/${r.noModel}**`, async (route) => {
+        const req = route.request();
+        if (req.method() !== 'POST') return route.fallback();
+        let body;
+        try { body = JSON.parse(req.postData() || '{}'); } catch (_) { return route.fallback(); }
+        body.debug_fault_inject = true;
+        return route.fallback({ postData: JSON.stringify(body) });
+      }).catch(() => {});
+    }
     const clicked = await page.evaluate((reSrc) => {
       const re = new RegExp(reSrc, 'i');
       const vis = (el) => el && el.offsetParent !== null;

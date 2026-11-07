@@ -291,10 +291,23 @@
     const cands = ['.page', '#ar-print-wrapper', '#ar-page', 'main']
       .map((sel) => document.querySelector(sel))
       .filter((el) => el && el.children.length > 0);
-    if (!cands.length) return document.body;
     const weigh = (el) => (el.innerText || '').trim().length
       + el.querySelectorAll('h1,h2,h3,table,.card,.simple-card').length * 40;
-    return cands.reduce((best, el) => (weigh(el) > weigh(best) ? el : best), cands[0]);
+    // ★THE SCREEN IS THE GATE THE PERSON SEES, NOT THE PAGE HIDDEN BEHIND IT (critic walk BRH17, 2026-11-07). A
+    // returner who is not a platform admin opened marketplace-admin: the page shows #supervisor-gate ("Platform Admins
+    // Only") as a SIBLING of <main class="page"> and sets <main> to display:none. This picker still chose the hidden
+    // <main> (its hidden <h1> weighs 40), so the survey graded an empty box - h1=0, headings=0, cta=0 - and failed seven
+    // dims on a page that was correctly refusing a person. A candidate that is not rendered is not the artifact, and a
+    // VISIBLE declared gate ([data-wh-gate], the audited contract isPermWall already honours) that sits outside every
+    // rendered candidate is the screen itself: the same for a "has moved" overlay laid over a page that still renders.
+    const live = cands.filter((el) => el.getClientRects().length > 0);
+    const gates = [...document.querySelectorAll('[data-wh-gate]')]
+      .filter((g) => g.getClientRects().length > 0 && getComputedStyle(g).visibility !== 'hidden'
+        && !live.some((c) => c.contains(g)));
+    if (gates.length) return gates.reduce((best, el) => (weigh(el) > weigh(best) ? el : best), gates[0]);
+    const pool = live.length ? live : cands;
+    if (!pool.length) return document.body;
+    return pool.reduce((best, el) => (weigh(el) > weigh(best) ? el : best), pool[0]);
   };
   const ownText = (e) => [...e.childNodes].filter(n => n.nodeType === 3)
     .map(n => n.textContent.trim()).join(' ').trim();
@@ -2470,7 +2483,12 @@
       const hasMedia = !!c.querySelector('svg,img,canvas,table,input,button,a');
       return !hasText && !hasMedia;
     });
-    out.push(M('R4', 'Regions & whitespace (no orphan voids)', voids.length === 0 ? 1 : 0, 1, `${voids.length} orphan void(s)`));
+    // the receipt names each void (critic BRH88, 2026-11-07): "1 orphan void(s)" could not be found without a browser
+    const _voidName = (c) => c.tagName.toLowerCase() + (c.id ? '#' + c.id : '')
+      + (typeof c.className === 'string' && c.className.trim() ? '.' + c.className.trim().split(/\s+/).slice(0, 2).join('.') : '')
+      + ' ' + Math.round(c.getBoundingClientRect().height) + 'px';
+    out.push(M('R4', 'Regions & whitespace (no orphan voids)', voids.length === 0 ? 1 : 0, 1, `${voids.length} orphan void(s)`
+      + (voids.length ? ': ' + voids.slice(0, 3).map(_voidName).join(', ') : '')));
 
     // ── R6 · Element overflow inside its container (Wave 4, 2026-09-14) ──────────────────────────
     // R2 measures overflow at PAGE level (body.scrollWidth against the viewport). A card spilling under an

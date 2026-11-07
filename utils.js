@@ -2992,9 +2992,13 @@ if (typeof document !== 'undefined') {
 // Track+fill markup + role=progressbar keep it honest to AT and the rubric lens.
 function whProgressStrip(label, done, total, opts) {
   opts = opts || {};
-  if (!total || total < 0) return '';
   var e = escHtml;
   var _tt = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
+  // ★AN EMPTY RESERVE IS A VOID (critic BRH88, 2026-11-07). Every slot reserves the strip's 64px (.wh-progress-slot), so
+  // returning '' at total 0 left a blank 64px band between a page's verdict and its tiles. Collapsing the slot instead
+  // would shift everything below it on each such load. opts.empty is the zero-state line the reserve carries: what
+  // starts the count, never a 0-of-0 bar (an empty bar invents a journey). Logbook's team strip set this pattern.
+  if (!total || total < 0) return opts.empty ? '<p class="wh-progress-empty">' + e(_tt(opts.empty)) + '</p>' : '';
   var k = Math.max(0, Math.min(done || 0, total));
   var pct = Math.round((k / total) * 100);
   var fillCol = pct >= 100 ? '#86EFAC' : 'linear-gradient(90deg, var(--wh-orange), var(--wh-orange-light))';

@@ -260,7 +260,8 @@ def main() -> int:
               + ", ".join(f"{p or '?'} {n}" for p, n in persona_rows.most_common(8)))
     if unswept_pages:
         print("  pages a row is waiting on (page: rows blocked) — run family_rubric_sweep --page (--anon for 'anon ') for these:")
-        for k, n in unswept_pages.most_common(10):
+        # --all-pages prints every page, not the top ten, so the whole sweep queue can be run as one list (2026-11-07)
+        for k, n in unswept_pages.most_common(None if '--all-pages' in sys.argv else 10):
             print(f"    {n:4} {k}")
     if older_pages:
         print("  pages whose newest sweep predates the row's bank (page: rows waiting):")

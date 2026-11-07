@@ -29,6 +29,11 @@ const OUTDIR = '.tmp/batchsurvey';
 
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
+// --clean-only (2026-11-07): with --apply, bank only the walks that graded clean (failing=0) and leave every red walk
+// PENDING, listed at the end, to be fixed at its cause and re-walked with --ids. One pass instead of a dry pass plus an
+// apply pass, which re-graded every clean walk twice (~1 min a walk on this host).
+const CLEAN_ONLY = args.includes('--clean-only');
+const heldRed = [];
 const HEADED = args.includes('--headed');
 const LIMIT = (() => { const i = args.indexOf('--limit'); return i >= 0 ? parseInt(args[i + 1], 10) : Infinity; })();
 const SUBSET = (() => { const i = args.indexOf('--subset'); return i >= 0 ? args[i + 1] : 'hive'; })();
@@ -239,6 +244,11 @@ try {
       console.log(`    SKIP bank ${w.ids[0]}: not the page's own screen (${why.join('; ') || 'access-denied'}) - not banking a denied survey`);
       continue;
     }
+    if (APPLY && CLEAN_ONLY && totFail > 0) {
+      heldRed.push(w.ids[0] + ' ' + files.filter((x) => x.failing).map((x) => `${x.pid}:${x.failing}`).join(' '));
+      console.log(`    HELD ${w.ids[0]}: red, left pending for a fix (--clean-only)`);
+      continue;
+    }
     if (APPLY) {
       const condNote = COND === 'dependency-down'
         ? 'CONDITION dependency-down: every edge-function call stubbed to 503 for this context (browser-side, no DB mutation) - the survey grades the DEGRADED state (legible fallback vs crash). '
@@ -277,4 +287,5 @@ try {
   await browser.close();
   if (typeof release === 'function') release();
 }
-console.log(`done [subset=${SUBSET}]: surveyed ${surveyed}, banked ${banked}, failed ${failed}`);
+console.log(`done [subset=${SUBSET}]: surveyed ${surveyed}, banked ${banked}, failed ${failed}` + (CLEAN_ONLY ? `, held red ${heldRed.length}` : ''));
+if (heldRed.length) console.log('held red (fix, then --ids):\n  ' + heldRed.join('\n  '));

@@ -4922,7 +4922,9 @@ const catColors = {
   Pneumatic:       { bg: 'rgba(34,197,94,0.15)',  text: '#4ade80', border: 'rgba(34,197,94,0.25)' },
   Instrumentation: { bg: 'rgba(236,72,153,0.15)', text: 'var(--wh-red-text)',    border: 'rgba(236,72,153,0.25)' },
   Lubrication:     { bg: 'rgba(234,179,8,0.15)',  text: '#facc15', border: 'rgba(234,179,8,0.25)' },
-  Other:           { bg: 'rgba(255,255,255,0.07)', text: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.12)' },
+  // white at 0.5 read 3.97:1 on the card (critic BRH92, 2026-11-07: "Vehicle" and every category not named above falls
+  // here); 0.8 is the page's own text-white/80 and clears 4.5
+  Other:           { bg: 'rgba(255,255,255,0.07)', text: 'rgba(255,255,255,0.8)', border: 'rgba(255,255,255,0.12)' },
 };
 
 /* T15 (2026-08-27): THE READ PATH SHOWS WHAT THE WRITE PATH CAPTURED.
@@ -5229,7 +5231,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
     const closed = _haveTrue ? Math.max(0, _mineTrueTotal - _mineTrueOpen)
                              : _allEntries.filter(en => en.status === 'Closed').length;
     lbProg.innerHTML = (_viewMode !== 'team' && typeof whProgressStrip === 'function')
-      ? whProgressStrip('Jobs closed out, all time', closed, total) : '';   // SL C2: of every entry you have logged, not this month's
+      ? whProgressStrip('Jobs closed out, all time', closed, total, { empty: 'No jobs logged yet. The first entry starts the count.' }) : '';   // SL C2: of every entry you have logged, not this month's
   }
   const query        = document.getElementById('search-input').value.trim().toLowerCase();
   const catFilter    = document.getElementById('filter-category').value;

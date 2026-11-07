@@ -680,6 +680,9 @@ html, body { touch-action: manipulation; overscroll-behavior: contain; }
    so the same component occupies the same 64px wherever it is drawn instead of 58 here and 63 there.
    If the strip's height or margin changes, this number changes with it. */
 .wh-progress-slot { min-height: 64px; display: flow-root; }
+/* the zero-state line a reserve carries when there is nothing to count yet (whProgressStrip opts.empty, 2026-11-07) */
+.wh-progress-empty { margin: 0; padding: 0.35rem 0; font-size: var(--wh-fs-xs, 0.8rem); line-height: 1.45;
+  color: var(--wh-text-muted, rgba(255, 255, 255, 0.80)); }
 
 /* A2 (NN/g "chunking" / scannability) — the ONE shared section-heading style. Pages that
    label their content regions only with tabs/captions read as one undifferentiated block;

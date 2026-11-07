@@ -2415,7 +2415,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return;
     }
     if (!rows.length) {
-      slot.innerHTML = cardEmpty(title, std, `No parts were logged against a machine in the last ${days} days.`);
+      slot.innerHTML = cardEmpty(title, std, `Nobody logged parts against a machine in the last ${days} days.`);
       return;
     }
     const priced = rows.reduce((n, r) => n + Number(r.priced_lines || 0), 0);

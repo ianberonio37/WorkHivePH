@@ -52,7 +52,7 @@
       background: var(--wh-ink-deep, #0f1923); align-items: center; justify-content: center;
       flex-direction: column; gap: 1rem; text-align: center; padding: 2rem;
     }
-    #supervisor-gate h2 { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 700; }
+    #supervisor-gate h1 { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 700; }
     #supervisor-gate p { font-size: var(--wh-fs-xs, 0.8rem); color: var(--wh-steel-bright); max-width: 320px; }
     #supervisor-gate a {
       margin-top: 0.5rem; display: inline-block; padding: 0.6rem 1.5rem;
@@ -262,7 +262,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      panels on the Grafana "Founder / Platform Ops" dashboard. Redirect-first + REVERSIBLE:
      the original markup is preserved below (validators that scan this file still pass).
      To un-retire: delete this <div id="wh-retired-overlay"> block. -->
-<div id="wh-retired-overlay" role="main" style="position:fixed; inset:0; z-index:var(--wh-z-retired, 100000); background:rgba(var(--wh-ink-darkest-rgb, 11, 15, 26), 0.98); color:var(--wh-cloud); display:none; align-items:center; justify-content:center; padding:1.5rem; padding-bottom:max(1.5rem, env(safe-area-inset-bottom)); font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+<div id="wh-retired-overlay" role="main" data-wh-gate="retired" style="position:fixed; inset:0; z-index:var(--wh-z-retired, 100000); background:rgba(var(--wh-ink-darkest-rgb, 11, 15, 26), 0.98); color:var(--wh-cloud); display:none; align-items:center; justify-content:center; padding:1.5rem; padding-bottom:max(1.5rem, env(safe-area-inset-bottom)); font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <div style="font-size:var(--wh-fs-3xl, 2.25rem); margin-bottom:0.5rem;">📊</div>
     <!-- OPC (2026-10-22): the review queues moved again, with Platform Actions, into the one operator console - this
@@ -288,9 +288,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </div>
 
 <!-- Platform admin gate -->
-<div id="supervisor-gate" class="no-access-gate" role="alert">
+<div id="supervisor-gate" class="no-access-gate" role="alert" data-wh-gate="no-access">
   <span class="ic ic-bell" aria-hidden="true"></span>
-  <h2 data-i="ma_gate_title">Platform Admins Only</h2>
+  <!-- heading-allow: one of two mutually exclusive views (this gate shows instead of the page) -->
+  <h1 data-i="ma_gate_title">Platform Admins Only</h1>
   <p data-i="ma_gate_body">This page is for platform admins. Need access? Ask an admin to add you.</p>
   <a href="marketplace.html" data-i="ma_gate_back" style="display:inline-flex;align-items:center;min-height:44px;">Back to Marketplace</a><!-- D1 U2: bilingual gate + plain-language, no raw table name (B5/B4) -->
 </div>
@@ -470,7 +471,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
   function showCannotAsk() {
     const g = document.getElementById('supervisor-gate');
-    const h = g.querySelector('h2'), p = g.querySelector('p');
+    const h = g.querySelector('h1'), p = g.querySelector('p');
     if (h) h.textContent = 'Your access cannot be checked right now';
     if (p) p.textContent = (typeof whAdminCheckOfflineText === 'function') ? whAdminCheckOfflineText('Marketplace Admin')
       : "You're offline. Marketplace Admin needs a connection to check your access.";

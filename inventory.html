@@ -1097,7 +1097,7 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
     // were above their minimum. Surplus is stocked; healthy is ok or surplus.
     const healthy = items.filter(i => { const st = stockStatus(i); return st === 'ok' || st === 'surplus'; }).length;
     invProg.innerHTML = (typeof whProgressStrip === 'function')
-      ? whProgressStrip('Parts at healthy stock', healthy, total) : '';
+      ? whProgressStrip('Parts at healthy stock', healthy, total, { empty: 'No parts yet. Your first part starts the stock-health count.' }) : '';
   }
   const setCard = (name, hero, sub, tag, tone) => {
     const card = document.getElementById('inv-card-' + name);
@@ -1217,7 +1217,10 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
     if (total === 0) {
       text = _t('No parts registered. Click "Add Part" to start your spare-parts inventory. Even rough quantities are better than nothing for kicking off the reorder loop.',
                 'Walang nakarehistrong part. Pindutin ang "Add Part" para simulan ang spare-parts inventory mo. Mas mabuti pa ang tantiyang dami kaysa wala, para makaandar ang reorder loop.');
-      setCta(_t('Review the parts list →', 'Tingnan ang listahan ng parts →'), { scroll: '#parts-list' });
+      // ★NO BUTTON TO AN EMPTY LIST (critic BRH88, 2026-11-07). With no parts this was "Review the parts list ->", which
+      // scrolled to an empty list and made a third primary beside "Add Part" and the empty state's "Add Your First Part"
+      // (G3 read 3 primaries). The empty state's own button is the one next step, so the card carries no button here.
+      const _b0 = document.getElementById('inv-action-btn'); if (_b0) { _b0.classList.add('hidden'); _b0.onclick = null; }
     } else if (outCount > 0) {
       // ci_domain_truth CI1+CI2 (2026-09-03): this branch WINS whenever anything is out of stock,
       // and it too is a reorder suggestion — so it names the threshold for the low remainder and

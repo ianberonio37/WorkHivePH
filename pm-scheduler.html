@@ -1817,7 +1817,7 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
   const pmProg = document.getElementById('pm-progress');
   if (pmProg) {
     pmProg.innerHTML = (typeof whProgressStrip === 'function')
-      ? whProgressStrip('PM assets on track', ontrack, total) : '';
+      ? whProgressStrip('PM assets on track', ontrack, total, { empty: 'No PM assets yet. Your first one starts this count.' }) : '';
   }
   // Compliance = canonical SMRP 2.1.1 (completed/scheduled, frequency-aware) from
   // get_pm_compliance_smrp — the SAME number Analytics shows, and what the Stair-2

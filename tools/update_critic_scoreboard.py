@@ -41,7 +41,7 @@ def block(critic: dict) -> str:
         MARK_A,
         f"**CRITIC PROGRAM: {overall:.1f}% overall · {len(rows)} in-scope trajectories · "
         + " · ".join(f"{k} {st[k]}" for k in ("pending", "walked", "critiqued", "improving", "locked") if st.get(k))
-        + f" — registry critic_registry.json (updated {critic.get('updated')}, rubric {critic.get('rubric_sha')}).**",
+        + f" — registry critic_registry.json + its CX/GJ shards (updated {critic.get('updated')}, rubric {critic.get('rubric_sha')}).**",
         f"Findings: {sum(sev.values())} total ({', '.join(f'{k} {v}' for k, v in sorted(sev.items(), reverse=True)) or 'none yet'}) · open Major+ {open_major}.",
         "Per-wave: " + " · ".join(per_wave),
         MARK_B,
@@ -51,7 +51,16 @@ def block(critic: dict) -> str:
 
 def main() -> int:
     src = CRITIC if CRITIC.exists() else CRITIC_STAGED
-    critic = json.loads(io.open(src, encoding="utf-8").read())
+    # ★THE HEADER COUNTED ONE FILE OF THREE (2026-11-07). The critic registry is a UNION: the main file plus the CX and GJ
+    # shards (registry_io.CRITIC_SHARDS). This read the main file alone, so the header said 17,851 in-scope rows while the
+    # walk queue, the banker and the stop guard all worked over ~50,000 - 32,000 rows the scoreboard could not see. The
+    # union is the target; the staged seed stays the fallback when the main file is absent.
+    if src == CRITIC:
+        sys.path.insert(0, str(ROOT / "tools"))
+        import registry_io as _rio  # noqa: E402
+        critic = _rio.load_critic()
+    else:
+        critic = json.loads(io.open(src, encoding="utf-8").read())
     b = block(critic)
     if "--stdout" in sys.argv:
         print(b)
