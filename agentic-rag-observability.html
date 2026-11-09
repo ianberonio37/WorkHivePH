@@ -86,7 +86,7 @@
         d.style.cssText = 'position:fixed;inset:0;z-index:9000;font-family:sans-serif;color:#e6edf3;background:#0d1117;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;';
         d.innerHTML = '<div><h1 style="font-size:var(--wh-fs-lead-plus, 1.125rem);">This page could not load</h1>'
           + '<p style="color:var(--wh-slate-400, #94a3b8);font-size:var(--wh-fs-sm, .85rem);margin-top:.5rem;">Its scripts did not arrive, so your access was not checked. Check your connection, then try again.</p>'
-          + '<button type="button" style="margin-top:1rem;min-height:44px;padding:0 1.2rem;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:transparent;color:inherit;font:inherit;cursor:pointer;">Try again</button></div>';
+          + '<button type="button" style="margin-top:1rem;min-height:44px;padding:0 1.2rem;border-radius:8px;border:1px solid rgba(var(--wh-white-rgb, 255, 255, 255), 0.25);background:transparent;color:inherit;font:inherit;cursor:pointer;">Try again</button></div>';
         d.querySelector('button').addEventListener('click', function () { location.reload(); });
         document.body.appendChild(d);
         Array.prototype.forEach.call(document.body.children, function (el) {

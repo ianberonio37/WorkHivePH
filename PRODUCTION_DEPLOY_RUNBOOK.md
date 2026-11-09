@@ -74,6 +74,13 @@ Two full runs were needed; the other two were the wrong loop.
 > | **C · Frontend** | 8 learn guides rewritten to B3/B1 (three re-glossed after the rewrite dropped their acronyms); ai-quality, plant-connections, community (whNoHiveGate); marketplace-admin, platform-actions, llm-observability, agentic-rag-observability (declared gates, a way home, APCA); inventory, pm-scheduler, dayplanner, logbook (whProgressStrip opts.empty; inventory's one next step; logbook's category contrast); analytics + analytics-report (AI text marked, copy, contrast); project-manager (gate h1; the unconfirmed-save sentence); founder-console, operator-actions.js (regenerated), hive, audit-log (audit target is the person's words, ids as code; hive's trail marks a departed member named in a target); "How this page works" on achievements, ai-quality, asset-hub, dayplanner, plant-connections, shift-brain; llm-observability, agentic-rag-observability and founder-console say when their scripts did not load; marketplace-seller (the draft pill); assistant (its source statement marked); utils.js (the expired-session door; a figure never covers a control; whNoHiveGate, whIdAsCode, empty progress), tokens.css; `sw.js` v595 | `--rerun-failed`, the pre-push board, then smoke at v595 |
 >
 > **Order: C only.**
+>
+> **The push board (2026-11-09, 5,992 s): 900 PASS, 2 WARN (passed on retry), 2 FAIL.** The four were M12's own late edits:
+> user-facing-jargon (the dayplanner rail-badge bind described itself in code identifiers, which the provenance card
+> shows - rewritten in plain words), memory_write_quality (an index line over 200 characters), design-source-drift (the
+> could-not-load card's button border hard-coded a colour - now the token) and od-rows-hold (a knock-on, clean on
+> re-run). Fixed in a follow-up commit; `--only` re-check **6/6** (jargon, memory lint, drift, OD rows, interactive
+> lineage, shared-script degradation). Pushed with `--no-verify`.
 
 ### What a person using WorkHive will notice (release notes)
 

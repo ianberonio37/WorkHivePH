@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T06:14:53.713412+00:00",
+  "generated_at": "2026-11-09T04:42:38.877276+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -105,7 +105,7 @@
       "proposals": [
         {
           "feature": "has_details_toggle",
-          "conformance": 0.976,
+          "conformance": 0.974,
           "outlier_count": 1,
           "outliers": [
             "promo-poster.html"
@@ -113,46 +113,72 @@
         },
         {
           "feature": "has_main_landmark",
-          "conformance": 0.929,
-          "outlier_count": 3,
+          "conformance": 0.974,
+          "outlier_count": 1,
           "outliers": [
-            "design-system.html",
-            "platform-actions.html",
             "promo-poster.html"
           ]
         },
         {
           "feature": "loads_utils_js",
-          "conformance": 0.881,
-          "outlier_count": 5,
+          "conformance": 0.947,
+          "outlier_count": 2,
           "outliers": [
-            "architecture.html",
             "offline-fallback.html",
-            "promo-poster.html",
-            "symbol-gallery.html",
-            "validator-catalog.html"
+            "promo-poster.html"
+          ]
+        },
+        {
+          "feature": "loads_offline_banner_js",
+          "conformance": 0.947,
+          "outlier_count": 2,
+          "outliers": [
+            "offline-fallback.html",
+            "promo-poster.html"
           ]
         },
         {
           "feature": "has_meta_description",
-          "conformance": 0.857,
-          "outlier_count": 6,
+          "conformance": 0.895,
+          "outlier_count": 4,
           "outliers": [
-            "architecture.html",
             "marketplace-admin.html",
             "offline-fallback.html",
             "platform-actions.html",
+            "promo-poster.html"
+          ]
+        },
+        {
+          "feature": "has_manifest_link",
+          "conformance": 0.895,
+          "outlier_count": 4,
+          "outliers": [
+            "offline-fallback.html",
+            "platform-actions.html",
             "promo-poster.html",
-            "symbol-gallery.html"
+            "status.html"
+          ]
+        },
+        {
+          "feature": "calls_eschtml",
+          "conformance": 0.842,
+          "outlier_count": 6,
+          "outliers": [
+            "alert-hub.html",
+            "engineering-design.html",
+            "offline-fallback.html",
+            "project-report.html",
+            "promo-poster.html",
+            "status.html"
           ]
         }
       ],
       "summary": {
-        "pages_scanned": 42,
+        "pages_scanned": 38,
         "features_extracted": 40,
-        "promotion_candidates": 4
+        "promotion_candidates": 7
       },
-      "proposal_count": 4
+      "proposal_count": 7
     },
     {
       "label": "Migration patterns",
@@ -182,7 +208,7 @@
       "proposals": [
         {
           "feature": "accepts_client_param",
-          "conformance": 0.907,
+          "conformance": 0.917,
           "outlier_count": 4,
           "outliers": [
             "ai_reports.py",
@@ -193,7 +219,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 43,
+        "files_scanned": 48,
         "features_extracted": 19,
         "promotion_candidates": 1
       },
@@ -229,7 +255,7 @@
       "present": true,
       "proposals": [],
       "summary": {
-        "files_scanned": 44,
+        "files_scanned": 49,
         "features_extracted": 16,
         "promotion_candidates": 0
       },
@@ -241,7 +267,7 @@
       "present": true,
       "proposals": [],
       "summary": {
-        "files_scanned": 1109,
+        "files_scanned": 1342,
         "features_extracted": 22,
         "promotion_candidates": 0
       },
@@ -254,8 +280,8 @@
       "summary": {
         "rules_evaluated": 57,
         "rules_with_errors": 0,
-        "promotion_candidates": 19,
-        "critical_violations": 8,
+        "promotion_candidates": 17,
+        "critical_violations": 7,
         "rules_by_source": {
           "skill_md:designer": 2,
           "skill_md:mobile-maestro": 2,

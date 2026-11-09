@@ -1,6 +1,6 @@
 {
   "_doc": "Forward-only floors: the count of rows with NO auth_uid may fall, never rise. asset_nodes keeps 19 - names that match no roster row, deliberately not guessed.",
-  "generated": "2026-11-07T05:58:07.588000+00:00",
+  "generated": "2026-11-09T04:22:49.355167+00:00",
   "floors": {
     "logbook": 0,
     "inventory_items": 0,

@@ -458,9 +458,10 @@
     "dayplanner.html|sidebar-rail-count": {
       "reads": "v_logbook_truth",
       "reads_kind": "view",
-      "what": "Rail badge on the collapsed sidebar: open logbook items (v_logbook_truth) plus PMs due (v_pm_scope_items_truth, plantWorkTotal), '?' when either read failed, capped at 99+. Read from _dpSyncSidebarToggle 2026-11-08: the js heuristic lost it when M7 moved the reads past its 90-line window.",
+      "what": "Badge on the folded sidebar: your open logbook jobs plus the PM tasks that are due, a question mark when either could not be read, and 99+ past ninety-nine.",
       "rung": "descriptive",
-      "standard": ""
+      "standard": "",
+      "note": "Bound by hand 2026-11-08 (the reads moved past the heuristic's window in M7); the code reads the logbook and PM views."
     }
   },
   "chrome": [
