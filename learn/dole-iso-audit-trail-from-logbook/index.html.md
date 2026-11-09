@@ -55,7 +55,7 @@ WorkHive Audit Log surfaces all three for any record the auditor requests. What 
 | Permit to work records | 3 years | 3 years | Yes: never purged |
 | Training records | For employment duration + 3 years | For employment duration + 3 years | Yes: never purged |
 
-**Read that last column before you tell an auditor anything.** WorkHive does not purge maintenance records or their audit history. Logbook entries, PM completions, permits and the audit log stay for as long as your hive exists. So you meet every minimum in the table. No setting needs changing. The one exception is a record someone **deletes**. It waits in Recently deleted for the hive's window. That is 30 days, unless a supervisor keeps deleted items longer. You can restore it until then. After that it is gone for good. The audit log keeps who deleted it and when, but not what it said. So the working rule for a plant that faces auditors is simple. If a regulation makes you hold a record, you correct it. You never delete it. Storage is cheap. The worker may need the history years after leaving the plant. It helps with OFW applications, promotion cases and regulatory disputes.
+**Read that last column before you tell an auditor anything.** WorkHive does not purge maintenance records or their audit history. Logbook entries, PM completions, permits and the audit log stay for as long as your hive exists. So you meet every minimum in the table. No setting needs changing. The one exception is a record someone **deletes**. It waits in Recently deleted for the hive's window. That is 30 days, unless a supervisor keeps deleted items longer. You can restore it until then. After that it is gone for good. The audit log records who removed it and when, but not what it said. So the working rule for a plant that faces auditors is simple. If a regulation makes you hold a record, you correct it. You never delete it. Storage is cheap. The worker may need the history years after leaving the plant. It helps with OFW applications, promotion cases and regulatory disputes.
 
 ## Export patterns auditors accept
 
@@ -122,4 +122,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: fd0f2e94205b882f -->
+<!-- md-twin source-sha: 3eb32a8c51fd7af9 -->

@@ -142,7 +142,7 @@ See All Tools
 - [Project Manager: Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.](https://workhiveph.com/project-manager.html)
 - [Project Report: Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.](https://workhiveph.com/project-report.html)
 - [CMMS Integration: SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.](https://workhiveph.com/integrations.html)
-- [Marketplace: Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Free, contact-only directory with no platform fees.](https://workhiveph.com/marketplace.html)
+- [Marketplace: Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Free, contact-only directory with no commission.](https://workhiveph.com/marketplace.html)
 - [Seller Dashboard: Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.](https://workhiveph.com/marketplace-seller.html)
 - [AI Quality + ROI: WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings, gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them.](https://workhiveph.com/ai-quality.html)
 
@@ -254,7 +254,7 @@ You can't send your best people to your worst problems. Not if you don't know wh
 
 ### Entrepreneurs & Builders
 
-Build a verified reputation in the hive. Post your services, get found by the plants that need exactly what you do, and let your track record speak. No middleman, no platform fee.
+Build a verified reputation in the hive. Post your services, get found by the plants that need exactly what you do, and let your track record speak. No middleman, no commission.
 
 ### A community of practice, not just a forum
 
@@ -416,4 +416,4 @@ Sign Up
 
 Source: [our downtime guide](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/). A common industry range, not a fixed standard · updated 24 Aug 2026
 
-<!-- md-twin source-sha: f9656ca18c8170a2 -->
+<!-- md-twin source-sha: cbed8829f1760208 -->

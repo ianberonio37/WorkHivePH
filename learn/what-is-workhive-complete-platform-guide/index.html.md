@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 7 Jul 2026
 ·
-Updated 27 Oct 2026
+Updated 10 Nov 2026
 ·
 12 min read
 
@@ -108,7 +108,7 @@ Stage 4 · Act and Prove (do it, share it, leave a trail)
 | [Project Report](https://workhiveph.com/project-report.html) | A print-ready report for a single project: summary, scope, progress, sign-off, and lessons, ready to hand to a contractor or client. |
 | [Audit Log and Compliance](https://workhiveph.com/audit-log.html) | A tamper-evident record of every power action (approvals, edits, deletes, member changes) with who did it and when, ready for an ISO or government review. |
 | [Engineering Design Calculator](https://workhiveph.com/engineering-design.html) | 55 calculators across 6 disciplines, each done to Philippine standards, each giving you a materials list, a scope of work, and a diagram. |
-| [Marketplace](https://workhiveph.com/marketplace.html) | A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no platform fees; a seller publishing a listing holds 10% of its price in credits, returned if it does not sell and passed to the buyer as a reward if it does. |
+| [Marketplace](https://workhiveph.com/marketplace.html) | A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no commission. Publishing a listing holds 10% of its price in credits. A live listing's hold shrinks by 2% a month. The rest comes back if the seller takes it down. If it sells, the buyer gets it as a reward. |
 | [Report Sender](https://workhiveph.com/report-sender.html) | Sends the shift handover and end-of-day summary to the right people by email. Add contacts by role and deliver a print-ready report. |
 | [CMMS Integration](https://workhiveph.com/integrations.html) | A two-way bridge to your current maintenance system (like SAP or IBM Maximo): import your data, sync jobs, and push completions without dropping what you already use. |
 | [Plant Connections](https://workhiveph.com/plant-connections.html) | A supervisor-only control panel for your plant's data plumbing: your current-system sync status, sensor list, company sign-in, and data-keeping settings in one place. |
@@ -174,7 +174,7 @@ The more your team logs, the more useful this helper becomes, because it is answ
 
 Two things make WorkHive different from the imported systems most Philippine plants have tried and abandoned.
 
-**It is genuinely free.** There is no per-seat license. You do not pay per user, and you do not need a credit card to start. The whole crew can be on it tomorrow. Even the marketplace is contact-only, with no platform fees: a seller's listing holds 10% of its price in WorkHive Credits, which come back if it does not sell and go to the buyer as a reward if it does. WorkHive earns its keep by being useful, not by charging you per head.
+**It is genuinely free.** There is no per-seat license. You do not pay per user, and you do not need a credit card to start. The whole crew can be on it tomorrow. Even the marketplace is contact-only, with no commission. A seller's listing holds 10% of its price in WorkHive Credits. While it is live, that hold shrinks by 2% a month. The rest comes back if the seller takes it down. If it sells, the buyer gets it as a reward. WorkHive earns its keep by being useful, not by charging you per head.
 
 **It is built for the way Philippine plants actually work.** It runs in a phone browser and works offline, so a brownout, a weak signal, or a tablet shared across a crew does not stop a repair from being recorded. It expects local conditions: the benchmarks account for typhoon season, brownouts, and salt air, and the engineering calculators use tropical constants instead of temperate defaults. The calculators, benchmarks, and safety references are anchored to Philippine standards, so the answers hold up for a local audit and a local reviewer.
 
@@ -215,7 +215,7 @@ WorkHive is a free platform for every Filipino industrial worker, from the techn
 
 ### Is WorkHive really free?
 
-Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no platform fees: publishing a listing holds 10% of its price in WorkHive Credits, which come back in full if it does not sell.
+Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no commission. Publishing a listing holds 10% of its price in WorkHive Credits. While it is live, that hold shrinks by 2% a month. The rest comes back if you take it down, or goes to the buyer as a reward if it sells.
 
 ### What tools are inside WorkHive?
 
@@ -316,4 +316,4 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 4ab3018bc00bf5ba -->
+<!-- md-twin source-sha: a7e59a049951f287 -->

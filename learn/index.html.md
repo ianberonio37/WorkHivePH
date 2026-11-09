@@ -168,7 +168,7 @@ XP and badges that reward what compounds, the mechanics that backfire and why, b
 [Marketplace
 8 min read · 17 May 2026
 Industrial marketplace for Philippine specialists, parts, and services
-Verified work history, ID-verified sellers, dispute mediation, and the 3 patterns that drive 90 percent of value. Free and contact-only: no platform fees.](https://workhiveph.com/learn/industrial-marketplace-philippine-specialists/)
+ID-verified sellers, buyer reviews and dispute mediation. Plus the 3 patterns that drive 90 percent of value. Free and contact-only: no commission.](https://workhiveph.com/learn/industrial-marketplace-philippine-specialists/)
 [Alert Hub
 7 min read · 17 May 2026
 ISO 10816 vibration thresholds and predictive alert limits
@@ -250,4 +250,4 @@ Show more guides
 
 Static · the Learn library index, rendered as of this page load · articles link to their own sources
 
-<!-- md-twin source-sha: 5735438d4ac3aa81 -->
+<!-- md-twin source-sha: 5356135525863ff1 -->

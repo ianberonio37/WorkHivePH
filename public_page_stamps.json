@@ -20,7 +20,7 @@
   "stamped": "2026-11-10"
  },
  "dole-iso-audit-trail-from-logbook": {
-  "content_sha": "2ae124cf6b575aec",
+  "content_sha": "b7846a90c5e183cc",
   "stamped": "2026-11-10"
  },
  "feedback": {
@@ -35,13 +35,17 @@
   "content_sha": "88e927d2e21a1ef7",
   "stamped": "2026-11-10"
  },
+ "industrial-marketplace-philippine-specialists": {
+  "content_sha": "ec30f8e74f13c7d9",
+  "stamped": "2026-11-10"
+ },
  "joining-and-growing-your-hive": {
   "content_sha": "cdb8611116af3f90",
   "stamped": "2026-11-10"
  },
  "learn": {
-  "content_sha": "a61efefa317a8d4d",
-  "stamped": "2026-11-09"
+  "content_sha": "13112409d87fa6d0",
+  "stamped": "2026-11-10"
  },
  "learn/ai-companion-hezekiah-zaniah-personas": {
   "content_sha": "109eb58d748f5809",
@@ -100,7 +104,7 @@
   "stamped": "2026-10-27"
  },
  "ph-plant-compliance-guide": {
-  "content_sha": "63d474a6788a9df3",
+  "content_sha": "ca62b7f26acf9194",
   "stamped": "2026-11-10"
  },
  "philippine-plants-now-pay-the-highest-power-rates": {
@@ -220,8 +224,8 @@
   "stamped": "2026-11-10"
  },
  "what-is-workhive-complete-platform-guide": {
-  "content_sha": "b8864093998509a5",
-  "stamped": "2026-10-27"
+  "content_sha": "7d2aad5bcbf074ab",
+  "stamped": "2026-11-10"
  },
  "workhive-vs-maintainx-comparison": {
   "content_sha": "e2eea1a43da4c427",

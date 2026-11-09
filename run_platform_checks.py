@@ -14231,6 +14231,18 @@ VALIDATORS = [
         # text the critic graded cross tag boundaries ("Choose X if" is `<strong>Choose X</strong> if`), and eight edits
         # on four guides either re-opened a <strong> or dropped its close - the OEE guide shipped to production (v595)
         # with five list items and a callout bold to the end. A browser repairs the tree silently, so no walk saw it.
+        # ★THE MONEY COPY SAID LESS THAN THE SYSTEM CHARGES (2026-11-09, found rewriting a learn guide). The monthly
+        # listing-holding-fee sweep retires 2% of a live listing's credit hold, while twenty sentences in nine shipped
+        # files - the seller wallet, the marketplace hero and meta, the landing page, the learn hub and the AI assistant's
+        # own knowledge - said "no platform fees", "is not a fee" or "comes back in full".
+        "id":      "listing-hold-disclosed",
+        "script":  "tools/validate_listing_hold_disclosed.py",
+        "args":    [],
+        "label":   "marketplace copy names the monthly holding charge on a listing's credit hold, at the knob's real rate, and never says 'no platform fees' or 'comes back in full'",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "public-markup-balance",
         "script":  "tools/validate_public_markup_balance.py",
         "args":    [],

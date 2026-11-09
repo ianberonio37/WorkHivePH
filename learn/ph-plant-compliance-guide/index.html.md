@@ -35,7 +35,14 @@ It is also one of the first things a DOLE inspector checks. There is a ready-mad
 
 ## RA 11285: energy efficiency reporting
 
-RA 11285 is the Energy Efficiency and Conservation Act. It applies to designated establishments. They must report yearly energy use to the Department of Energy. They must also run a conservation programme. Your type comes from last year's total energy use. That counts electricity and fuels together, in kWh equivalent. For industrial plants the bands changed on **11 January 2024**. The change came under DOE Department Circular **DC2023-12-0037**. Up to **50,000 kWh** is "Others". **50,001 to 1,000,000 kWh** is Type 1. **1,000,001 to 8,000,000 kWh** is Type 2. Above **8,000,000 kWh** is Type 3. Commercial and transport establishments have their own circulars. Many summaries still quote older figures: Type 1 from 500,000 kWh, Type 2 from 4 million. Those came before the change.
+RA 11285 is the Energy Efficiency and Conservation Act. It applies to designated establishments. They must report yearly energy use to the Department of Energy. They must also run a conservation programme. Your type comes from last year's total energy use. That counts electricity and fuels together, in kWh equivalent. For industrial plants the bands changed on **11 January 2024**. The change came under DOE Department Circular **DC2023-12-0037**:
+
+- Up to **50,000 kWh**: "Others"
+- **50,001 to 1,000,000 kWh**: Type 1
+- **1,000,001 to 8,000,000 kWh**: Type 2
+- Above **8,000,000 kWh**: Type 3
+
+Commercial and transport establishments have their own circulars. Many summaries still quote older figures: Type 1 from 500,000 kWh, Type 2 from 4 million. Those came before the change.
 
 **Which officer you appoint depends on your type.** The law ties each type to one of two roles. One is the **Certified Energy Conservation Officer**. The other is the **Certified Energy Manager**. That person must be a licensed engineer (RA 11285 § 19–20). For each industrial type, the circular's annex names the practitioner. It also sets the energy-audit level. Read it for your band before you appoint (checked 27 October 2026). Maintenance is central. Keeping motors, compressors and steam systems in shape saves the most energy. For plant readiness, use [the RA 11285 energy-efficiency checklist](https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/). The design side has two free calculators. Use [power factor correction](https://workhiveph.com/tools/power-factor-correction-calculator/) and [compressed air](https://workhiveph.com/tools/compressed-air-calculator/).
 
@@ -82,4 +89,4 @@ Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tag
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 02761efde9009b0b -->
+<!-- md-twin source-sha: 3c99bb51377249d0 -->
