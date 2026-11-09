@@ -95,6 +95,7 @@
       window.gtag('consent', 'update', { analytics_storage: 'granted' });
     }
     box.hidden = true;
+    document.documentElement.classList.remove('wh-consent-ask');   // the head mark showed it from the first frame
   };
   var yes = document.getElementById('wh-consent-yes');
   var no = document.getElementById('wh-consent-no');

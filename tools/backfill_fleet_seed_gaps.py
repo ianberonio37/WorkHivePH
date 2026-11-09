@@ -68,12 +68,20 @@ def psql(sql: str, tries: int = 3) -> str:
     subprocess.run and caught nothing, so the TimeoutExpired it raised blew straight through the retry
     loop and out of the program - a helper written to survive a busy host, defeated by the one failure a
     busy host actually produces. Measured the first time it ran beside a browser walk.
+
+    ★-q, OR AN INSERT'S ID CARRIES ITS COMMAND TAG (2026-11-09). `-tA` drops headers and the row count but
+    NOT the command tag: `INSERT ... RETURNING id` printed "<uuid>\\nINSERT 0 1", and that whole string went
+    into the reply's post_id - "invalid input syntax for type uuid" on every hive whose question was posted
+    in the same run (the AI Eval Bench). It passed on a re-run only because the question then already
+    existed and a SELECT returned a bare id. The same tag made `ON CONFLICT DO NOTHING RETURNING id` print
+    "INSERT 0 0" on a conflict, which read as a written movement. Every write here says RETURNING, so a
+    quiet session returns exactly the rows and an empty string when nothing was written.
     """
     global LAST_ERR
     for _ in range(tries):
         try:
             r = subprocess.run(
-                ["docker", "exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", "postgres", "-tA",
+                ["docker", "exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", "postgres", "-tAq",
                  "-v", "ON_ERROR_STOP=1"],
                 input=sql, capture_output=True, text=True, timeout=180, encoding="utf-8", errors="replace")
         except (subprocess.TimeoutExpired, OSError) as e:

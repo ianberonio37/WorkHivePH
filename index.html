@@ -1184,9 +1184,15 @@
       wait_for_update: 500,
     });
     try {
-      if (localStorage.getItem('wh_analytics_consent') === 'granted') {
+      var _whConsent = localStorage.getItem('wh_analytics_consent');
+      if (_whConsent === 'granted') {
         gtag('consent', 'update', { analytics_storage: 'granted' });
       }
+      // ★THE CARD TAKES ITS PLACE BEFORE FIRST PAINT (2026-11-09, cls_reservations): wh-consent.js is deferred, so the
+      // card appeared at ~0.5s at the top of <main> and moved the whole page down 270px (CLS 0.21 on every visit before
+      // a choice). The question is answered here already, so the page is marked now and the head CSS gives the card
+      // its in-page place from the first frame. A throw marks nothing - the card stays hidden, as wh-consent.js does.
+      if (_whConsent !== 'granted' && _whConsent !== 'denied') document.documentElement.classList.add('wh-consent-ask');
     } catch (e) { void e; }
     gtag('js', new Date());
     gtag('config', 'G-ENMGLTFR2J', { anonymize_ip: true });
@@ -1213,7 +1219,9 @@
        it DELETES as much as by what it reveals. -->
   <!-- while the analytics card is shown it clears the fixed nav itself (wh-consent.js), so the signed-in home below it
        does not need its own 64px nav padding - without this the greeting sat ~125px under the card (critique W45929) -->
-  <style>#wh-consent:not([hidden]) ~ #ops-home{padding-top:0.5rem !important;} #wh-consent:not([hidden]) ~ #mkt-wrap > section:first-child{padding-top:0.5rem !important;}</style>
+  <style>#wh-consent:not([hidden]) ~ #ops-home{padding-top:0.5rem !important;} #wh-consent:not([hidden]) ~ #mkt-wrap > section:first-child{padding-top:0.5rem !important;}
+  html.wh-consent-ask #wh-consent{display:block !important;position:static !important;left:auto !important;right:auto !important;bottom:auto !important;max-width:34rem !important;margin:73px auto 1rem !important;}
+  html.wh-consent-ask #wh-consent ~ #ops-home{padding-top:0.5rem !important;} html.wh-consent-ask #wh-consent ~ #mkt-wrap > section:first-child{padding-top:0.5rem !important;}</style>
   <style>html.wh-signed-in #mkt-wrap{display:none !important;} html.wh-signed-in #ops-home{display:block !important;} html.wh-signed-in #aurora-scene{display:none !important;}
   /* W45926: the nav and mobile-menu Sign Up ANCHORS live in the shared header, outside
      #mkt-wrap, so the rule above never reached them and a signed-in worker saw "Sign Up"
@@ -1324,6 +1332,26 @@
     </div>
   </div>
 </nav>
+<!-- the analytics card sits at the top of <main> in the markup (2026-11-09): wh-consent.js moved it here at ~0.5s, so it was
+     placed late; with the head mark it is in place from the first frame and the page below it never moves -->
+<div id="wh-consent" hidden role="region" aria-labelledby="wh-consent-t" aria-describedby="wh-consent-d"
+       style="position:fixed;left:1rem;right:1rem;bottom:1rem;max-width:34rem;margin:0 auto;z-index:var(--wh-z-consent, 9000);
+              background:var(--wh-navy,#162032);color:var(--wh-cloud,#F4F6FA);border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));border-radius:0.75rem;
+              padding:1rem;box-shadow:0 8px 28px var(--wh-black-45, rgba(0, 0, 0, 0.45));font-size:var(--wh-fs-sm-plus, 0.875rem);line-height:1.5">
+    <strong id="wh-consent-t" style="display:block;font-size:var(--wh-fs-base, 1rem);margin-bottom:0.25rem">Analytics on this page</strong>
+    <!-- 0.85, not 0.80 (2026-10-13, critic batch C5): at 14px on the navy panel 0.80 measured APCA Lc 72.9 against a
+         floor of 75 on every anonymous arrival; 0.85 is Lc 79.4, the muted-text level the learn guides already use. -->
+    <p id="wh-consent-d" style="margin:0 0 0.75rem;color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85)">
+      We would like to count anonymous page views to see which guides are useful. We collect no names,
+      emails or phone numbers. We measure nothing until you choose.
+    </p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+      <button type="button" id="wh-consent-yes" style="min-height:44px;padding:0 1rem;border-radius:0.5rem;
+              border:0;background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-weight:600;cursor:pointer">Allow</button>
+      <button type="button" id="wh-consent-no" style="min-height:44px;padding:0 1rem;border-radius:0.5rem;
+              border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));background:transparent;color:var(--wh-cloud,#F4F6FA);cursor:pointer">No thanks</button>
+    </div>
+  </div>
 
 <!-- ═══════════════════════════════════════════════
      OPERATIONAL HOME DASHBOARD (logged-in users)
@@ -1339,9 +1367,23 @@
     @media (max-width: 679px) { #oh-stats { min-height: 191px; } }
     @media (max-width: 359px) { #oh-stats { min-height: 209px; } }
     /* #oh-today (the verdict hero) the same way - measured 100 / 136 / 208; see its note in the markup. */
-    #oh-today { min-height: 100px; }
-    @media (max-width: 679px) { #oh-today { min-height: 136px; } }
-    @media (max-width: 359px) { #oh-today { min-height: 208px; } }
+    /* ★THE DETAIL IS TWO LINES AT MOST (2026-11-09, cls_reservations). The AMC brief's detail is the model's summary,
+       up to 120 characters, and at 320 it wrapped to five lines and took the card to 300px+ - a height no reserve could
+       hold without leaving every shorter verdict a hole. Two lines, then an ellipsis; the whole brief is one tap away. */
+    #oh-today .oh-detail { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden; }
+    /* ...and the reserve holds the card plus ONE "Also today" line (2026-11-09): since 2026-11-05 the next two signals each
+       get a 44px line under the card, so the 100/136/208 measured on 2026-10-06 was a card alone and the page moved
+       111-309px on load (CLS 0.28). Measured with the detail clamped: card 117/153/225, each also-line 44 (+6 margin).
+       A one-signal day leaves at most ~50px of air; a three-signal day moves the page by one line, not by the block. */
+    /* #oh-head (the greeting row): 88px held the h1 + date alone. Since 2026-10-13 the persona/hive/language group always
+       wraps under the greeting (start-aligned, W45929), so the row settles at 110 / 162 / 244 and moved the whole page
+       74px at ~500ms (2026-11-09 measure). Reserved per width like the two blocks below it. */
+    #oh-head { min-height: 110px; }
+    @media (max-width: 679px) { #oh-head { min-height: 162px; } }
+    @media (max-width: 359px) { #oh-head { min-height: 244px; } }
+    #oh-today { min-height: 167px; }
+    @media (max-width: 679px) { #oh-today { min-height: 203px; } }
+    @media (max-width: 359px) { #oh-today { min-height: 275px; } }
     #ops-home .oh-sec-lbl { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.6); margin:0 0 12px; }
     #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--wh-surface-card, rgba(255,255,255,.03)); border:1px solid var(--wh-white-06, rgba(255,255,255,.06)); border-radius:var(--wh-radius); min-height:44px; }
     #ops-home .oh-badge { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:0.25rem .5rem; border-radius:var(--wh-radius-sm); }
@@ -1418,7 +1460,7 @@
          its own line and the block is legitimately TALLER than the desktop settled height — a floor
          must not fight that. 88px covers the h1 + date + margins that are always present, which is the
          part that was growing from empty. -->
-    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:24px; min-height:88px;">
+    <div id="oh-head" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
       <div>
         <!-- heading-allow: signed-in dashboard h1, mutually-exclusive (display-switched) with the #mkt-wrap hero h1; one h1 per view. axe page-has-heading-one needs a visible h1 here. -->
         <h1 id="oh-greeting" style="font-size:var(--wh-fs-lg, 1.25rem); font-weight:800; color:var(--wh-cloud); margin:0 0 4px;"></h1>
@@ -2710,7 +2752,7 @@
     setLabel(document.querySelector('[aria-label="Change AI companion (Hezekiah or Zaniah)"]'),
              'Palitan ang AI companion (Hezekiah o Zaniah)');
     setLabel(document.querySelector('[aria-label="Open hive board"]'), 'Buksan ang hive board');
-    /* the consent prompt is rendered by wh-consent.js's markup at the end of body */
+    /* the consent prompt is wh-consent.js's markup at the top of <main> (2026-11-09: placed there so it never moves the page) */
     var byText = function (sel, want) {
       return Array.prototype.find.call(document.querySelectorAll(sel), function (b) {
         return (b.textContent || '').trim() === want;
@@ -6112,7 +6154,7 @@
           <div style="flex:1; min-width:0;">
             <p style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:${pick.accent}; margin:0 0 2px;">${_t('Today','Ngayon')} &middot; ${escHtml(_tv(pick.label))}</p>
             <p style="font-size:var(--wh-fs-md, 0.95rem); font-weight:700; color:var(--wh-cloud); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(pick.headline)}</p>
-            <p style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.55); margin:4px 0 0;"${pick.aiDetail ? ' data-ai-generated' : ''}>${escHtml(_tv(pick.detail))}</p>
+            <p class="oh-detail" style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.55); margin:4px 0 0;"${pick.aiDetail ? ' data-ai-generated' : ''}>${escHtml(_tv(pick.detail))}</p>
           </div>
           <span style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${escHtml(_tv(pick.cta))} &#8594;</span>
         </a>${_alsoToday(candidates.slice(1))}`;
@@ -6324,24 +6366,6 @@
      token nearest what it was trying to be, with hex fallbacks kept so the card still paints if tokens.css
      ever fails to load, which matters more here than anywhere: this is the notice that asks for consent
      and it must render legibly even in a broken state. Contrast re-measured after the swap. -->
-<div id="wh-consent" hidden role="region" aria-labelledby="wh-consent-t" aria-describedby="wh-consent-d"
-       style="position:fixed;left:1rem;right:1rem;bottom:1rem;max-width:34rem;margin:0 auto;z-index:var(--wh-z-consent, 9000);
-              background:var(--wh-navy,#162032);color:var(--wh-cloud,#F4F6FA);border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));border-radius:0.75rem;
-              padding:1rem;box-shadow:0 8px 28px var(--wh-black-45, rgba(0, 0, 0, 0.45));font-size:var(--wh-fs-sm-plus, 0.875rem);line-height:1.5">
-    <strong id="wh-consent-t" style="display:block;font-size:var(--wh-fs-base, 1rem);margin-bottom:0.25rem">Analytics on this page</strong>
-    <!-- 0.85, not 0.80 (2026-10-13, critic batch C5): at 14px on the navy panel 0.80 measured APCA Lc 72.9 against a
-         floor of 75 on every anonymous arrival; 0.85 is Lc 79.4, the muted-text level the learn guides already use. -->
-    <p id="wh-consent-d" style="margin:0 0 0.75rem;color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85)">
-      We would like to count anonymous page views to see which guides are useful. We collect no names,
-      emails or phone numbers. We measure nothing until you choose.
-    </p>
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-      <button type="button" id="wh-consent-yes" style="min-height:44px;padding:0 1rem;border-radius:0.5rem;
-              border:0;background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-weight:600;cursor:pointer">Allow</button>
-      <button type="button" id="wh-consent-no" style="min-height:44px;padding:0 1rem;border-radius:0.5rem;
-              border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));background:transparent;color:var(--wh-cloud,#F4F6FA);cursor:pointer">No thanks</button>
-    </div>
-  </div>
   <script defer src="wh-consent.js"></script>
 </body>
 </html>

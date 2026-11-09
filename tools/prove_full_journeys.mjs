@@ -137,6 +137,16 @@ const MULTI_HIVE = psql(
 // Which archetypes hand their admin half to a PARTNER context (see the J27 cast below). Kept as one
 // predicate so the cast selection and the partner assignment can never disagree about it.
 const partnerHandlesAdmin = (j) => /(^|\+)J27(\+|$)/.test(String((j && j.archetype) || ''));
+// The pages a partner walks in place of the primary cast: the ones only a `marketplace_platform_admins`
+// member may open. ★THE MODERATION QUEUE MOVED AND THIS SET DID NOT (2026-11-09). platform-actions.html was
+// retired into founder-console.html (#sec-mkt-mod, gated on the same table), marketplace.html's admin link
+// followed it to founder-console.html#operations, and J27's rows followed the link - but the set still
+// named only the retired pages. The partner never took the founder-console step, the BUYER walked it, and
+// all three J27 rows reported "1 hop has no way onward" at marketplace.html -> founder-console.html: a door
+// the platform is right to keep shut, read as a wayfinding gap (the wrong-cast shape of 2026-09-10 again).
+// The self-test now reads marketplace.html's btn-admin-link and fails if its page is missing from here,
+// so the next move of the queue breaks this set loudly instead of turning a hand-off into a dead end.
+const ADMIN_ONLY = new Set(['founder-console.html', 'platform-actions.html', 'marketplace-admin.html']);
 
 const ADMIN_MEMBERS = psql(
   "select m.worker_name || '|' || coalesce(u.email, '') || '|' || h.name || '|' || h.id::text "
@@ -927,7 +937,7 @@ async function walk(browser, story) {
     // moderation IS platform-scoped, so the person who resolves a Tan Delivery Vans dispute genuinely is
     // somebody outside that hive. Every step records WHO walked it, so a receipt can never quietly credit
     // one person with the other's reach.
-    const ADMIN_ONLY = new Set(['platform-actions.html', 'marketplace-admin.html']);
+    // ADMIN_ONLY is module-level (see partnerHandlesAdmin): the self-test pins it to marketplace's admin link.
     const contextFor = async (pageFile) => {
       if (!story.partner || !ADMIN_ONLY.has(pageFile)) return { c: ctx, who: story.identity ? story.identity.name : null };
       if (!partnerCtx) {
@@ -1610,6 +1620,15 @@ if (args.includes('--self-test')) {
     if (!handOff.has('marketplace.html')) fails.push('the hop INTO a partner page is not being read as a hand-off');
     // ...and an ordinary dead hop inside one person's own half must STILL fail
     if (handOff.has('hive.html')) fails.push('a genuine dead hop is being excused as a hand-off');
+  }
+  {
+    // the page marketplace.html hands a moderator to must be one the PARTNER walks, or the hand-off is
+    // judged as the buyer's own dead end (2026-11-09: the queue moved to founder-console.html; this set did not)
+    const mk = readFileSync('marketplace.html', 'utf8');
+    const tag = (mk.match(/<a\b[^>]*\bid=["']btn-admin-link["'][^>]*>/i) || [''])[0];
+    const target = ((tag.match(/\bhref=["']([^"'#?]+)/i) || [])[1] || '').trim();
+    if (!target) fails.push("marketplace.html has no btn-admin-link href - the J27 hand-off page cannot be pinned");
+    else if (!ADMIN_ONLY.has(target)) fails.push(`marketplace.html's admin link goes to ${target}, which ADMIN_ONLY does not name - the BUYER would walk the moderator's step`);
   }
   // the pair's second role must not escalate its first: `buyer x seller x admin` casts a BUYER
   if (/supervisor|admin|oversight/i.test(String('buyer x seller x admin').replace(/admin/gi, ''))) {

@@ -48,7 +48,7 @@ for (const file of (ONLY ? [ONLY] : (LIST || ROSTER))) {
   await p.evaluate(() => {
     const vis = (e) => e.checkVisibility && e.checkVisibility({ opacityProperty: true, visibilityProperty: true });
     const el = [...document.querySelectorAll('button, [role="button"], a')]
-      .find((e) => vis(e) && !e.disabled && /^(\+|add|new|log |create|post|write|record|start)\b/i.test((e.innerText || '').trim()));
+      .find((e) => vis(e) && !e.disabled && /^(\+|add|new|log |create|post|write|record|start)\b/i.test((e.innerText || '').trim().replace(/^[^\p{L}\p{N}+]+/u, '')));
     if (el) el.click();
   }).catch(() => {});
   await p.waitForTimeout(3000);
@@ -81,6 +81,34 @@ for (const file of (ONLY ? [ONLY] : (LIST || ROSTER))) {
   if (!typed) { skipped.push(file); await ctx.close(); continue; }
   n++;
 
+  // ★A WIZARD'S SAVE IS ON ITS LAST STEP (2026-11-09). pm-scheduler's Add Asset is four steps - name,
+  // PM scope, anchor date, review - and "Save Asset" exists only on the fourth. The sweep typed the name
+  // on step 1, looked for a save, found none, and reported "no save control was reachable", which says
+  // nothing about the page and leaves its expiry unmeasured. Typing the work INCLUDES walking its steps:
+  // the person presses Next until the save is in front of them, and only then does the session die.
+  // Bounded at six presses, and only a control that reads "Next" - never a Back, never the opener.
+  for (let step = 0; step < 6; step++) {
+    const moved = await p.evaluate(() => {
+      const vis = (e) => e.checkVisibility && e.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+      const lbl = (e) => (e.innerText || e.value || '').trim().replace(/^[^\p{L}\p{N}+]+/u, '');
+      const ctl = [...document.querySelectorAll('button, [role="button"], input[type="submit"]')].filter((e) => vis(e) && !e.disabled);
+      if (ctl.some((e) => /^(save|submit|post|send|publish|record|confirm)\b/i.test(lbl(e)))) return false;
+      const next = ctl.find((e) => /^next\b/i.test(lbl(e)));
+      if (!next) return false;
+      // a step that asks for a date gets today's; everything typed on step 1 stays as typed
+      for (const d of document.querySelectorAll('input[type="date"]')) {
+        if (vis(d) && !d.value && !d.readOnly && !d.disabled) {
+          d.value = new Date().toISOString().slice(0, 10);
+          d.dispatchEvent(new Event('input', { bubbles: true })); d.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+      next.click();
+      return true;
+    }).catch(() => false);
+    if (!moved) break;
+    await p.waitForTimeout(1500);
+  }
+
   // ── expire the session for real, then make every auth call answer 401 ──────────────────────────
   await p.evaluate(() => {
     for (const k of Object.keys(localStorage)) if (/auth|token|supabase/i.test(k)) localStorage.removeItem(k);
@@ -100,12 +128,15 @@ for (const file of (ONLY ? [ONLY] : (LIST || ROSTER))) {
     // and never re-press the control that opened it.
     const scope = [...document.querySelectorAll('[id^="wh-modal-ov-"], dialog[open], [role="dialog"], form')]
       .filter(vis).pop() || document;
+    // ★A LABEL IS READ AFTER ITS GLYPH (2026-11-09). resume.html's save reads "💾 Save"; a matcher anchored
+    // at ^save never saw it, and the page was reported as having "no save control" for months.
+    const lbl = (e) => (e.innerText || e.value || '').trim().replace(/^[^\p{L}\p{N}+]+/u, '');
     const pick = (root, rx) => [...root.querySelectorAll('button, [role="button"], input[type="submit"]')]
-      .find((e) => vis(e) && !e.disabled && !e.hasAttribute('data-wh-opened') && rx.test((e.innerText || e.value || '').trim()));
+      .find((e) => vis(e) && !e.disabled && !e.hasAttribute('data-wh-opened') && rx.test(lbl(e)));
     const el = pick(scope, /^(save|submit|post|send|publish|record|confirm|done)\b/i)
             || pick(document, /^(save|submit|post|send|publish|record|confirm)\b/i);
     if (!el) return false;
-    const label = (el.innerText || el.value || '').trim().slice(0, 28);
+    const label = lbl(el).slice(0, 28);
     el.click(); return label || true;
   }).catch(() => false);
   await p.waitForTimeout(7000);

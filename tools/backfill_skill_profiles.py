@@ -49,7 +49,7 @@ VEHICLE_SKILLS = ["Rotating Equipment", "Hydraulics & Pneumatics", "Welding & Fa
 
 def psql(sql: str) -> str:
     r = subprocess.run(
-        ["docker", "exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", "postgres", "-tA"],
+        ["docker", "exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", "postgres", "-tAq"],
         input=sql, capture_output=True, text=True, timeout=120, encoding="utf-8", errors="replace")
     return (r.stdout or "").strip()
 

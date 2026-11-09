@@ -44,7 +44,7 @@ CHECK = "--check" in sys.argv
 def psql(sql: str) -> str:
     try:
         r = subprocess.run(
-            ["docker", "exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", "postgres", "-tA"],
+            ["docker", "exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", "postgres", "-tAq"],
             input=sql, capture_output=True, text=True, timeout=180, encoding="utf-8", errors="replace")
     except (subprocess.TimeoutExpired, OSError):
         return "ERR"
