@@ -4,7 +4,7 @@
   "stamped": "2026-11-09"
  },
  "best-free-cmms-software-philippines": {
-  "content_sha": "31e29087568ae69b",
+  "content_sha": "43ec08799113373e",
   "stamped": "2026-11-10"
  },
  "cmms-vs-excel-spreadsheet-maintenance": {
@@ -22,6 +22,10 @@
  "free-engineering-calculators-philippine-plants": {
   "content_sha": "f5ffd5d65a01c223",
   "stamped": "2026-10-27"
+ },
+ "industrial-community-of-practice-philippines": {
+  "content_sha": "88e927d2e21a1ef7",
+  "stamped": "2026-11-10"
  },
  "learn": {
   "content_sha": "a61efefa317a8d4d",
@@ -187,16 +191,20 @@
   "content_sha": "ca37b1e344e2661f",
   "stamped": "2026-10-27"
  },
+ "what-is-oee-how-to-calculate": {
+  "content_sha": "bf140d659dd6021e",
+  "stamped": "2026-11-10"
+ },
  "what-is-workhive-complete-platform-guide": {
   "content_sha": "b8864093998509a5",
   "stamped": "2026-10-27"
  },
  "workhive-vs-maintainx-comparison": {
-  "content_sha": "3fbd453928f9bd42",
+  "content_sha": "e2eea1a43da4c427",
   "stamped": "2026-11-10"
  },
  "workhive-vs-upkeep-free-cmms-comparison": {
-  "content_sha": "c698d67271ca191c",
+  "content_sha": "900f93614750db7c",
   "stamped": "2026-11-10"
  }
 }

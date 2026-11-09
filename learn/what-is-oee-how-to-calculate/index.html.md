@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 9 Nov 2026
+Updated 10 Nov 2026
 ·
 10 min read
 
@@ -109,10 +109,10 @@ Most OEE software vendors say you need a lot to track OEE well. They mean sensor
 
 Every Japanese plant that reached 85 percent OEE started with a much simpler Stage 1:
 
-1. **One clipboard or logbook entry per shift. It records the shift's start and end, and its planned downtime. It records unplanned downtime too, with a reason for each stop. It also records units made and units rejected.**
-2. **At the end of each shift, the supervisor works out OEE with the formula above. Takes 3 minutes with a well-built entry.**
-3. **Next morning, the supervisor posts the OEE number on a board at the line. It needs no software, dashboards or SaaS bills.**
-4. **After 12 weeks of daily numbers, the trend tells you a lot. You see which shift is steadiest and which weekday has the worst OEE. You also see which kind of fault comes up most.**
+1. **One clipboard or logbook entry per shift.** It records the shift's start and end, and its planned downtime. It records unplanned downtime too, with a reason for each stop. It also records units made and units rejected.
+2. **At the end of each shift, the supervisor works out OEE with the formula above.** Takes 3 minutes with a well-built entry.
+3. **Next morning, the supervisor posts the OEE number on a board at the line.** It needs no software, dashboards or SaaS bills.
+4. **After 12 weeks of daily numbers, the trend tells you a lot.** You see which shift is steadiest and which weekday has the worst OEE. You also see which kind of fault comes up most.
 
 Only after this discipline is in place does sensor investment make sense. Sensors automate what already works; they cannot create what does not exist.
 
@@ -160,7 +160,7 @@ A first honest OEE reading often lands between 40 and 60 percent. The path to 75
 
 This order matches WorkHive's 4-stage path. First comes Paper-to-Digital, in months 1 to 3. Then Disciplined, in months 4 to 9. Then Predictive-Ready, from month 10, when sensors finally pay back.
 
-**The honest truth: better OEE is mostly habit. Think 80 percent habit, 20 percent technology. Some plants buy MES and sensors before they have the habit. They end up measuring a 50 percent OEE line. They could have run a 75 percent one instead. Plants that invest in discipline first then add sensors get to 85 percent.**
+**The honest truth:** better OEE is mostly habit. Think 80 percent habit, 20 percent technology. Some plants buy MES and sensors before they have the habit. They end up measuring a 50 percent OEE line. They could have run a 75 percent one instead. Plants that invest in discipline first then add sensors get to 85 percent.
 
 ## Frequently asked questions
 
@@ -198,4 +198,4 @@ No. Utilization only measures how much time the equipment ran versus calendar ti
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 39db150ca9114e9e -->
+<!-- md-twin source-sha: d0e6a375a184e06d -->

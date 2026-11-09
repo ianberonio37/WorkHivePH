@@ -125,6 +125,23 @@ def main() -> int:
             print(f"  [{i}] REFUSED - the new text drops link(s) {lost}; source span: {span[:300]!r}")
             refused += 1
             continue
+        # ★THE NEW TEXT MUST CLOSE WHAT THE SPAN CLOSED (M13, 2026-11-09). The graded text can cross a tag boundary - the
+        # community guide's "Public (a checkbox you tick): workers..." sat across `<strong>Public ...:</strong> workers`, so
+        # the span held the CLOSING </strong> of a tag opened before it. The rewrite dropped it and left the whole rest of
+        # the list item bold, with the page's markup unbalanced; nothing here looked. Per inline/block tag, the span's net
+        # opens minus closes must equal the new text's, or the page's structure changes.
+        def _net(h):
+            out = {}
+            for tg in ("strong", "em", "b", "i", "a", "abbr", "code", "span", "p", "li", "ul", "ol", "div"):
+                o = len(re.findall(rf"<{tg}\b[^>]*>", h)); c = len(re.findall(rf"</{tg}\s*>", h))
+                if o - c:
+                    out[tg] = o - c
+            return out
+        if _net(span) != _net(new):
+            print(f"  [{i}] REFUSED - the new text changes the page's tag balance: span {_net(span)} vs new {_net(new)}; "
+                  f"source span: {span[:200]!r}")
+            refused += 1
+            continue
         # ★A SPAN THAT ENDS ON A CLOSING QUOTE JOINS THE NEXT SENTENCE (M13, 2026-11-09). The lens splits only where a
         # terminal mark is followed by whitespace, so `later." See ...` is ONE sentence to it - while this tool graded only
         # the new span, which ended at the quote and passed. UpKeep's guide failed B3 on exactly that join. When the page

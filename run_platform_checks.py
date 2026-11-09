@@ -14227,6 +14227,18 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★A COPY EDIT BROKE THE MARKUP AND NOTHING NOTICED (Wave CF M13, 2026-11-09). Sentence rewrites located by the
+        # text the critic graded cross tag boundaries ("Choose X if" is `<strong>Choose X</strong> if`), and eight edits
+        # on four guides either re-opened a <strong> or dropped its close - the OEE guide shipped to production (v595)
+        # with five list items and a callout bold to the end. A browser repairs the tree silently, so no walk saw it.
+        "id":      "public-markup-balance",
+        "script":  "tools/validate_public_markup_balance.py",
+        "args":    [],
+        "label":   "every element a public page opens inside <main> is closed, in order (120 pages: landing, learn, calculators, legal)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         # ★39 OF 60 CALCULATORS WERE UNREACHABLE FROM THEIR OWN FAMILY (2026-09-20, W46330 audit lens,
         # walked on compressed-air-calculator/). build_calc_pages._siblings returned `sibs[:2]` - the
         # first two members of the discipline in CALC_DATA order. Positional, not related: 13 Electrical
