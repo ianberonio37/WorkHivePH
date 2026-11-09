@@ -387,8 +387,10 @@
       <div id="empty-supervisor" style="margin-top:0.6rem;display:none;">
         <button class="btn-primary" id="generate-btn" data-i="generatenow">Generate now</button>
       </div>
-      <div data-i="p_yoursupervisorneedstogenerat_69e5" id="empty-worker" style="margin-top:0.5rem;font-size:var(--wh-fs-2xs, 0.75rem);display:none;">
-        Your supervisor needs to generate one. The automatic schedule runs at 06:00, 14:00, and 22:00 PHT once enabled.
+      <!-- the old line promised "the automatic schedule runs at 06:00, 14:00, and 22:00 PHT once enabled"; that cron was
+           retired 2026-06-10 and the plan builds on first open. No data-i: its Filipino value repeated the false schedule. -->
+      <div id="empty-worker" style="margin-top:0.5rem;font-size:var(--wh-fs-2xs, 0.75rem);display:none;">
+        It builds itself the first time someone opens this page in a shift. If none appears, ask your supervisor.
       </div>
     </div>
 
@@ -1178,8 +1180,12 @@
                    'Walang high-risk na asset, walang PM na due, walang carry-forward. Gamitin ang shift sa inspeksyon at asset hub walkaround.');
       } else {
         tone = 'empty'; label = _t('No briefing yet', 'Wala pang briefing');
-        sub  = _t('The shift planner runs on the hour. Click Re-run plan if you need it now.',
-                   'Tumatakbo ang shift planner kada oras. Pindutin ang I-rerun ang plano kung kailangan mo na ngayon.');
+        // ★NO SCHEDULE RUNS THIS (2026-11-10). The 06:00/14:00/22:00 cron was retired on 2026-06-10 (migration
+        // 20260610000005: "first view computes + saves; NO scheduled jobs") - maybeAutoGenerate builds the plan on the
+        // first open of a planless shift. This line said "runs on the hour", which nothing does. The old Filipino line
+        // said the same false thing, so it is not kept: English that is true beats a translation of a false sentence.
+        const _noPlanSub = 'The plan builds itself the first time someone opens this page in a shift. Click Re-run plan to build it now.';
+        sub  = _t(_noPlanSub, _noPlanSub);
       }
       // ★A STALE PLAN SPOKE AS THIS SHIFT'S (critique W46041, 2026-10-13). With the planner unavailable the board falls back
       // to the newest stored plan and marks it STALE in the source line and on the brief - and then the verdict ("Manageable

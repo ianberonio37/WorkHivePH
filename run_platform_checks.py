@@ -14235,6 +14235,17 @@ VALIDATORS = [
         # listing-holding-fee sweep retires 2% of a live listing's credit hold, while twenty sentences in nine shipped
         # files - the seller wallet, the marketplace hero and meta, the landing page, the learn hub and the AI assistant's
         # own knowledge - said "no platform fees", "is not a fee" or "comes back in full".
+        "id":      "schedule-claims-match-cron",
+        "script":  "tools/validate_schedule_claims_match_cron.py",
+        "args":    [],
+        # ★A RETIRED CRON STILL SPOKE ON FOUR SURFACES (2026-11-10). Shift Brain moved to first-open compute on 2026-06-10;
+        # the learn guide (seven times, plus its figure), shift-brain.html's two empty states and the AI's hint still said it
+        # "runs at 06:00, 14:00 and 22:00 PHT".
+        "label":   "no shipped page says a job runs on a clock that no cron job runs (scheduler read from cron.job, else the migrations' schedule history)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "listing-hold-disclosed",
         "script":  "tools/validate_listing_hold_disclosed.py",
         "args":    [],
