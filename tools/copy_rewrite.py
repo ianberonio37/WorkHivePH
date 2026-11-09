@@ -125,6 +125,17 @@ def main() -> int:
             print(f"  [{i}] REFUSED - the new text drops link(s) {lost}; source span: {span[:300]!r}")
             refused += 1
             continue
+        # ★A SPAN THAT ENDS ON A CLOSING QUOTE JOINS THE NEXT SENTENCE (M13, 2026-11-09). The lens splits only where a
+        # terminal mark is followed by whitespace, so `later." See ...` is ONE sentence to it - while this tool graded only
+        # the new span, which ended at the quote and passed. UpKeep's guide failed B3 on exactly that join. When the page
+        # carries more text after the span, the terminal mark must sit outside the quote.
+        _tail = re.sub(r"<[^>]+>", "", new).rstrip()
+        _after = re.sub(r"<[^>]+>", "", src[m.end():m.end() + 80]).lstrip()
+        if re.search(r"[.!?][\"”’'](?:&rdquo;|&rsquo;)?$|[.!?](?:&rdquo;|&rsquo;|&quot;)$", _tail) and _after[:1].isalnum():
+            print(f"  [{i}] REFUSED - ends on a closing quote, so the lens reads it and the next sentence as one: "
+                  f"{_tail[-50:]!r} + {_after[:30]!r} - put the period outside the quote")
+            refused += 1
+            continue
         bad = ruler(new)
         if bad:
             print(f"  [{i}] REFUSED - fails the B3 ruler: " + " | ".join(f"{b.get('words')}w g{b.get('grade')} {b.get('text', '')[:60]!r}" for b in bad))

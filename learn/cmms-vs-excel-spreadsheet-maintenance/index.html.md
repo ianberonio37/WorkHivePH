@@ -6,7 +6,7 @@ Source: https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/
 
 By WorkHive Editorial Team · Published 2026-08-05 · 6 min read
 
-A spreadsheet is genuinely fine when **one person** maintains **under ~50 assets** and nobody needs history older than the current year. Switch to a CMMS when any of four things is true: **more than one person edits it**, **you need PM due-dates to trigger** rather than be remembered, **you need history that survives staff turnover**, or **an auditor will ask for dated records**. The deciding factor is rarely features: it is that a spreadsheet has one owner and no memory, and preventive maintenance run on a real schedule runs **12-18% cheaper** than the reactive breakdowns it prevents.
+A spreadsheet is fine when **one person** looks after **under ~50 assets** and no one needs last year's history. Switch to a CMMS when any of four things is true. **More than one person edits it.** **You need PM due-dates to trigger** on their own, so no one has to remember them. **You need history that survives staff turnover.** Or **an auditor will ask for dated records.** Features rarely decide it. A spreadsheet has one owner and no memory. And PM on a real schedule runs **12-18% cheaper** than the breakdowns it prevents.
 
 Who this is for
 
@@ -19,21 +19,21 @@ Who this is for
 
 ## When a spreadsheet is genuinely fine
 
-This deserves saying plainly, because "you need software" is usually a sales line. A spreadsheet is a reasonable tool when:
+We will say this plainly. "You need software" is often just a sales line. A spreadsheet is a reasonable tool when:
 
 - One person owns maintenance and does all the recording;
 - The asset count is small (roughly under 50) and stable;
 - PM intervals are simple and few enough to hold in your head;
 - Nobody outside the team needs to read the records.
 
-If that describes you, a well-kept spreadsheet beats a badly-adopted CMMS (computerized maintenance management system). Adoption, not features, is what determines whether records exist.
+If that is you, a well-kept spreadsheet beats a CMMS nobody uses. A CMMS is a computerized maintenance management system. Adoption, not features, is what determines whether records exist.
 
 ## The four ways spreadsheets fail
 
 1. **Single owner.** The file lives with one person. When they resign, the formulas, the conventions, and the context leave with them.
-2. **No triggers.** A due-date in a cell does not notify anyone. PM compliance quietly drops because nothing chases it, and PM compliance is the leading indicator that drives MTBF (mean time between failures) (see the [metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/)).
-3. **Concurrent edits.** Two people editing means version conflicts, and the fix is usually "send me the latest copy," which is how history diverges.
-4. **No audit trail.** A cell can be changed with no record of who changed it or when. That is exactly what a DOLE OSHS or ISO auditor is trying to verify: see [PH plant compliance](https://workhiveph.com/learn/ph-plant-compliance-guide/).
+2. **No triggers.** A due-date in a cell does not notify anyone. PM compliance quietly drops, because nothing chases it. And PM compliance is the early signal behind MTBF, the mean time between failures (see the [metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/)).
+3. **Concurrent edits.** Two people editing means version conflicts. The usual fix is "send me the latest copy," and that is how the history splits.
+4. **No audit trail.** Anyone can change a cell, and nothing records who did it or when. A DOLE OSHS or ISO auditor checks exactly that: see [PH plant compliance](https://workhiveph.com/learn/ph-plant-compliance-guide/).
 
 ## Spreadsheet vs CMMS: side-by-side comparison
 
@@ -50,7 +50,7 @@ If that describes you, a well-kept spreadsheet beats a badly-adopted CMMS (compu
 
 ## Migrating from a spreadsheet to a CMMS
 
-Do not attempt a full-plant migration. The pattern that works is one critical line first: logbook in week 1, asset register in week 2, PM schedule in week 3, handover in week 4: then expand. The full sequence is in [how to start digital maintenance](https://workhiveph.com/learn/start-digital-maintenance-guide/), and the asset hierarchy method is in [building an asset register on zero budget](https://workhiveph.com/learn/building-asset-register-zero-budget/).
+Do not attempt a full-plant migration. What works is one critical line first. Logbook in week 1, assets in week 2, PMs in week 3, handover in week 4. Then expand. The full sequence is in [how to start digital maintenance](https://workhiveph.com/learn/start-digital-maintenance-guide/). For the asset list, see [building an asset register on zero budget](https://workhiveph.com/learn/building-asset-register-zero-budget/).
 
 Keep the spreadsheet running in parallel for the first month. It costs almost nothing and it removes the fear that stalls most rollouts.
 
@@ -76,7 +76,7 @@ Yes. In WorkHive a supervisor imports it on the CMMS Integration page: a CSV or 
 
 Lost history and missed PMs. The US Department of Energy's O&M Best Practices Guide puts a preventive programme at roughly 12-18% cheaper than running reactive, with another 8-12% available from a predictive layer, and a spreadsheet has no mechanism to make a due date chase anyone.
 
-The digital Logbook is the surface that replaces the spreadsheet, with the asset, duration and cause attached to every entry instead of typed into a cell. Free at the worker tier, offline-first, built for Philippine plants.
+The digital Logbook replaces the spreadsheet. Each entry carries its asset, how long it took, and the cause. Nothing gets typed into a loose cell. Free at the worker tier, offline-first, built for Philippine plants.
 
 [Join WorkHive](https://workhiveph.com/?signup=1) first if you do not have a hive yet.
 
@@ -88,4 +88,4 @@ The digital Logbook is the surface that replaces the spreadsheet, with the asset
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 182e31fc79482e2b -->
+<!-- md-twin source-sha: 09667dec4003fae6 -->

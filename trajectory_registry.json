@@ -1267868,8 +1267868,8 @@
     },
     {
       "id": "CF327",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - best free cmms software philippines · a signed-out visitor: B3 0% - sentences=42 · >20w=8 · passive=3 · grade>8=15 · worst(31w): \"",
       "pages": [
@@ -1267968,7 +1267968,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on best free cmms software philippines for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on best free cmms software philippines for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:12"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/best-free-cmms-software-philippines/index.html as anon after the find of 2026-09-11 (best-free-cmms-software-philippines: B3 0% - sentences=42 · >20w=8 · passive=3 · grade>8=15 · worst(31w): \"is the outlie) - tools/family_rubric_sweep.mjs --anon (learn/best-free-cmms-software-philippines/index.html, 2026-11-10T06:11, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1268142,8 +1268149,8 @@
     },
     {
       "id": "CF330",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - cmms vs excel spreadsheet maintenance · a signed-out visitor: B3 0% - sentences=46 · >20w=5 · passive=2 · grade>8=7 · worst(32w): \"T",
       "pages": [
@@ -1268234,7 +1268241,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on cmms vs excel spreadsheet maintenance for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on cmms vs excel spreadsheet maintenance for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:12"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/cmms-vs-excel-spreadsheet-maintenance/index.html as anon after the find of 2026-09-11 (cmms-vs-excel-spreadsheet-maintenance: B3 0% - sentences=46 · >20w=5 · passive=2 · grade>8=7 · worst(32w): \"The deciding) - tools/family_rubric_sweep.mjs --anon (learn/cmms-vs-excel-spreadsheet-maintenance/index.html, 2026-11-10T06:11, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1272004,8 +1272018,8 @@
     },
     {
       "id": "CF369",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - start digital maintenance guide · a signed-out visitor: B3 0% - sentences=43 · >20w=8 · passive=1 · grade>8=12 · worst(56w): \"",
       "pages": [
@@ -1272096,7 +1272110,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on start digital maintenance guide for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on start digital maintenance guide for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:12"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/start-digital-maintenance-guide/index.html as anon after the find of 2026-09-11 (start-digital-maintenance-guide: B3 0% - sentences=43 · >20w=8 · passive=1 · grade>8=12 · worst(56w): \"To go from spread) - tools/family_rubric_sweep.mjs --anon (learn/start-digital-maintenance-guide/index.html, 2026-11-10T06:11, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1273149,8 +1273170,8 @@
     },
     {
       "id": "CF381",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - workhive vs maintainx comparison · a signed-out visitor: B3 0% - sentences=29 · >20w=4 · passive=1 · grade>8=11 · worst(32w): \"",
       "pages": [
@@ -1273241,13 +1273262,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on workhive vs maintainx comparison for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on workhive vs maintainx comparison for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:12"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/workhive-vs-maintainx-comparison/index.html as anon after the find of 2026-09-11 (workhive-vs-maintainx-comparison: B3 0% - sentences=29 · >20w=4 · passive=1 · grade>8=11 · worst(32w): \"if in-app team c) - tools/family_rubric_sweep.mjs --anon (learn/workhive-vs-maintainx-comparison/index.html, 2026-11-10T06:11, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF382",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - workhive vs upkeep free cmms comparison · a signed-out visitor: B3 0% - sentences=51 · >20w=6 · passive=3 · grade>8=10 · worst(39w): \"",
       "pages": [
@@ -1273338,7 +1273366,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on workhive vs upkeep free cmms comparison for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on workhive vs upkeep free cmms comparison for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:12"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/workhive-vs-upkeep-free-cmms-comparison/index.html as anon after the find of 2026-09-11 (workhive-vs-upkeep-free-cmms-comparison: B3 0% - sentences=51 · >20w=6 · passive=3 · grade>8=10 · worst(39w): \"if cost p) - tools/family_rubric_sweep.mjs --anon (learn/workhive-vs-upkeep-free-cmms-comparison/index.html, 2026-11-10T06:11, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
