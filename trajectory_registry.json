@@ -1230781,8 +1230781,8 @@
     },
     {
       "id": "CF132",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - dilo wilo day planner supervisors · a signed-out visitor: B3 0% - sentences=127 · >20w=11 · passive=3 · grade>8=22 · worst(44w):",
       "pages": [
@@ -1230900,7 +1230900,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on dilo wilo day planner supervisors for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on dilo wilo day planner supervisors for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:40"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/dilo-wilo-day-planner-supervisors/index.html as anon after the find of 2026-09-11 (dilo-wilo-day-planner-supervisors: B3 0% - sentences=127 · >20w=11 · passive=3 · grade>8=22 · worst(44w): \"DILO (Day In ) - tools/family_rubric_sweep.mjs --anon (learn/dilo-wilo-day-planner-supervisors/index.html, 2026-11-10T06:40, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1271458,8 +1271465,8 @@
     },
     {
       "id": "CF363",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - resume builder for filipino industrial workers · a signed-out visitor: B3 0% - sentences=85 · >20w=10 · passive=1 · grade>8=22 · worst(33w): ",
       "pages": [
@@ -1271550,7 +1271557,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on resume builder for filipino industrial workers for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on resume builder for filipino industrial workers for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:40"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/resume-builder-for-filipino-industrial-workers/index.html as anon after the find of 2026-09-11 (resume-builder-for-filipino-industrial-workers: B3 0% - sentences=85 · >20w=10 · passive=1 · grade>8=22 · worst(33w): \"Y) - tools/family_rubric_sweep.mjs --anon (learn/resume-builder-for-filipino-industrial-workers/index.html, 2026-11-10T06:40, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1271659,8 +1271673,8 @@
     },
     {
       "id": "CF365",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - sensor cmms gateway operations · a signed-out visitor: B3 0% - sentences=71 · >20w=10 · passive=4 · grade>8=23 · worst(37w): ",
       "pages": [
@@ -1271753,7 +1271767,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on sensor cmms gateway operations for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on sensor cmms gateway operations for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:40"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/sensor-cmms-gateway-operations/index.html as anon after the find of 2026-09-11 (sensor-cmms-gateway-operations: B3 0% - sentences=71 · >20w=10 · passive=4 · grade>8=23 · worst(37w): \"The dashboard sur) - tools/family_rubric_sweep.mjs --anon (learn/sensor-cmms-gateway-operations/index.html, 2026-11-10T06:40, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {

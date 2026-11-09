@@ -11,6 +11,10 @@
   "content_sha": "f2a4ac9f1c89f17b",
   "stamped": "2026-11-10"
  },
+ "dilo-wilo-day-planner-supervisors": {
+  "content_sha": "19d0d3442b4d3a7e",
+  "stamped": "2026-11-10"
+ },
  "dole-iso-audit-trail-from-logbook": {
   "content_sha": "87e23b452e0dc4a8",
   "stamped": "2026-10-27"
@@ -109,6 +113,14 @@
  },
  "reduce-unplanned-downtime-guide": {
   "content_sha": "228386d92b92c5c1",
+  "stamped": "2026-11-10"
+ },
+ "resume-builder-for-filipino-industrial-workers": {
+  "content_sha": "fa3df269d0898725",
+  "stamped": "2026-11-10"
+ },
+ "sensor-cmms-gateway-operations": {
+  "content_sha": "e572b6d46132b11c",
   "stamped": "2026-11-10"
  },
  "start-digital-maintenance-guide": {
