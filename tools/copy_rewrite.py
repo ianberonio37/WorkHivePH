@@ -137,6 +137,16 @@ def main() -> int:
                 if o - c:
                     out[tg] = o - c
             return out
+        # A span that begins INSIDE a bold lead ("Year 2 (selective Tier 4):</strong> only for ...") holds that lead's
+        # close. When the rewrite starts with the SAME lead words, the only correct place for the close is right after
+        # them, so it is put there - one deterministic repair, announced. Any other imbalance is still refused below.
+        for _tg in ("strong", "em", "b"):
+            if _net(span).get(_tg) == -1 and not _net(new).get(_tg) and f"</{_tg}>" in span:
+                _lead = span[:span.index(f"</{_tg}>")]
+                if _lead and "<" not in _lead and new.startswith(_lead.rstrip(":").rstrip()):
+                    _cut = len(_lead) if new.startswith(_lead) else len(_lead.rstrip(":").rstrip())
+                    new = new[:_cut] + f"</{_tg}>" + new[_cut:]
+                    print(f"  [{i}] note - closed the lead's </{_tg}> after {new[:_cut][:40]!r}")
         if _net(span) != _net(new):
             print(f"  [{i}] REFUSED - the new text changes the page's tag balance: span {_net(span)} vs new {_net(new)}; "
                   f"source span: {span[:200]!r}")

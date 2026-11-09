@@ -14,7 +14,7 @@ Updated 10 Nov 2026
 ·
 7 min read
 
-**Short answer:** A WorkHive hive is your plant's own walled-off workspace. It holds your assets, logbook, PM schedules, people and history. By default, its audit log keeps what it records for 3 years. Workers can use WorkHive alone, in private. Or they can join a plant hive, once a supervisor approves. A hive has 2 roles: worker and supervisor. Apart from that, the navigation offers 4 view modes. They change which tools you see, not what you may do. The database walls off each hive's data, row by row. Nothing leaks between hives. A group with several plants runs one hive per plant. A corporate roll-up across them is on the roadmap, not in the product.
+**Short answer:** A WorkHive hive is your plant's own walled-off workspace. It holds your assets, logbook, PM schedules, people and history. Its audit log keeps what it records for as long as the hive exists. Workers can use WorkHive alone, in private. Or they can join a plant hive, once a supervisor approves. A hive has 2 roles: worker and supervisor. Apart from that, the navigation offers 4 view modes. They change which tools you see, not what you may do. The database walls off each hive's data, row by row. Nothing leaks between hives. A group with several plants runs one hive per plant. A corporate roll-up across them is on the roadmap, not in the product.
 
 Who this is for
 
@@ -140,4 +140,4 @@ Each site is its own hive. The parent company can create a hive group that lets 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 6f6855dbf4c561fb -->
+<!-- md-twin source-sha: 26b24d63fe2dade1 -->

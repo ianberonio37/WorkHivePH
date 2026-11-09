@@ -68,7 +68,12 @@ def policy_still_promises() -> bool:
     """If the policy no longer makes the promise, this gate has nothing to protect."""
     for f in glob.glob(str(ROOT / "privacy-policy" / "**" / "*.html"), recursive=True):
         src = io.open(f, encoding="utf-8", errors="replace").read()
-        if re.search(r"retained per WorkHive'?s audit-log policy of 10 years", src):
+        # ★THE PROMISE, NOT ONE PHRASING OF IT (M13, 2026-11-09). This matched one exact sentence, so the plain-language
+        # rewrite of the policy ("Our audit-log policy keeps them for 10 years. Records of incident investigations stay
+        # for 15 years.") turned the gate into a silent SKIP - exit 0, counted as a pass - while the promise was unchanged.
+        # A copy edit must not be able to retire the check that holds the system to the words.
+        if (re.search(r"audit-log policy[^<.]{0,40}10 years", src)
+                and re.search(r"\b15 years\b", src)):
             return True
     return False
 

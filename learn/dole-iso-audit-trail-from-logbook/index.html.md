@@ -10,11 +10,11 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 27 Oct 2026
+Updated 10 Nov 2026
 ·
 7 min read
 
-**Short answer:** A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds, and nothing in WorkHive purges that history: entries and their audit trail are kept for as long as your hive exists. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled. The stakes are set by RA 11058 and its revised rules (DOLE Department Order 252-25): wilful non-compliance can draw a fine of up to ₱100,000 a day.
+**Short answer:** An inspector or auditor samples three things in your records. That goes for DOLE OSHS and for ISO 9001, 14001 and 45001. First, the entry was made when the event happened, not backdated. Second, it names the worker who made it. Third, nobody edited it after the fact. WorkHive Audit Log lets you query all three in seconds. Nothing in WorkHive purges that history. Entries and their audit trail stay for as long as your hive exists. The supervisor exports the requested date range from the Audit Log as CSV. Or they print the period's Analytics Report as a PDF. The inspector then samples from a ready-made record. RA 11058 and its revised rules (DOLE Department Order 252-25) set the stakes. Wilful non-compliance can draw a fine of up to ₱100,000 a day.
 
 Who this is for
 
@@ -26,23 +26,23 @@ Who this is for
 - Auditors from certification bodies
 - Contractors providing audit support
 
-Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](https://workhiveph.com/learn/ph-plant-compliance-guide/): the hub for what an inspector actually asks to see.
+Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](https://workhiveph.com/learn/ph-plant-compliance-guide/). That hub covers what an inspector actually asks to see.
 
 ## What DOLE and ISO auditors actually sample
 
-The first time a Philippine plant moves from paper to digital, the safety officer worries: will the auditor accept this? The honest answer is yes, easily, when the digital system satisfies three properties that paper never quite did. The auditor wants:
+Picture a plant's first move from paper to digital. The safety officer worries. Will the auditor accept this? The honest answer is yes, easily. The digital system just has to meet three tests that paper never quite did. The auditor wants:
 
-1. **Time-of-event recording.** The entry was made when the event happened, not constructed weeks later to satisfy the audit. A server-side timestamp settles this.
-2. **Worker identification.** The person who made the entry is named (not initials). Paper has signatures that may be illegible; digital has authenticated user IDs.
-3. **Non-editability after submission.** Once submitted, the entry cannot be silently rewritten. Edits are recorded with the editor and the before and after values.
+1. **Time-of-event recording.** Someone made the entry when the event happened. Nobody built it weeks later to satisfy the audit. A server-side timestamp settles this.
+2. **Worker identification.** The entry names the person who made it, in full, not initials. Paper has signatures you may not be able to read. Digital has checked user IDs.
+3. **Non-editability after submission.** Once submitted, the entry cannot be silently rewritten. The log records each edit with its editor and the before and after values.
 
 WorkHive Audit Log surfaces all three for any record the auditor requests. What changes is the sampling step: it stops being a search through folders and becomes a filter.
 
 ## The 3 immutability guarantees
 
-- **Server-side timestamp.** Every entry is stamped at the moment it hits the server, not the client. A worker cannot backdate by adjusting their phone clock.
+- **Server-side timestamp.** The server stamps every entry the moment it arrives. The phone's clock does not count. A worker cannot backdate by adjusting their phone clock.
 - **Authenticated authorship.** Entries are tied to the worker's account (which the employer maps to a person on the payroll). No anonymous edits.
-- **Append-only edits.** If an entry needs correction, the original stays in the audit log with the correction appended: who made it, when, and the before and after values of what they changed. Auditors see the full history, not just the current state. One thing it does NOT capture is a stated reason for the edit: there is no field asking why, so if your procedure requires a documented justification, put it in the entry text itself, where it becomes part of the record the audit trail then protects.
+- **Append-only edits.** If an entry needs a fix, the original stays in the audit log with the fix added after it. The log shows who made it and when. It also shows the before and after values of what they changed. Auditors see the full history, not just the current state. One thing it does NOT capture is a reason for the edit. No field asks why. If your procedure needs a written reason, put it in the entry text itself. There it becomes part of the record the audit trail protects.
 
 ## Retention rules per record type
 
@@ -55,33 +55,33 @@ WorkHive Audit Log surfaces all three for any record the auditor requests. What 
 | Permit to work records | 3 years | 3 years | Yes: never purged |
 | Training records | For employment duration + 3 years | For employment duration + 3 years | Yes: never purged |
 
-**Read that last column before you tell an auditor anything.** WorkHive does not purge maintenance records or their audit history: logbook entries, PM completions, permits and the audit log stay for as long as your hive exists, so every minimum in the table is met without changing a setting. The one exception is a record someone **deletes**. It waits in Recently deleted for the hive's window, **30 days** unless a supervisor keeps deleted items longer, and can be restored until then; after that it is removed for good, and the audit log keeps who deleted it and when, not what it said. So the working rule for an auditor-facing plant is simple: a record a regulation requires you to hold is corrected, never deleted. Storage is cheap, and the worker may need the history years after leaving the plant, for OFW applications, promotion cases and regulatory disputes.
+**Read that last column before you tell an auditor anything.** WorkHive does not purge maintenance records or their audit history. Logbook entries, PM completions, permits and the audit log stay for as long as your hive exists. So you meet every minimum in the table. No setting needs changing. The one exception is a record someone **deletes**. It waits in Recently deleted for the hive's window. That is 30 days, unless a supervisor keeps deleted items longer. You can restore it until then. After that it is gone for good. The audit log keeps who deleted it and when, but not what it said. So the working rule for a plant that faces auditors is simple. If a regulation makes you hold a record, you correct it. You never delete it. Storage is cheap. The worker may need the history years after leaving the plant. It helps with OFW applications, promotion cases and regulatory disputes.
 
 ## Export patterns auditors accept
 
-Three patterns satisfy DOLE OSHS and ISO auditors. The Audit Log exports CSV, filterable by actor, action, target and date range; the print-ready PDF comes from the Analytics Report:
+Three patterns satisfy DOLE OSHS and ISO auditors. The Audit Log exports CSV. You can filter it by actor, action, target and date range. The print-ready PDF comes from the Analytics Report:
 
-- **Date range:** all entries in a window (typically 30 days for a sample), exported from the Audit Log as CSV with timestamp, author, asset, category and entry text. Print it, or hand over the file - auditors accept either, and the file is the one they can search.
-- **Asset history:** every entry for one asset over its lifecycle, filtered in the Audit Log by that asset. Used when the auditor is investigating a specific failure or compliance gap.
-- **Compliance mapping:** entries grouped by ISO clause or DOLE rule, which is the view management review and surveillance audits ask for.
+- **Date range:** all entries in a window, typically 30 days for a sample. You export them from the Audit Log as CSV. Each row has the timestamp, author, asset, category and entry text. Print it, or hand over the file. Auditors accept either, and they can search the file.
+- **Asset history:** every entry for one asset over its life. You filter the Audit Log by that asset. Auditors use it when they look into a specific failure or compliance gap.
+- **Compliance mapping:** entries grouped by ISO clause or DOLE rule. Management reviews and surveillance audits ask for this view.
 
-Every row carries its WorkHive entry ID, so an auditor can ask to see any single entry live rather than taking the export on trust.
+Every row carries its WorkHive entry ID. So an auditor can ask to see any one entry live, instead of taking the export on trust.
 
 ## Mapping to ISO 9001, 14001, 45001
 
-A clause is satisfied by your management system, not by a tool. What software can do is
- hold the *evidence* an auditor samples against that clause, so read the list below as
- “where your records for this clause live”, not as conformity you can buy.
+A clause is satisfied by your management system, not by a tool. What software can do is hold the evidence an auditor samples against that clause. So read the list below as “where your records for this clause live”. It is not conformity you can buy.
 
-- **ISO 9001 (Quality):** WorkHive Logbook entries with corrective-action tags give you the records Clause 10.2 (nonconformity and corrective action) asks you to retain. The PM compliance dashboard evidences Clause 7.1.5 monitoring and measuring resources.
-- **ISO 14001 (Environment):** Logbook entries with environmental-aspect tags (spill, leak, emission) evidence Clause 9.1.1 monitoring of environmental performance.
-- **ISO 45001 (OH&S):** Safety observations, near-miss logs, and incident investigations evidence Clause 9.1.1 monitoring, measurement, analysis and performance evaluation, and Clause 10.2 incident investigation.
+- **ISO 9001 (Quality):** Logbook entries with corrective-action tags hold your records. They are the records Clause 10.2 asks you to keep. Clause 10.2 covers nonconformity and corrective action. The PM compliance dashboard evidences Clause 7.1.5 monitoring and measuring resources.
+- **ISO 14001 (Environment):** Logbook entries with environmental tags are your evidence. The tags cover a spill, a leak or an emission. They support Clause 9.1.1, monitoring environmental performance.
+- **ISO 45001 (OH&S):** Safety records are your evidence. That means safety observations, near-miss logs and incident investigations. They support Clause 9.1.1: monitoring, measurement, analysis and performance evaluation. They also support Clause 10.2, incident investigation.
 
 The tool this guide is about
 
 ### WorkHive Audit Log makes DOLE and ISO audits a 1-hour exercise
 
-Server-side timestamps, authenticated authorship, append-only edits, audit history kept 3 years by default and adjustable up to 10. Date-range, asset-history and compliance-mapping exports. Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier. The full audit log is supervisor-only; there is no separate compliance-reporting tier above it, so what an inspector can be shown is what you see today.
+The server stamps the time, and every entry names who wrote it. Edits add to the record and never overwrite it. And WorkHive never purges the audit history. Date-range, asset-history and compliance-mapping exports.
+
+Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier. The full audit log is supervisor-only. There is no separate compliance-reporting tier above it. So what you can show an inspector is what you see today.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -122,4 +122,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: e26c25eec975365b -->
+<!-- md-twin source-sha: fd0f2e94205b882f -->

@@ -20,8 +20,8 @@
   "stamped": "2026-11-10"
  },
  "dole-iso-audit-trail-from-logbook": {
-  "content_sha": "87e23b452e0dc4a8",
-  "stamped": "2026-10-27"
+  "content_sha": "2ae124cf6b575aec",
+  "stamped": "2026-11-10"
  },
  "feedback": {
   "content_sha": "d54047c42ccd1a19",
@@ -36,7 +36,7 @@
   "stamped": "2026-11-10"
  },
  "joining-and-growing-your-hive": {
-  "content_sha": "4786b0498e1f49c8",
+  "content_sha": "cdb8611116af3f90",
   "stamped": "2026-11-10"
  },
  "learn": {
@@ -109,6 +109,10 @@
  },
  "predictive-alert-thresholds-plants": {
   "content_sha": "b3342a5b841acfd9",
+  "stamped": "2026-11-10"
+ },
+ "predictive-maintenance-on-a-budget-philippines": {
+  "content_sha": "a8bfd6db35944e98",
   "stamped": "2026-11-10"
  },
  "privacy-policy": {
