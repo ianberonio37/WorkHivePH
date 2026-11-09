@@ -1,4 +1,8 @@
 {
+ "about": {
+  "content_sha": "a942880e86e47c21",
+  "stamped": "2026-11-09"
+ },
  "best-free-cmms-software-philippines": {
   "content_sha": "43ac132971658bbb",
   "stamped": "2026-10-27"
@@ -18,6 +22,10 @@
  "free-engineering-calculators-philippine-plants": {
   "content_sha": "f5ffd5d65a01c223",
   "stamped": "2026-10-27"
+ },
+ "learn": {
+  "content_sha": "a61efefa317a8d4d",
+  "stamped": "2026-11-09"
  },
  "learn/ai-companion-hezekiah-zaniah-personas": {
   "content_sha": "109eb58d748f5809",
@@ -87,6 +95,10 @@
   "content_sha": "21d51fec27da7a6f",
   "stamped": "2026-10-27"
  },
+ "privacy-policy": {
+  "content_sha": "c94f170f3c7f4b12",
+  "stamped": "2026-11-09"
+ },
  "ra-11285-energy-efficiency-plant-checklist": {
   "content_sha": "82149bf74e5e48fd",
   "stamped": "2026-10-27"
@@ -98,6 +110,10 @@
  "start-digital-maintenance-guide": {
   "content_sha": "b255b5233c606422",
   "stamped": "2026-10-27"
+ },
+ "terms-of-service": {
+  "content_sha": "abb019856a719765",
+  "stamped": "2026-11-09"
  },
  "tools/ahu-sizing-calculator": {
   "content_sha": "6b3f963bba2cad0a",

@@ -4,7 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <style>/* P-program 2026-09-05: T3/T4 + 44px list links (F1/K2) */ html{overscroll-behavior:contain} body,a,button,input,select{touch-action:manipulation} main li a, main .card a{display:inline-block;min-height:44px;padding:12px 0}    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
+  <style>
+    /* wh-learn-contrast-remap: the learn pages load Tailwind from the CDN, so they miss the contrast
+       remap wh-tw.css applies app-wide. 12px byline text at /45 measured 4.27:1 against the
+       4.5:1 it owes. body-scoped (0,1,1) so it wins over the CDN utility whatever the order. */
+    body .text-white\/45 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/50 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/55 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/60 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/65 { color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
+    body .text-white\/70 { color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
+    body .text-white\/75 { color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }/* P-program 2026-09-05: T3/T4 + 44px list links (F1/K2) */ html{overscroll-behavior:contain} body,a,button,input,select{touch-action:manipulation} main li a, main .card a{display:inline-block;min-height:44px;padding:12px 0}    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
        extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
        the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
     h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
@@ -53,7 +63,7 @@
         "isPartOf": { "@id": "https://workhiveph.com/#website" },
         "inLanguage": "en-PH",
         "datePublished": "2026-05-16",
-        "dateModified": "2026-08-24"
+        "dateModified": "2026-11-09"
       },
       {
         "@type": "BreadcrumbList",
@@ -805,7 +815,7 @@
 </main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-09">9 Nov 2026</time></p>
     <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>

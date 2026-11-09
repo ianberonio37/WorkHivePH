@@ -135,6 +135,12 @@ def targets() -> list[Path]:
     idx = ROOT / "learn" / "index.html"
     if idx.exists():
         out.append(idx)
+    # ★AND THE OTHER HAND-AUTHORED PUBLIC PAGES (M13 C5, 2026-11-09): about, privacy and terms carry the same inline
+    # `rgba(var(--wh-cloud-rgb, ...), 0.55-0.78)` prose, breadcrumb and nav colours the learn pages had, and never
+    # heard the ramp - the critic read their "Home" crumb at Lc 43 and their body prose at Lc 70 against 75.
+    for p in ("about/index.html", "privacy-policy/index.html", "terms-of-service/index.html"):
+        if (ROOT / p).exists():
+            out.append(ROOT / p)
     return out
 
 

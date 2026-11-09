@@ -45,12 +45,15 @@ for _s in (sys.stdout, sys.stderr):
 DROP_SELECTORS = [
     "script", "style", "noscript", "header", "footer",
     ".toc", ".author-card", ".breadcrumb", "nav",
+    # the analytics consent prompt is chrome, not content. index.html pre-paints it IN FLOW inside <main> (so a late
+    # insert cannot shift the page, 2026-11-09), and the twin then told agents "Allow / No thanks" as page text.
+    "#wh-consent",
 ]
 # Bump when the CONVERTER changes shape. The twin fingerprint is source-sha + this
 # version, because keying on the page alone means an improved converter never
 # regenerates anything — which is exactly how 54 twins silently kept a missing
 # answer-first block after the bug was fixed.
-GENERATOR_VERSION = 2
+GENERATOR_VERSION = 3   # 3 (2026-11-09): #wh-consent dropped - index.html pre-paints the consent prompt inside <main>
 SHA_MARK = "<!-- md-twin source-sha:"
 
 

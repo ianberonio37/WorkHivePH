@@ -437,7 +437,7 @@
           <!-- ★THE REMEDY NAMED MOVES NONE OF THE THREE NUMBERS SHOWN (design lens critique, 2026-09-15): this
                said "add logbook entries or parts" while the panel directly above counts Logbook, Assets and
                PM tasks. Parts is not one of them. Name what the panel actually reads. -->
-          <p data-i="p_norecordsyetaddlogbookentrie_860b" id="empty-records-nudge" class="text-xs text-white/80 mt-2 hidden">No records yet. Add a logbook entry, an asset or a PM schedule to unlock personalised insights. You can still ask technical questions.</p>
+          <p data-i="p_norecordsyetaddlogbookentrie_860b" id="empty-records-nudge" class="text-xs text-white/80 mt-2 hidden">No records yet. Add a logbook entry, an asset or a PM schedule to see tips for your own plant. You can still ask technical questions.</p>
         </div>
 
       </div>
@@ -1070,7 +1070,16 @@
     // Lives OUTSIDE buildSystemPrompt because that function no longer runs (see the note where its
     // call was removed). Caught by a live check: with the updater inside it, the chip silently kept
     // its build-time text - a fix that ships and never executes.
+    // ★THE FOOT CHIP WAS NOT YET PARSED WHEN THE VERDICT WAS WRITTEN (M13, 2026-11-09). The first call below runs inline
+    // during parse, and M11 moved #assistant-scope-chip to the collapsed sources foot ~2,000 lines further down - so
+    // getElementById returned null, the writer filtered it out, and only the chat twin got the sentence. A signed-out
+    // visitor never triggers a later call, so the page's provenance chip stayed EMPTY for them (the critic's E3 read
+    // `chip: ""`). The latest verdict is kept and written again once the document exists. `var`, not let: a call may
+    // run before this line's block is reached on a future move, and a let would throw in its dead zone.
+    var _scopeChipLast = false;
+    document.addEventListener('DOMContentLoaded', function () { try { _setAssistantScopeChip(_scopeChipLast); } catch (_) { /* empty-catch-allow: the chat twin already carries the sentence */ } });
     function _setAssistantScopeChip(hasSession) {
+      _scopeChipLast = hasSession;
       try {
         // ★ONE WRITER, TWO NODES (design lens critique, 2026-09-15): the setup screen's chip and its twin on
         // the chat screen. A second copy of this decision would be a second chance to disagree with it.
@@ -1810,7 +1819,7 @@ happens to know maintenance, not a manual.`;
         // ★THE SAME SENTENCE AS THE MARKUP NUDGE, AND ONLY THE MARKUP ONE WAS FIXED (design lens critique,
         // 2026-09-15). "parts" moves none of the three counts hasRecords reads - logbook, asset_nodes,
         // pm_assets - so a worker who adds parts and comes back is told again that he has no records.
-        : _t("You don't have any records yet. Add a logbook entry, an asset or a PM schedule to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.",
+        : _t("You don't have any records yet. Add a logbook entry, an asset or a PM schedule to see tips for your own plant. For now I can help with technical questions, procedures, or anything on your mind.",
               "Wala ka pang mga tala. Magdagdag ng logbook entry, isang asset o isang PM schedule para ma-unlock ang personalised insights. Sa ngayon, makakatulong ako sa teknikal na tanong, proseso, o kahit ano pang nasa isip mo.");
       // ★THE ASSISTANT INTRODUCED ITSELF IN ENGLISH (design lens copy, 2026-09-15) - the first sentence on
       // the one surface whose premise is being spoken to in a worker's own words.

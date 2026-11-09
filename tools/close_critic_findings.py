@@ -186,6 +186,15 @@ def anon_page_state() -> dict:
 
 
 def main() -> int:
+    # ★A CHUNKED SWEEP MUST FOLD EACH CHUNK (2026-11-09, M13). `family_rubric_sweep.mjs --anon` overwrites
+    # family_rubric_scoreboard.page.anon.json on every run, and anon_page_state() only folds that file into the kept
+    # state when a closer or the CF banker READS it. The 78-page M13 sweep ran in seven chunks of 12 with no read in
+    # between, so chunks 2-6 (60 pages, ~45 minutes of walking) were overwritten before anything kept them and the
+    # banker reported "no signed-out sweep of the page yet" for 211 rows. Fold after every chunk.
+    if "--fold-anon" in sys.argv:
+        st = anon_page_state()
+        print(f"folded: {len(st)} page(s) in the kept signed-out state ({ANON_LATEST.name})")
+        return 0
     apply = "--apply" in sys.argv
     critic = json.loads(CRITIC.read_text(encoding="utf-8"))
     signed_state = page_state()

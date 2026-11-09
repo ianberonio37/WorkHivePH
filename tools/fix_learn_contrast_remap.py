@@ -42,13 +42,21 @@ REMAP = [("45", "0.8"), ("50", "0.8"), ("55", "0.8"), ("60", "0.8"),
          ("65", "0.85"), ("70", "0.85"), ("75", "0.85")]
 
 
+# ★IN THE PLATFORM'S TOKENS, AS THE OD-S CODEMOD LEFT THE 54 ARTICLES (2026-11-09). This emitted the literal
+# `rgb(255 255 255 / 0.8)`, which design-source-drift counts as a hard-coded colour tokens.css owns: the four site
+# pages it reached on 2026-11-09 rose 0 -> 7 each. The codemod had already rewritten the articles' copies onto
+# --wh-text-muted (0.8) and --wh-white-rgb (0.85); the tool now writes exactly that, so a page it reaches matches them.
+TOKEN = {"0.8": "var(--wh-text-muted, rgb(255 255 255 / 0.8))",
+         "0.85": "rgba(var(--wh-white-rgb, 255, 255, 255), 0.85)"}
+
+
 def block() -> str:
     """The override block, matching wh-tw.css exactly. body-scoped so it beats the CDN on specificity."""
     lines = [f"    /* {MARK}: the learn pages load Tailwind from the CDN, so they miss the contrast",
              "       remap wh-tw.css applies app-wide. 12px byline text at /45 measured 4.27:1 against the",
              "       4.5:1 it owes. body-scoped (0,1,1) so it wins over the CDN utility whatever the order. */"]
     for n, v in REMAP:
-        lines.append(f"    body .text-white{BS}/{n} {{ color: rgb(255 255 255 / {v}); }}")
+        lines.append(f"    body .text-white{BS}/{n} {{ color: {TOKEN[v]}; }}")
     return "\n".join(lines)
 
 
@@ -63,9 +71,17 @@ def apply_block(src: str) -> str:
     return src[:i] + "\n" + block() + src[i:]
 
 
+# ★THE SAME DECISION NEVER REACHED THE OTHER HAND-AUTHORED PUBLIC PAGES (M13 C5, 2026-11-09). about, privacy, terms and
+# the learn hub compile the 'site' family (tools/tw_public_build.mjs), which is the CDN's stock ramp verbatim, so their
+# `text-white/60` renders at 0.6: about's "Last updated" line read Lc 52 at 14px against the 75 a sentence owes, on the
+# platform's own identity and legal pages. The glob below only ever saw learn/*/index.html. They get the identical
+# block; the --check gate now holds them too.
+SITE_PAGES = ["about/index.html", "privacy-policy/index.html", "terms-of-service/index.html", "learn/index.html"]
+
+
 def main() -> int:
     apply = "--apply" in sys.argv
-    files = sorted(glob.glob(str(ROOT / "learn" / "*" / "index.html")))
+    files = sorted(glob.glob(str(ROOT / "learn" / "*" / "index.html"))) + [str(ROOT / p) for p in SITE_PAGES]
     if not files:
         print("refused: no learn articles found - a fixer that matches nothing is a broken path")
         return 1
@@ -100,7 +116,7 @@ def _self_test() -> int:
     out = apply_block(page)
     if "text-white" + BS + "/45" not in out:
         fails.append("the /45 override must be written with a real backslash before the slash")
-    if "rgb(255 255 255 / 0.8)" not in out:
+    if "var(--wh-text-muted, rgb(255 255 255 / 0.8))" not in out:
         fails.append("the value must match wh-tw.css (0.8 for /45), not the stock 0.45")
     if "body .text-white" not in out:
         fails.append("the rule must be body-scoped so it beats the CDN utility on specificity")

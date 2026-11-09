@@ -38,7 +38,7 @@
       },
       "inLanguage": "en-PH",
       "datePublished": "2026-05-17",
-      "dateModified": "2026-05-17"
+      "dateModified": "2026-11-09"
     },
     {
       "@type": "BreadcrumbList",
@@ -63,10 +63,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
+    /* wh-learn-contrast-remap: the learn pages load Tailwind from the CDN, so they miss the contrast
+       remap wh-tw.css applies app-wide. 12px byline text at /45 measured 4.27:1 against the
+       4.5:1 it owes. body-scoped (0,1,1) so it wins over the CDN utility whatever the order. */
+    body .text-white\/45 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/50 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/55 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/60 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/65 { color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
+    body .text-white\/70 { color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
+    body .text-white\/75 { color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     * { font-family: 'Poppins', sans-serif; } body { background: var(--wh-navy,#162032); color: var(--wh-cloud,#F4F6FA); }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
-    .prose-wh { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); font-size: var(--wh-fs-lead, 1.05rem); line-height: 1.8; }
+    .prose-wh { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); font-size: var(--wh-fs-lead, 1.05rem); line-height: 1.8; }
     .prose-wh h2 { color: var(--wh-cloud,#F4F6FA); font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; margin-top: 2.5rem; margin-bottom: 0.75rem; }
     .prose-wh h3 { color: var(--wh-cloud,#F4F6FA); font-size: var(--wh-fs-lead-plus, 1.125rem); font-weight: 700; margin-top: 1.75rem; margin-bottom: 0.5rem; }
     .prose-wh p { margin-bottom: 1rem; }
@@ -81,16 +91,26 @@
        this is the primary nav a gloved hand reaches for. inline-flex + min-height gives a real target; the
        text does not move, because the header row is already items-center. The FOOTER links are left at
        their spacing-exception size on purpose - see .tmp/fix_public_pages_floor.py. */
-    nav a.nav-link { font-size: var(--wh-fs-sm-plus, 0.875rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.65); font-weight: 500;
+    nav a.nav-link { font-size: var(--wh-fs-sm-plus, 0.875rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); font-weight: 500;
       display: inline-flex; align-items: center; min-height: 44px; }
     /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the header row and its nav WRAP - the links drop under the
        logo instead of running the page sideways. At normal sizes nothing moves: a row only wraps when it does not fit. */
     header > div:has(> nav) { flex-wrap: wrap; row-gap: 0.5rem; } header nav:has(> a.nav-link) { flex-wrap: wrap; row-gap: 0.25rem; }
     nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
-    .breadcrumb { font-size: var(--wh-fs-sm-plus, 0.875rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.55); margin-bottom: 1.5rem; }
-    .breadcrumb a { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.55); text-decoration: none; }
+    .breadcrumb { font-size: var(--wh-fs-sm-plus, 0.875rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); margin-bottom: 1.5rem; }   /* the current-page crumb is plain 14px text (Lc 75 owed): 0.8 read Lc 73, 0.85 reads 79; the link keeps 0.8 (Lc 60 owed) */
+    .breadcrumb a { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); text-decoration: none; }
     .breadcrumb a:hover { color: var(--wh-orange,#F7A21B); }
     .breadcrumb span { margin: 0 8px; }
+    /* M13 (2026-11-09): the page's commitments in four lines before the clauses, the request steps on demand, and the
+       one action a reader who agrees can take. The card is the page's only grouped region (A2/C3 read none before). */
+    .wh-tldr { background: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.04); border: 1px solid rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.12); border-radius: 12px; padding: 16px 20px; margin: 0 0 1.75rem; }
+    .wh-tldr h2 { margin-top: 0 !important; font-size: var(--wh-fs-lead-plus, 1.125rem) !important; }
+    .prose-wh .wh-tldr ul { margin-bottom: 0; }
+    .wh-help { margin: 0 0 1.25rem; } .wh-help summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--wh-cloud,#F4F6FA); font-weight: 600; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, var(--wh-orange,#F7A21B) 0%, var(--wh-orange-dark,#D88A0E) 100%); color: var(--wh-navy,#162032); font-weight: 700; padding: 12px 28px; border-radius: 8px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+    .prose-wh a.cta-btn { color: var(--wh-navy,#162032); text-decoration: none; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px var(--wh-black-55, rgba(0,0,0,0.55)); }
+    @media (prefers-reduced-motion: reduce) { .cta-btn, .cta-btn:hover { transition: none; transform: none; } }
     .dti-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); border-radius: 999px; padding: 8px 18px; font-size: var(--wh-fs-sm-plus, 0.875rem); color: var(--wh-orange-light,#FDB94A); font-weight: 600; }
     .dti-badge svg { flex-shrink: 0; }
       /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
@@ -176,32 +196,68 @@
     </div>
     <p data-i="p_terms_a55a" class="pill mb-4">Terms</p>
     <h1 data-i="p_termsofservice_0c8a" class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Terms of Service</h1>
-    <p class="text-sm text-white/60 mb-8">Last updated <time datetime="2026-05-17">17 May 2026</time></p>
-    <div class="prose-wh"><p>By using WorkHive, you agree to these terms. Plain language; if any clause is unclear, email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> and we will explain.</p>
+    <p class="text-sm text-white/60 mb-8">Last updated <time datetime="2026-11-09">9 Nov 2026</time></p>
+    <!-- PLAIN SENTENCES, SAME TERMS (M13 B3, 2026-11-09). The critic graded 55 sentences here: 14 over twenty words, 5
+         passive, 29 over reading grade 8 (one at 20). Every clause is kept with its meaning, and each legal term of art
+         ("represent", "as is", "merchantability", "fitness for a particular purpose", "indirect, incidental,
+         consequential, or punitive") is kept word for word, in a sentence of its own. Each sentence was graded with
+         tools/b3_ruler.mjs. The "In short" card restates commitments the clauses below already make; it adds none. -->
+    <div class="prose-wh"><p>By using WorkHive, you agree to these terms. We wrote them in plain language. If a clause is unclear, email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> and we will explain.</p>
+
+<section class="wh-tldr" aria-labelledby="tldr-h">
+  <h2 id="tldr-h">In short</h2>
+  <ul>
+    <li>Every maintenance tool is free for workers, and it stays free.</li>
+    <li>You own the data you enter.</li>
+    <li>AI answers are for information. Check them before you act.</li>
+    <li>We offer WorkHive "as is", and we limit our liability.</li>
+  </ul>
+</section>
 
 <h2 data-i="p_whatworkhiveis_e1c3">What WorkHive is</h2>
-<p>WorkHive is a free industrial intelligence platform operated by WorkHive Engineering Services (DTI Business Name 8080496), a sole proprietorship registered in the Philippines and owned by Ian Lumayno Beronio. The platform provides digital tools for industrial maintenance, reliability, engineering design, and AI-assisted work for Filipino industrial workers.</p>
+<p>WorkHive is a free platform for Filipino plant workers. WorkHive Engineering Services runs it. It is a sole proprietorship in the Philippines. Its DTI Business Name is 8080496. Ian Lumayno Beronio owns it.</p>
+<p>It gives you tools for maintenance, reliability and engineering design. It also gives you an AI work assistant.</p>
 
 <h2 data-i="p_freeattheworkertier_d44d">Free at the worker tier</h2>
-<p>All core platform features (Logbook, PM Scheduler, Inventory, Skill Matrix, Engineering Design, AI Work Assistant, Day Planner, Voice Journal, Asset Hub, Project Manager, Community, Achievements) are free at the worker tier and will remain free. No credit card is required to use these features. There is no trial period that ends, no per-user license, no usage cap that triggers a paywall.</p>
-<p>WorkHive may in the future add optional premium add-ons at the enterprise tier. Those add-ons, if they appear, will be clearly labelled, will not gate worker-level access to existing free features, and will require explicit opt-in.</p>
-      <p><strong data-i="p_themarketplaceistheoneplacem_c9e1">The Marketplace is the one place money already changes hands.</strong> A service provider who wants to sell work through the Marketplace buys service credits from WorkHive, paid in GCash, and WorkHive records the amount, the method and your GCash reference so the top-up can be verified. That is separate from everything listed above: it is optional, nobody needs it to use any maintenance tool, and no maintenance tool is behind it. Credits are not a subscription and buy no additional platform features.</p>
+<p>These core features are free at the worker tier, and they will stay free:</p>
+<ul>
+  <li>Logbook, PM Scheduler and Inventory</li>
+  <li>Skill Matrix and Engineering Design</li>
+  <li>AI Work Assistant, Day Planner and Voice Journal</li>
+  <li>Asset Hub and Project Manager</li>
+  <li>Community and Achievements</li>
+</ul>
+<p>You need no credit card to use them. There is no trial that ends. There is no per-user license. No usage cap ever triggers a paywall.</p>
+<p>WorkHive may later add optional premium add-ons at the enterprise tier. If they appear, we will label them clearly. They will not lock workers out of any free feature that exists today. You will have to opt in to them.</p>
+      <p><strong data-i="p_themarketplaceistheoneplacem_c9e1">The Marketplace is the one place money already changes hands.</strong> A service provider who sells work there buys service credits from WorkHive. They pay in GCash. WorkHive records the amount, the method and your GCash reference. This lets us check the top-up.</p>
+<p>This is separate from everything above. It is optional. You never need it to use a maintenance tool. No maintenance tool sits behind it. Credits are not a subscription. They buy no extra platform features.</p>
 
 <h2 data-i="p_eligibility_31fa">Eligibility</h2>
-<p>WorkHive is for people of legal working age. By creating an account you represent that you are at least 18 years old, the age Philippine labor law sets for hazardous work, which industrial maintenance is. WorkHive does not verify age and relies on this representation; an employer deploying WorkHive remains responsible for its own workforce rules.</p>
+<p>WorkHive is for people of legal working age. By creating an account, you represent that you are at least 18 years old. Philippine labor law sets 18 as the age for hazardous work. Industrial maintenance is hazardous work.</p>
+<p>WorkHive does not check your age. We rely on this representation. An employer that uses WorkHive is still responsible for its own staff rules.</p>
 
 <h2 data-i="p_youraccount_4ab2">Your account</h2>
 <ul>
   <li data-i="p_youareresponsibleforprovidin_c210">You are responsible for providing accurate information when you sign up.</li>
   <li data-i="p_youareresponsibleforthesecur_79a9">You are responsible for the security of your password.</li>
   <li data-i="p_youmaynotimpersonateanotherp_b3c5">You may not impersonate another person or organization.</li>
-  <li data-i="p_youmaynotshareyouraccountwit_4e43">You may not share your account with others; each worker should have their own account so that platform records correctly attribute entries.</li>
-  <li>If you discover unauthorized access to your account, notify us immediately at <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a>.</li>
+  <li data-i="p_youmaynotshareyouraccountwit_4e43">You may not share your account. Each worker should have their own account. That way, records name the right person for each entry.</li>
+  <li>Did someone use your account without permission? Email us at once at <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a>.</li>
 </ul>
 
 <h2 data-i="p_yourdataandcontent_54d0">Your data and content</h2>
-<p>You retain ownership of all data and content you enter into WorkHive (logbook entries, asset records, skill matrix evidence, etc.). WorkHive owns the platform software, branding, and aggregated anonymous analytics. You grant WorkHive a limited license to store, process, and display your data in order to deliver the platform features to you and your hive members.</p>
-<p>You may request an export of your data or the deletion of your account at any time by emailing <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with the subject line "Data Rights Request". We handle these by hand today rather than through a button in the app; once a deletion is processed, your personal data is purged per the <a data-i="p_privacypolicy_9db1" href="/privacy-policy/">Privacy Policy</a>.</p>
+<p>You own all the data and content you enter. That includes logbook entries, asset records and skill matrix evidence. WorkHive owns the platform software, branding, and aggregated anonymous analytics.</p>
+<p>You give WorkHive a limited license to store, process and show your data. This is only so we can run the features for you and your hive.</p>
+<p>You can ask for an export of your data at any time. You can also ask us to delete your account. Either way, email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with the subject line "Data Rights Request".</p>
+<p>Today we handle these requests by hand, not with a button in the app. Once we process a deletion, we purge your personal data. We do it as the <a data-i="p_privacypolicy_9db1" href="/privacy-policy/">Privacy Policy</a> says.</p>
+<details class="wh-help">
+  <summary>How to send a data rights request</summary>
+  <ul>
+    <li>Email admin@workhiveph.com from the address on your account.</li>
+    <li>Put "Data Rights Request" in the subject line.</li>
+    <li>Say what you want: an export of your data, or your account deleted.</li>
+  </ul>
+</details>
 
 <h2 data-i="p_acceptableuse_009a">Acceptable use</h2>
 <p data-i="p_youagreenottouseworkhiveto_3eee">You agree NOT to use WorkHive to:</p>
@@ -210,43 +266,54 @@
   <li data-i="p_attempttoaccessanotherhivesd_496d">Attempt to access another hive's data without explicit permission.</li>
   <li data-i="p_reverseengineerdecompileorat_9eae">Reverse engineer, decompile, or attempt to extract the platform source code.</li>
   <li data-i="p_runautomatedscrapersorbotsag_e6f0">Run automated scrapers or bots against the platform.</li>
-  <li data-i="p_usetheaiworkassistanttogener_2fa4">Use the AI Work Assistant to generate content that violates Philippine laws.</li>
+  <li data-i="p_usetheaiworkassistanttogener_2fa4">Use the AI Work Assistant to make content that breaks Philippine law.</li>
 </ul>
 
 <h2 data-i="p_aiworkassistantdisclaimers_8103">AI Work Assistant disclaimers</h2>
-<p data-i="p_theaiworkassistantprovidesin_26d3">The AI Work Assistant provides informational responses based on your hive data and general knowledge. It is NOT a substitute for:</p>
+<p data-i="p_theaiworkassistantprovidesin_26d3">The AI Work Assistant gives answers for information only. It draws on your hive data and general knowledge. It is NOT a substitute for:</p>
 <ul>
   <li data-i="p_oemservicemanualsforspecific_5558">OEM service manuals for specific equipment.</li>
   <li data-i="p_doleoshsrequiredsafetyproced_7d01">DOLE OSHS-required safety procedures and permits.</li>
-  <li data-i="p_licensedprofessionalmechanic_69ca">Licensed Professional Mechanical Engineer (PME) or Professional Electrical Engineer (PEE) sign-off on engineering design.</li>
+  <li data-i="p_licensedprofessionalmechanic_69ca">A licensed PME or PEE signing off on engineering design. PME and PEE mean Professional Mechanical and Professional Electrical Engineer.</li>
   <li data-i="p_medicallegalorotherprofessio_70a4">Medical, legal, or other professional advice.</li>
 </ul>
-<p>You are responsible for verifying any AI-generated suggestion against the relevant manual, standard, or professional judgment before acting on it. WorkHive is not liable for outcomes from acting on AI suggestions without proper verification.</p>
+<p>Before you act on an AI suggestion, check it. Check it against the right manual, standard or professional judgment. You are responsible for that check. WorkHive is not liable if you act on one without proper checks.</p>
 
 <h2 data-i="p_serviceavailability_3d34">Service availability</h2>
-<p>WorkHive aims for high availability but does not guarantee uninterrupted access. The platform may be down for maintenance, infrastructure issues, or causes beyond our control. We are not liable for any indirect losses resulting from temporary unavailability.</p>
+<p>WorkHive aims for high availability but does not guarantee uninterrupted access. The platform may go down. This can be for maintenance, outages, or causes beyond our control. We are not liable for any indirect losses while it is down.</p>
 
 <h2 data-i="p_limitationofliability_b1a6">Limitation of liability</h2>
-<p>WorkHive is provided "as is" without warranties of merchantability or fitness for a particular purpose. To the maximum extent permitted by Philippine law, WorkHive Engineering Services and its operators are not liable for any indirect, incidental, consequential, or punitive damages arising from your use of the platform. Our maximum aggregate liability is limited to the amount you paid for the service in the 12 months preceding the claim, which for a free user is zero pesos.</p>
+<p>We provide WorkHive "as is". We give no warranty of merchantability. We give no warranty of fitness for a particular purpose.</p>
+<p>The limits below apply to the maximum extent Philippine law permits. This covers WorkHive Engineering Services and its operators. They are not liable for any of these damages from your use of WorkHive:</p>
+<ul>
+  <li>Indirect damages</li>
+  <li>Incidental damages</li>
+  <li>Consequential damages</li>
+  <li>Punitive damages</li>
+</ul>
+<p>Our total liability is never more than what you paid us. That means what you paid in the 12 months before the claim. For a free user, that is zero pesos.</p>
 
 <h2 data-i="p_changestotheseterms_3c62">Changes to these terms</h2>
-<p>We may update these terms from time to time. Material changes will be announced on the platform at least 30 days before they take effect. Your continued use after the effective date constitutes acceptance of the updated terms.</p>
+<p>We may update these terms from time to time. We will announce any material change on the platform. We will do so at least 30 days before it takes effect. If you keep using WorkHive after that date, you accept the new terms.</p>
 
 <h2 data-i="p_termination_2ee8">Termination</h2>
-<p>You may stop using WorkHive at any time, and request deletion of your account by emailing <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with the subject line "Data Rights Request". We may suspend or terminate accounts that violate these terms or applicable laws, with reasonable notice where practical.</p>
+<p>You may stop using WorkHive at any time. You may also ask us to delete your account. Email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with the subject line "Data Rights Request".</p>
+<p>We may suspend or close an account that breaks these terms or the law. Where practical, we will give reasonable notice first.</p>
 
 <h2 data-i="p_governinglaw_4676">Governing law</h2>
-<p data-i="p_thesetermsaregovernedbythela_450b">These terms are governed by the laws of the Republic of the Philippines. Any disputes will be subject to the jurisdiction of the courts of the Philippines.</p>
+<p data-i="p_thesetermsaregovernedbythela_450b">The laws of the Republic of the Philippines govern these terms. The courts of the Philippines have jurisdiction over any dispute.</p>
 
 <h2 data-i="p_contact_b374">Contact</h2>
-<p>Email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with any question about these terms. Owner: WorkHive Engineering Services (DTI Business Name 8080496), Ian Lumayno Beronio, sole proprietor.</p>
+<p>Email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with any question about these terms. The owner is WorkHive Engineering Services, DTI Business Name 8080496. Its sole proprietor is Ian Lumayno Beronio.</p>
+<p><a href="/?signup=1" class="cta-btn" data-i="jointhehive">Join the Hive</a></p>
+<p class="wh-source-chip" style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-text-muted, rgba(255, 255, 255, 0.80));margin:2rem 0 0;line-height:1.5;">Issued by WorkHive Engineering Services, DTI Business Name 8080496. Last updated <time datetime="2026-11-09">9 Nov 2026</time>.</p>
 </div>
   </div>
 </article></main>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-09">9 Nov 2026</time></p>
     <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a data-i="p_home_70f8" href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a data-i="p_learn_b048" href="/learn/" class="hover:text-white/60 transition-colors">Learn</a>

@@ -38,7 +38,7 @@
       },
       "inLanguage": "en-PH",
       "datePublished": "2026-05-17",
-      "dateModified": "2026-08-25"
+      "dateModified": "2026-11-09"
     },
     {
       "@type": "BreadcrumbList",
@@ -63,10 +63,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
+    /* wh-learn-contrast-remap: the learn pages load Tailwind from the CDN, so they miss the contrast
+       remap wh-tw.css applies app-wide. 12px byline text at /45 measured 4.27:1 against the
+       4.5:1 it owes. body-scoped (0,1,1) so it wins over the CDN utility whatever the order. */
+    body .text-white\/45 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/50 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/55 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/60 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/65 { color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
+    body .text-white\/70 { color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
+    body .text-white\/75 { color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     * { font-family: 'Poppins', sans-serif; } body { background: var(--wh-navy,#162032); color: var(--wh-cloud,#F4F6FA); }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
-    .prose-wh { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); font-size: var(--wh-fs-lead, 1.05rem); line-height: 1.8; }
+    .prose-wh { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); font-size: var(--wh-fs-lead, 1.05rem); line-height: 1.8; }
     .prose-wh h2 { color: var(--wh-cloud,#F4F6FA); font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; margin-top: 2.5rem; margin-bottom: 0.75rem; }
     .prose-wh h3 { color: var(--wh-cloud,#F4F6FA); font-size: var(--wh-fs-lead-plus, 1.125rem); font-weight: 700; margin-top: 1.75rem; margin-bottom: 0.5rem; }
     .prose-wh p { margin-bottom: 1rem; }
@@ -81,16 +91,26 @@
        this is the primary nav a gloved hand reaches for. inline-flex + min-height gives a real target; the
        text does not move, because the header row is already items-center. The FOOTER links are left at
        their spacing-exception size on purpose - see .tmp/fix_public_pages_floor.py. */
-    nav a.nav-link { font-size: var(--wh-fs-sm-plus, 0.875rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.65); font-weight: 500;
+    nav a.nav-link { font-size: var(--wh-fs-sm-plus, 0.875rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); font-weight: 500;
       display: inline-flex; align-items: center; min-height: 44px; }
     /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the header row and its nav WRAP - the links drop under the
        logo instead of running the page sideways. At normal sizes nothing moves: a row only wraps when it does not fit. */
     header > div:has(> nav) { flex-wrap: wrap; row-gap: 0.5rem; } header nav:has(> a.nav-link) { flex-wrap: wrap; row-gap: 0.25rem; }
     nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
-    .breadcrumb { font-size: var(--wh-fs-sm-plus, 0.875rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.55); margin-bottom: 1.5rem; }
-    .breadcrumb a { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.55); text-decoration: none; }
+    .breadcrumb { font-size: var(--wh-fs-sm-plus, 0.875rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); margin-bottom: 1.5rem; }   /* the current-page crumb is plain 14px text (Lc 75 owed): 0.8 read Lc 73, 0.85 reads 79; the link keeps 0.8 (Lc 60 owed) */
+    .breadcrumb a { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); text-decoration: none; }
     .breadcrumb a:hover { color: var(--wh-orange,#F7A21B); }
     .breadcrumb span { margin: 0 8px; }
+    /* M13 (2026-11-09): the page's commitments in four lines before the clauses, the request steps on demand, and the
+       one action a reader who agrees can take. The card is the page's only grouped region (A2/C3 read none before). */
+    .wh-tldr { background: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.04); border: 1px solid rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.12); border-radius: 12px; padding: 16px 20px; margin: 0 0 1.75rem; }
+    .wh-tldr h2 { margin-top: 0 !important; font-size: var(--wh-fs-lead-plus, 1.125rem) !important; }
+    .prose-wh .wh-tldr ul { margin-bottom: 0; }
+    .wh-help { margin: 0 0 1.25rem; } .wh-help summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--wh-cloud,#F4F6FA); font-weight: 600; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, var(--wh-orange,#F7A21B) 0%, var(--wh-orange-dark,#D88A0E) 100%); color: var(--wh-navy,#162032); font-weight: 700; padding: 12px 28px; border-radius: 8px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+    .prose-wh a.cta-btn { color: var(--wh-navy,#162032); text-decoration: none; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px var(--wh-black-55, rgba(0,0,0,0.55)); }
+    @media (prefers-reduced-motion: reduce) { .cta-btn, .cta-btn:hover { transition: none; transform: none; } }
     .dti-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); border-radius: 999px; padding: 8px 18px; font-size: var(--wh-fs-sm-plus, 0.875rem); color: var(--wh-orange-light,#FDB94A); font-weight: 600; }
     .dti-badge svg { flex-shrink: 0; }
       /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
@@ -176,38 +196,58 @@
     </div>
     <p data-i="p_privacy_cf01" class="pill mb-4">Privacy</p>
     <h1 data-i="p_privacypolicy_9db1" class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Privacy Policy</h1>
-    <p class="text-sm text-white/60 mb-8">Last updated <time datetime="2026-08-25">25 Aug 2026</time></p>
-    <div class="prose-wh"><p data-i="p_thispageexplainswhatdatawork_f4a1">This page explains what data WorkHive collects, how we use it, and your rights as a user. Plain language; no dark patterns.</p>
+    <p class="text-sm text-white/60 mb-8">Last updated <time datetime="2026-11-09">9 Nov 2026</time></p>
+    <!-- PLAIN SENTENCES, SAME POLICY (M13 B3, 2026-11-09). The critic graded 45 sentences here: 12 over twenty words, 9
+         passive, 22 over reading grade 8. Every commitment is kept with its meaning: what is collected and what is not,
+         the GCash exception, the uses, the never-sell / never-advertise / never-share promises, the AI contract terms,
+         the voice-audio rule, who data is shared with, the six rights and how to use them, cookies and GA4, the 30-day
+         purge, the 10/15-year compliance retention, the 30-day notice of change, and the controller. Each sentence was
+         graded with tools/b3_ruler.mjs. The "In short" card restates commitments the sections below make; it adds none. -->
+    <div class="prose-wh"><p data-i="p_thispageexplainswhatdatawork_f4a1">This page explains what data WorkHive collects, how we use it, and your rights. Plain language; no dark patterns.</p>
+
+<section class="wh-tldr" aria-labelledby="tldr-h">
+  <h2 id="tldr-h">In short</h2>
+  <ul>
+    <li>We collect only what WorkHive needs to work.</li>
+    <li>We never sell your data or use it for ads.</li>
+    <li>Your hive's data stays in your hive unless you agree.</li>
+    <li>You can ask to see, export, fix or delete your data.</li>
+  </ul>
+</section>
 
 <h2 data-i="p_whatwecollect_c48b">What we collect</h2>
 <p data-i="p_workhivecollectsonlythedatan_be02">WorkHive collects only the data needed to operate the platform:</p>
 <ul>
   <li><strong data-i="p_emailaddress_c94d">Email address</strong> when you sign up for early access or create an account.</li>
   <li><strong data-i="p_accountprofile_50ab">Account profile</strong> (display name, role, hive membership) you provide during sign-up.</li>
-  <li><strong data-i="p_operationaldatayouenter_a8f0">Operational data you enter</strong> in your hive: logbook entries, PM completions, asset records, skill matrix entries, voice journal recordings, fault notes.</li>
-  <li><strong data-i="p_technicalmetadata_b526">Technical metadata</strong>: time stamps, IP address (for security audit), browser type, page views.</li>
+  <li><strong data-i="p_operationaldatayouenter_a8f0">Operational data you enter</strong> in your hive. That covers logbook entries, PM tasks done, asset records and skill matrix entries. It also means voice journal text and fault notes.</li>
+  <li><strong data-i="p_technicalmetadata_b526">Tech data</strong>: time stamps, your IP address for security checks, your browser type, and page views.</li>
 </ul>
-<p data-i="p_wedonotcollectgovernmentidsc_1882">We do not collect government IDs, card or bank credentials, location data, or any data not needed to make WorkHive work. WorkHive does not process payments: no money moves through the platform.</p>
-      <p><strong data-i="p_oneexceptionanditisworthnami_9fea">One exception, and it is worth naming.</strong> The Marketplace lets a service provider buy service credits and settle a job, and those payments happen in GCash between people, outside WorkHive. When one does, we record what is needed to verify it: the amount, the method, and the GCash reference number you file. That is the only payment-related data on the platform, it exists so a top-up or a settlement can be checked against what actually arrived, and none of it is a card, an account number or a banking credential. Using the Marketplace is optional; every maintenance tool on WorkHive is free and records nothing of the kind.</p>
+<p data-i="p_wedonotcollectgovernmentidsc_1882">We do not collect government IDs, card or bank details, or location data. We collect nothing else that WorkHive does not need to work. WorkHive does not process payments: no money moves through the platform.</p>
+      <p><strong data-i="p_oneexceptionanditisworthnami_9fea">One exception, and it is worth naming.</strong> On the Marketplace, a provider can buy service credits. A provider can also settle a job there. Those payments happen in GCash, between people, outside WorkHive.</p>
+<p>When one happens, we record only what we need to check it. That is the amount, the method and the GCash reference number you file.</p>
+<p>This is the only data on WorkHive that touches a payment. We keep it so anyone can check a top-up or a payment against what really arrived. None of it is a card, an account number or a bank login.</p>
+<p>The Marketplace is optional. Every maintenance tool on WorkHive is free and records nothing like this.</p>
 
 <h2 data-i="p_howweuseit_7f88">How we use it</h2>
 <ul>
   <li data-i="p_tocreateyouraccountandscopey_24a8">To create your account and scope your access to the hives you have joined.</li>
-  <li data-i="p_todelivertheplatformfeatures_d21f">To deliver the platform features (Logbook, PM Scheduler, Inventory, Skill Matrix, AI Assistant, etc.).</li>
+  <li data-i="p_todelivertheplatformfeatures_d21f">To run the tools you use, from the Logbook to the AI Assistant.</li>
   <li data-i="p_tosendtransactionalemailsacc_2a30">To send transactional emails (account confirmation, password reset, hive invitations).</li>
   <li data-i="p_toimprovetheplatformthrougha_4c16">To improve the platform through aggregated, anonymized usage analytics.</li>
 </ul>
-<p data-i="p_weneversellyourdataweneverus_9edc">We never sell your data. We never use your operational data for advertising. We never share your hive data with another hive without your explicit consent.</p>
+<p data-i="p_weneversellyourdataweneverus_9edc">We never sell your data. We never use your operational data for advertising. We never give your hive data to another hive unless you clearly agree.</p>
 
 <h2 data-i="p_aiworkassistantandyourdata_ade9">AI Work Assistant and your data</h2>
-<p>The AI Work Assistant operates on your hive data to answer your questions. Inputs and outputs are scoped to your hive. We use third-party AI providers (large language model services) under contracts that prohibit them from training their general models on your plant data. Voice recordings used by the Voice Journal feature are not stored at all: the audio is transcribed and immediately discarded, and only the text transcript is saved to your account. <!-- T137 (2026-08-25): corrected from an aspirational '90-day retention' claim - the product (voice-journal.html, voice_journal_entries schema, voice-transcribe fn) has NO audio storage path; the page's own disclosure ('your voice recording is not kept') was code-verified. A policy must describe the system that exists. --></p>
+<p>The AI Work Assistant operates on your hive data to answer your questions. Inputs and outputs are scoped to your hive. Our AI providers run large language models for us. Our contracts forbid them to train their general models on your plant data.</p>
+<p>The Voice Journal does not keep your voice recordings at all. It turns the audio into text and deletes the audio right away. Only the text goes into your account. <!-- T137 (2026-08-25): corrected from an aspirational '90-day retention' claim - the product (voice-journal.html, voice_journal_entries schema, voice-transcribe fn) has NO audio storage path; the page's own disclosure ('your voice recording is not kept') was code-verified. A policy must describe the system that exists. --></p>
 
 <h2 data-i="p_datasharing_f015">Data sharing</h2>
 <p data-i="p_wesharedataonlywith_05fc">We share data only with:</p>
 <ul>
-  <li><strong data-i="p_membersofyourhive_8bdd">Members of your hive</strong>: per the role-based access controls you and your supervisor set up.</li>
-  <li data-wh-disclosure><strong data-i="p_serviceproviders_705d">Service providers</strong> (Supabase for database, AI providers for the assistant, email delivery providers) under contracts that bind them to confidentiality.</li>
-  <li><strong data-i="p_lawenforcement_cca3">Law enforcement</strong> when legally compelled by valid Philippine subpoena or court order.</li>
+  <li><strong data-i="p_membersofyourhive_8bdd">Members of your hive</strong>: they see what the roles you and your supervisor set up allow.</li>
+  <li data-wh-disclosure><strong data-i="p_serviceproviders_705d">Service providers</strong> who run parts of WorkHive for us. Their contracts bind them to keep your data private. They are Supabase (database), our AI providers and our email senders.</li>
+  <li><strong data-i="p_lawenforcement_cca3">Law enforcement</strong>, only when the law compels us. That means a valid Philippine subpoena or court order.</li>
 </ul>
 
 <h2 data-i="p_yourrightsunderthephilippine_c5e2">Your rights under the Philippine Data Privacy Act</h2>
@@ -218,32 +258,44 @@
   <li><strong data-i="p_correct_48e0">Correct</strong> inaccurate data.</li>
   <li><strong data-i="p_delete_f6fd">Delete</strong> your account and all associated personal data.</li>
   <li><strong data-i="p_object_2883">Object</strong> to specific uses of your data.</li>
-  <li><strong data-i="p_fileacomplaint_9b3f">File a complaint</strong> with the National Privacy Commission if you believe your rights have been violated.</li>
+  <li><strong data-i="p_fileacomplaint_9b3f">Complain</strong> to the National Privacy Commission if you think we broke these rights.</li>
 </ul>
-<p>To exercise any of these rights, email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with the subject line "Data Rights Request".</p>
+<p>To use any of these rights, email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a>. Put "Data Rights Request" in the subject line.</p>
+<details class="wh-help">
+  <summary>How to send a data rights request</summary>
+  <ul>
+    <li>Email admin@workhiveph.com from the address on your account.</li>
+    <li>Put "Data Rights Request" in the subject line.</li>
+    <li>Say which right you want to use: access, export, correct, delete or object.</li>
+  </ul>
+</details>
 
 <h2 data-i="p_cookiesandanalytics_9285">Cookies and analytics</h2>
 <!-- T165 (2026-08-25): the previous paragraph said "when we add web analytics in the future, this
      page will be updated" while GA4 was already live on the public pages - a stale denial on a
      legal claim surface. Corrected to describe what actually ships (wh-ga4.js: anonymize_ip,
      no-PII event params, engagement/conversion events, no advertising cookies). -->
-<p>WorkHive uses essential cookies (session, authentication) and Google Analytics 4 on our public pages to understand aggregate usage: page views and engagement events such as viewing or submitting the signup form. Analytics is configured with IP anonymization, and we do not send names, emails, phone numbers, or any of your work records to it. We do not run third-party advertising cookies. Inside the signed-in app, usage events are recorded in our own database (not sent to Google) and are covered by the sections above.</p>
+<p>WorkHive uses essential cookies to keep you signed in. On public pages, Google Analytics 4 counts visits in total. It counts page views and actions such as opening or sending the sign-up form.</p>
+<p>Analytics hides your IP address. We never send it names, emails, phone numbers or any of your work records. We do not use third-party ad cookies. Inside the app, we log usage in our own database, not in Google. The sections above cover that data too.</p>
 
 <h2 data-i="p_dataretention_15cb">Data retention</h2>
-<p>Account and hive data are retained as long as your account is active. After account deletion, personal data is purged within 30 days; aggregated anonymous statistics may be retained indefinitely. Compliance records (DOLE OSHS, ISO audit logs) are retained per WorkHive's audit-log policy of 10 years for general records and 15 years for incident investigations, even after individual account deletion, in compliance with regulatory requirements.</p>
+<p>We keep account and hive data for as long as your account is open. When you delete your account, we erase your personal data within 30 days. We may keep totals that name no one, with no end date.</p>
+<p>Some records stay after you delete your account. These are compliance records, like DOLE OSHS and ISO audit logs. Our audit-log policy keeps them for 10 years. Records of incident investigations stay for 15 years. This follows what the regulations require.</p>
 
 <h2 data-i="p_changestothispolicy_6150">Changes to this policy</h2>
-<p>Material changes to this Privacy Policy will be announced on the platform and at <a href="/learn/">workhiveph.com/learn/</a> at least 30 days before they take effect. The "Last updated" date at the top of this page reflects the most recent revision.</p>
+<p>We will tell you at least 30 days before any change that matters takes effect. We will post the notice on the platform and at <a href="/learn/">workhiveph.com/learn/</a>. The "Last updated" date at the top shows the latest change.</p>
 
 <h2 data-i="p_contact_b374">Contact</h2>
-<p>Email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> for any privacy question. The data controller is WorkHive Engineering Services (DTI Business Name 8080496), operated by Ian Lumayno Beronio.</p>
+<p>Email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> for any privacy question. The data controller is WorkHive Engineering Services, DTI Business Name 8080496. Ian Lumayno Beronio runs it.</p>
+<p><a href="/?signup=1" class="cta-btn" data-i="jointhehive">Join the Hive</a></p>
+<p class="wh-source-chip" style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-text-muted, rgba(255, 255, 255, 0.80));margin:2rem 0 0;line-height:1.5;">Issued by WorkHive Engineering Services, DTI Business Name 8080496. Last updated <time datetime="2026-11-09">9 Nov 2026</time>.</p>
 </div>
   </div>
 </article></main>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-25">25 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-09">9 Nov 2026</time></p>
     <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a data-i="p_home_70f8" href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a data-i="p_learn_b048" href="/learn/" class="hover:text-white/60 transition-colors">Learn</a>

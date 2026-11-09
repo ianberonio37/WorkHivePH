@@ -6,9 +6,9 @@ Source: https://workhiveph.com/about/
 
 About
 
-Last updated 17 May 2026
+Last updated 9 Nov 2026
 
-WorkHive is a free industrial intelligence platform built for every Filipino industrial worker, from field to management. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant. All free at the worker tier, forever.
+WorkHive is a free platform for Filipino plant workers, from the shop floor to the head office. You get a logbook, a PM planner, a parts list and a skill matrix. You also get design calculators and an AI work assistant. All of it stays free for workers, for good.
 
 DTI Registered Business Name 8080496
 
@@ -16,17 +16,21 @@ Valid 2026 to 2031 · National Scope
 
 ## Why WorkHive exists
 
-Every Philippine plant rediscovers the same problems independently. A fault solved in Cabuyao in 2023 gets rediscovered in Cebu in 2026, costing the second plant 40 hours of troubleshooting and PHP 200,000 of downtime. The knowledge exists; it just is not shared.
+Every plant in the country keeps solving the same problems on its own. A fault one plant fixed in Cabuyao in 2023 comes back in Cebu in 2026. The second plant then spends 40 hours and PHP 200,000 of downtime to find the same fix. The know-how exists. It just never gets shared.
 
-Meanwhile the AI revolution is reshaping work faster than the Philippine industrial workforce can prepare for. Filipino technicians, engineers, and operators are at risk of being left behind unless they have the tools to document their expertise, build verifiable career portfolios, and use AI to extend their capabilities instead of be replaced by it.
+At the same time, AI is changing work faster than our plants can prepare. Our techs, engineers and operators need a way to write down what they know. They need a work record that others can check. They need AI that adds to their skills, not AI that takes their jobs.
 
-WorkHive is built to do both: connect Philippine industrial knowledge across plants, and give every worker the tools to stay employable in the AI era.
+WorkHive does both: it links what plants know, and it helps every worker stay hired in the AI era.
 
 ## Who built it
 
-**Ian Lumayno Beronio** is the founder and operator of WorkHive Engineering Services. WorkHive is registered with the Department of Trade and Industry of the Philippines under Business Name No. 8080496, valid 6 April 2026 to 6 April 2031, with National scope.
+**Ian Lumayno Beronio** founded WorkHive Engineering Services and runs it. The DTI lists WorkHive under Business Name No. 8080496. The DTI is the Department of Trade and Industry. The name is valid from 6 April 2026 to 6 April 2031, with national scope.
 
-The platform is operated as a sole proprietorship and stays free at the worker tier as a matter of mission, not a temporary promotion. Future monetization, if it happens, will be transparent, opt-in, and scoped only to enterprise-tier add-ons that do not gate worker-level access.
+### How to check this registration yourself
+
+Open the DTI business name search at bnrs.dti.gov.ph. Type WorkHive or the number 8080496. The record shows the owner, the scope and the dates it is valid.
+
+Ian runs the platform as a sole owner. It stays free for workers because that is the mission, not a short-term promo. If WorkHive ever charges, it will say so up front. Any fee will be for extra tools that big firms can choose to buy. Nothing a worker uses today will move behind a paywall.
 
 ## Our positioning
 
@@ -39,12 +43,25 @@ WorkHive closes four gaps that hold Filipino industry back:
 
 ## Audience
 
-WorkHive serves the full Filipino industrial workforce: field technicians, operators, helpers, reliability engineers, design engineers, project engineers, supervisors, planners, plant managers, operations managers, suppliers, contractors, new engineering graduates entering the labor market, and existing workers expanding capabilities with AI. We are not a tool only for maintenance technicians; we are a tool for every role on the industrial floor and in the engineering office.
+WorkHive is for everyone who keeps a plant running:
+
+- Field technicians, operators and helpers
+- Reliability, design and project engineers
+- Supervisors, planners, and plant and operations managers
+- Suppliers and contractors
+- New engineering graduates looking for their first job
+- Workers who want AI to add to what they can do
+
+It is not only for maintenance techs. It is for every role on the floor and in the engineering office.
+
+[Join the Hive](https://workhiveph.com/?signup=1)
 
 ## Contact
 
 For partnerships, press, association memberships, or general inquiries: [admin@workhiveph.com](mailto:admin@workhiveph.com).
 
-For technical questions about the platform: open the AI Work Assistant in your hive, or email the same address.
+Have a question about the platform? Ask the AI Work Assistant in your hive, or email the same address.
 
-<!-- md-twin source-sha: f2ff220f25b46c99 -->
+Source: the DTI business name record, No. 8080496. Page last updated 9 November 2026.
+
+<!-- md-twin source-sha: 08eafa5c82cc2be2 -->

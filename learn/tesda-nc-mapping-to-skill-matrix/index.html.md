@@ -135,4 +135,4 @@ TESDA NC mapping is not mandatory, but it is highly recommended for Philippine i
 - TESDA. (2022). TESDA National Certificate (NC) Handbook.
 - DOLE. (2020). Occupational Safety and Health Standards (OSHS).
 
-<!-- md-twin source-sha: b7c7c9b2d2b2024f -->
+<!-- md-twin source-sha: 0cc5f18de60a1984 -->

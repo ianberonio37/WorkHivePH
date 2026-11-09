@@ -136,4 +136,4 @@ Each site is its own hive. The parent company can create a hive group that lets 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 4893a58109d119c4 -->
+<!-- md-twin source-sha: 5985832448dc7d57 -->
