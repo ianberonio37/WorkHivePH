@@ -1,10 +1,17 @@
 {
- "last_submit_at": "2026-11-04T07:23:29+00:00",
- "count": 1,
+ "last_submit_at": "2026-11-09T06:14:40+00:00",
+ "count": 8,
  "mode": "changed",
  "response": 200,
  "urls": [
-  "https://workhiveph.com/feedback/"
+  "https://workhiveph.com/learn/what-is-oee-how-to-calculate/",
+  "https://workhiveph.com/learn/free-pm-checklist-templates/",
+  "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/",
+  "https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/",
+  "https://workhiveph.com/learn/gamifying-maintenance-for-engagement/",
+  "https://workhiveph.com/learn/ph-industrial-benchmarks-intelligence/",
+  "https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/",
+  "https://workhiveph.com/learn/maintenance-metrics-reliability-guide/"
  ],
  "pushed": {
   "https://workhiveph.com/": {
@@ -31,10 +38,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-09T06:14:40+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/learn/ai-quality-and-roi-stage-2-plants/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -117,21 +123,19 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/": {
-   "at": "2026-10-29T07:38:32+00:00",
+   "at": "2026-11-09T06:14:40+00:00",
    "response": 200,
    "mode": "changed"
   },
   "https://workhiveph.com/learn/free-pm-checklist-templates/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-09T06:14:40+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/learn/gamifying-maintenance-for-engagement/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-09T06:14:40+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/learn/industrial-community-of-practice-philippines/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -157,7 +161,7 @@
    "mode": "changed"
   },
   "https://workhiveph.com/learn/maintenance-metrics-reliability-guide/": {
-   "at": "2026-10-29T07:38:32+00:00",
+   "at": "2026-11-09T06:14:40+00:00",
    "response": 200,
    "mode": "changed"
   },
@@ -186,10 +190,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/learn/ph-industrial-benchmarks-intelligence/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-09T06:14:40+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/learn/ph-plant-compliance-guide/": {
    "at": "2026-10-29T07:38:32+00:00",
@@ -235,7 +238,7 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/": {
-   "at": "2026-11-03T10:10:10+00:00",
+   "at": "2026-11-09T06:14:40+00:00",
    "response": 200,
    "mode": "changed"
   },
@@ -309,10 +312,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/learn/what-is-oee-how-to-calculate/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-09T06:14:40+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/learn/what-is-workhive-complete-platform-guide/": {
    "at": "2026-10-29T07:38:32+00:00",

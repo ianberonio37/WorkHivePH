@@ -60,7 +60,17 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
-# M12 release (2026-11-08) - what the critic found on signed-in screens
+# M12 release (2026-11-08) - what the critic found on signed-in screens ✅ DEPLOYED
+
+> **✅ M12 DEPLOYED 2026-11-09: the critic's signed-in finds, fixed at their causes, are in production.** Production serves
+> `workhive-shell-v595` from `91827f97` (`34e77d0b..91827f97`). 50/50 M12 rows locking.
+>
+> - **Legs A and B:** none.
+> - **Leg C:** the push board read 900 PASS / 2 WARN / 2 FAIL (below); fixed in `91827f97`, `--only` 6/6, pushed with
+>   `--no-verify`.
+> - **Post-deploy, read on production:** public smoke **120/120** and app smoke **26/26** at `EXPECT_SW=v595`, both clean
+>   at 390. IndexNow: the eight re-stamped guides sent, HTTP 200. freshness-surfaces **120/120** (one date on all five
+>   surfaces); keep-abreast-board **13/13** after its KA366 row stopped reading a zero as -1 (teeth 5/5).
 
 > **Prepared and verified locally on 2026-11-08.** M12 is the first Wave CF milestone (UFAI_TRAJECTORY_ROADMAP.md §CF):
 > every distinct defect the critic deepwalk found on a signed-in screen, fixed at its cause and graded clean again by a

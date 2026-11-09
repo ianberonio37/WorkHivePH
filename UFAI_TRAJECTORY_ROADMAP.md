@@ -70,7 +70,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **↳ CRITIC DEEPWALK (UI/UX extension): 27.9% · 31922 pending · 11359 critiqued · 7222 improving · 87206 receipted findings** — `UFAI_CRITIC_DEEPWALK_ROADMAP.md` / `critic_registry.json`; walk → critique → fix → gate, every trajectory, until 100%.
 
-↳ **KEEP ABREAST** (Wave KA, `tools/freshness_trip.py`) — trips open 0 (0 past grace) · spine within TTL 66/66 · refresh queue 0 · last IndexNow push 2026-11-04 · last SOV never · scoreboard 2026-11-08
+↳ **KEEP ABREAST** (Wave KA, `tools/freshness_trip.py`) — trips open 0 (0 past grace) · spine within TTL 66/66 · refresh queue 0 · last IndexNow push 2026-11-09 · last SOV never · scoreboard 2026-11-09
 
 **PRIORITY QUEUE** (the open book in the order it is worked, the less important LAST - `tools/trajectory_priority.py`, derived from the registry's own facts, never typed; Ian, 2026-10-26: "reprioritize the open trajectories, with less important one to be on the last ... push to production when we achieve a considerable milestone"):
 - **T1 · defects a person meets today** — 9 open · next: BRH509 · BRH510 · BRH511 · BRH512 · BRH513 · OWN62 · BRH515 · BRH517

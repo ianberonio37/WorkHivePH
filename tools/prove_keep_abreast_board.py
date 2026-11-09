@@ -245,7 +245,10 @@ def main() -> int:
     if TEETH:
         head = re.sub(r"trips open \d+", "trips open 999", head)
     m = re.search(r"trips open (\d+) \((\d+) past grace\)", head)
-    agree = bool(m) and int(m.group(1)) == int(rep.get("open") or -1) and int(m.group(2)) == past
+    # ★0 IS AN ANSWER (2026-11-09): `rep.get("open") or -1` turned zero open trips into -1, so this row could only ever pass
+    # while some trip was open - and read the header as STALE on the day every trip was closed.
+    _open = rep.get("open")
+    agree = bool(m) and _open is not None and int(m.group(1)) == int(_open) and int(m.group(2)) == past
     put("KA366", agree, head[:220],
         f"the roadmap header reads trips open {m.group(1) if m else '?'} ({m.group(2) if m else '?'} past grace); the report "
         f"just written says {rep.get('open')} ({past}) - " + ("the line is the generator's" if agree else "the line is STALE or typed")

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-08T04:08:13+00:00",
+  "generated_at": "2026-11-09T06:36:36+00:00",
   "pillars": {
     "SEO": {
       "achieved": 723,
@@ -247,7 +247,7 @@
     "entity resolvable (sameAs)": "index.html's Organization declares sameAs: [] - no profile URL to resolve",
     "deployed to production": "HEAD sitemap.xml 200, robots.txt 200, ea75de4e1f4161c869d7a30bcbad9660.txt 200",
     "GSC + Bing reporting": "Search Console: credential absent, report none; Bing Webmaster: credential absent, report none",
-    "live SOV baseline run": "scored 2026-11-03 (4 days ago, window 35)",
+    "live SOV baseline run": "scored 2026-11-03 (5 days ago, window 35)",
     "off-site channels active": "missing: Reddit, YouTube, G2",
     "third-party listicle inclusion": "none recorded (listicle_inclusions.json)"
   }
