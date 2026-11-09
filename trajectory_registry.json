@@ -1219622,8 +1219622,8 @@
     },
     {
       "id": "CF64",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "C5 Perceptual contrast (APCA Lc) — WCAG 2.x ratio overestimates legibility on DARK backgrounds; APCA scores by lightness AND font size/weight - ai quality and roi stage 2 plants · a signed-out visitor: C5 99% - 1 pass WCAG but miss APCA Lc (worst: \"Total monthly AI cost (",
       "pages": [
@@ -1219739,7 +1219739,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "C5 graded clean on ai quality and roi stage 2 plants for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "C5 graded clean on ai quality and roi stage 2 plants for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:48"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): C5 (Perceptual contrast (APCA Lc) — WCAG 2.x ratio overestimates legibility on DARK backgrounds; APCA scores by lightness AND font size/weight) on learn/ai-quality-and-roi-stage-2-plants/index.html as anon after the find of 2026-09-11 (ai-quality-and-roi-stage-2-plants: C5 99% - 1 pass WCAG but miss APCA Lc (worst: \"Total monthly AI cost (t\" Lc 71/75 at ) - tools/family_rubric_sweep.mjs --anon (learn/ai-quality-and-roi-stage-2-plants/index.html, 2026-11-10T06:48, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1228733,8 +1228740,8 @@
     },
     {
       "id": "CF112",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - ai quality and roi stage 2 plants · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=6",
       "pages": [
@@ -1228847,13 +1228854,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on ai quality and roi stage 2 plants for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on ai quality and roi stage 2 plants for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:48"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/ai-quality-and-roi-stage-2-plants/index.html as anon after the find of 2026-10-13T12:58 (ai-quality-and-roi-stage-2-plants: B1 67% - marketese=0 verboseBlocks=6) - tools/family_rubric_sweep.mjs --anon (learn/ai-quality-and-roi-stage-2-plants/index.html, 2026-11-10T06:48, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF113",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - ai quality and roi stage 2 plants · a signed-out visitor: B3 0% - sentences=64 · >20w=9 · passive=1 · grade>8=23 · worst(37w): \"",
       "pages": [
@@ -1228969,7 +1228983,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on ai quality and roi stage 2 plants for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on ai quality and roi stage 2 plants for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:48"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/ai-quality-and-roi-stage-2-plants/index.html as anon after the find of 2026-09-11 (ai-quality-and-roi-stage-2-plants: B3 0% - sentences=64 · >20w=9 · passive=1 · grade>8=23 · worst(37w): \"Three metrics m) - tools/family_rubric_sweep.mjs --anon (learn/ai-quality-and-roi-stage-2-plants/index.html, 2026-11-10T06:48, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1233184,8 +1233205,8 @@
     },
     {
       "id": "CF155",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - joining and growing your hive · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=4",
       "pages": [
@@ -1233298,13 +1233319,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on joining and growing your hive for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on joining and growing your hive for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:48"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/joining-and-growing-your-hive/index.html as anon after the find of 2026-10-13T12:58 (joining-and-growing-your-hive: B1 67% - marketese=0 verboseBlocks=4) - tools/family_rubric_sweep.mjs --anon (learn/joining-and-growing-your-hive/index.html, 2026-11-10T06:48, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF156",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - joining and growing your hive · a signed-out visitor: B3 0% - sentences=86 · >20w=10 · passive=3 · grade>8=29 · worst(32w): ",
       "pages": [
@@ -1233420,7 +1233448,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on joining and growing your hive for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on joining and growing your hive for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:48"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/joining-and-growing-your-hive/index.html as anon after the find of 2026-09-11 (joining-and-growing-your-hive: B3 0% - sentences=86 · >20w=10 · passive=3 · grade>8=29 · worst(32w): \"Both halves of the) - tools/family_rubric_sweep.mjs --anon (learn/joining-and-growing-your-hive/index.html, 2026-11-10T06:48, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {

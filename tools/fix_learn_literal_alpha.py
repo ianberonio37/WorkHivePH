@@ -77,12 +77,19 @@ DECL = re.compile(
 HEX_RULES = [
     (re.compile(r"\.prose-wh\s+(?:code|pre)\b"), "#FDB94A", "#FED38D",
      "formula blocks: Lc 67 on the code panel's ground vs APCA's Lc 75 content floor"),
+    # ★THE SAME FORMULA, SCOPED DIFFERENTLY (M13 C5, 2026-11-09). ai-quality-and-roi styles its formula as a bare `pre {`
+    # (no .prose-wh), so the rule above never matched it: "cost you can see ÷ answers your team marked useful" read Lc 71
+    # at 17px against the 75 content floor - the one C5 row still open on the signed-out face.
+    (re.compile(r"(?:^|[\s,;}])(?:pre|code)\s*$"), "#FDB94A", "#FED38D",
+     "bare pre/code formula blocks: the same content under a selector without .prose-wh"),
     (re.compile(r"\.callout\s+strong\b"), "#5FCCE8", "#A4E2F2",
      "the bold lead-in inside a prose callout: Lc 63.6 vs 75 (computed on the callout's own tinted "
      "background rgb(23,41,60); the oracle independently reported 64, which calibrated the formula). "
      "42 pages. NOT the same as .prose-wh a, which is the identical hex inside a LINK and correctly "
      "passes at the Lc 60 label floor - the difference is prose vs label, not the colour."),
 ]
+# the token each lifted colour lives under in tokens.css (the form the OD-S codemod left on the articles)
+HEX_TOKEN = {"#FED38D": "--wh-amber-300", "#A4E2F2": "--wh-cyan-300"}
 RULE = re.compile(r"([^{}]*)\{([^{}]*)\}")
 
 
@@ -124,6 +131,13 @@ def remap_code_hex(src: str) -> tuple[str, int]:
                 continue
             pat = re.compile(r"((?<![-a-zA-Z])color\s*:\s*)" + re.escape(src_hex), re.IGNORECASE)
             body, n = pat.subn(lambda mm: mm.group(1) + dst_hex, body)
+            changed += n
+            # ★AND IN ITS TOKEN FORM (2026-11-09). The OD-S codemod rewrote these colours as `var(--wh-orange-light,#FDB94A)`
+            # after this tool's first pass, so a page reached later carries the var() and the hex pattern above never
+            # matches. The lifted colour is written as its own token, the form the codemod left on every other article.
+            dst_tok = HEX_TOKEN.get(dst_hex.upper())
+            vpat = re.compile(r"((?<![-a-zA-Z])color\s*:\s*)var\(\s*--[\w-]+\s*,\s*" + re.escape(src_hex) + r"\s*\)", re.IGNORECASE)
+            body, n = vpat.subn(lambda mm: mm.group(1) + (f"var({dst_tok}, {dst_hex})" if dst_tok else dst_hex), body)
             changed += n
         return f"{sel}{{{body}}}"
 

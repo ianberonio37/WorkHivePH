@@ -46,7 +46,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-05-17",
-      "dateModified": "2026-08-24",
+      "dateModified": "2026-11-10",
       "mainEntityOfPage": "https://workhiveph.com/learn/ai-quality-and-roi-stage-2-plants/",
       "inLanguage": "en-PH",
       "articleSection": "Maintenance",
@@ -59,7 +59,7 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Why do I need to measure AI quality if the vendor says 95 percent accuracy?",
+          "name": "Why measure AI quality if the vendor says 95 percent accuracy?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Vendor accuracy is on their benchmark dataset, not your plant's reality. Your plant has specific assets, fault patterns, and language conventions that the vendor benchmark cannot capture. The only honest accuracy number is what your technicians verify after acting on the AI suggestions in your hive. Plants that rely on vendor numbers over-trust the AI; plants that measure their own catch problems early."
@@ -86,7 +86,7 @@
           "name": "What is AI drift and how do I catch it?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "AI drift is the silent failure mode where the AI gets gradually worse without anybody noticing because each individual answer looks plausible. Three signals catch it: falling accuracy trend per asset type or fault category, rising query-escalation rate (workers escalating to a human after the AI answer), and rising cost-per-useful-answer. Weekly 5-minute review by the reliability engineer catches drift 2 to 3 months earlier than waiting for worker complaints."
+            "text": "AI drift is the silent failure. The AI slowly gets worse, and nobody notices, because each answer still looks right. Three signals catch it: falling accuracy trend per asset type or fault category, rising query-escalation rate (workers escalating to a human after the AI answer), and rising cost-per-useful-answer. Weekly 5-minute review by the reliability engineer catches drift 2 to 3 months earlier than waiting for worker complaints."
           }
         },
         {
@@ -148,7 +148,7 @@
     body .text-white\/75 { color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     /* the block below was 859px wide inside a 350px column and scrolled the whole page sideways at 390 (W3-LN, 2026-09-08); this is the rule the other nine <pre tabindex="0"> articles use */
-    pre { background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); padding: 20px 22px; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: var(--wh-fs-md, 0.95rem); color: var(--wh-orange-light,#FDB94A); line-height: 1.6; }
+    pre { background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); padding: 20px 22px; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: var(--wh-fs-md, 0.95rem); color: var(--wh-amber-300, #FED38D); line-height: 1.6; }
 
     * { font-family: 'Poppins', sans-serif; } body { background: var(--wh-navy,#162032); color: var(--wh-cloud,#F4F6FA); }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
@@ -325,11 +325,11 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
+      <span>Updated <time datetime="2026-11-10">10 Nov 2026</time></span>
       <span class="opacity-40">·</span>
       <span>7 min read</span>
     </div>
-    <div class="answer-first"><strong>Short answer:</strong> AI assistants in industrial plants need explicit quality measurement; without it, drift goes undetected and trust erodes. Three metrics matter: accuracy (verified by the technician after acting on the advice), time saved (estimated by the worker per query), and cost per useful answer (the total AI cost divided by queries the worker rated useful). Plants that measure these monthly see AI ROI climb from negative in month 3 to between 5x and 10x by month 12; plants that do not measure either over-trust or abandon the AI within 6 months.</div>
+    <div class="answer-first"><strong>Short answer:</strong> AI assistants in plants need clear quality measurement. Without it, nobody sees the drift and trust wears away. Three metrics matter. Accuracy: the technician checks it after acting on the advice. Time saved: the worker estimates it per query. And cost per useful answer. That is total AI cost over the answers rated useful. Plants that measure these monthly see AI ROI climb. It starts negative in month 3. By month 12 it reaches 5x to 10x. Plants that do not measure either trust the AI too much or drop it within 6 months.</div>
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
       <ul><li>Plant managers evaluating AI ROI</li>
@@ -349,41 +349,45 @@
         <li><a href="#faq" class="wh-tap">Frequently asked questions</a></li>
         <li><a href="#sources" class="wh-tap">Sources</a></li></ol></div>
     <div class="prose-wh"><h2 id="why-measure">Why AI quality needs explicit measurement</h2>
-      <p>An AI work assistant is the only WorkHive surface where the value is opaque without measurement. A Logbook entry is obviously logged or not. A PM is obviously completed or not. An AI answer is harder: it sounds right, the worker acts on it, but did it actually help? Without explicit measurement, two failure patterns emerge: over-trust (workers stop verifying because the AI feels reliable) and under-use (workers stop asking because they cannot tell if the answer is good).</p>
-      <p>The AI Quality + ROI dashboard shows the estimated 30-day ROI, per-function spend, and worker feedback behind every AI answer. Plants that measure trust the AI appropriately; plants that do not either swing into over-trust or abandon the AI.</p>
+      <p>On no other WorkHive surface is the value so hard to see without measuring it. A Logbook entry is obviously logged or not. A PM is obviously completed or not. An AI answer is harder: it sounds right, the worker acts on it, but did it actually help?</p>
+      <p>Without clear measurement, two failures appear. One is over-trust: workers stop checking because the AI feels reliable. The other is under-use. Workers stop asking, because they cannot tell good answers from bad.</p>
+      <p>The AI Quality + ROI dashboard shows the estimated 30-day ROI and the spend per function. It also shows worker feedback behind every AI answer. Plants that measure trust the AI the right amount. Plants that do not either trust it too much or drop it.</p>
       <h2 id="three-metrics">The 3 metrics that measure AI maintenance ROI</h2>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Metric</th><th>What it measures</th><th>How to capture</th></tr></thead><tbody>
       <tr><td>Worker trust</td><td>Did the answer actually help the person who asked?</td><td>A thumbs up or down on the reply itself</td></tr>
-      <tr><td>Time saved (est.)</td><td>Roughly how much work the useful answers displaced</td><td>Estimated from the useful answers: nobody is asked to stop and log minutes</td></tr>
+      <tr><td>Time saved (est.)</td><td>Roughly how much work the useful answers displaced</td><td>An estimate from the useful answers. Nobody has to stop and log minutes</td></tr>
       <tr><td>Cost, last 30 days</td><td>What the AI actually cost, and which function spent it</td><td>Automated from token billing, broken out per function</td></tr>
       </tbody></table></div>
       <h2 id="accuracy">Accuracy: technician-verified, not vendor-claimed</h2>
-      <p>Vendor accuracy numbers (95 percent on benchmark X) are not your plant's reality. Your plant's AI accuracy is what your technicians verify after acting on the advice. The pattern that works:</p>
-      <ul><li>The worker rates the ANSWER, not the fix: a thumbs up or down on the reply, one tap, at the moment they know whether it helped</li><li>Those ratings are what the Worker trust figure on AI Quality + ROI is built from</li><li>A run of thumbs-down on one kind of question is the signal worth acting on: it usually means the knowledge base is thin there, not that the model is broken</li></ul>
-      <p><strong>Do not over-read a small sample.</strong> Below roughly five ratings a single tap swings the figure by twenty points, which is why the surface holds its verdict until there are enough. That guard exists because of a real reading: 348 AI calls and ONE thumbs-down once turned an owner's headline red with “AI is struggling”. Wait for the sample before you conclude anything, and look at which QUESTIONS drew the downs rather than at the percentage.</p>
+      <p>Vendors quote accuracy numbers, like 95 percent on benchmark X. Those are not your plant's reality. Your plant's AI accuracy is what your technicians confirm. They confirm it after they act on the advice. The pattern that works:</p>
+      <ul><li>The worker rates the ANSWER, not the fix. It is a thumbs up or down on the reply, in one tap. They tap it the moment they know whether it helped</li><li>Those ratings are what the Worker trust figure on AI Quality + ROI is built from</li><li>A run of thumbs-down on one kind of question is the signal to act on. It usually means the knowledge base is thin there. It rarely means the model has a fault</li></ul>
+      <p><strong>Do not over-read a small sample.</strong> Below about five ratings, one tap swings the figure by twenty points. So the surface holds its verdict until there are enough. That guard comes from a real reading.</p>
+      <p>Once, 348 AI calls and ONE thumbs-down turned an owner's headline red with “AI is struggling”. Wait for enough ratings before you decide anything. Then look at which QUESTIONS drew the downs, not at the percentage.</p>
       <h2 id="time-saved">Time saved: estimate per query</h2>
-      <p>Nobody is asked to stop and log minutes: a technician with gloves on will not do it, and a number they invent to dismiss a prompt is worse than no number. The figure is ESTIMATED instead: each answer the worker marked useful is counted as a few minutes of work displaced, and the total is shown as <em>Time saved (est.)</em>. The word 'est.' is doing real work in that label: it is a scale indicator, not a measurement, and it is honest about being one.</p>
-      <p>Read it as a trend rather than a total. Because it is derived rather than reported, the figure is only as good as the thumbs behind it: which is the argument for keeping the rating a one-tap habit instead of a form nobody fills in.</p>
+      <p>Nobody has to stop and log minutes. A technician with gloves on will not do it. And a number made up to clear a prompt is worse than no number. So the figure is ESTIMATED instead. Each answer the worker marked useful counts as a few minutes of work saved. The total shows as Time saved (est.). The word 'est.' does real work in that label. It shows scale, not a measurement, and it says so.</p>
+      <p>Read it as a trend rather than a total. Nobody reports this figure; the page works it out. So it is only as good as the thumbs behind it. That is why the rating should stay a one-tap habit, not a form nobody fills in.</p>
       <h2 id="cost-per-useful">Cost per useful answer</h2>
-      <p>The honest ROI number is cost against USEFUL answers, not cost per query: a cheap month where nothing helped is not a win. AI Quality + ROI gives you both halves: <em>Cost, last 30 days</em> with a <em>Per-function spend</em> breakdown, and the Worker trust figure that says how much of it landed.</p>
+      <p>The honest ROI number is cost against USEFUL answers, not cost per query. A cheap month where nothing helped is not a win. AI Quality + ROI gives you both halves. You get <em>Cost, last 30 days</em> with a <em>Per-function spend</em> breakdown. And you get the Worker trust figure, which says how much of it landed.</p>
       <pre tabindex="0">cost you can see  ÷  answers your team marked useful  =  what a useful answer costs you</pre>
-      <p>Do that division with YOUR two numbers rather than against a benchmark: the cost side moves with which functions your plant leans on, and the useful side moves with how well your logbook and asset register are filled in. The per-function breakdown is the actionable half: it shows WHICH surface is spending, so an expensive month usually has one answer behind it rather than a general problem.</p>
+      <p>Do that division with YOUR two numbers, not a benchmark. The cost side moves with the functions your plant leans on. The useful side moves with how full your logbook and asset register are.</p>
+      <p>The per-function breakdown is the half you can act on. It shows WHICH surface is spending. So a costly month usually has one cause, not a general problem.</p>
       <h2 id="drift">Catching AI drift before it hurts operations</h2>
-      <p>AI drift is the silent failure mode where the AI gets gradually worse without anybody noticing because each individual answer looks plausible. The AI Quality dashboard catches drift with three signals:</p>
-      <ul><li><strong>Trust trend.</strong> A falling share of thumbs-up, especially concentrated on one kind of question, is the first signal. Investigate that question type rather than the model.</li><li><strong>Query escalation rate.</strong> Rising percentage of queries that the worker then escalated to a human expert (instead of acting on the AI answer) signals declining trust.</li><li><strong>Cost-per-useful trending up.</strong> If total AI cost stays flat but useful-answer count drops, the cost per useful answer rises. This is the cleanest single-number indicator.</li></ul>
+      <p>AI drift is the silent failure. The AI slowly gets worse, and nobody notices, because each answer still looks right. The AI Quality dashboard catches drift with three signals:</p>
+      <ul><li><strong>Trust trend.</strong> The first signal is a falling share of thumbs-up. Watch for it most on one kind of question. Investigate that question type rather than the model.</li><li><strong>Query escalation rate.</strong> Count the queries a worker takes to a human expert. That means they skipped the AI answer. If that count rises, trust is falling.</li><li><strong>Cost-per-useful trending up.</strong> If total AI cost stays flat but useful answers drop, each useful answer costs more. This is the cleanest single-number indicator.</li></ul>
       <p>Weekly 5-minute review by the reliability engineer catches drift early. Plants that skip this review notice problems 2 to 3 months late, by which time worker trust has eroded.</p>
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
         <h3>WorkHive AI Quality + ROI dashboard makes AI value measurable</h3>
-        <p>Accuracy tracking from technician-rated outcomes, time-saved estimates per query, cost per useful answer, drift detection across asset types and fault categories. Stage 2+ (plants with 90+ days of Logbook history). Free at the worker tier. AI Quality is one of the surfaces the maturity stair actually gates: a hive reads it from Stair 2 (Disciplined) onward, which it earns by logging, not by paying. Benchmarks across separate hives are not available: each hive&rsquo;s data stays inside it.</p>
+        <p>Accuracy from the outcomes technicians rate. Time saved per query, as an estimate. Cost per useful answer. And drift spotted across asset types and fault categories. Stage 2+ (plants with 90+ days of Logbook history). Free at the worker tier.</p>
+        <p>AI Quality is one of the surfaces the maturity stair really gates. A hive can read it from Stair 2 (Disciplined) on. It earns that by logging, not by paying. There are no benchmarks across hives. Each hive’s data stays inside it.</p>
         <a href="/ai-quality.html" class="cta-btn">Open AI Quality + ROI</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
       <h2 id="faq">Frequently asked questions</h2>
-      <details class="faq-item"><summary>Why do I need to measure AI quality if the vendor says 95 percent accuracy?</summary><div class="faq-answer">Vendor accuracy is on their benchmark dataset, not your plant's reality. Your plant has specific assets, fault patterns, and language conventions that the vendor benchmark cannot capture. The only honest accuracy number is what your technicians verify after acting on the AI suggestions in your hive. Plants that rely on vendor numbers over-trust the AI; plants that measure their own catch problems early.</div></details>
+      <details class="faq-item"><summary>Why measure AI quality if the vendor says 95 percent accuracy?</summary><div class="faq-answer">Vendor accuracy is on their benchmark dataset, not your plant's reality. Your plant has specific assets, fault patterns, and language conventions that the vendor benchmark cannot capture. The only honest accuracy number is what your technicians verify after acting on the AI suggestions in your hive. Plants that rely on vendor numbers over-trust the AI; plants that measure their own catch problems early.</div></details>
       <details class="faq-item"><summary>What is a reasonable AI accuracy target?</summary><div class="faq-answer">There is no target score to hit, because the rating is a thumbs up or down rather than a mark out of five. What matters is the DIRECTION and the CONCENTRATION: a trust figure that climbs as your logbook and asset register fill in is the system working, and a run of thumbs-down clustered on one kind of question is the signal to act on: usually a thin patch in the knowledge base rather than a broken model. Ignore the figure entirely below about five ratings; a single tap swings it that far.</div></details>
       <details class="faq-item"><summary>How do I measure cost per useful answer?</summary><div class="faq-answer">Take the two figures AI Quality + ROI already shows you: Cost, last 30 days, and the share of answers your team marked useful. Divide one by the other and you have what a useful answer costs your plant. There is no benchmark worth comparing that against: it moves with which functions you lean on and how well your logbook is filled in, so watch your own number over successive months, and use the Per-function spend breakdown to see which surface is actually spending.</div></details>
-      <details class="faq-item"><summary>What is AI drift and how do I catch it?</summary><div class="faq-answer">AI drift is the silent failure mode where the AI gets gradually worse without anybody noticing because each individual answer looks plausible. Three signals catch it: falling accuracy trend per asset type or fault category, rising query-escalation rate (workers escalating to a human after the AI answer), and rising cost-per-useful-answer. Weekly 5-minute review by the reliability engineer catches drift 2 to 3 months earlier than waiting for worker complaints.</div></details>
+      <details class="faq-item"><summary>What is AI drift and how do I catch it?</summary><div class="faq-answer">AI drift is the silent failure. The AI slowly gets worse, and nobody notices, because each answer still looks right. Three signals catch it: falling accuracy trend per asset type or fault category, rising query-escalation rate (workers escalating to a human after the AI answer), and rising cost-per-useful-answer. Weekly 5-minute review by the reliability engineer catches drift 2 to 3 months earlier than waiting for worker complaints.</div></details>
       <details class="faq-item"><summary>When should I upgrade the AI model?</summary><div class="faq-answer">Three triggers: (1) accuracy below 4.0 for 60+ days despite prompt tuning and knowledge-base updates (the underlying model may be the limit); (2) cost per useful answer rising for 90+ days (newer models often deliver better cost-per-quality); (3) a class of queries the current model consistently fails on (e.g., engineering-grade calculations). WorkHive AI Assistant abstracts the model so upgrade is configuration, not migration.</div></details>
       <details class="faq-item"><summary>Can I compare my AI ROI against other plants?</summary><div class="faq-answer">At Stage 4 enterprise tier, yes (anonymous benchmarking against the cohort of WorkHive plants by industry sector and size). Free worker tier shows only your own hive's metrics. Cross-hive benchmarking requires opt-in from both parties and respects the data-isolation rules in the multi-tenant guide.</div></details>
       <h2 id="sources">Sources</h2>
@@ -406,7 +410,7 @@
 </article></main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-10">10 Nov 2026</time></p>
     <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

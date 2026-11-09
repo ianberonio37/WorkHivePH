@@ -42,7 +42,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-08-24",
+        "dateModified": "2026-11-10",
         "mainEntityOfPage": "https://workhiveph.com/learn/joining-and-growing-your-hive/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -270,13 +270,13 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
+      <span>Updated <time datetime="2026-11-10">10 Nov 2026</time></span>
       <span class="opacity-40">·</span>
       <span>7 min read</span>
     </div>
 
     <div class="answer-first">
-      <strong>Short answer:</strong> A WorkHive hive is your plant's isolated workspace containing assets, logbook, PM schedules, people, and history; its audit log keeps what it records for 3 years by default. Workers can use WorkHive in solo mode (private to them) or join a plant hive (supervisor-approved). A hive has 2 roles, worker and supervisor, and separately the navigation offers 4 view modes that change which tools you see rather than what you may do. Data isolation is enforced at the database row level; nothing leaks between hives. A group running several plants runs several hives: one per plant: because corporate roll-up across them is roadmap, not product.
+      <strong>Short answer:</strong> A WorkHive hive is your plant's own walled-off workspace. It holds your assets, logbook, PM schedules, people and history. By default, its audit log keeps what it records for 3 years. Workers can use WorkHive alone, in private. Or they can join a plant hive, once a supervisor approves. A hive has 2 roles: worker and supervisor. Apart from that, the navigation offers 4 view modes. They change which tools you see, not what you may do. The database walls off each hive's data, row by row. Nothing leaks between hives. A group with several plants runs one hive per plant. A corporate roll-up across them is on the roadmap, not in the product.
     </div>
 
     <div class="audience-block">
@@ -317,7 +317,7 @@
         <li><strong>Schedules:</strong> PM plans, shift handovers, day planner blocks</li>
         <li><strong>Knowledge:</strong> AI Assistant context trained on this hive's data</li>
       </ul>
-      <p>Workers in Hive A cannot see Hive B's data. Period. No path through the UI, no path through the API, no path through the AI assistant. This is the foundation that lets a Cabuyao chocolate factory and a Cebu food plant both use the same WorkHive platform without ever leaking data to each other.</p>
+      <p>Workers in Hive A cannot see Hive B's data. Period. No path through the UI, no path through the API, no path through the AI assistant. This is what lets two plants share one WorkHive platform. Think of a Cabuyao chocolate factory and a Cebu food plant. Neither ever sees the other's data.</p>
 
       <h2 id="solo">Solo mode: WorkHive without a plant</h2>
       <p>Many workers do not have a plant hive yet. They might be:</p>
@@ -328,52 +328,54 @@
         <li>A student learning industrial maintenance during practicum</li>
         <li>A worker whose plant is still on paper and they want to start digital personally</li>
       </ul>
-      <p>Solo mode is for them. Sign up with a username and password - no email needed - and get the full WorkHive toolset (Logbook, Engineering Design, Skill Matrix, AI Assistant, Day Planner) scoped to a personal hive of one. Solo data stays private; nobody else sees it. Joining a plant hive later does not move any of it: there is no import step, and no choice to make. Your solo hive stays yours and keeps its entries; the plant hive is a second membership alongside it. Your skill badges are held against your name rather than against either hive, so those show up wherever you are.</p>
-      <p>This is one of the under-told values of WorkHive: it works as a personal professional toolkit, not only as a plant tool.</p>
+      <p>Solo mode is for them. Sign up with a username and password; no email needed. You get the full WorkHive toolset in a personal hive of one. That means the Logbook, Engineering Design and Skill Matrix. It also means the AI Assistant and Day Planner. Solo data stays private; nobody else sees it.</p>
+      <p>Joining a plant hive later moves none of it. There is no import step and no choice to make. Your solo hive stays yours and keeps its entries; the plant hive is a second membership alongside it. Your skill badges are held against your name rather than against either hive, so those show up wherever you are.</p>
+      <p>This is one of WorkHive's less-told strengths. It works as your own professional toolkit, not only as a plant tool.</p>
 
       <h2 id="joining">How to join an existing plant hive</h2>
       <p>Three steps:</p>
       <ol>
         <li><strong>Sign in or create an account.</strong> Username plus password, no email needed; takes about 30 seconds.</li>
-        <li><strong>Enter the hive code.</strong> Your supervisor gives it to you. There is no public directory of plants to browse: deliberately, because a searchable list of which plants use which software is not yours to publish.</li>
-        <li><strong>Request to join.</strong> You join as a worker; there is no role to pick. The supervisor sees the request and approves it, and can promote you afterwards if your job calls for it.</li>
+        <li><strong>Enter the hive code.</strong> Your supervisor gives it to you. There is no public list of plants to browse, on purpose. A searchable list of which plants use which software is not ours to publish.</li>
+        <li><strong>Request to join.</strong> You join as a worker; there is no role to pick. The supervisor sees the request and approves it. Later, they can promote you if your job calls for it.</li>
       </ol>
-      <p>After approval, the worker gets immediate access to the hive's tools. Existing logbook entries become searchable; PM assignments start appearing in their queue.</p>
+      <p>After approval, the worker gets immediate access to the hive's tools. They can search the existing logbook entries. PM tasks start showing up in their queue.</p>
 
       <h2 id="roles">Two roles, and four ways to view the same nav</h2>
-      <p>This trips people up because the words overlap, so take them separately.</p>
-      <p><strong>There are two ROLES: worker and supervisor.</strong> That is the whole list. Creating a hive makes you its supervisor. Everyone who joins is a worker until a supervisor promotes them. A supervisor can approve and reject join requests, remove members, publish a shift plan, recompute risk scores, and read the full audit log; a worker does the maintenance work and records it.</p>
-      <p><strong>Separately, the navigation has four VIEW MODES</strong> &mdash; All, Field, Supervisor and Engineer: which filter which tools you see so a technician is not scrolling past integration settings to reach the logbook. Switching to Engineer view does not grant you anything; it is a lens on the same menu, and anyone can switch it.</p>
-      <p>Two gates are worth separating from both: the full audit log is supervisor-only, and the AI Quality dashboard is gated by the hive's maturity stair rather than by anyone's role: a hive earns it, a person is not granted it.</p>
+      <p>The words overlap and trip people up, so take them one at a time.</p>
+      <p><strong>There are two ROLES: worker and supervisor.</strong> That is the whole list. Creating a hive makes you its supervisor. Everyone who joins is a worker until a supervisor promotes them. A supervisor can approve and reject join requests, and remove members. They can publish a shift plan, recompute risk scores, and read the full audit log. A worker does the maintenance work and records it.</p>
+      <p><strong>Separately, the navigation has four VIEW MODES.</strong> They are All, Field, Supervisor and Engineer. They filter which tools you see. So a technician does not scroll past integration settings to reach the logbook. Switching to Engineer view gives you nothing new. It is a lens on the same menu, and anyone can switch it.</p>
+      <p>Two gates are worth keeping apart from both. The full audit log is supervisor-only. The AI Quality dashboard depends on the hive's maturity stair. It does not depend on anyone's role. A hive earns it. Nobody hands it to a person.</p>
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
         <h3>WorkHive Hive is your plant's workspace</h3>
-        <p>The Hive dashboard is the supervisor's home for the plant team: who is in the hive, who is requesting to join, current PM compliance, open issues, and adoption score. Set up your hive once and every other WorkHive tool inherits the membership and roles. Free at the worker tier. One plant is one hive today; grouping several sites under one roll-up is on the roadmap rather than in the product, so plan a multi-site rollout as separate hives for now.</p>
+        <p>The Hive dashboard is the supervisor's home for the plant team. It shows who is in the hive and who wants to join. It also shows current PM compliance, open issues and the adoption score. Set up your hive once.</p>
+        <p>Every other WorkHive tool then uses the same members and roles. Free at the worker tier. Today, one plant is one hive. A roll-up across several sites is on the roadmap, not in the product. So plan a multi-site rollout as separate hives for now.</p>
         <a href="/hive.html" class="cta-btn">Open the Hive Dashboard</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
 
       <h2 id="data-isolation">Data isolation between hives</h2>
-      <p>Multi-tenancy in industrial software is hard because the consequences of leakage are severe. A competitor seeing your fault history, a supplier seeing your consumption forecast, a contractor seeing your cost data: any of these is grounds for losing the platform's trust.</p>
+      <p>Keeping many plants apart in one system is hard. A leak does serious harm. Think of a competitor seeing your fault history. Or a supplier seeing your usage forecast. Or a contractor seeing your cost data. Any of these would cost the platform your trust.</p>
       <p>WorkHive enforces isolation at three layers:</p>
       <ul>
-        <li><strong>Automatic per-hive data isolation:</strong> every query the app makes is scoped to your hive's ID on the database server itself, so one hive can never read another's records. There is no "view all" backdoor.</li>
+        <li><strong>Automatic per-hive data isolation.</strong> The database server limits every query to your hive's ID. So one hive can never read another's records. There is no "view all" backdoor.</li>
         <li><strong>API token scope:</strong> integration tokens are bound to a single hive. A leaked token for Hive A cannot retrieve Hive B's data.</li>
-        <li><strong>AI assistant context:</strong> the AI's vector store and retrieval index are partitioned per hive. The AI literally cannot answer a question with another hive's data because it cannot read it.</li>
+        <li><strong>AI assistant context.</strong> Each hive has its own slice of the AI's vector store. The same goes for its search index. The AI cannot answer with another hive's data, because it cannot read it.</li>
       </ul>
-      <p>Cross-hive access exists but only via explicit, scoped, named permissions: a contractor whose work spans multiple plants, a supplier on consignment stock across a network. Default is total isolation.</p>
+      <p>Cross-hive access exists, but only through clear, named permissions with a set scope. Think of a contractor working across several plants. Or a supplier with consignment stock across a network. Default is total isolation.</p>
 
       <h2 id="multi-site">Running several plants</h2>
       <p>Filipino conglomerates often run 3 to 20 plants across the country. The pattern that works:</p>
       <ul>
-        <li><strong>Each plant is its own hive.</strong> Day-to-day operations stay autonomous; each plant's supervisor manages their own membership and PM schedule.</li>
-        <li><strong>There is no group layer yet.</strong> A corporate roll-up across child hives: one dashboard showing PM compliance, MTBF (mean time between failures), MTTR (mean time to repair) and OEE (overall equipment effectiveness) for every plant: is on the roadmap and not in the product, so a director wanting the comparison today collects it per plant. Worth knowing before you plan a rollout around it.</li>
+        <li><strong>Each plant is its own hive.</strong> Each plant runs its own day. Its supervisor manages its members and PM schedule.</li>
+        <li><strong>There is no group layer yet.</strong> A corporate roll-up across child hives is on the roadmap, not in the product. It would be one dashboard with PM compliance, MTBF, MTTR and OEE for every plant. Today, a director who wants that comparison collects it plant by plant. Worth knowing before you plan a rollout around it.</li>
         <li><strong>Per-plant benchmarking</strong> becomes natural. Plant A's PM compliance is 87 percent; Plant B's is 62 percent. The corporate team can see the gap and dispatch help.</li>
       </ul>
 
       <div class="callout">
-        <strong>The bigger picture:</strong> The hive is not just a workspace; it is the trust boundary. Plants adopt WorkHive because the boundary is real and enforced at the database. Workers join hives because their skill badges are held against their own name and survive leaving; the plant's records stay with the plant, which is the same boundary read from the other side. Both halves of the trust equation are needed for a free industrial platform to work in the Philippines, where data sensitivity is high and trust in cloud SaaS is still being earned.
+        <strong>The bigger picture:</strong> The hive is not just a workspace; it is the trust boundary. Plants adopt WorkHive because the boundary is real. The database holds it. Workers join hives because their skill badges sit under their own name. The badges stay with them when they leave. The plant's records stay with the plant. That is the same boundary, seen from the other side. A free industrial platform needs both halves of that trust to work in the Philippines. Data here is sensitive. And cloud software still has to earn people's trust.
       </div>
 
       <h2 id="faq">Frequently asked questions</h2>
@@ -416,7 +418,7 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-10">10 Nov 2026</time></p>
     <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>
