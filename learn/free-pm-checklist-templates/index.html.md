@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 24 Aug 2026
+Updated 8 Nov 2026
 ·
 9 min read
 
@@ -129,4 +129,4 @@ The pattern that works: a PM cannot be marked complete in PM Scheduler unless th
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: a5e55caf9a094e8e -->
+<!-- md-twin source-sha: 9d90bd00c77b0d8b -->

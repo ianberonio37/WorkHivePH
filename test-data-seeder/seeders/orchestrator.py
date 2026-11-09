@@ -171,7 +171,11 @@ def run_history_tools(log) -> None:
                 env["SUPABASE_SERVICE_ROLE_KEY"] = r.stdout.strip()
         except (OSError, subprocess.TimeoutExpired):
             pass
+    # ★backfill_skill_profiles was written for exactly the J25 gap (2026-09-09) and never added here, so the 2026-10-26
+    # reseed brought the gap back: 9 members (the fleet hives, the walk casts) with no skills record and J25 reading an
+    # empty chain in four hives. A backfill nothing runs after a reseed is a fix that lasts until the next reseed.
     for args in (["tools/seed_fleet_history.py", "--apply"], ["tools/backfill_fleet_seed_gaps.py"],
+                 ["tools/backfill_skill_profiles.py"], ["tools/backfill_marketplace_participation.py"],   # J25, J28 (same gap)
                  ["tools/seed_multi_hive_worker.py", "--apply"], ["tools/seed_5y_synthetic_history.py", "--commit"]):
         try:
             r = subprocess.run([sys.executable, *args], cwd=root, env=env, capture_output=True, text=True, timeout=1200)

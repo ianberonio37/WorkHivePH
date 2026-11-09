@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 27 Oct 2026
+Updated 8 Nov 2026
 ·
 10 min read
 
@@ -297,4 +297,4 @@ Your saved calculations stay in your hive's project history, and you can read an
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: e269f5477fa8fc5b -->
+<!-- md-twin source-sha: 0547b10ac4e4318f -->

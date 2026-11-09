@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1100-files
-source_sha: 32ff82ef4b6eefa6
+source: memory-curated:1102-files
+source_sha: 249ea15621982746
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1100 durable topic files)
+## memory · curated auto-memory (1102 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=701 · project=306 · reference=93
+**By type:** feedback=702 · project=307 · reference=93
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -90,7 +90,7 @@ Entries (name · type · sha):
 - `feedback_a_forced_choice_outlived_its_reason` · feedback · df2a5f116b8b1d29
 - `feedback_a_frozen_page_is_perfectly_settled` · feedback · ae1acc9cb745f569
 - `feedback_a_full_hive_finds_what_a_demo_hive_hides` · feedback · e34620c39b6bd6eb
-- `feedback_a_gate_nobody_runs_rots_by_its_fixtures` · feedback · 993f0ff37825870c
+- `feedback_a_gate_nobody_runs_rots_by_its_fixtures` · feedback · 253443713634b960
 - `feedback_a_gate_read_a_month_old_reading_and_called_it_D0` · feedback · 1c2e1785edfaa753
 - `feedback_a_gate_reddened_because_the_code_improved` · feedback · 32bf6e2608eaa28a
 - `feedback_a_gate_that_exhausts_its_own_rate_budget` · feedback · 225cf26e51228b75
@@ -214,6 +214,7 @@ Entries (name · type · sha):
 - `feedback_a_tappable_figure_is_a_tap_target` · feedback · bee20d0322d2724c
 - `feedback_a_teeth_test_left_a_poisoned_report` · feedback · bdb6223db9e591d5
 - `feedback_a_test_asserting_a_state_it_does_not_control` · feedback · 1699da8f8a49120f
+- `feedback_a_test_that_redirects_a_path_is_bypassed_by_a_shared_io_layer` · feedback · c5b14c6c9572b0d5
 - `feedback_a_three_option_fork_i_had_already_answered` · feedback · 60863bf3671e3d63
 - `feedback_a_timeout_that_does_not_kill_the_tree` · feedback · 8e9dc971e8b39f93
 - `feedback_a_toast_is_gone_before_the_verdict_reads` · feedback · 5c4ef1871a3b8c53
@@ -274,7 +275,7 @@ Entries (name · type · sha):
 - `feedback_banner_adoption_is_not_write_refusal` · feedback · 526d97dbdf5b1bdc
 - `feedback_bare_checkvisibility_calls_a_hidden_element_visible` · feedback · ce6b4747e54ca555
 - `feedback_batch_promote_when_the_gate_iterates_every_member` · feedback · 7209159efa06b303
-- `feedback_batch_the_critic_walks_dont_hand_walk_them` · feedback · ff73da04eaace05e
+- `feedback_batch_the_critic_walks_dont_hand_walk_them` · feedback · ecf315106c81bd82
 - `feedback_be_proactive_flywheel` · feedback · d90540cf6e6308f8
 - `feedback_behind_the_modal_was_true_for_the_tree_not_the_eyes` · feedback · 9434e430b56a1b98
 - `feedback_bge_local_false_ceiling_own_embedder` · feedback · 0ee89e886beab70e
@@ -337,7 +338,7 @@ Entries (name · type · sha):
 - `feedback_dont_fork_when_the_platform_already_answered` · feedback · 9feafaca50b52475
 - `feedback_dont_get_stuck_in_postgres_files_are_truth` · feedback · 3bfbf46a7610fbbb
 - `feedback_dont_kill_inflight_tracked_job` · feedback · 05f55a0800ebbecd
-- `feedback_dont_park_items_on_ian` · feedback · b459ee88c3754e49
+- `feedback_dont_park_items_on_ian` · feedback · 3f5b0e88381a06b2
 - `feedback_dont_stop_hold_trajectory_in_memento` · feedback · d08b62cec450af29
 - `feedback_drain_path_guard_nested_in_hive_branch` · feedback · 675e17ad645e3dca
 - `feedback_each_step_had_a_timeout_the_walk_had_none` · feedback · 8db5342e8ed3efd9
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_platform_intentional_blank_states` · feedback · 8e03fac77efa8236
 - `feedback_playwright_live_every_phase` · feedback · c689bd379b113956
 - `feedback_playwright_mcp_dont_inject_signin_instead` · feedback · 4ae9c1a1f56e43e2
-- `feedback_post_test_run_be_proactive_no_ask` · feedback · 853ee3a3e14af367
-- … +600 more (all included in the fingerprint)
+- … +602 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

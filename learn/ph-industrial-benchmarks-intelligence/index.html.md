@@ -10,11 +10,11 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 24 Aug 2026
+Updated 8 Nov 2026
 ·
 7 min read
 
-**Short answer:** WorkHive PH Industrial Intelligence gives Philippine plants free benchmarks. It draws on anonymised data from the plants that take part. Plants see how their OEE, MTBF, MTTR, PM compliance and downtime cost compare to their sector. Sectors include food and beverage, power, water and electronics.
+**Short answer:** WorkHive PH Industrial Intelligence gives Philippine plants free benchmarks. It draws on anonymised data from the plants that take part. Plants see how their OEE, MTBF, MTTR, PM compliance and downtime cost compare to their sector. OEE is overall equipment effectiveness. MTBF is mean time between failures. Sectors include food and beverage, power, water and electronics.
 
 To read it, your own hive must reach Stair 3 (Predictive-Ready). Pooling is anonymous, with no separate consent step. It is the only Philippine-specific industrial benchmark set that exists. Context matters more than the number. A German car plant's **85 percent OEE** tells a Cabuyao food plant nothing about its own **62 percent**.
 
@@ -133,4 +133,4 @@ Yes for the public reports, with attribution to "WorkHive PH Industrial Intellig
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: aaf606796a31b87c -->
+<!-- md-twin source-sha: 157595fc34f4f8df -->

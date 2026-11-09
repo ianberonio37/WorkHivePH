@@ -1209895,11 +1209895,7 @@
       "wave": "CF-FOUND",
       "title": "F1 Mobile / touch >= 44px - free engineering calculators philippine plants · fleet-supervisor: F1 98% - under-44: FCU(31x44), OEE(32x44)",
       "pages": [
-        "learn/free-engineering-calculators-philippine-plants/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/free-engineering-calculators-philippine-plants/index.html"
       ],
       "layers": [
         "F"
@@ -1209909,7 +1209905,7 @@
       ],
       "persona": "fleet-supervisor",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "fleet-supervisor opens free engineering calculators philippine plants and meets what the critic deepwalk found there on the F1 class (Mobile / touch >= 44px): F1 98% - under-44: FCU(31x44), OEE(32x44). Found 2026-09-11 on 1 critic walk(s) (W3723), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades F1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1209922,11 +1209918,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-engineering-calculators-philippine-plants/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/free-engineering-calculators-philippine-plants/index.html"
         ]
       },
       "axis": {
@@ -1209973,11 +1209965,7 @@
       "wave": "CF-FOUND",
       "title": "F1 Mobile / touch >= 44px - free engineering calculators philippine plants · solo-owner: F1 98% - under-44: FCU(31x44), OEE(32x44)",
       "pages": [
-        "learn/free-engineering-calculators-philippine-plants/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/free-engineering-calculators-philippine-plants/index.html"
       ],
       "layers": [
         "F"
@@ -1209987,7 +1209975,7 @@
       ],
       "persona": "solo-owner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "solo-owner opens free engineering calculators philippine plants and meets what the critic deepwalk found there on the F1 class (Mobile / touch >= 44px): F1 98% - under-44: FCU(31x44), OEE(32x44). Found 2026-09-11 on 5 critic walk(s) (W3627, W3628, W3629, W3630...), 5 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades F1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1210000,11 +1209988,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-engineering-calculators-philippine-plants/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/free-engineering-calculators-philippine-plants/index.html"
         ]
       },
       "axis": {
@@ -1210202,9 +1210186,6 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - analytics report · returner: B3 67% - grade 10.9: \"Run the analytics engine end-to-end (logbook -> ",
       "pages": [
-        "index.html",
-        "hive.html",
-        "analytics.html",
         "analytics-report.html"
       ],
       "layers": [
@@ -1210215,7 +1210196,7 @@
       ],
       "persona": "returner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "returner opens analytics report and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 67% - grade 10.9: \"Run the analytics engine end-to-end (logbook -> PMs -> priorities) to populate this section.\". Found 2026-11-07 on 1 critic walk(s) (BRH4), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1210228,9 +1210209,6 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "index.html",
-          "hive.html",
-          "analytics.html",
           "analytics-report.html"
         ]
       },
@@ -1210278,9 +1210256,6 @@
       "wave": "CF-FOUND",
       "title": "C2 Colour & contrast (WCAG) - analytics report · returner: C2 99% - worst 4.47:1 \"The report above summarises\" (.appendix-note gr",
       "pages": [
-        "index.html",
-        "hive.html",
-        "analytics.html",
         "analytics-report.html"
       ],
       "layers": [
@@ -1210291,7 +1210266,7 @@
       ],
       "persona": "returner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "returner opens analytics report and meets what the critic deepwalk found there on the C2 class (Colour & contrast (WCAG)): C2 99% - worst 4.47:1 \"The report above summarises\" (.appendix-note gray-500 on the cloud panel). Found 2026-11-07 on 1 critic walk(s) (BRH4), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades C2 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1210304,9 +1210279,6 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "index.html",
-          "hive.html",
-          "analytics.html",
           "analytics-report.html"
         ]
       },
@@ -1210471,10 +1210443,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - analytics · returner: B3 - passive voice: \"No parts were logged against a machine in the las",
       "pages": [
-        "index.html",
-        "hive.html",
-        "analytics.html",
-        "logbook.html"
+        "analytics.html"
       ],
       "layers": [
         "F"
@@ -1210484,7 +1210453,7 @@
       ],
       "persona": "returner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "returner opens analytics and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 - passive voice: \"No parts were logged against a machine in the last ${days} days.\" (analytics.html cardEmpty, parts cost by machine). Found 2026-11-07 on 2 critic walk(s) (BRH4, BRH21), 2 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1210497,10 +1210466,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "index.html",
-          "hive.html",
-          "analytics.html",
-          "logbook.html"
+          "analytics.html"
         ]
       },
       "axis": {
@@ -1211191,10 +1211157,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - ai companion hezekiah zaniah personas · a person: B3 0%: sentences=94 · >20w=16 · passive=2 · grade>8=30 · worst(35w): \"",
       "pages": [
-        "learn/ai-companion-hezekiah-zaniah-personas/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/ai-companion-hezekiah-zaniah-personas/index.html"
       ],
       "layers": [
         "F"
@@ -1211204,7 +1211167,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens ai companion hezekiah zaniah personas and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0%: sentences=94 · >20w=16 · passive=2 · grade>8=30 · worst(35w): \"Both ground their answers in a curated knowledge base of aut…\". Found 2026-11-07 on 1 critic walk(s) (BRH222), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1211217,10 +1211180,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/ai-companion-hezekiah-zaniah-personas/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/ai-companion-hezekiah-zaniah-personas/index.html"
         ]
       },
       "axis": {
@@ -1211267,11 +1211227,7 @@
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - free engineering calculators philippine plants · fleet-supervisor: B1 67% - marketese=0 verboseBlocks=4",
       "pages": [
-        "learn/free-engineering-calculators-philippine-plants/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/free-engineering-calculators-philippine-plants/index.html"
       ],
       "layers": [
         "F"
@@ -1211281,7 +1211237,7 @@
       ],
       "persona": "fleet-supervisor",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "fleet-supervisor opens free engineering calculators philippine plants and meets what the critic deepwalk found there on the B1 class (Microcopy / concision): B1 67% - marketese=0 verboseBlocks=4. Found 2026-09-11 on 1 critic walk(s) (W3723), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1211294,11 +1211250,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-engineering-calculators-philippine-plants/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/free-engineering-calculators-philippine-plants/index.html"
         ]
       },
       "axis": {
@@ -1211345,11 +1211297,7 @@
       "wave": "CF-FOUND",
       "title": "C1 Visual hierarchy - free engineering calculators philippine plants · fleet-supervisor: C1 67% - bigSizes=[43,28,22] distinct=13",
       "pages": [
-        "learn/free-engineering-calculators-philippine-plants/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/free-engineering-calculators-philippine-plants/index.html"
       ],
       "layers": [
         "F"
@@ -1211359,7 +1211307,7 @@
       ],
       "persona": "fleet-supervisor",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "fleet-supervisor opens free engineering calculators philippine plants and meets what the critic deepwalk found there on the C1 class (Visual hierarchy): C1 67% - bigSizes=[43,28,22] distinct=13. Found 2026-09-11 on 1 critic walk(s) (W3723), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades C1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1211372,11 +1211320,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-engineering-calculators-philippine-plants/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/free-engineering-calculators-philippine-plants/index.html"
         ]
       },
       "axis": {
@@ -1211423,11 +1211367,7 @@
       "wave": "CF-FOUND",
       "title": "K2 Field legibility & reach - free engineering calculators philippine plants · fleet-supervisor: K2 50% - 0/no glanceable KPI(s), 2 under-44 target(s)",
       "pages": [
-        "learn/free-engineering-calculators-philippine-plants/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/free-engineering-calculators-philippine-plants/index.html"
       ],
       "layers": [
         "F"
@@ -1211437,7 +1211377,7 @@
       ],
       "persona": "fleet-supervisor",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "fleet-supervisor opens free engineering calculators philippine plants and meets what the critic deepwalk found there on the K2 class (Field legibility & reach): K2 50% - 0/no glanceable KPI(s), 2 under-44 target(s). Found 2026-09-11 on 1 critic walk(s) (W3723), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades K2 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1211450,11 +1211390,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-engineering-calculators-philippine-plants/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/free-engineering-calculators-philippine-plants/index.html"
         ]
       },
       "axis": {
@@ -1211501,11 +1211437,7 @@
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - free engineering calculators philippine plants · solo-owner: B1 67% - marketese=0 verboseBlocks=4",
       "pages": [
-        "learn/free-engineering-calculators-philippine-plants/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/free-engineering-calculators-philippine-plants/index.html"
       ],
       "layers": [
         "F"
@@ -1211515,7 +1211447,7 @@
       ],
       "persona": "solo-owner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "solo-owner opens free engineering calculators philippine plants and meets what the critic deepwalk found there on the B1 class (Microcopy / concision): B1 67% - marketese=0 verboseBlocks=4. Found 2026-09-11 on 15 critic walk(s) (W374, W375, W376, W3350...), 15 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1211528,11 +1211460,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-engineering-calculators-philippine-plants/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/free-engineering-calculators-philippine-plants/index.html"
         ]
       },
       "axis": {
@@ -1211593,11 +1211521,7 @@
       "wave": "CF-FOUND",
       "title": "C1 Visual hierarchy - free engineering calculators philippine plants · solo-owner: C1 67% - bigSizes=[30,28,22] distinct=13",
       "pages": [
-        "learn/free-engineering-calculators-philippine-plants/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/free-engineering-calculators-philippine-plants/index.html"
       ],
       "layers": [
         "F"
@@ -1211607,7 +1211531,7 @@
       ],
       "persona": "solo-owner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "solo-owner opens free engineering calculators philippine plants and meets what the critic deepwalk found there on the C1 class (Visual hierarchy): C1 67% - bigSizes=[30,28,22] distinct=13. Found 2026-09-11 on 5 critic walk(s) (W3627, W3628, W3629, W3630...), 5 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades C1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1211620,11 +1211544,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-engineering-calculators-philippine-plants/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/free-engineering-calculators-philippine-plants/index.html"
         ]
       },
       "axis": {
@@ -1211675,11 +1211595,7 @@
       "wave": "CF-FOUND",
       "title": "K2 Field legibility & reach - free engineering calculators philippine plants · solo-owner: K2 50% - 0/no glanceable KPI(s), 2 under-44 target(s)",
       "pages": [
-        "learn/free-engineering-calculators-philippine-plants/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/free-engineering-calculators-philippine-plants/index.html"
       ],
       "layers": [
         "F"
@@ -1211689,7 +1211605,7 @@
       ],
       "persona": "solo-owner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "solo-owner opens free engineering calculators philippine plants and meets what the critic deepwalk found there on the K2 class (Field legibility & reach): K2 50% - 0/no glanceable KPI(s), 2 under-44 target(s). Found 2026-09-11 on 5 critic walk(s) (W3627, W3628, W3629, W3630...), 5 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades K2 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1211702,11 +1211618,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-engineering-calculators-philippine-plants/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/free-engineering-calculators-philippine-plants/index.html"
         ]
       },
       "axis": {
@@ -1211757,10 +1211669,7 @@
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - free pm checklist templates · a person: B1 67%: marketese=0 verboseBlocks=7",
       "pages": [
-        "learn/free-pm-checklist-templates/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/free-pm-checklist-templates/index.html"
       ],
       "layers": [
         "F"
@@ -1211770,7 +1211679,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens free pm checklist templates and meets what the critic deepwalk found there on the B1 class (Microcopy / concision): B1 67%: marketese=0 verboseBlocks=7. Found 2026-11-07 on 1 critic walk(s) (BRH223), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1211783,10 +1211692,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-pm-checklist-templates/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/free-pm-checklist-templates/index.html"
         ]
       },
       "axis": {
@@ -1211833,10 +1211739,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - free pm checklist templates · a person: B3 0%: sentences=155 · >20w=10 · passive=2 · grade>8=20 · worst(42w): ",
       "pages": [
-        "learn/free-pm-checklist-templates/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/free-pm-checklist-templates/index.html"
       ],
       "layers": [
         "F"
@@ -1211846,7 +1211749,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens free pm checklist templates and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0%: sentences=155 · >20w=10 · passive=2 · grade>8=20 · worst(42w): \"Note that the limit is a RATIO, not a fixed millimetre figur…\". Found 2026-11-07 on 1 critic walk(s) (BRH223), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1211859,10 +1211762,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-pm-checklist-templates/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/free-pm-checklist-templates/index.html"
         ]
       },
       "axis": {
@@ -1211909,10 +1211809,7 @@
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - gamifying maintenance for engagement · a person: B1 67%: marketese=0 verboseBlocks=5",
       "pages": [
-        "learn/gamifying-maintenance-for-engagement/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/gamifying-maintenance-for-engagement/index.html"
       ],
       "layers": [
         "F"
@@ -1211922,7 +1211819,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens gamifying maintenance for engagement and meets what the critic deepwalk found there on the B1 class (Microcopy / concision): B1 67%: marketese=0 verboseBlocks=5. Found 2026-11-07 on 1 critic walk(s) (BRH224), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1211935,10 +1211832,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/gamifying-maintenance-for-engagement/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/gamifying-maintenance-for-engagement/index.html"
         ]
       },
       "axis": {
@@ -1211985,10 +1211879,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - gamifying maintenance for engagement · a person: B3 0%: sentences=68 · >20w=14 · passive=4 · grade>8=25 · worst(37w): \"",
       "pages": [
-        "learn/gamifying-maintenance-for-engagement/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/gamifying-maintenance-for-engagement/index.html"
       ],
       "layers": [
         "F"
@@ -1211998,7 +1211889,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens gamifying maintenance for engagement and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0%: sentences=68 · >20w=14 · passive=4 · grade>8=25 · worst(37w): \"The Achievements layer in WorkHive issues XP and badges tied…\". Found 2026-11-07 on 1 critic walk(s) (BRH224), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212011,10 +1211902,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/gamifying-maintenance-for-engagement/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/gamifying-maintenance-for-engagement/index.html"
         ]
       },
       "axis": {
@@ -1212061,10 +1211949,7 @@
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - maintenance metrics reliability guide · a person: B1 67%: marketese=0 verboseBlocks=5",
       "pages": [
-        "learn/maintenance-metrics-reliability-guide/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/maintenance-metrics-reliability-guide/index.html"
       ],
       "layers": [
         "F"
@@ -1212074,7 +1211959,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens maintenance metrics reliability guide and meets what the critic deepwalk found there on the B1 class (Microcopy / concision): B1 67%: marketese=0 verboseBlocks=5. Found 2026-11-07 on 1 critic walk(s) (BRH226), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212087,10 +1211972,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/maintenance-metrics-reliability-guide/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/maintenance-metrics-reliability-guide/index.html"
         ]
       },
       "axis": {
@@ -1212137,10 +1212019,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - maintenance metrics reliability guide · a person: B3 0%: sentences=33 · >20w=9 · passive=2 · grade>8=12 · worst(40w): \"W",
       "pages": [
-        "learn/maintenance-metrics-reliability-guide/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/maintenance-metrics-reliability-guide/index.html"
       ],
       "layers": [
         "F"
@@ -1212150,7 +1212029,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens maintenance metrics reliability guide and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0%: sentences=33 · >20w=9 · passive=2 · grade>8=12 · worst(40w): \"When maintenance, production, and management all agree that …\". Found 2026-11-07 on 1 critic walk(s) (BRH226), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212163,10 +1212042,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/maintenance-metrics-reliability-guide/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/maintenance-metrics-reliability-guide/index.html"
         ]
       },
       "axis": {
@@ -1212213,10 +1212089,7 @@
       "wave": "CF-FOUND",
       "title": "C4 Typography (tabular KPIs) - maintenance metrics reliability guide · a person: C4 0%: 0/2 numeric els tabular",
       "pages": [
-        "learn/maintenance-metrics-reliability-guide/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/maintenance-metrics-reliability-guide/index.html"
       ],
       "layers": [
         "F"
@@ -1212226,7 +1212099,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens maintenance metrics reliability guide and meets what the critic deepwalk found there on the C4 class (Typography (tabular KPIs)): C4 0%: 0/2 numeric els tabular. Found 2026-11-07 on 1 critic walk(s) (BRH226), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades C4 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212239,10 +1212112,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/maintenance-metrics-reliability-guide/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/maintenance-metrics-reliability-guide/index.html"
         ]
       },
       "axis": {
@@ -1212289,10 +1212159,7 @@
       "wave": "CF-FOUND",
       "title": "K2 Field legibility & reach - maintenance metrics reliability guide · a person: K2 50%: 0/2 glanceable KPI(s), 0 under-44 target(s)",
       "pages": [
-        "learn/maintenance-metrics-reliability-guide/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/maintenance-metrics-reliability-guide/index.html"
       ],
       "layers": [
         "F"
@@ -1212302,7 +1212169,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens maintenance metrics reliability guide and meets what the critic deepwalk found there on the K2 class (Field legibility & reach): K2 50%: 0/2 glanceable KPI(s), 0 under-44 target(s). Found 2026-11-07 on 1 critic walk(s) (BRH226), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades K2 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212315,10 +1212182,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/maintenance-metrics-reliability-guide/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/maintenance-metrics-reliability-guide/index.html"
         ]
       },
       "axis": {
@@ -1212365,10 +1212229,7 @@
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - ph industrial benchmarks intelligence · a person: B1 67%: marketese=0 verboseBlocks=4",
       "pages": [
-        "learn/ph-industrial-benchmarks-intelligence/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/ph-industrial-benchmarks-intelligence/index.html"
       ],
       "layers": [
         "F"
@@ -1212378,7 +1212239,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens ph industrial benchmarks intelligence and meets what the critic deepwalk found there on the B1 class (Microcopy / concision): B1 67%: marketese=0 verboseBlocks=4. Found 2026-11-07 on 1 critic walk(s) (BRH227), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212391,10 +1212252,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/ph-industrial-benchmarks-intelligence/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/ph-industrial-benchmarks-intelligence/index.html"
         ]
       },
       "axis": {
@@ -1212441,10 +1212299,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - ph industrial benchmarks intelligence · a person: B3 0%: sentences=66 · >20w=26 · passive=2 · grade>8=33 · worst(40w): \"",
       "pages": [
-        "learn/ph-industrial-benchmarks-intelligence/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/ph-industrial-benchmarks-intelligence/index.html"
       ],
       "layers": [
         "F"
@@ -1212454,7 +1212309,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens ph industrial benchmarks intelligence and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0%: sentences=66 · >20w=26 · passive=2 · grade>8=33 · worst(40w): \"A cross-plant report generated monthly (quarterly on request…\". Found 2026-11-07 on 1 critic walk(s) (BRH227), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212467,10 +1212322,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/ph-industrial-benchmarks-intelligence/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/ph-industrial-benchmarks-intelligence/index.html"
         ]
       },
       "axis": {
@@ -1212517,11 +1212369,7 @@
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - ra 11285 energy efficiency plant checklist · fleet-supervisor: B1 67% - marketese=0 verboseBlocks=25",
       "pages": [
-        "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/ra-11285-energy-efficiency-plant-checklist/index.html"
       ],
       "layers": [
         "F"
@@ -1212531,7 +1212379,7 @@
       ],
       "persona": "fleet-supervisor",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "fleet-supervisor opens ra 11285 energy efficiency plant checklist and meets what the critic deepwalk found there on the B1 class (Microcopy / concision): B1 67% - marketese=0 verboseBlocks=25. Found 2026-09-11 on 1 critic walk(s) (W3723), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212544,11 +1212392,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/ra-11285-energy-efficiency-plant-checklist/index.html"
         ]
       },
       "axis": {
@@ -1212595,11 +1212439,7 @@
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - ra 11285 energy efficiency plant checklist · solo-owner: B1 67% - marketese=0 verboseBlocks=25",
       "pages": [
-        "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/ra-11285-energy-efficiency-plant-checklist/index.html"
       ],
       "layers": [
         "F"
@@ -1212609,7 +1212449,7 @@
       ],
       "persona": "solo-owner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "solo-owner opens ra 11285 energy efficiency plant checklist and meets what the critic deepwalk found there on the B1 class (Microcopy / concision): B1 67% - marketese=0 verboseBlocks=25. Found 2026-09-11 on 15 critic walk(s) (W374, W375, W376, W3350...), 15 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212622,11 +1212462,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/ra-11285-energy-efficiency-plant-checklist/index.html"
         ]
       },
       "axis": {
@@ -1212687,10 +1212523,7 @@
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - what is oee how to calculate · a person: B1 67%: marketese=0 verboseBlocks=6",
       "pages": [
-        "learn/what-is-oee-how-to-calculate/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/what-is-oee-how-to-calculate/index.html"
       ],
       "layers": [
         "F"
@@ -1212700,7 +1212533,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens what is oee how to calculate and meets what the critic deepwalk found there on the B1 class (Microcopy / concision): B1 67%: marketese=0 verboseBlocks=6. Found 2026-11-07 on 1 critic walk(s) (BRH228), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212713,10 +1212546,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/what-is-oee-how-to-calculate/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/what-is-oee-how-to-calculate/index.html"
         ]
       },
       "axis": {
@@ -1212763,10 +1212593,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - what is oee how to calculate · a person: B3 0%: sentences=122 · >20w=22 · passive=3 · grade>8=39 · worst(56w): ",
       "pages": [
-        "learn/what-is-oee-how-to-calculate/index.html",
-        "hive.html",
-        "logbook.html",
-        "pm-scheduler.html"
+        "learn/what-is-oee-how-to-calculate/index.html"
       ],
       "layers": [
         "F"
@@ -1212776,7 +1212603,7 @@
       ],
       "persona": "any",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "a person opens what is oee how to calculate and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0%: sentences=122 · >20w=22 · passive=3 · grade>8=39 · worst(56w): \"Of the bars this line could have made in its planned time, 4…\". Found 2026-11-07 on 1 critic walk(s) (BRH228), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212789,10 +1212616,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/what-is-oee-how-to-calculate/index.html",
-          "hive.html",
-          "logbook.html",
-          "pm-scheduler.html"
+          "learn/what-is-oee-how-to-calculate/index.html"
         ]
       },
       "axis": {
@@ -1212839,11 +1212663,7 @@
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - what is oee how to calculate · solo-owner: B1 67% - marketese=0 verboseBlocks=6",
       "pages": [
-        "learn/what-is-oee-how-to-calculate/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/what-is-oee-how-to-calculate/index.html"
       ],
       "layers": [
         "F"
@@ -1212853,7 +1212673,7 @@
       ],
       "persona": "solo-owner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "solo-owner opens what is oee how to calculate and meets what the critic deepwalk found there on the B1 class (Microcopy / concision): B1 67% - marketese=0 verboseBlocks=6. Found 2026-10-13 on 4 critic walk(s) (W37, W38, W3149, W3152), 4 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1212866,11 +1212686,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/what-is-oee-how-to-calculate/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/what-is-oee-how-to-calculate/index.html"
         ]
       },
       "axis": {
@@ -1213067,10 +1212883,7 @@
       "wave": "CF-FOUND",
       "title": "A1 5-second test - marketplace admin · returner: A1 50% - h1=0 cta=0: the Platform Admins Only gate sat outside <main> ",
       "pages": [
-        "index.html",
-        "hive.html",
-        "marketplace-admin.html",
-        "logbook.html"
+        "marketplace-admin.html"
       ],
       "layers": [
         "F"
@@ -1213080,7 +1212893,7 @@
       ],
       "persona": "returner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "returner opens marketplace admin and meets what the critic deepwalk found there on the A1 class (5-second test): A1 50% - h1=0 cta=0: the Platform Admins Only gate sat outside <main> undeclared, with an h2 for its title, while <main> was hidden. Found 2026-11-07 on 2 critic walk(s) (BRH17, BRH184), 2 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades A1 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1213093,10 +1212906,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "index.html",
-          "hive.html",
-          "marketplace-admin.html",
-          "logbook.html"
+          "marketplace-admin.html"
         ]
       },
       "axis": {
@@ -1213548,11 +1213358,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - free engineering calculators philippine plants · fleet-supervisor: B3 0% - sentences=90 · >20w=18 · passive=3 · grade>8=36 · worst(62w): ",
       "pages": [
-        "learn/free-engineering-calculators-philippine-plants/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/free-engineering-calculators-philippine-plants/index.html"
       ],
       "layers": [
         "F"
@@ -1213562,7 +1213368,7 @@
       ],
       "persona": "fleet-supervisor",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "fleet-supervisor opens free engineering calculators philippine plants and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0% - sentences=90 · >20w=18 · passive=3 · grade>8=36 · worst(62w): \"Walk into any Philippine engineering office and you will see…\". Found 2026-09-11 on 1 critic walk(s) (W3723), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1213575,11 +1213381,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-engineering-calculators-philippine-plants/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/free-engineering-calculators-philippine-plants/index.html"
         ]
       },
       "axis": {
@@ -1213626,11 +1213428,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - free engineering calculators philippine plants · solo-owner: B3 0% - sentences=90 · >20w=18 · passive=3 · grade>8=36 · worst(62w): ",
       "pages": [
-        "learn/free-engineering-calculators-philippine-plants/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/free-engineering-calculators-philippine-plants/index.html"
       ],
       "layers": [
         "F"
@@ -1213640,7 +1213438,7 @@
       ],
       "persona": "solo-owner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "solo-owner opens free engineering calculators philippine plants and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0% - sentences=90 · >20w=18 · passive=3 · grade>8=36 · worst(62w): \"Walk into any Philippine engineering office and you will see…\". Found 2026-09-11 on 15 critic walk(s) (W374, W375, W376, W3350...), 15 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1213653,11 +1213451,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/free-engineering-calculators-philippine-plants/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/free-engineering-calculators-philippine-plants/index.html"
         ]
       },
       "axis": {
@@ -1213718,11 +1213512,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - ra 11285 energy efficiency plant checklist · fleet-supervisor: B3 0% - sentences=131 · >20w=37 · passive=9 · grade>8=92 · worst(38w):",
       "pages": [
-        "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/ra-11285-energy-efficiency-plant-checklist/index.html"
       ],
       "layers": [
         "F"
@@ -1213732,7 +1213522,7 @@
       ],
       "persona": "fleet-supervisor",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "fleet-supervisor opens ra 11285 energy efficiency plant checklist and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0% - sentences=131 · >20w=37 · passive=9 · grade>8=92 · worst(38w): \"The thresholds decide whether this applies to you: a plant c…\". Found 2026-09-11 on 1 critic walk(s) (W3723), 1 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1213745,11 +1213535,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/ra-11285-energy-efficiency-plant-checklist/index.html"
         ]
       },
       "axis": {
@@ -1213796,11 +1213582,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - ra 11285 energy efficiency plant checklist · solo-owner: B3 0% - sentences=131 · >20w=37 · passive=9 · grade>8=92 · worst(38w):",
       "pages": [
-        "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/ra-11285-energy-efficiency-plant-checklist/index.html"
       ],
       "layers": [
         "F"
@@ -1213810,7 +1213592,7 @@
       ],
       "persona": "solo-owner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "solo-owner opens ra 11285 energy efficiency plant checklist and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0% - sentences=131 · >20w=37 · passive=9 · grade>8=92 · worst(38w): \"The thresholds decide whether this applies to you: a plant c…\". Found 2026-09-11 on 15 critic walk(s) (W374, W375, W376, W3350...), 15 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1213823,11 +1213605,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/ra-11285-energy-efficiency-plant-checklist/index.html"
         ]
       },
       "axis": {
@@ -1213888,11 +1213666,7 @@
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - what is oee how to calculate · solo-owner: B3 0% - sentences=121 · >20w=22 · passive=3 · grade>8=39 · worst(56w):",
       "pages": [
-        "learn/what-is-oee-how-to-calculate/index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
+        "learn/what-is-oee-how-to-calculate/index.html"
       ],
       "layers": [
         "F"
@@ -1213902,7 +1213676,7 @@
       ],
       "persona": "solo-owner",
       "device": "any",
-      "entry": "hub-nav",
+      "entry": "direct",
       "framing": "person",
       "story": "solo-owner opens what is oee how to calculate and meets what the critic deepwalk found there on the B3 class (Readability (<=20 words, grade <=8, active)): B3 0% - sentences=121 · >20w=22 · passive=3 · grade>8=39 · worst(56w): \"Of the bars this line could have made in its planned time, 4…\". Found 2026-10-13 on 4 critic walk(s) (W37, W38, W3149, W3152), 4 finding(s). The row closes when the defect is fixed at its cause and a later walk of the same page as the same person grades B3 clean at phone-390 and desktop-1280",
       "journey": {
@@ -1213915,11 +1213689,7 @@
         "condition": "normal",
         "tier": "A",
         "pages": [
-          "learn/what-is-oee-how-to-calculate/index.html",
-          "hive.html",
-          "analytics.html",
-          "hive.html",
-          "audit-log.html"
+          "learn/what-is-oee-how-to-calculate/index.html"
         ]
       },
       "axis": {

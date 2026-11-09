@@ -38,10 +38,10 @@
         "created_at",
         "actor",
         "action",
+        "meta",
         "target_type",
         "target_id",
-        "target_name",
-        "meta"
+        "target_name"
       ],
       "drift": []
     }

@@ -88,7 +88,11 @@ const READ = ([name, first]) => {
   const doors = [...document.querySelectorAll('a, button')].filter((el) => vis(el) && /^\s*(sign in|log in)\b/i.test(el.innerText || '')).map((el) => (el.innerText || '').trim().slice(0, 40));
   const dlg = [...document.querySelectorAll('[role=dialog], dialog, #signin-modal')].some((d) => vis(d) && /sign in/i.test(d.innerText || ''));
   const notice = (text.match(/[^.\n]*(session (has )?(ended|expired)|sign in again|signed out|not signed in|your session)[^.\n]*/i) || [''])[0].trim().slice(0, 100);
-  return { chars: text.length, url: location.pathname.split('/').pop() + location.search.slice(0, 40), wall: /signin=1/.test(location.search) || dlg, notice, claims, doors };
+  // a page that DECLARES its screen a gate (data-wh-gate: retired, no-access, no-hive) shows that gate as its whole answer -
+  // the critic rubric's root() already grades it as the screen. It has rendered when the gate is visible with a heading
+  // and a way onward (a link or a button), however few words that takes (2026-11-09: platform-actions' retired card is 250).
+  const gate = [...document.querySelectorAll('[data-wh-gate]')].find((g) => vis(g) && g.querySelector('h1, h2') && g.querySelector('a[href], button'));
+  return { chars: text.length, gate: gate ? gate.getAttribute('data-wh-gate') : null, url: location.pathname.split('/').pop() + location.search.slice(0, 40), wall: /signin=1/.test(location.search) || dlg, notice, claims, doors };
 };
 
 // ONE browser for the run, and ONE sign-in per account: each reading still gets a FRESH context, started from that
@@ -167,7 +171,7 @@ async function visit(page, persona, state, [w, h], prefixIndex) {
     if (state === 'honest') {
       if (acct && d.doors.length) problems.push(`a signed-in person is offered "${d.doors.join('", "')}"`);
       if (acct && d.wall) problems.push('a signed-in person was walled');
-      if (d.chars < CHARS_FLOOR && !d.wall) problems.push(`rendered ${d.chars} characters`);
+      if (d.chars < CHARS_FLOOR && !d.wall && !d.gate) problems.push(`rendered ${d.chars} characters`);
     } else {
       if (d.claims.length) problems.push(`identity claimed while ${state === 'dead' ? 'the session is dead' : 'signed out'}: ${d.claims.join(' | ')}`);
       if (writes.length) problems.push(`wrote with no live session: ${writes.slice(0, 3).join(', ')}`);

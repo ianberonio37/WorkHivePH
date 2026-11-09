@@ -96,8 +96,13 @@ INDEXES = [
      "probe": {"cast": "leandromarquez",
                "sql": "SELECT id, created_at, kind, subject, status FROM public.platform_feedback ORDER BY created_at DESC, id LIMIT 500"}},
     {"name": "idx_platform_feedback_votes_token", "table": "platform_feedback_votes", "cols": ["voter_token"], "where": None,
-     "reads": [("feedback/index.html", chain("platform_feedback_votes", r"\.eq\('voter_token', tok\)"))],
-     "probe": {"cast": None, "sql": "SELECT feedback_id FROM public.platform_feedback_votes WHERE voter_token = '{token}' LIMIT 500"}},
+     # M10: a visitor reads their own votes through my_feedback_votes(p_voter_token), a definer function whose one read is
+     # this index's query (re-pinned 2026-11-08) - the page's call, and the function's read
+     "reads": [("feedback/index.html", r"db\.rpc\('my_feedback_votes', \{ p_voter_token: tok \}\)"),
+               ("supabase/migrations", r"(?i)from\s+public\.platform_feedback_votes\s+v\s+where[^;]*?v\.voter_token\s*=\s*p_voter_token")],
+     # my_feedback_votes() is SECURITY DEFINER and a visitor can no longer read the table directly (M10): its read runs as
+     # the owner, so the probe does too (the compute_hive_readiness precedent above)
+     "probe": {"cast": "owner", "sql": "SELECT feedback_id FROM public.platform_feedback_votes WHERE voter_token = '{token}' LIMIT 500"}},
     {"name": "idx_mkt_disputes_created", "table": "marketplace_disputes", "cols": ["created_at"], "where": None,
      "reads": [("marketplace-admin.html", chain("marketplace_disputes", r"\.order\('created_at', \{ ascending: true \}\)", r"\.limit\(100\)"))],
      "probe": {"cast": "leandromarquez",
@@ -224,9 +229,14 @@ SHAPES = [
      "mustnot": [r"listing_is_mine\(", r"l\.auth_uid"], "live": r"my_listing_ids\(\)"},
     {"label": "my_service_provider_ids() is a UNION of its two arms, each on an index", "kind": "function",
      "name": "my_service_provider_ids", "must": [r"\bunion\b"], "mustnot": [r"\bor\s*\(\s*sp\.provider_type"], "live": r"\bunion\b"},
+    # M10 (20261106000009, "a provider's record reads the same to every client") moved the per-provider counts into
+    # service_provider_record(sp.id), a definer function called per row through the same LATERAL, its reads still keyed on
+    # matched_provider_id (re-pinned 2026-11-08, M12 release: the old pin read the counts inside the view)
     {"label": "v_service_provider_truth counts each provider's jobs and reviews per provider (LATERAL)", "kind": "view",
      "name": "v_service_provider_truth", "invoker": True,
-     "must": [r"left\s+join\s+lateral[\s\S]*?sr\.matched_provider_id\s*=\s*sp\.id"], "live": r"LEFT JOIN LATERAL"},
+     "must": [r"left\s+join\s+lateral\s+(?:public\.)?service_provider_record\(\s*sp\.id\s*\)"], "live": r"LEFT JOIN LATERAL"},
+    {"label": "service_provider_record reads one provider's jobs and reviews by matched_provider_id", "kind": "function",
+     "name": "service_provider_record", "must": [r"matched_provider_id\s*=\s*p_provider_id"], "live": r"matched_provider_id"},
     {"label": "get_hive_trade_peers narrows lvl to the hive's active members", "kind": "function", "name": "get_hive_trade_peers",
      "must": [r"sb\.auth_uid\s+IN\s*\(\s*SELECT\s+m\.auth_uid\s+FROM\s+public\.hive_members\s+m"], "live": r"sb\.auth_uid IN \(SELECT m\.auth_uid"},
     {"label": "get_credit_ledger_totals gives an admin the totals the ledger keeps", "kind": "function", "name": "get_credit_ledger_totals",
@@ -234,7 +244,10 @@ SHAPES = [
     {"label": "the ledger keeps its totals as it is written", "kind": "trigger", "table": "service_credit_ledger",
      "name": "trg_keep_ledger_totals", "must": [r"after\s+insert\s+or\s+update\s+or\s+delete\s+on\s+public\.service_credit_ledger"]},
     {"label": "my_recent_xp asks each of the reader's names for its own newest rows", "kind": "function", "name": "my_recent_xp",
-     "must": [r"cross\s+join\s+lateral", r"where\s+l\.worker_name\s*=\s*n\.name", r"security\s+invoker"], "live": r"cross join lateral"},
+     # invoker is Postgres' default for a function: what matters is that it is never DEFINER (RLS stays in force). The
+     # GJ M8 definition (20261105000008) leaves the default unspelled and is invoker live (prosecdef f) - re-pinned 2026-11-08
+     "must": [r"cross\s+join\s+lateral", r"where\s+l\.worker_name\s*=\s*n\.name"], "mustnot": [r"security\s+definer"],
+     "live": r"cross join lateral"},
 ]
 # grown-size probes of the shapes, in the same rolled-back transaction as the index probes: a view read EXPLAINed as its
 # cast, or a function CALLED as its cast with auto_explain logging every statement inside it. Each must not Seq Scan

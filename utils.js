@@ -5153,6 +5153,19 @@ function _whWriteErrorText(err, fallback) {
   var T = (typeof window !== 'undefined' && typeof window._t === 'function')
     ? window._t : function (en) { return en; };
   if (whIsAuthFailure(err)) {
+    // ★THE SENTENCE NAMED THE REMEDY AND OFFERED NO DOOR (expiry-midwrite X3, 2026-11-09). Measured on inventory,
+    // marketplace-seller, resume and pm-scheduler with the session destroyed between typing and saving: each kept the
+    // typed work and said "Sign in again", and none had a control that signs anyone in - the only way out was a reload,
+    // which loses the work. whAuthRequiredToast is the platform's door card; here it opens sign-in in a NEW TAB, so the
+    // form and what was typed stay put, and the person comes back and saves again (the session is shared across tabs).
+    if (typeof document !== 'undefined' && typeof whAuthRequiredToast === 'function' && !document.getElementById('wh-auth-toast')) {
+      setTimeout(function () {
+        try {
+          whAuthRequiredToast('save it again', { allowSignup: false, newTab: true,
+            text: T('Your session ended. Sign in again in a new tab, then come back and save. What you typed is still here.') });
+        } catch (_) { /* empty-catch-allow: the sentence below still tells them; only the door is missing */ }
+      }, 0);
+    }
     return T('Your session expired, so nothing was saved. Sign in again and redo this step.',
              'Nag-expire ang session mo, kaya walang na-save. Mag-sign in ulit at ulitin ang hakbang na ito.');
   }
@@ -8465,7 +8478,39 @@ function whAuditView(row) {
     }
     var boxes = document.querySelectorAll('[data-wh-fig-reads]');
     for (var b = 0; b < boxes.length; b++) markIn(boxes[b], declaredEntry(boxes[b]), found);
-    for (var f = 0; f < found.length; f++) mark(found[f][0], found[f][1]);
+    // ★A FIGURE'S TAP AREA MUST NOT COVER A CONTROL (mobile-deep M1, 2026-11-09). ENH-C's ::after grows a small figure's
+    // tap area to 48px, and where the figure sits beside a control the grown area lands ON it: skillmatrix's level ("2",
+    // 18x15) sits between its - and + buttons, so a tap on the inner edge of either opened the figure's source card instead
+    // of changing the level; inventory's "Showing 8 of 27 parts" sat over its Load more; shift-brain's section counts over
+    // their headers' buttons. A figure that cannot have its 48px without covering a control is left a plain number - its
+    // source is still in the page's "Where these figures come from". Every rect is read before any mark is written (LB3),
+    // and figures inside a long list's rows are not measured (their rows are skipped by content-visibility).
+    // ...and another FIGURE is a neighbour too (2026-11-09): analytics stacks its percentages in 31px rows, so each one's
+    // 48px area covered the next and a tap opened whichever card was on top. Cells of a dense column stay plain numbers;
+    // the table's own source line says where they come from.
+    var keep = [], peers = found.map(function (x) { return x[0]; });
+    for (var g = 0; g < found.length; g++) if (!crowded(found[g][0], peers)) keep.push(found[g]);
+    for (var f = 0; f < keep.length; f++) mark(keep[f][0], keep[f][1]);
+  }
+  var CTL_NEAR = 'a[href], button, [role=button], summary, select, input, textarea, [onclick]';
+  function crowded(el, peers) {
+    if (el.closest('.wh-rows-cv')) return false;
+    var r = el.getBoundingClientRect();
+    if (!r.width || !r.height) return false;
+    var gx = Math.max(0, (48 - r.width) / 2), gy = Math.max(0, (48 - r.height) / 2);
+    if (!gx && !gy) return false;
+    var L = r.left - gx, R = r.right + gx, T = r.top - gy, B = r.bottom + gy;
+    var scope = (el.parentElement && el.parentElement.parentElement) || document.body;
+    if (scope.parentElement) scope = scope.parentElement;
+    var cs = Array.prototype.slice.call(scope.querySelectorAll(CTL_NEAR)).concat((peers || []).filter(function (x) { return scope.contains(x); }));
+    for (var i = 0; i < cs.length; i++) {
+      var o = cs[i];
+      if (o === el || o.contains(el) || el.contains(o)) continue;
+      var q = o.getBoundingClientRect();
+      if (!q.width || !q.height) continue;
+      if (q.right > L && q.left < R && q.bottom > T && q.top < B) return true;
+    }
+    return false;
   }
   function schedule() { if (timer) clearTimeout(timer); timer = setTimeout(decorate, 250); }
 
@@ -10086,13 +10131,13 @@ function whAuthRequiredToast(action, opts) {
     + 'border-radius:var(--wh-radius-lg, 16px);padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,0.5);font-size:0.85rem;color:rgba(255,255,255,0.92);';
   card.innerHTML =
     '<div style="display:flex;align-items:flex-start;gap:10px;">'
-    + '<div style="flex:1;line-height:1.5;">Sign in to ' + esc(action) + '. '
+    + '<div style="flex:1;line-height:1.5;">' + (opts.text ? esc(opts.text) + ' ' : 'Sign in to ' + esc(action) + '. ')
     + (allowSignup ? '<span style="color:rgba(255,255,255,0.75);">New here? An account is free.</span>' : '')
     + '</div>'
     + '<button type="button" data-wh-auth-close aria-label="Close" style="background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;font-size:1.05rem;line-height:1;min-width:44px;min-height:44px;margin:-10px -8px -10px 0;">&times;</button>'
     + '</div>'
     + '<div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">'
-    + '<a href="index.html?signin=1&return=' + ret + '" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:var(--wh-radius, 12px);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-weight:700;text-decoration:none;">Sign in</a>'
+    + '<a href="index.html?signin=1&return=' + ret + '"' + (opts.newTab ? ' target="_blank" rel="noopener"' : '') + ' style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:var(--wh-radius, 12px);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-weight:700;text-decoration:none;">Sign in</a>'
     + (allowSignup
       ? '<a href="index.html?signup=1&return=' + ret + '" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:var(--wh-radius, 12px);background:rgba(var(--wh-orange-rgb, 247, 162, 27),0.12);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27),0.45);color:var(--wh-orange-text,#FDB94A);font-weight:700;text-decoration:none;">Create a free account</a>'
       : '')

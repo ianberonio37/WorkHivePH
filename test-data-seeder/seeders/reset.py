@@ -323,6 +323,18 @@ def reset_all(client, log) -> dict:
             log(f"  WARN: skipped {t}: {type(e).__name__}: {e}")
             summary[t] = f"error: {e}"
 
+    # ★THE TREASURY'S ISSUED COUNT IS EMPTIED WITH THE LEDGER IT COUNTS (2026-11-08, M12 release). The note on
+    # credit_treasury above said this would be needed "if credits are ever issued locally" - they are: the services
+    # seeder verifies two top-ups through the real trigger, which mints. Every reset emptied the ledger and kept the
+    # count, so ten resets later the treasury said 24,840 credits existed beside a ledger of 1,220, and the
+    # credits_conserved invariant read a one-sided write that no product path had made. authorised_credits (the cap)
+    # stays; only what was issued against the emptied ledger goes back to 0.
+    try:
+        client.table("credit_treasury").update({"issued_credits": 0}).eq("id", 1).execute()
+        log("  credit_treasury: issued_credits back to 0 (the ledger it counts was emptied)")
+    except Exception as e:
+        log(f"  WARN: could not zero credit_treasury.issued_credits: {type(e).__name__}: {e}")
+
     # Wipe Auth users — only those with our test domain
     log("Wiping local Supabase Auth users (test domain only)...")
     auth_deleted = 0

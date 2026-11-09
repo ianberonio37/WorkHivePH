@@ -4,13 +4,13 @@
     "anchors": 127,
     "chrome_excluded": 37,
     "data_anchors": 90,
-    "resolved": 66,
-    "resolved_pct": 73.3,
-    "resolved_pct_of_all": 52.0,
+    "resolved": 67,
+    "resolved_pct": 74.4,
+    "resolved_pct_of_all": 52.8,
     "resolved_by_formula_or_kpi": 0,
     "resolved_by_js_heuristic": 8,
-    "resolved_by_verified_bind": 58,
-    "needs_js_parse": 24
+    "resolved_by_verified_bind": 59,
+    "needs_js_parse": 23
   },
   "anchors": [
     {
@@ -1082,8 +1082,23 @@
       "id": "sidebar-rail-count",
       "token": "count",
       "bucket": "raw",
-      "status": "RAW_NEEDS_JS_PARSE",
-      "source": null
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_logbook_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Rail badge on the collapsed sidebar: open logbook items (v_logbook_truth) plus PMs due (v_pm_scope_items_truth, plantWorkTotal), '?' when either read failed, capped at 99+. Read from _dpSyncSidebarToggle 2026-11-08: the js heuristic lost it when M7 moved the reads past its 90-line window.",
+            "reads": "v_logbook_truth",
+            "view": "v_logbook_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
     },
     {
       "page": "engineering-design.html",

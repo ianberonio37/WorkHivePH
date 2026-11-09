@@ -1,7 +1,7 @@
 {
   "_doc": "Read-verified + adversarially-confirmed element-id -> data source binds, and UI-chrome exclusions, for Phase B.2 of the interactive-lineage roadmap. Produced by the lineage-anchor-resolve workflow + a deterministic grep backstop (element-id AND claimed source must literally appear in the page). Consumed by tools/resolve_display_anchors.py, classify_display_ladder.py, build_display_provenance.py.",
   "totals": {
-    "binds": 64,
+    "binds": 65,
     "chrome": 42,
     "rejected": 0,
     "phantom_excluded": 1
@@ -24,7 +24,7 @@
     "achievements.html|ac-verdict-label": {
       "reads": "v_worker_achievements_truth",
       "reads_kind": "view",
-      "what": "Plain-Read verdict headline interpreting weekly XP / active-domain pace (e.g. 'NN XP this week \u2014 solid pace', 'No achievements yet').",
+      "what": "Plain-Read verdict headline interpreting weekly XP / active-domain pace (e.g. 'NN XP this week — solid pace', 'No achievements yet').",
       "rung": "diagnostic",
       "standard": ""
     },
@@ -38,28 +38,28 @@
     "alert-hub.html|amc-stat-assets": {
       "reads": "amc_briefings",
       "reads_kind": "table",
-      "what": "AMC daily-brief 'High Risk' stat tile \u2014 count of high-risk assets in today's brief",
+      "what": "AMC daily-brief 'High Risk' stat tile — count of high-risk assets in today's brief",
       "rung": "descriptive",
       "standard": ""
     },
     "alert-hub.html|amc-stat-crew": {
       "reads": "amc_briefings",
       "reads_kind": "table",
-      "what": "AMC daily-brief 'Crew' stat tile \u2014 count of crew alerts in today's brief",
+      "what": "AMC daily-brief 'Crew' stat tile — count of crew alerts in today's brief",
       "rung": "descriptive",
       "standard": ""
     },
     "alert-hub.html|amc-stat-parts": {
       "reads": "amc_briefings",
       "reads_kind": "table",
-      "what": "AMC daily-brief 'Parts' stat tile \u2014 count of parts at risk / to stage in today's brief",
+      "what": "AMC daily-brief 'Parts' stat tile — count of parts at risk / to stage in today's brief",
       "rung": "descriptive",
       "standard": ""
     },
     "alert-hub.html|amc-stat-pms": {
       "reads": "amc_briefings",
       "reads_kind": "table",
-      "what": "AMC daily-brief 'PMs Due' stat tile \u2014 count of PMs due in today's brief",
+      "what": "AMC daily-brief 'PMs Due' stat tile — count of PMs due in today's brief",
       "rung": "descriptive",
       "standard": ""
     },
@@ -227,14 +227,14 @@
     "inventory.html|stat-total": {
       "reads": "v_inventory_items_truth",
       "reads_kind": "view",
-      "what": "Total parts count pill \u2014 shows items.length, the number of inventory items in the current scope.",
+      "what": "Total parts count pill — shows items.length, the number of inventory items in the current scope.",
       "rung": "descriptive",
       "standard": ""
     },
     "inventory.html|inv-count-label": {
       "reads": "v_inventory_items_truth",
       "reads_kind": "view",
-      "what": "Pagination label 'Showing N of M parts' \u2014 visible.length / filtered.length of inventory items.",
+      "what": "Pagination label 'Showing N of M parts' — visible.length / filtered.length of inventory items.",
       "rung": "descriptive",
       "standard": ""
     },
@@ -292,7 +292,7 @@
       "reads_kind": "view",
       "what": "Inline PM-tasks header count ('N need(s) attention' / 'All tasks on track')",
       "rung": "diagnostic",
-      "standard": "PM scheduling \u2014 overdue/due-soon canonical signals"
+      "standard": "PM scheduling — overdue/due-soon canonical signals"
     },
     "logbook.html|total-count": {
       "reads": "logbook",
@@ -332,7 +332,7 @@
     "marketplace.html|mk-verdict-label": {
       "reads": "v_marketplace_listings_truth",
       "reads_kind": "view",
-      "what": "Plain-read verdict headline summarizing the listing population, e.g. 'N listings \u00b7 M of them yours' / 'N {section} listings live'.",
+      "what": "Plain-read verdict headline summarizing the listing population, e.g. 'N listings · M of them yours' / 'N {section} listings live'.",
       "rung": "descriptive",
       "standard": ""
     },
@@ -367,7 +367,7 @@
     "pm-scheduler.html|pm-count-label": {
       "reads": "pm_assets",
       "reads_kind": "table",
-      "what": "Shows 'Showing N of M assets' \u2014 the count of visible vs. filtered PM assets.",
+      "what": "Shows 'Showing N of M assets' — the count of visible vs. filtered PM assets.",
       "rung": "descriptive",
       "standard": ""
     },
@@ -452,6 +452,13 @@
       "reads": "voice_journal_entries",
       "reads_kind": "table",
       "what": "Shows the count of journal entries currently displayed (e.g. '12 entries'), reflecting the active language filter + search.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "dayplanner.html|sidebar-rail-count": {
+      "reads": "v_logbook_truth",
+      "reads_kind": "view",
+      "what": "Rail badge on the collapsed sidebar: open logbook items (v_logbook_truth) plus PMs due (v_pm_scope_items_truth, plantWorkTotal), '?' when either read failed, capped at 99+. Read from _dpSyncSidebarToggle 2026-11-08: the js heuristic lost it when M7 moved the reads past its 90-line window.",
       "rung": "descriptive",
       "standard": ""
     }

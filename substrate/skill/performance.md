@@ -2,7 +2,7 @@
 name: skill-performance
 type: skill
 source: skill:performance
-source_sha: 3b4cacef51163426
+source_sha: 4b5216c12cbcb9d0
 last_verified: 2026-07-13
 supersedes: null
 ---

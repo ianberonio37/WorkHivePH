@@ -128,13 +128,22 @@ async function search(term) {
   });
 }
 
-const audit = await search('audit log');
-if (audit === null) {
+// ★THE HIDDEN-PAGE CHECK OUTLIVED BRH-L (2026-11-08, M12 release). It searched "audit log" as Bryan Garcia - a WORKER - and
+// expected the audit trail. Since BRH-L (2026-10-14, Ian: "visible to only founder/admin ... not visible to all users then
+// it says only admin has access") the search offers a page only to the people it admits, and Audit Log refuses a worker.
+// So: a hidden page this person may open is still findable (Public Feed - hidden from the grid, open to everyone), and the
+// hidden page that refuses them is NOT offered (Audit Log). Both halves of the rule, as the person this walk signs in as.
+const feed = await search('public feed');
+if (feed === null) {
   check(false, 'the search overlay can be opened', 'no opener found');
 } else {
-  check(audit.some(r => (r.href || '').includes('audit-log.html')),
-        'searching "audit log" reaches the audit trail (a hidden page)',
-        audit.map(r => r.href).join(', ') || 'no results');
+  check(feed.some(r => (r.href || '').includes('public-feed.html')),
+        'searching "public feed" reaches a hidden page this person may open',
+        feed.map(r => r.href).join(', ') || 'no results');
+  const audit = await search('audit log');
+  check(Array.isArray(audit) && !audit.some(r => (r.href || '').includes('audit-log.html')),
+        'searching "audit log" as a worker does not offer the supervisor-only audit trail (BRH-L)',
+        (audit || []).map(r => r.href).join(', ') || 'no results');
 }
 
 const seller = await search('seller');

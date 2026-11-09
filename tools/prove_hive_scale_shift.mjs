@@ -111,7 +111,10 @@ const IMPORTS = {
     clean: (t) => [`delete from logbook where machine = 'HS-W2 import compressor ${t}';`] },
   pm_schedule: { table: 'pm_assets', head: 'Plan,Asset,Task,Days', row: (t, n) => `${t}-${n},${t}-A${n},HS-W2 import task ${n},30`,
     map: { external_id: 'Plan', asset_tag: 'Asset', task: 'Task', interval_days: 'Days' }, mine: (t) => `asset_name like '${t}-A%'`,
-    clean: (t) => [`delete from pm_scope_items where asset_id in (select id from pm_assets where asset_name like '${t}-A%');`, `delete from pm_assets where asset_name like '${t}-A%';`] },
+    // ★the trail's add_pm_task lines go with the tasks (2026-11-08): 1,422 of them outlived their tasks across the W2 runs and
+    // filled the newest page of the 30-member hive's trail, which hive-scale-lists reads for a departed member's item
+    clean: (t) => [`delete from hive_audit_log where hive_id = '${HIVE}' and target_type = 'pm_scope_items' and target_id::text in (select id::text from pm_scope_items where asset_id in (select id from pm_assets where asset_name like '${t}-A%'));`,
+      `delete from pm_scope_items where asset_id in (select id from pm_assets where asset_name like '${t}-A%');`, `delete from pm_assets where asset_name like '${t}-A%';`] },
 };
 const DAY0 = `(date_trunc('day', now() at time zone 'Asia/Manila')) at time zone 'Asia/Manila'`;
 async function importWalk(s, entity, tag) {

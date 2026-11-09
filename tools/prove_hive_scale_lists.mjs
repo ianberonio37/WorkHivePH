@@ -82,9 +82,16 @@ const POST_WRITES = {
   share: (id) => `with o as (select public from community_posts where id = '${id}'), u as (update community_posts set public = not public where id = '${id}' returning public) select (select public from u) is distinct from (select public from o) and exists (select 1 from u)`,
   flag: (id) => `with o as (select flagged from community_posts where id = '${id}'), u as (update community_posts set flagged = not flagged where id = '${id}' returning flagged) select (select flagged from u) is distinct from (select flagged from o) and exists (select 1 from u)`,
   report: (id) => `select public.report_community_post('${id}')`,
+  // GJ M9 G-MOD / GJ M10 G-ESC: a supervisor's review of someone else's REPORTED post, replayed through the RPCs the
+  // buttons call (each refuses a non-supervisor, the author's own post, and - escalation - a post with no open report)
+  keep: (id) => `select public.moderate_reported_post('${id}', true, null) is not null`,
+  escalate: (id) => `select public.escalate_reported_post('${id}', 'HS lists L2 replay') is not null`,
 };
-const POST_LABEL = (label) => (/^Edit/.test(label) ? 'edit' : /^Delete/.test(label) ? 'delete' : /pin post$/i.test(label) ? 'pin'
-  : /^Make post/.test(label) ? 'share' : /flag post$/i.test(label) ? 'flag' : /^Report/.test(label) ? 'report' : null);
+// "Remove post" is a supervisor's delete of someone else's post: moderate_reported_post(id, false) performs the same
+// wh_trash soft delete (and tells the author and reporters), so it answers to the delete the database permits
+const POST_LABEL = (label) => (/^Edit/.test(label) ? 'edit' : /^(Delete|Remove post$)/.test(label) ? 'delete' : /pin post$/i.test(label) ? 'pin'
+  : /^Make post/.test(label) ? 'share' : /flag post$/i.test(label) ? 'flag' : /^Report/.test(label) ? 'report'
+  : /^Keep post \(clear the report\)$/.test(label) ? 'keep' : /^Send to WorkHive$/.test(label) ? 'escalate' : null);
 
 // ── L2, declared per list: where an item's actions are, what each WRITES, and which permitted ones must be offered ──
 //   label(text) -> action key | null          id(item) -> the row the action writes
@@ -110,7 +117,8 @@ const ENTRIES_L2 = {
   // HS L5 (mig 20261030000012): a supervisor takes over a departed member's OPEN job - close it or assign it. Replayed as
   // a NON-author's write, so an author's own close (through Edit) is not mistaken for the take-over the page offers others
   label: (t) => (/^Edit Entry$/.test(t) ? 'edit' : /^Delete$/.test(t) ? 'delete'
-    : /^Close this job$/.test(t) ? 'takeover_close' : /^Assign to a member$/.test(t) ? 'assign' : null),
+    : /^Close this job$/.test(t) ? 'takeover_close' : /^Assign to a member$/.test(t) ? 'assign'
+    : /^Move the work order$/.test(t) ? 'wo_move' : null),
   ignore: (t) => !t || /^(Close|×|✕|Copy|Share|Print|Ask|Open)/i.test(t),
   id: (it) => it.dataId,
   writes: {
@@ -118,6 +126,8 @@ const ENTRIES_L2 = {
     assign: (id) => `with u as (update logbook set wo_state = 'assigned', wo_assigned_to = (select worker_name from hive_members where hive_id = '${HIVE}' and status = 'active' and role = 'worker' order by worker_name limit 1) where id = '${id}' and status = 'Open' and auth_uid is distinct from auth.uid() returning 1) select exists (select 1 from u)`,
     edit: (id) => `with o as (select problem from logbook where id = '${id}'), u as (update logbook set problem = coalesce(problem, '') || ' [e]' where id = '${id}' returning problem) select exists (select 1 from u) and (select problem from u) is distinct from (select problem from o)`,
     delete: (id) => `select public.wh_trash('logbook', '${id}') is not null`,
+    // the supervisor's work-order move on a member's entry (set_logbook_wo: an active supervisor of the entry's hive)
+    wo_move: (id) => `select public.set_logbook_wo('${id}', 'verified', null) is not null`,
   },
   candidates: ['edit', 'delete', 'takeover_close', 'assign'], ownership: true };
 // a part on the hive's shelf: Use and Restock are any active member's (the RPCs' membership gate); Edit and Remove
@@ -223,7 +233,12 @@ const CONFLICT_L2 = {
     usesap: (id) => took(`update logbook set status = status where id = '${id}'`),
     keep: (id) => took(`update external_sync set status = status where hive_id = '${HIVE}' and entity_type = 'work_order' and sync_payload->>'machine' = (select machine from logbook where id = '${id}')`),
   },
-  candidates: ['usesap', 'keep'], ownership: false };
+  candidates: ['usesap', 'keep'], ownership: false,
+  // ★A DEPARTED MEMBER'S OPEN JOB (HS L5, mig 20261030000012): the takeover policy lets a supervisor write its status, and
+  // the card sends them to the logbook's "Close this job" (judged there, ENTRIES_L2 takeover_close) instead of a second
+  // door here. Exempt ONLY while the card itself says where that write lives - a card that went quiet would fail again.
+  exempt: (act, it) => act === 'usesap' && [...FORMER].some((n) => (it.fullText || it.text || '').includes(n))
+    && /close it from the logbook/i.test(it.fullText || it.text || '') ? "a departed member's open job: the card names the logbook takeover" : null };
 // the machine whose linked parts were used the most - its detail holds the longest list of members' part uses
 const TOP_TAG = psql(`select n.tag from asset_nodes n join inventory_items i on n.id = any(i.linked_asset_node_ids) `
   + `join inventory_transactions t on t.item_id = i.id and t.type = 'use' where n.hive_id = '${HIVE}' group by n.tag order by count(*) desc limit 1`);
@@ -1229,6 +1244,43 @@ if (L5_GONE && psql(`select count(*) from engineering_calcs where project_name =
     insert into engineering_calcs (hive_id, worker_name, calc_type, project_name, discipline, created_at)
       values ('${HIVE}', '${L5_GONE}', 'Pipe Sizing', 'hs-l5 P-102 seal flush line', 'Mechanical', now() - interval '1 day');`);
 }
+// ...and the program he set up has one task, fallen overdue since he left: a program with no task sorts last ("no data"),
+// onto the list's second page, where no window a supervisor reads first could hold it
+if (L5_GONE && psql(`select count(*) from pm_scope_items where hive_id = '${HIVE}' and item_text = 'hs-l5 Check the gland packing'`) === '0') {
+  psql1(`set session_replication_role = replica;
+    insert into pm_scope_items (asset_id, hive_id, item_text, frequency, anchor_date)
+      select id, hive_id, 'hs-l5 Check the gland packing', 'Monthly', current_date - 40 from pm_assets where hive_id = '${HIVE}' and tag_id = 'HSL5-P-210';`);
+}
+// ★THE FIXTURE IS RELATIVE TO THE WALK, NOT TO THE DAY IT WAS LAID (2026-11-08, M12 release). Every hs-l5 row above says
+// when it happened as an offset from now - "the day before he left", "150 minutes ago", "his last morning" - and was laid
+// ONCE, so the offsets were true on 2026-10-30 and drifted a day a day. Nine days later his gateway call had left the card's
+// 7-day window, his trail lines and the shift's voice actions sat below a page of newer lines, and L5 read "nothing to
+// judge" on six lists. Laid once and RE-DATED every run (triggers off): the windows hold him because the fixture says so.
+if (L5_GONE) psql1(`set session_replication_role = replica;
+  update logbook set date = now() - interval '1 day', created_at = now() - interval '1 day' where id = 'hs-l5-logbook';
+  update pm_completions set completed_at = now() - interval '1 day' where hive_id = '${HIVE}' and notes = 'hs-l5 the day before he left';
+  update project_progress_logs set created_at = now() - interval '1 day' where hive_id = '${HIVE}' and notes = 'hs-l5 his last progress report';
+  update project_change_orders set requested_at = now() - interval '1 day', created_at = now() - interval '1 day' where hive_id = '${HIVE}' and co_number = 'CO-L5';
+  update project_roles set assigned_at = now() - interval '20 days' where hive_id = '${HIVE}' and notes = 'hs-l5' and worker_name = '${L5_GONE}';
+  update rcm_fmea_modes set created_at = now() - interval '1 day' where hive_id = '${HIVE}' and failure_mode = 'Gland packing leak (hs-l5)';
+  update hive_audit_log set created_at = now() - case action when 'edit_asset' then interval '3 hours' when 'report_post' then interval '19 hours' else interval '1 day' end
+    where hive_id = '${HIVE}' and meta->>'hs' = 'l5';
+  update ai_audit_log set created_at = now() - interval '30 minutes' where hive_id = '${HIVE}' and payload->>'hs' = 'l5';
+  update community_replies set created_at = now() - interval '1 day' where hive_id = '${HIVE}' and content = 'hs-l5 Checked it on my last shift - the coupling guard was loose.';
+  update community_posts set created_at = now() - interval '20 hours' where id = '5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a';
+  update project_items set planned_start = current_date - 2, planned_end = current_date + 5 where hive_id = '${HIVE}' and title = 'hs-l5 his open task';
+  update projects set start_date = current_date - 14, end_date = current_date + 20 where hive_id = '${HIVE}' and project_code = 'CON-2026-970';
+  update asset_nodes set created_at = now() - interval '6 days' where hive_id = '${HIVE}' and tag = 'HSL5-P-210';
+  update marketplace_inquiries set created_at = now() - interval '1 day' where message = 'hs-l5 Is the spare seal kit still available?';
+  update gateway_audit_log set created_at = now() - interval '150 minutes' where hive_id = '${HIVE}' and request_id = 'hs-l5-call';
+  update pm_assets set created_at = now() - interval '40 days' where hive_id = '${HIVE}' and tag_id = 'HSL5-P-210';
+  update pm_scope_items set anchor_date = current_date - 40 where hive_id = '${HIVE}' and item_text = 'hs-l5 Check the gland packing';
+  update engineering_calcs set created_at = now() - interval '1 day' where hive_id = '${HIVE}' and project_name = 'hs-l5 P-102 seal flush line';`);
+// the shift's voice actions (audit-log's fixture, marker hs l1) say "the last two hours" the same way - re-dated with them
+psql1(`set session_replication_role = replica;
+  update ai_audit_log a set created_at = now() - (r.n * 7 || ' minutes')::interval
+    from (select id, row_number() over (order by worker_name, id) n from ai_audit_log where hive_id = '${HIVE}' and payload->>'hs' = 'l1') r
+    where a.id = r.id;`);
 if (L7) { l7Clear(); l7Plant();
   // the walk's two people belong to both hives; Efren belongs to the second one only (what a leak would show)
   const n = psql(`select count(*) from hive_members o where o.hive_id = '${L7_HIVE}' and exists (select 1 from hive_members h where h.hive_id = '${HIVE}' and h.worker_name = o.worker_name)`);
@@ -1411,6 +1463,8 @@ try {
               for (const act of L.candidates || []) {
                 if (L.skip && L.skip(act, mine)) continue;
                 if (L.applies && !L.applies(it)) continue;
+                const why = L.exempt && allowed[act] && !offered.has(act) && L.exempt(act, it);
+                if (why) { note(l2Row, `${tag}: ${whose} item - ${act} is not offered here: ${why}`); continue; }
                 if (allowed[act] && !offered.has(act)) fail(l2Row, `${tag}: ${whose} item - the database lets a ${roleKey} ${act} it, and the item does not offer it`);
               }
             }

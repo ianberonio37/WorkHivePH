@@ -2,7 +2,7 @@
 name: doc-UFAI_CRITIC_DEEPWALK_ROADMAP
 type: doc
 source: file:UFAI_CRITIC_DEEPWALK_ROADMAP.md
-source_sha: fcab7e31c82cf45d
+source_sha: 92549490153126eb
 last_verified: 2026-07-13
 supersedes: null
 ---

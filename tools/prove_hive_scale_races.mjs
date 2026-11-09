@@ -150,6 +150,10 @@ const RACES = [
     told: /changed while you were editing/i,
     kept: (id) => psql(`select pinned::text || '|' || (content = 'Edited during the race - HS401 walk')::text from community_posts where id = '${id}'`) === 'true|false',
     keptSays: 'the pin stays and the post keeps its pinned text',
+    // ★THE AUDIT LINE IS THE RACE'S TOO (2026-11-08, M12 release): the trail's AFTER triggers write a line for this race's
+    // writes, and nothing swept it - the lines piled up in the 30-member hive's trail and pushed the departed member's
+    // items and the shift's voice actions out of the newest page hive-scale-lists reads (HS87/88/97/144 'nothing to judge').
+    cleanup: (t0) => sweep(t0, ['hive_audit_log']),
   },
   {
     id: 'HS407', page: 'hive.html', table: 'hive_members', a: 'Corazon Bautista', b: 'Ernesto Villareal',
@@ -170,9 +174,14 @@ const RACES = [
     id: 'HS395', page: 'asset-hub.html', table: 'asset_nodes', a: 'Corazon Bautista', b: 'Ernesto Villareal',
     claim: 'one supervisor approves a machine while another rejects it: the second is told, the approval stands',
     pick: async () => psql(`select id from asset_nodes where hive_id = '${HIVE}' and status = 'pending' and deleted_at is null order by created_at limit 1`),
-    aOpen: async () => {},
+    // ★A HOLDS THE REASON PROMPT, NOT A STALE CARD (2026-11-08, M12 release). The register re-reads itself live since HS L3
+    // (2026-10-30), so a card B approved leaves A's screen within a second and a tap on it is no longer a race anyone can
+    // make. The race a person still makes is the one the guard sits behind: A has tapped Reject and is typing the reason
+    // when B approves. So A opens the prompt first, B decides, and A's OK is the write that must be refused and said.
+    aOpen: async (A, id) => { await tap(A, `button[data-action="asset-reject"][data-id="${id}"]`);
+      await A.page.locator('[data-wh-modal-ok]').first().waitFor({ state: 'visible', timeout: 6000 }); },
     bAct: async (B, id) => { await tap(B, `button[data-action="asset-approve"][data-id="${id}"]`); await modalOk(B, 1500); await sleep(2500); },
-    aAct: async (A, id) => { await tap(A, `button[data-action="asset-reject"][data-id="${id}"]`); await modalOk(A); },
+    aAct: async (A) => { if (!(await modalOk(A))) throw new Error(`${A.person} @ ${A.vpName}: the reject prompt closed before the OK`); },
     told: /already handled by another supervisor/i,
     kept: (id) => psql(`select status from asset_nodes where id = '${id}'`) === 'approved',
     keptSays: 'the machine stays approved',
@@ -252,11 +261,14 @@ const RACES = [
     claim: 'one supervisor approves a change order while another rejects it: the second is told it was already decided',
     pick: async () => psql(`select id || '|' || project_id from project_change_orders where hive_id = '${HIVE}' and status = 'pending' order by id limit 1`),
     snapId: (v) => v.split('|')[0],
-    aOpen: async (A, v) => { await A.page.evaluate((p) => openDetail(p), v.split('|')[1]); await sleep(3000); await tap(A, '#detail-tabs button[data-pane="changes"]'); await sleep(1500); },
+    // ★A HOLDS THE REASON PROMPT (2026-11-08, M12 release) - the same rot as HS395: the change list re-reads live, so A opens
+    // the reject prompt BEFORE B approves and A's OK is the write the guard must refuse.
+    aOpen: async (A, v) => { await A.page.evaluate((p) => openDetail(p), v.split('|')[1]); await sleep(3000); await tap(A, '#detail-tabs button[data-pane="changes"]'); await sleep(1500);
+      await tap(A, `[onclick="rejectCO('${v.split('|')[0]}')"]`); await A.page.locator('[data-wh-modal-ok]').first().waitFor({ state: 'visible', timeout: 6000 }); },
     bAct: async (B, v) => { await B.page.evaluate((p) => openDetail(p), v.split('|')[1]); await sleep(3000);
       await tap(B, '#detail-tabs button[data-pane="changes"]'); await sleep(1500);
       await tap(B, `[onclick="approveCO('${v.split('|')[0]}')"]`); await modalOk(B, 1500); await sleep(3000); },
-    aAct: async (A, v) => { await tap(A, `[onclick="rejectCO('${v.split('|')[0]}')"]`); await modalOk(A); },
+    aAct: async (A) => { if (!(await modalOk(A))) throw new Error(`${A.person} @ ${A.vpName}: the reject prompt closed before the OK`); },
     told: /already decided by another supervisor/i,
     kept: (v) => psql(`select status from project_change_orders where id = '${v.split('|')[0]}'`) === 'approved',
     keptSays: 'the change order stays approved',
@@ -604,7 +616,10 @@ const RACES = [
     keptSays: "each seller's profile holds its own handle",
     seen: async (A) => { const v = await A.page.evaluate(() => (document.getElementById('messenger-input') || {}).value || '');
       return { ok: !/joel/i.test(v), says: `Ernesto's form holds "${v}", never Joel's` }; },
-    cleanup: () => psql(`set session_replication_role = replica; update marketplace_sellers set messenger_username = null where worker_name = 'Ernesto Villareal' and messenger_username = 'ernesto.racewalk';`),
+    // ★THE AUDIT LINE IS THE RACE'S TOO (2026-11-08, M12 release): the trail's AFTER triggers write a line for this race's
+    // writes, and nothing swept it - the lines piled up in the 30-member hive's trail and pushed the departed member's
+    // items and the shift's voice actions out of the newest page hive-scale-lists reads (HS87/88/97/144 'nothing to judge').
+    cleanup: (t0) => { psql(`set session_replication_role = replica; update marketplace_sellers set messenger_username = null where worker_name = 'Ernesto Villareal' and messenger_username = 'ernesto.racewalk';`); sweep(t0, ['hive_audit_log']); },
   },
   {
     id: 'HS440', page: 'marketplace-seller.html', table: 'service_providers', a: 'Ernesto Villareal', b: 'Joel Cruz',
@@ -679,7 +694,10 @@ const RACES = [
     kept: () => psql(`select string_agg(seller_name, ',' order by seller_name) from marketplace_listings where title = 'Race walk - SKF 6205 bearing, sealed'
       and created_at > now() - interval '5 minutes'`) === 'Ana Reyes,Ernesto Villareal',
     keptSays: 'two listings, each under the member who posted it',
-    cleanup: (t0) => sweep(t0, [`delete from marketplace_listings where title = 'Race walk - SKF 6205 bearing, sealed' and created_at >= '${t0}';`]),
+    // ★THE AUDIT LINE IS THE RACE'S TOO (2026-11-08, M12 release): the trail's AFTER triggers write a line for this race's
+    // writes, and nothing swept it - the lines piled up in the 30-member hive's trail and pushed the departed member's
+    // items and the shift's voice actions out of the newest page hive-scale-lists reads (HS87/88/97/144 'nothing to judge').
+    cleanup: (t0) => sweep(t0, [`delete from marketplace_listings where title = 'Race walk - SKF 6205 bearing, sealed' and created_at >= '${t0}';`, 'hive_audit_log']),
   },
   {
     id: 'HS399', page: 'assistant.html', table: 'ai_reply_feedback', a: 'Joel Cruz', b: 'Ana Reyes',
@@ -724,7 +742,7 @@ const RACES = [
     bAct: async (B, id) => { await B.page.evaluate((p) => openDetail(p), id); await sleep(3000); await tap(B, '#detail-tabs button[data-pane="signoff"]'); await sleep(1500);
       await B.page.locator('#lessons-text').fill("Ernesto's lessons - race walk"); await B.page.evaluate(() => saveLessons()); await sleep(4000); },
     aAct: async (A) => { await A.page.evaluate(() => saveLessons()); await sleep(1500); },
-    told: /Someone saved this project while you were writing/i,
+    told: /may not have saved: the project may have changed since you opened it/i,
     kept: (id) => psql(`select meta->>'lessons_learned' from projects where id = '${id}'`) === "Ernesto's lessons - race walk",
     keptSays: "the project keeps Ernesto's lessons",
     seen: async (A) => { const v = await A.page.evaluate(() => (document.getElementById('lessons-text') || {}).value || '');

@@ -49,7 +49,10 @@ let bad = 0;
     // further down, past a blank line the capture stopped at. Follow the chain to its semicolon, and
     // follow it through the VARIABLE too: this codebase builds a filtered list as `let query =
     // db.from(...)` and then `query = query.eq(...)`, so the limit often lands in a later statement.
-    for (const m of src.matchAll(/(?:(\w+)\s*=\s*)?[\w.]*\.from\(\s*['"]([a-z0-9_]+)['"]\s*\)/gi)) {
+    // ★…AND THROUGH A WRAPPER CALL (2026-11-09). asset-hub builds `let r = scopeNodes(db.from('asset_nodes')...)` (and
+    // `_mine(scopeNodes(db.from(...)))`), and the variable was never captured because a function call stood between the `=`
+    // and the `.from(` - so `r.order(...).limit(201)` two lines on went unread and two bounded reads were called unbounded.
+    for (const m of src.matchAll(/(?:(\w+)\s*=\s*(?:\w+\(\s*)*)?[\w.]*\.from\(\s*['"]([a-z0-9_]+)['"]\s*\)/gi)) {
       const varName = m[1];
       const table = m[2];
       const from = m.index || 0;

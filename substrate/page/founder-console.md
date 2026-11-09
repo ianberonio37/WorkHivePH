@@ -2,13 +2,13 @@
 name: page-founder-console
 type: page
 source: file:founder-console.html
-source_sha: 8a8b98951d312491
+source_sha: b0cf5e4ed581e91f
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `founder-console.html` — WorkHive Founder Console
 
-Size: 201KB · 81 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 203KB · 81 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: `founder_active_hives`, `founder_ai_cost`, `founder_anon_sessions`, `founder_audit_feed`, `founder_client_errors`, `founder_dau_series`, `founder_dev_reads`, `founder_feature_use`, `founder_hive_pareto`, `founder_marketplace_pulse`, `founder_maturity`, `founder_mau`, `founder_model_providers`, `founder_outcomes`, `founder_scheduled_work`

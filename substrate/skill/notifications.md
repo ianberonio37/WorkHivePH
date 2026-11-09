@@ -2,7 +2,7 @@
 name: skill-notifications
 type: skill
 source: skill:notifications
-source_sha: 420ccd439604cf45
+source_sha: 57946b0dec2051fb
 last_verified: 2026-07-13
 supersedes: null
 ---

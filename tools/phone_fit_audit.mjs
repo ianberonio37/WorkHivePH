@@ -169,6 +169,22 @@ export function audit(VIS_JS, opts) {
     // matches nearly everything names nothing.
     const chrome = hit.closest('[class*="fab"], [id*="fab"], header, [role="banner"], .sticky, [class*="sticky"], [class*="toast"], [role="alert"], [role="status"], [class*="consent"], [class*="cookie"], [aria-modal="true"], [role="dialog"], #wh-hub-panel, #wh-ai-panel, #wh-feedback-panel');
     const cover = (chrome && !chrome.contains(c)) ? chrome : hit;
+    // ★THE FOLD UNDER A BOTTOM BAR IS WHERE THE PAGE CONTINUES (2026-11-09, M12). At 320 pm-scheduler's on-track figure
+    // landed at the fold, inside the fixed bottom tab bar's band (#tab-add), and read as occluded. The top-edge rule above
+    // already says it: with a fixed band, something is always under it, and what matters is whether the person can reach
+    // the control. At the BOTTOM edge the cut-off content is the visible invitation to scroll, and one scroll lifts it
+    // clear - unlike a control parked under a top band, which nothing tells the reader to look for
+    // (feedback_scrolling_the_page_put_a_control_under_the_fixed_band). Narrow on purpose: the coverer must ride in a
+    // FIXED ancestor anchored to the viewport's bottom edge, and the document must still be able to scroll far enough
+    // to bring the control's bottom above that bar's top. A control under a bottom bar at the END of the page (no
+    // room left to scroll - the "nothing reserved space for the fixed bar" defect) is still a finding.
+    let band = cover;
+    while (band && band !== document.body && getComputedStyle(band).position !== 'fixed') band = band.parentElement;
+    if (band && band !== document.body) {
+      const br = band.getBoundingClientRect();
+      const roomBelow = document.documentElement.scrollHeight - (window.scrollY + vh);
+      if (br.bottom >= vh - 1 && br.top > vh / 2 && roomBelow >= r.bottom - br.top) continue;
+    }
     const vcs = getComputedStyle(cover);
     out.occlusion.push(`${name(c)} "${(c.getAttribute('aria-label') || ownText(c) || c.value || '').slice(0, 24)}" @${rectOf(r)} covered by ${name(cover)} (${vcs.position}, z ${vcs.zIndex}) @${rectOf(cover.getBoundingClientRect())}`);
   }

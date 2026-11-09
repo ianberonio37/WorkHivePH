@@ -2,7 +2,7 @@
 name: skill-devops
 type: skill
 source: skill:devops
-source_sha: 51acaaea4bc71d82
+source_sha: 3801442ddea0224c
 last_verified: 2026-07-13
 supersedes: null
 ---

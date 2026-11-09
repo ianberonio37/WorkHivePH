@@ -283,7 +283,11 @@ const EFFECT = {
   // through the product's own dispatcher (PERFORM['J13@logbook.html']) and asks for the row THAT left,
   // which is the difference between waiting for evidence and producing it. Read after the walk, not before,
   // and deleted immediately after it is counted.
-  J13: ["the walk's own voice-driven action left its record (dispatched through WHVoice, counted, then removed)", "select count(*) from ai_audit_log where hive_id='$H' and payload::text like '%wh-journey-walk%'"],
+  // ★READ AS THE DATABASE, NOT THE WALKER (2026-11-09): since BRH-L the hive's audit trail (ai_audit_log included) is read by its
+  // SUPERVISORS only - so a worker walking J13 can never read back the audit row their own voice action wrote, and every hive
+  // read 0. The question is whether the write LANDED, which the database answers; the walker's view of the trail is the
+  // audit-log page's own rows to judge. The third field says so.
+  J13: ["the walk's own voice-driven action left its record (dispatched through WHVoice, counted, then removed)", "select count(*) from ai_audit_log where hive_id='$H' and payload::text like '%wh-journey-walk%'", 'db'],
   J9: ["a day plan and the work it planned", "select least((select count(*) from shift_plans where hive_id='$H'), (select count(*) from logbook where hive_id='$H'))"],
   J26: ["the person is genuinely in two hives", "select count(distinct hive_id) from hive_members where worker_name=(select worker_name from hive_members where hive_id='$H' limit 1) and status='active'"],
   J24: ["safety-relevant work is recorded and auditable", "select least((select count(*) from logbook where hive_id='$H'), (select count(*) from hive_audit_log where hive_id='$H'))"],
@@ -730,7 +734,7 @@ function readChain(archetype, hiveId, identity) {
   // perfectly well; the question was malformed. A one-person operator's records are keyed to the PERSON,
   // so a chain for them needs the person, and `$W` is that.
   const sql = spec[1].replace(/\$H/g, hiveId).replace(/\$W/g, (identity && identity.name || '').replace(/'/g, "''"));
-  const asPerson = identity ? psqlAs(identity.name, sql) : null;
+  const asPerson = (identity && spec[2] !== 'db') ? psqlAs(identity.name, sql) : null;   // 'db': a write the person's policy hides from them
   const raw = (asPerson !== null && asPerson !== '') ? asPerson : psql(sql);
   const val = (raw === null || raw === '') ? null : Number(raw);
   CHAINS.set(key, val);

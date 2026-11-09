@@ -78,8 +78,26 @@ def load_doc() -> dict:
     return doc
 
 
-def save_doc(doc: dict, indent: int | None = 2) -> dict:
+# ★A SAVE THAT WOULD ERASE THE REGISTRY IS REFUSED (2026-11-09, M12 release). test_bank_critic_rewalk.py points the banker's
+# CRITIC at a temp file and banks a one-row synthetic registry - and since the banker saves through this module (the union
+# fix, 2026-11-07), the save ignored that path and wrote the ONE row over the real critic registry and both its shards
+# (50,503 rows -> 1; restored from HEAD). Every writer of the trajectory and critic registries comes through here, so the
+# guard sits here: a save that would leave fewer than half the rows already on disk raises, unless the caller says it
+# means to (allow_shrink=True). No real bank, seed or repair removes half a registry.
+class RegistryShrinkRefused(RuntimeError):
+    pass
+
+
+def _guard_shrink(kind: str, before: int, after: int, allow: bool) -> None:
+    if allow or before < 20 or after * 2 >= before:
+        return
+    raise RegistryShrinkRefused(f"{kind}: refusing to save {after} row(s) over {before} - a save that removes more than half "
+                                f"the registry is a bug (a test or a partial read); pass allow_shrink=True if it is meant")
+
+
+def save_doc(doc: dict, indent: int | None = 2, allow_shrink: bool = False) -> dict:
     """Write the union back: shard rows to their shard (compact), the rest to the main file. Returns {file: rows}."""
+    _guard_shrink("trajectory registry", load_doc().get("count", 0), len(doc.get("trajectories") or []), allow_shrink)
     buckets: dict[str, list] = {"": []}
     for pfx in SHARDS:
         buckets[pfx] = []
@@ -113,7 +131,8 @@ def load_critic() -> dict:
     return doc
 
 
-def save_critic(critic: dict, indent: int | None = 2) -> dict:
+def save_critic(critic: dict, indent: int | None = 2, allow_shrink: bool = False) -> dict:
+    _guard_shrink("critic registry", load_critic().get("count", 0), len(critic.get("rows") or []), allow_shrink)
     buckets: dict[str, list] = {"": []}
     for pfx in CRITIC_SHARDS:
         buckets[pfx] = []

@@ -5,7 +5,7 @@
     "data_cascades_mapped": 21,
     "data_cascades_UNMAPPED": 5,
     "operational_log_writes": 15,
-    "self_config_writes": 2,
+    "self_config_writes": 3,
     "infra_writes": 13
   },
   "data_cascades_unmapped": [
@@ -55,8 +55,8 @@
     {
       "fn": "cmms-webhook-receiver",
       "to_table": "inventory_items",
-      "line": 447,
-      "evidence": "functions/cmms-webhook-receiver/index.ts:447",
+      "line": 449,
+      "evidence": "functions/cmms-webhook-receiver/index.ts:449",
       "downstream_pages": [
         "alert-hub",
         "assistant",
@@ -204,8 +204,8 @@
         {
           "fn": "analytics-orchestrator",
           "to_table": "analytics_snapshots",
-          "line": 1353,
-          "evidence": "functions/analytics-orchestrator/index.ts:1353",
+          "line": 1369,
+          "evidence": "functions/analytics-orchestrator/index.ts:1369",
           "downstream_pages": [
             "analytics"
           ],
@@ -452,9 +452,20 @@
         },
         {
           "fn": "cmms-webhook-receiver",
+          "to_table": "integration_configs",
+          "line": 489,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:489",
+          "downstream_pages": [
+            "integrations",
+            "plant-connections"
+          ],
+          "disposition": "self_config"
+        },
+        {
+          "fn": "cmms-webhook-receiver",
           "to_table": "inventory_items",
-          "line": 447,
-          "evidence": "functions/cmms-webhook-receiver/index.ts:447",
+          "line": 449,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:449",
           "downstream_pages": [
             "alert-hub",
             "assistant",
@@ -470,8 +481,8 @@
         {
           "fn": "cmms-webhook-receiver",
           "to_table": "logbook",
-          "line": 385,
-          "evidence": "functions/cmms-webhook-receiver/index.ts:385",
+          "line": 386,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:386",
           "downstream_pages": [
             "asset-hub",
             "assistant",
@@ -490,8 +501,7 @@
         "external_sync",
         "integration_configs",
         "inventory_items",
-        "v_external_sync_truth",
-        "v_worker_truth"
+        "v_external_sync_truth"
       ],
       "invoked_by_pages": []
     },
@@ -923,6 +933,7 @@
           "line": 369,
           "evidence": "functions/sensor-readings-ingest/index.ts:369",
           "downstream_pages": [
+            "alert-hub",
             "asset-hub"
           ],
           "disposition": "data_mapped"
@@ -963,8 +974,8 @@
         {
           "fn": "supervisor-reset-password",
           "to_table": "hive_audit_log",
-          "line": 104,
-          "evidence": "functions/supervisor-reset-password/index.ts:104",
+          "line": 111,
+          "evidence": "functions/supervisor-reset-password/index.ts:111",
           "downstream_pages": [
             "alert-hub",
             "asset-hub",
@@ -983,8 +994,8 @@
         {
           "fn": "supervisor-reset-password",
           "to_table": "service_outbox",
-          "line": 116,
-          "evidence": "functions/supervisor-reset-password/index.ts:116",
+          "line": 123,
+          "evidence": "functions/supervisor-reset-password/index.ts:123",
           "downstream_pages": [],
           "disposition": "infra"
         }

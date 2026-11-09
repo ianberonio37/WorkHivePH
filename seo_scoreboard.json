@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T22:35:38+00:00",
+  "generated_at": "2026-11-08T04:08:13+00:00",
   "pillars": {
     "SEO": {
       "achieved": 723,
@@ -16,11 +16,11 @@
       "ian_blocked": 0
     },
     "GEO": {
-      "achieved": 5,
+      "achieved": 6,
       "total": 10,
-      "pct": 50.0,
+      "pct": 60.0,
       "local_pct": 100.0,
-      "ian_blocked": 5
+      "ian_blocked": 4
     },
     "AIO": {
       "achieved": 12,
@@ -30,23 +30,23 @@
       "ian_blocked": 7
     },
     "SXO": {
-      "achieved": 411,
+      "achieved": 412,
       "total": 412,
-      "pct": 99.8,
-      "local_pct": 99.8,
+      "pct": 100.0,
+      "local_pct": 100.0,
       "ian_blocked": 0
     }
   },
-  "overall_pct": 82.5,
+  "overall_pct": 84.6,
   "local_pct": 100.0,
   "weakest": "GEO",
-  "point_pct": 98.9,
+  "point_pct": 99.1,
   "overall": [
-    1367,
+    1369,
     1382
   ],
   "local": [
-    1364,
+    1365,
     1365
   ],
   "components": {
@@ -162,7 +162,7 @@
       ],
       [
         "live SOV baseline run",
-        0,
+        1,
         1,
         "[IAN] manual, 5 engines - baseline age read",
         true
@@ -229,7 +229,7 @@
       ],
       [
         "CWV measured across the surface",
-        119,
+        120,
         120,
         "cwv",
         false
@@ -247,7 +247,7 @@
     "entity resolvable (sameAs)": "index.html's Organization declares sameAs: [] - no profile URL to resolve",
     "deployed to production": "HEAD sitemap.xml 200, robots.txt 200, ea75de4e1f4161c869d7a30bcbad9660.txt 200",
     "GSC + Bing reporting": "Search Console: credential absent, report none; Bing Webmaster: credential absent, report none",
-    "live SOV baseline run": "geo_sov_baseline.json does not exist - never run",
+    "live SOV baseline run": "scored 2026-11-03 (4 days ago, window 35)",
     "off-site channels active": "missing: Reddit, YouTube, G2",
     "third-party listicle inclusion": "none recorded (listicle_inclusions.json)"
   }

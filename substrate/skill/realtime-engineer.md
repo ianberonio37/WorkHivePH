@@ -2,7 +2,7 @@
 name: skill-realtime-engineer
 type: skill
 source: skill:realtime-engineer
-source_sha: 4f1b59cb94d72554
+source_sha: 465bdbc107d809f6
 last_verified: 2026-07-13
 supersedes: null
 ---

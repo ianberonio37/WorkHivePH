@@ -596,7 +596,10 @@
       <details class="wh-help" id="assistant-scope-details"
                style="margin:0; margin-inline:auto; max-width:min(32rem, 70ch); background:transparent;
                       border:0; padding:0;">
-        <summary id="assistant-scope-summary"
+        <!-- data-source-chip (2026-11-09): this summary IS the surface's statement of what it answers from - the one a person
+             sees in the chat. M11 moved #assistant-scope-chip to the collapsed sources foot, and the AI-honesty lens (Y2)
+             then found no visible basis; it was here all along, unmarked. -->
+        <summary id="assistant-scope-summary" data-source-chip
                  style="font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></summary>
         <p id="assistant-scope-chip-chat" role="note"
            style="margin:6px 0 0; font-size:var(--wh-fs-2xs, 0.75rem); line-height:1.4; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></p>

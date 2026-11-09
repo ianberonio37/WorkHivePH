@@ -83,6 +83,25 @@
         if (typeof whReloadWhenBack === 'function') whReloadWhenBack();   // SL AV4: ask the database first, reload once - a bare reload on every reconnect looped while it was down
         else window.addEventListener('online', function () { location.reload(); }, { once: true });
       }
+      // ★A SCRIPT THAT NEVER ARRIVED IS NOT A REFUSAL (db-pages-shared-degradation, 2026-11-09). When supabase-js or
+      // utils.js failed to load, both onerror handlers called deny() - so a founder on a bad connection was told
+      // "Founder access only", the one sentence that is certainly false for them. Could not load is said as itself,
+      // with a reload, and the page stays closed exactly as cannotAsk() keeps it (nothing behind the card is reachable).
+      function cannotLoad() {
+        settled();
+        var d = document.createElement('div');
+        d.setAttribute('role', 'alert');
+        d.style.cssText = 'position:fixed;inset:0;z-index:9000;font-family:sans-serif;color:#e6edf3;background:#0d1117;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;';
+        d.innerHTML = '<div><h1 style="font-size:var(--wh-fs-lead-plus, 1.125rem);">This page could not load</h1>'
+          + '<p style="color:var(--wh-slate-400, #94a3b8);font-size:var(--wh-fs-sm, .85rem);margin-top:.5rem;">Its scripts did not arrive, so your access was not checked. Check your connection, then try again.</p>'
+          + '<button type="button" style="margin-top:1rem;min-height:44px;padding:0 1.2rem;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:transparent;color:inherit;font:inherit;cursor:pointer;">Try again</button></div>';
+        d.querySelector('button').addEventListener('click', function () { location.reload(); });
+        document.body.appendChild(d);
+        Array.prototype.forEach.call(document.body.children, function (el) {
+          if (el !== d && !(el.classList && el.classList.contains('wh-offline-banner'))) el.inert = true;
+        });
+        document.documentElement.style.visibility = '';
+      }
       function gate(db) {
         db.auth.getSession().then(function (r) {
           if (!(r && r.data && r.data.session) && typeof whSignInWall === 'function') { whSignInWall(); return; }
@@ -119,10 +138,10 @@
               gate(db);
             } catch (e) { deny(); }
           };
-          s2.onerror = deny;
+          s2.onerror = cannotLoad;
           document.head.appendChild(s2);
         };
-        s1.onerror = deny;
+        s1.onerror = cannotLoad;
         document.head.appendChild(s1);
       });
     })();
@@ -230,7 +249,7 @@
       <div class="card" id="kpi-fallback"><p class="kpi-label">Fallback rate</p><div class="big">-</div><div data-i="p_nonprimaryprovider_7a53" class="delta">non-primary provider</div></div>
       <div class="card" id="kpi-tokens"><p class="kpi-label" data-i="p_tokensused_57b5">Tokens used</p><div class="big">-</div><div class="delta">in + out (estimated)</div></div>
       <div class="card" id="kpi-latency"><p class="kpi-label">p50 latency</p><div class="big">-</div><div data-i="p_msllmservedonly_1c1f" class="delta">ms (LLM-served only)</div></div>
-      <div class="card" id="kpi-error-rate"><!-- was role=alert/aria-live=assertive (2026-09-05): a KPI tile is a stat, not an alert - it announced "Error rate" on every load and read as "the page says it failed" to the fourth-state prover --><p class="kpi-label">Error rate</p><div class="big">-</div><div data-i="p_fallbackorschemafail_07c7" class="delta">fallback or schema fail</div></div>
+      <div class="card" id="kpi-error-rate" data-arc-x-be-allow="the error rate is a figure, not a validation message"><!-- was role=alert/aria-live=assertive (2026-09-05): a KPI tile is a stat, not an alert - it announced "Error rate" on every load and read as "the page says it failed" to the fourth-state prover --><p class="kpi-label">Error rate</p><div class="big">-</div><div data-i="p_fallbackorschemafail_07c7" class="delta">fallback or schema fail</div></div>
     </div>
 
     <!-- Per-task routing -->

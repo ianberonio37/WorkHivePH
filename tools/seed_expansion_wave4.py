@@ -1379,6 +1379,24 @@ def _gate_checked_cast(page: str, candidates: list[str]) -> str:
     return next((p for p in candidates if f"{page}|{p}" not in bad), candidates[0])
 
 
+def _gate_checked_route(page: str, persona: str, pages: list[str]) -> bool:
+    """True when the journey-paths gate accepts `pages` as `persona`'s route - the same reading the gate makes, one path.
+    ★A CRITIC FIND IS MET WHERE THE CRITIC MET IT (2026-11-08, M12 release). The CF rows took the hub route to their page
+    and extended it to four pages, which sent a signed-in reader of a learn guide on to hive.html (a guide carries no hub
+    and links the logbook) and a field returner to analytics (offered to supervisors). check_journey_paths named both. A
+    route the gate refuses is replaced by the page alone, entered by its address - which is how the critic walk opened it."""
+    import check_journey_paths as cjp
+    memo = _gate_checked_cast.__dict__
+    if "links" not in memo:
+        memo["links"] = cjp.link_graph()
+        memo["offered"], memo["parented"] = cjp.hub_offered_and_parented()
+    key = f"{page}|{persona}"
+    paths = {key: list(pages)}
+    if cjp.role_blocked_hops(paths, {key: _cast_of(persona)}, memo["links"]):
+        return False
+    return not cjp.broken_hops(paths, memo["offered"], memo["parented"], memo["links"])
+
+
 # ★A ONE-ROW-PER-PAGE CLASS IS CARRIED BY ITS PAGE, NOT ITS KEY (2026-10-14, §BRH.2). D's key is the guard COUNT
 # ('17 guards'), so a page whose count moved looked like a new site and the first re-measure offered nine duplicate
 # D rows. D, F, G and H are one row per page by construction; L (per control), M (per page, constant key), N (per
@@ -2679,6 +2697,8 @@ def critic_finding_rows(existing: list[dict], replay: bool = False) -> list[dict
         else:
             pages = _path(_start(page), page, [], cast=_cast_of(persona))
             entry = "direct" if page == "index.html" else "hub-nav"
+            if not _gate_checked_route(page, persona, pages):
+                pages, entry = [page], "direct"
         detail = str(cell["evidence"]).split(":", 1)[-1].strip()
         rows.append({
             "wave": CF_WAVE,

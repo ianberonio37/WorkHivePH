@@ -172,7 +172,7 @@
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 209721
+          "offset": 210175
         }
       ],
       "drift": []
@@ -197,7 +197,7 @@
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 104639
+          "offset": 104692
         }
       ],
       "drift": []
@@ -245,42 +245,42 @@
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 245055
+          "offset": 245385
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 246317
+          "offset": 246647
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 250730
+          "offset": 251060
         },
         {
           "table": "community_replies",
           "allowed": false,
-          "offset": 252706
+          "offset": 253036
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 254281
+          "offset": 254611
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 255154
+          "offset": 255484
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 258472
+          "offset": 258802
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 258732
+          "offset": 259062
         }
       ],
       "drift": []
@@ -359,7 +359,7 @@
         {
           "table": "schedule_items",
           "allowed": false,
-          "offset": 227716
+          "offset": 227789
         }
       ],
       "drift": []
@@ -429,27 +429,27 @@
         {
           "table": "projects",
           "allowed": false,
-          "offset": 264311
+          "offset": 264413
         },
         {
           "table": "project_items",
           "allowed": false,
-          "offset": 264455
+          "offset": 264557
         },
         {
           "table": "project_progress_logs",
           "allowed": false,
-          "offset": 264625
+          "offset": 264727
         },
         {
           "table": "project_change_orders",
           "allowed": false,
-          "offset": 265084
+          "offset": 265186
         },
         {
           "table": "project_roles",
           "allowed": false,
-          "offset": 265262
+          "offset": 265364
         }
       ],
       "drift": []

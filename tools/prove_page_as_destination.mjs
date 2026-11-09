@@ -71,6 +71,8 @@ for (const [file, who] of (ONLY ? DESTINATIONS.filter((d) => d[0] === ONLY) : DE
       skeletons,
       onward,
       bodyText: text.slice(0, 300),
+      // a page under its declared retired gate (data-wh-gate="retired") holds no figures - it says where the work moved
+      retired: !![...document.querySelectorAll('[data-wh-gate="retired"], #wh-retired-overlay')].find(vis),
     };
   }, VIS_JS).catch(() => ({ heading: '', textLen: 0, chips: 0, skeletons: 0, onward: 0 }));
 
@@ -81,7 +83,9 @@ for (const [file, who] of (ONLY ? DESTINATIONS.filter((d) => d[0] === ONLY) : DE
   if (r.textLen < 200 && !explains) issues.push(`P2 only ${r.textLen} characters and none of them say what is missing - an arrival lands on an empty shell`);
   else if (r.textLen < 200) issues.push(null);   // honest-empty: reported below, not failed
   if (r.skeletons) issues.push(`P3 ${r.skeletons} skeleton(s) still on screen after settling - the page never finished for them`);
-  if (!r.chips) issues.push('P3 nothing says how fresh this is - a person reading it cannot tell whether it is today');
+  // ★A RETIRED CARD HAS NOTHING TO DATE (2026-11-09): platform-actions moved into the operator console; its gate names the
+  // page (P1) and leads on (P4), and asking it how fresh its figures are asks about figures it no longer shows.
+  if (!r.chips && !r.retired) issues.push('P3 nothing says how fresh this is - a person reading it cannot tell whether it is today');
   if (r.onward === 0) issues.push('P4 no internal link leads anywhere from here - a cul-de-sac the back button is the only exit from');
 
   const real = issues.filter(Boolean);

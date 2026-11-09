@@ -420,6 +420,17 @@
     <a data-i="p_skills_3784" role="tab" aria-selected="false" href="skillmatrix.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:var(--wh-white-04, rgba(255,255,255,0.04)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); font-size:var(--wh-fs-xs, 0.8rem); font-weight:600; text-decoration:none; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">Skills</a>
     <span data-i="p_achievements_a663" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:var(--wh-fs-xs, 0.8rem); font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">Achievements</span>
   </div>
+  <!-- I5 (2026-11-08): what this page is for, for someone opening it for the first time - the shared .wh-help disclosure the other 31 pages carry. Every line is what this page's code does. -->
+  <details class="wh-help" style="margin:4px 1rem 12px">
+    <summary>How this page works</summary>
+    <ul>
+      <li>Your work earns XP in twelve domains.</li>
+      <li>Logging jobs, PM tasks, parts and hive posts all count.</li>
+      <li>Every 100 XP in a domain is one level.</li>
+      <li>Total level adds up your levels in every domain.</li>
+      <li>Hive Standings rank members by total level, not by XP.</li>
+    </ul>
+  </details>
   <!-- min-height reserves the chip's line before it renders: measured 2026-09-15 (design lens audit), the empty <p> growing
        into the chip moved the tiles, the action card and the verdict at 183 ms and 273 ms - a layout shift of 0.157. -->
   <p id="achievements-source-chip" hidden data-wh-sources-collapsed></p>  <!-- min-height lives in the style block: an inline value would beat the phone-width reservation -->

@@ -21,11 +21,28 @@ spec.loader.exec_module(bcw)
 F = [{"dim": "B3", "evidence": "hive: B3 40% long sentences", "severity": 2}]
 
 
+class _TmpRio:
+    """registry_io bound to one temp file. ★The banker saves through registry_io (the union, 2026-11-07), which writes
+    the REAL registry whatever bcw.CRITIC says - so pointing CRITIC at a temp file stopped isolating this test, and on
+    2026-11-09 its one synthetic row overwrote all 50,503 real rows (restored from HEAD; registry_io now refuses such a
+    shrink). The test owns BOTH doors now: the path and the I/O layer."""
+    def __init__(self, path):
+        self.path = path
+
+    def load_critic(self):
+        return json.loads(self.path.read_text(encoding="utf-8"))
+
+    def save_critic(self, critic, indent=2, allow_shrink=False):
+        self.path.write_text(json.dumps(critic, indent=indent), encoding="utf-8")
+        return {self.path.name: len(critic.get("rows") or [])}
+
+
 def bank(row_status, prior, new):
     tmp = Path(tempfile.mkdtemp()) / "critic.json"
     reg = {"rows": [{"id": "X", "status": row_status, "cell": "phone-390|worker|x|y", "findings": prior, "pages": ["hive.html"]}]}
     tmp.write_text(json.dumps(reg), encoding="utf-8")
     bcw.CRITIC = tmp
+    bcw._rio = _TmpRio(tmp)
     by = {r["id"]: r for r in reg["rows"]}
     with redirect_stdout(io.StringIO()):
         bcw._write_bank(reg, by, ["X"], "lens123", ["B3"], new, "test")

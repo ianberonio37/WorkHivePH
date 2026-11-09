@@ -587,6 +587,16 @@
     <div class="calendar-wrap" id="calendar-wrap" tabindex="0" role="tabpanel" aria-label="Day planner calendar timeline (scrollable)">
       <!-- Rendered by JS -->
     </div>
+    <!-- I5 (2026-11-08): what this page is for, for someone opening it for the first time - the shared .wh-help disclosure the other 31 pages carry. Below the day grid, not above it: at 390 it pushed the hive's overdue PM - the first-timer's example of a finished plan - off the first screen (self-efficacy-pages, vicarious). Every line is what this page's code does. -->
+    <details class="wh-help">
+      <summary>How this page works</summary>
+      <ul>
+        <li>This is your own plan. Your teammates do not see it.</li>
+        <li>Add tasks for each day, then mark each one done or missed.</li>
+        <li>Overdue PM tasks from your hive show beside your plan.</li>
+        <li>Days and times follow Philippine time.</li>
+      </ul>
+    </details>
 
   </div>
 </div>
@@ -2091,9 +2101,16 @@ function renderDayplannerSummary() {
     sub = parts.join(' · ') + '.';
   } else if (pmOverdue > 0) {
     tone = 'watch'; label = `${pmOverdue} PM${_pmS} overdue on your assets`;
-    sub  = (todayCount === 0 && weekCount === 0)
+    // ★NAME THE FIRST ONE (self-efficacy vicarious, 2026-11-09). At a phone width the open-items list that names these PMs is
+    // folded away, so a first-timer read only a count: no example of the hive's own work on the first screen. The oldest
+    // overdue task is named here, the same words the list shows; the rest stay one tap away.
+    const _firstPm = plantWork.find(pm => pm.is_overdue && !_pmPlanned(pm));
+    // capped at 60 characters: the verdict's height is reserved (min-height 90px, CLS) and a long task must not grow it
+    let _firstName = _firstPm ? (_firstPm.item_text || 'PM task') + (_firstPm.asset_name ? ' on ' + _firstPm.asset_name : '') : '';
+    if (_firstName.length > 60) _firstName = _firstName.slice(0, 59).replace(/\s+\S*$/, '') + '…';
+    sub  = (_firstName ? `First: ${_firstName}. ` : '') + ((todayCount === 0 && weekCount === 0)
       ? `${pmOverdue === 1 ? 'It is' : 'None of them is'} in your plan yet. Add ${pmOverdue === 1 ? 'it' : 'them'} to today, then plan around ${pmOverdue === 1 ? 'it' : 'them'}.`
-      : `Not in your plan yet. Put ${pmOverdue === 1 ? 'it' : 'them'} on a day so the plan matches the work that is due.`;
+      : `Not in your plan yet. Put ${pmOverdue === 1 ? 'it' : 'them'} on a day so the plan matches the work that is due.`);
   } else if (todayCount === 0 && weekCount === 0) {
     tone = 'empty'; label = _t('No plan yet', 'Wala pang plano');
     // the views were named DILO / WILO / MILO / YILO here, while the tabs a person presses say Day, Week, Month, Year

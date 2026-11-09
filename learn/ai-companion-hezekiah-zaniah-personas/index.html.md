@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 12 June 2026
 ·
-Updated 24 Aug 2026
+Updated 8 Nov 2026
 ·
 8 min read
 
@@ -39,13 +39,13 @@ Hezekiah is the hands-on reliability and maintenance expert. He draws on the tec
 - "What broadband vibration velocity means I should take a machine offline?"
 - "What goes on a monthly PM checklist for a centrifugal pump?"
 - "Walk me through an FMEA for a bottling line filler."
-- "How do MTBF and MTTR differ? Give me the formulas."
+- "How do MTBF (mean time between failures) and MTTR (mean time to repair) differ? Give me the formulas."
 
 He answers like a senior technician who has read every standard. His answers are specific, sourced and practical.
 
 ## Zaniah, the strategist
 
-Zaniah is the maintenance strategist. She draws on the strategic knowledge. That covers OEE and reliability benchmarks, and which KPI to pick. It also covers maturity models and the cost of downtime. And it covers life-cycle cost and what to do first. Ask Zaniah when the question is about *what to do next* and *why it is worth it*:
+Zaniah is the maintenance strategist. She draws on the strategic knowledge. That covers OEE and reliability benchmarks, and which KPI to pick. OEE is overall equipment effectiveness. A KPI is a key performance indicator. It also covers maturity models and the cost of downtime. And it covers life-cycle cost and what to do first. Ask Zaniah when the question is about *what to do next* and *why it is worth it*:
 
 - "We are reactive today. What is the highest-return next step?"
 - "Which two KPIs should I put on the plant dashboard first?"
@@ -138,4 +138,4 @@ Yes. It accepts English, Filipino and Taglish and replies in the language you us
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 798bb81d6dee4a78 -->
+<!-- md-twin source-sha: 92ba1a2a3b36d2a8 -->

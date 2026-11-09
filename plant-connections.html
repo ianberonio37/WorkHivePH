@@ -22,7 +22,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whLoadFormerMembers whMemberSuffix whReadError whReconcileHiveRole whRoleUnreadNote whSourcesSync whStartupHive whUse whUseThen whWarmLayout whWriteError">
+<script data-wh-skew-heal="whListError whListSkeleton whLoadFormerMembers whMemberSuffix whNoHiveGate whReadError whReconcileHiveRole whRoleUnreadNote whSourcesSync whStartupHive whUse whUseThen whWarmLayout whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -222,6 +222,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       })();
     </script>
 
+    <!-- I5 (2026-11-08): what this page is for, for someone opening it for the first time - the shared .wh-help disclosure the other 31 pages carry. Every line is what this page's code does. -->
+    <details class="wh-help">
+      <summary>How this page works</summary>
+      <ul style="margin:8px 0 0; padding-left:18px; font-size:var(--wh-fs-2xs, 0.75rem); line-height:1.55; color:var(--wh-text-muted, rgba(255,255,255,0.8));">
+        <li>Each card is one system that sends data to your hive.</li>
+        <li>A card says when that system last sent data.</li>
+        <li>Show details lists the calls made on your hive's keys this week.</li>
+        <li>Only supervisors can open this page.</li>
+      </ul>
+    </details>
     <h2 class="wh-section-title" data-i="pc_content_heading" style="margin-top:1rem;">Connected systems</h2>
     <div id="content">
       <div class="card"><div data-i="p_loadingplantconnections_ae59" class="empty">Loading plant connections...</div></div>

@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 24 Aug 2026
+Updated 9 Nov 2026
 ·
 10 min read
 
@@ -105,13 +105,13 @@ Loss 4, reduced speed, is the one this line should chase first. A shift report b
 
 ## How to measure OEE without expensive sensors
 
-Most OEE software vendors say you need a lot to track OEE well. They mean sensors on every machine and a SCADA layer. They also mean an MES rollout that costs millions of pesos. This is theatre. Plants that buy that stack before they have the habit waste the money. No one ever reviews the data.
+Most OEE software vendors say you need a lot to track OEE well. They mean sensors on every machine and a SCADA layer. They also mean an MES rollout that costs millions of pesos. This is theatre. Plants that buy that stack before they have the habit waste the money, because no one reviews the data.
 
 Every Japanese plant that reached 85 percent OEE started with a much simpler Stage 1:
 
 1. **One clipboard or logbook entry per shift. It records the shift's start and end, and its planned downtime. It records unplanned downtime too, with a reason for each stop. It also records units made and units rejected.**
 2. **At the end of each shift, the supervisor works out OEE with the formula above. Takes 3 minutes with a well-built entry.**
-3. **Next morning, the supervisor posts the OEE number on a board at the line. No software, no dashboards, no SaaS bills.**
+3. **Next morning, the supervisor posts the OEE number on a board at the line. It needs no software, dashboards or SaaS bills.**
 4. **After 12 weeks of daily numbers, the trend tells you a lot. You see which shift is steadiest and which weekday has the worst OEE. You also see which kind of fault comes up most.**
 
 Only after this discipline is in place does sensor investment make sense. Sensors automate what already works; they cannot create what does not exist.
@@ -153,7 +153,7 @@ Say a plant reports 30 percent OEE and is still running. Then its OEE reading is
 
 A first honest OEE reading often lands between 40 and 60 percent. The path to 75 percent takes 12 to 18 months of disciplined improvement. The pattern is consistent:
 
-- **Months 1 to 3: Just measure.** No improvement projects yet. Make the OEE number on the floor board match the one the supervisor reports up. Most plants find their first 5 points of "improvement" here, just by measuring honestly.
+- **Months 1 to 3: measure.** Start improvement projects later. Make the OEE number on the floor board match the one the supervisor reports up. Most plants find their first 5 points of "improvement" here, just by measuring honestly.
 - **Months 4 to 6: Fix the top loss.** Pick one loss, often a repeat breakdown or a slow changeover. Then run a focused project to fix it. Aim for 5 to 10 OEE points.
 - **Months 7 to 9: PM discipline.** Lock the PM schedule. Tie PM completion to logbook evidence. Aim for another 5 OEE points from reduced unplanned downtime.
 - **Months 10 to 12: Skill matrix and quality.** Match technician skill to task type. Address top defect causes with root-cause analysis. Aim for the final 5 to 10 OEE points.
@@ -198,4 +198,4 @@ No. Utilization only measures how much time the equipment ran versus calendar ti
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 710b1881a80ff907 -->
+<!-- md-twin source-sha: 59157698bdd9a2ee -->

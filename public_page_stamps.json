@@ -19,13 +19,37 @@
   "content_sha": "f5ffd5d65a01c223",
   "stamped": "2026-10-27"
  },
+ "learn/ai-companion-hezekiah-zaniah-personas": {
+  "content_sha": "109eb58d748f5809",
+  "stamped": "2026-11-08"
+ },
  "learn/autonomous-shift-planning-philippine-plants": {
   "content_sha": "8cc8c2827c79d1ec",
   "stamped": "2026-10-31"
  },
+ "learn/free-engineering-calculators-philippine-plants": {
+  "content_sha": "02e10d23faee111a",
+  "stamped": "2026-11-08"
+ },
+ "learn/free-pm-checklist-templates": {
+  "content_sha": "30be508d0515dc4f",
+  "stamped": "2026-11-08"
+ },
+ "learn/gamifying-maintenance-for-engagement": {
+  "content_sha": "34679a017a562220",
+  "stamped": "2026-11-08"
+ },
  "learn/loto-procedures-dole-oshs-template": {
   "content_sha": "1ec4581ac7460e56",
   "stamped": "2026-10-31"
+ },
+ "learn/maintenance-metrics-reliability-guide": {
+  "content_sha": "2e5d0a12d7ad3e26",
+  "stamped": "2026-11-08"
+ },
+ "learn/ph-industrial-benchmarks-intelligence": {
+  "content_sha": "ca7417b754260dbc",
+  "stamped": "2026-11-08"
  },
  "learn/power-plant-reliability-metrics-philippines": {
   "content_sha": "3ac28ba396460432",
@@ -36,8 +60,12 @@
   "stamped": "2026-10-31"
  },
  "learn/ra-11285-energy-efficiency-plant-checklist": {
-  "content_sha": "7f183158cdd10bde",
-  "stamped": "2026-10-31"
+  "content_sha": "7ccf99cf1d51d039",
+  "stamped": "2026-11-08"
+ },
+ "learn/what-is-oee-how-to-calculate": {
+  "content_sha": "01badcacd4ab20b8",
+  "stamped": "2026-11-09"
  },
  "loto-procedures-dole-oshs-template": {
   "content_sha": "c9c3eaee3c0694ac",

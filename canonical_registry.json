@@ -11559,7 +11559,7 @@
         "my_service_provider_ids"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 101.1
+      "size_kb": 101.7
     },
     "agentic-rag-observability.html": {
       "tables_read": [
@@ -11568,7 +11568,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 43.4
+      "size_kb": 45.5
     },
     "ai-quality.html": {
       "tables_read": [],
@@ -11577,7 +11577,7 @@
         "hive_ai_usage_30d"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 58.6
+      "size_kb": 59.7
     },
     "alert-hub.html": {
       "tables_read": [
@@ -11616,7 +11616,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 152.6
+      "size_kb": 152.7
     },
     "analytics.html": {
       "tables_read": [
@@ -11631,7 +11631,7 @@
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 266.8
+      "size_kb": 267.1
     },
     "asset-hub.html": {
       "tables_read": [
@@ -11675,7 +11675,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 356.9
+      "size_kb": 357.5
     },
     "assistant.html": {
       "tables_read": [
@@ -11696,7 +11696,7 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 242.6
+      "size_kb": 242.9
     },
     "audit-log.html": {
       "tables_read": [
@@ -11708,7 +11708,7 @@
         "audit_filter_vocab"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 95.6
+      "size_kb": 95.8
     },
     "community.html": {
       "tables_read": [
@@ -11743,7 +11743,7 @@
         "wh_trash"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 289.9
+      "size_kb": 290.1
     },
     "dayplanner.html": {
       "tables_read": [
@@ -11758,7 +11758,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 241.7
+      "size_kb": 243.3
     },
     "engineering-design.html": {
       "tables_read": [],
@@ -11788,7 +11788,7 @@
         "founder_scheduled_work"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 201.8
+      "size_kb": 203.6
     },
     "hive.html": {
       "tables_read": [
@@ -11845,7 +11845,7 @@
         "export-hive-data",
         "supervisor-reset-password"
       ],
-      "size_kb": 555.2
+      "size_kb": 555.7
     },
     "index.html": {
       "tables_read": [],
@@ -11912,7 +11912,7 @@
         "inventory_restock"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 243.9
+      "size_kb": 244.3
     },
     "llm-observability.html": {
       "tables_read": [
@@ -11921,7 +11921,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 35.1
+      "size_kb": 37.2
     },
     "logbook.html": {
       "tables_read": [
@@ -11964,7 +11964,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 560.0
+      "size_kb": 560.2
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -11986,7 +11986,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 79.4
+      "size_kb": 79.9
     },
     "marketplace-seller-profile.html": {
       "tables_read": [
@@ -12051,7 +12051,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 303.6
+      "size_kb": 304.0
     },
     "marketplace.html": {
       "tables_read": [
@@ -12141,7 +12141,7 @@
         "set_hive_retention"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 70.3
+      "size_kb": 71.3
     },
     "platform-actions.html": {
       "tables_read": [
@@ -12174,7 +12174,7 @@
         "get_credit_ledger_totals"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 170.2
+      "size_kb": 170.6
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -12205,7 +12205,7 @@
         "get_pm_ontime_delivery"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 223.8
+      "size_kb": 223.9
     },
     "project-manager.html": {
       "tables_read": [
@@ -12246,7 +12246,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 270.7
+      "size_kb": 271.1
     },
     "project-report.html": {
       "tables_read": [
@@ -12330,7 +12330,7 @@
         "analytics-orchestrator",
         "shift-planner-orchestrator"
       ],
-      "size_kb": 120.1
+      "size_kb": 120.7
     },
     "skillmatrix.html": {
       "tables_read": [

@@ -68,10 +68,17 @@ def content_sha(html: str) -> str:
     return hashlib.sha256(masked.encode("utf-8")).hexdigest()[:16]
 
 
+# ★HEAD IS NOT ALWAYS WHAT SHIPPED (2026-11-08, M12 release). A first stamp compares against "the content the crawler last
+# saw shipped", read as HEAD - true only when every commit is deployed. M12 committed four learn rewrites before its push,
+# so HEAD already held the new text and the stamp refused them as date-only. --base names the commit production serves
+# (the runbook records it), and the baseline is read there. Unset, it is HEAD, as before.
+BASE_REF = "HEAD"
+
+
 def _head_html(p: Path) -> str | None:
-    """The page as committed at HEAD (None when it is new or git is unavailable)."""
+    """The page as committed at BASE_REF - HEAD unless --base names the deployed commit (None when new or no git)."""
     try:
-        r = subprocess.run(["git", "show", f"HEAD:{p.relative_to(ROOT).as_posix()}"], cwd=ROOT, capture_output=True)
+        r = subprocess.run(["git", "show", f"{BASE_REF}:{p.relative_to(ROOT).as_posix()}"], cwd=ROOT, capture_output=True)
     except OSError:
         return None
     return r.stdout.decode("utf-8", errors="replace").replace("\r\n", "\n") if r.returncode == 0 else None
@@ -171,7 +178,7 @@ def refresh(slug: str, dry_run: bool, today: date | None = None) -> int:
     base_sha, base_from = prev.get("content_sha"), "the last stamp"
     if not base_sha:
         head = _head_html(p)
-        base_sha, base_from = (content_sha(head), "the committed page (HEAD)") if head is not None else (None, "nothing")
+        base_sha, base_from = (content_sha(head), f"the committed page ({BASE_REF})") if head is not None else (None, "nothing")
     changed = base_sha != sha
     cur = (DATE_RX.search(html) or [None, None, None])[2]
     print(f"  {p.relative_to(ROOT).as_posix()}: content {sha} ({'CHANGED' if changed else 'UNCHANGED'} since {base_from}"
@@ -314,7 +321,10 @@ def main() -> int:
     ap.add_argument("--declare-undated", action="store_true",
                     help="give each sitemap page that declares no date the date its readable text last changed")
     ap.add_argument("--self-test", action="store_true")
+    ap.add_argument("--base", default="HEAD", help="the commit production serves - a first stamp's baseline (default HEAD)")
     a = ap.parse_args()
+    global BASE_REF
+    BASE_REF = a.base
     if a.self_test:
         return self_test()
     if a.sync_sitemap:

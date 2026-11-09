@@ -60,6 +60,94 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
+# M12 release (2026-11-08) - what the critic found on signed-in screens
+
+> **Prepared and verified locally on 2026-11-08.** M12 is the first Wave CF milestone (UFAI_TRAJECTORY_ROADMAP.md §CF):
+> every distinct defect the critic deepwalk found on a signed-in screen, fixed at its cause and graded clean again by a
+> later walk of the same page, as the same person, at phone-390 and desktop-1280. 50/50 CF rows locking (gate
+> `cf-rows-hold`). M12 ships what landed since M11 (`34e77d0b`, production serves `workhive-shell-v594`).
+>
+> | Leg | Payload | Measured how |
+> |---|---|---|
+> | **A · DB** | none | `git diff 34e77d0b..HEAD -- supabase/migrations` empty |
+> | **B · Edge** | none | `git diff 34e77d0b..HEAD -- supabase/functions` empty |
+> | **C · Frontend** | 8 learn guides rewritten to B3/B1 (three re-glossed after the rewrite dropped their acronyms); ai-quality, plant-connections, community (whNoHiveGate); marketplace-admin, platform-actions, llm-observability, agentic-rag-observability (declared gates, a way home, APCA); inventory, pm-scheduler, dayplanner, logbook (whProgressStrip opts.empty; inventory's one next step; logbook's category contrast); analytics + analytics-report (AI text marked, copy, contrast); project-manager (gate h1; the unconfirmed-save sentence); founder-console, operator-actions.js (regenerated), hive, audit-log (audit target is the person's words, ids as code; hive's trail marks a departed member named in a target); "How this page works" on achievements, ai-quality, asset-hub, dayplanner, plant-connections, shift-brain; llm-observability, agentic-rag-observability and founder-console say when their scripts did not load; marketplace-seller (the draft pill); assistant (its source statement marked); utils.js (the expired-session door; a figure never covers a control; whNoHiveGate, whIdAsCode, empty progress), tokens.css; `sw.js` v595 | `--rerun-failed`, the pre-push board, then smoke at v595 |
+>
+> **Order: C only.**
+
+### What a person using WorkHive will notice (release notes)
+
+> - Eight learn guides read more easily: shorter sentences, plain words, shorter paragraphs. Nothing they say changed,
+>   except that the RA 11285 guide no longer says the Audit Log holds your energy readings (your logbook does).
+> - Opening AI Quality, Connections or Community without a hive now tells you why on that page, with one button to join
+>   or create a hive that brings you back.
+> - An empty inventory offers one next step, Add Your First Part, and progress bars with nothing to count yet say so.
+> - Six pages that had no guide now open with a short "How this page works": Growth, AI Quality, Asset Hub, the Day
+>   Planner, Connections and Shift Brain.
+> - The pages that moved into the operator console say where they went and offer a way home.
+> - In audit trails, a person's own words and any record ids read as what they are, and a member who has left is
+>   marked as a former member wherever the trail names them.
+> - If your session ends while you are filling in a form, saving now offers a Sign in button that opens in a new tab,
+>   so what you typed stays put; sign in there, come back and save again.
+> - On the skill matrix, the + and - buttons beside a level always change the level (a tap near their inner edge used to
+>   open the level's "where this comes from" card instead).
+> - A draft listing's waiting time shows as its own label, so the card fits on a small phone.
+
+### The touched gates this release reached (`--rerun-failed`, 633 gates)
+The board's first pass read about thirty reds; the 82 gates it never reached and every browser red were then run one at a
+time with no outer limit (the board's 20-minute limit kills slow walks on this host: hive-startup, recovery-path 68/68
+and data-honesty all PASS when let finish). Each red was classified before anything was fixed
+(feedback_a_gate_nobody_runs_rots_by_its_fixtures). Descoped Filipino gates were not judged.
+
+**Product, fixed in M12:**
+- A save refused for an expired session now offers the door: the expired-session sentence raises the sign-in card, opened
+  in a new tab, so what was typed stays on screen (expiry-midwrite X3 on inventory, marketplace-seller, resume, pm-scheduler).
+- llm-observability and agentic-rag-observability told a founder whose scripts failed to load "Founder access only";
+  founder-console showed an empty screen. Each now says it could not load and offers Try again.
+- A tappable figure (ENH-C) whose 48px tap area would cover another control is left a plain number (skillmatrix's level
+  between its - and + buttons; inventory's count over Load more; shift-brain's section counts).
+- marketplace-seller's draft pill ("Draft: Pending Review · 68d waiting") overflowed its card at 320 - two pills now.
+- assistant.html's "What I answer from" summary is marked as its source statement (M11 moved the old chip to the foot).
+- dayplanner's new guide moved below the day grid; plant-connections' and ai-quality's guides carry the canonical small
+  list size inline; the OEE guide's three rebuttal pairs reworded (design-detector-ratchet, w4-design).
+
+**Instrument, repaired:**
+- **hive-scale-races (38/40 -> 40/40):** the asset register and the change-order list re-read themselves live, so the card
+  B approved left A's screen before A could tap it. A now holds the reason prompt - the race a person still makes, and
+  the one the guard sits behind.
+- **hive-scale-lists (229/239 -> all pass):** the race and shift provers left ~1,460 audit lines behind (their cleanups
+  never swept the trail their writes triggered) and the departed member's L5 fixture was dated the day it was laid, so
+  nine days later it had left every time window. The cleanups now sweep the trail and the fixture is re-dated each run.
+  The prover learned GJ M9/M10's moderation controls and GJ M11's work-order move; "Use SAP" on a departed member's open
+  job is exempt only while the card names the logbook takeover. One finding was the product: hive.html's trail named
+  the departed member inside a target without "(former member)" - fixed.
+- **interrupted-person, red since before M10:** six pages offered a first-time visitor no explanation - fixed (above).
+- **jargon-glossed:** three rewritten guides had lost their acronym glosses - re-glossed in short sentences.
+- **arc-x-befamily:** two ids containing "error" that are not validation messages (an error-rate tile, the console's
+  error list), unscanned since September - exempted by attribute.
+- **layer_invariants:** the treasury counted 24,840 issued credits beside a 1,220 ledger - the seeder's reset kept the
+  count and its commissions were written one-sided (both fixed in the seeder; the local counter reconciled). Its cron
+  check read 18 `job startup timeout`s, all at host-load stalls on this 8 GB machine.
+- Generator-stale: skew-heal, the destructive-control roster, the dayplanner sidebar bind, query-index pins, the seller
+  search check (BRH-L hides Audit Log from a worker), coverage-matrix.
+- **A test wiped the critic registry:** test_bank_critic_rewalk isolated the banker by its path constant, but the banker
+  had moved onto registry_io (2026-11-07), so its one synthetic row overwrote all 50,503 rows. Restored from HEAD;
+  registry_io now refuses any save that keeps under half the rows; the test patches the I/O layer too.
+- Provers taught the platform as it is now: prod-headers (Plotly vendored, the worker decommissioned, per-page CSP hosts),
+  reference-claims (the page's own hive's gateway; a retired page is n/a), session-states-honest and page-as-destination
+  (a declared gate is the page), phone-fit (the fold under a bottom bar is reachable by scrolling), growth-honesty (a
+  builder inside a wrapper call), full-journeys (J13's write is read as the database: workers cannot read the trail).
+- Seed gaps the 2026-10-26 reseed reopened, closed by wiring the existing backfills into the orchestrator:
+  backfill_skill_profiles (J25) and backfill_marketplace_participation (J28) ran by hand once and never after a reseed.
+
+**Pre-existing, queued after the push (not M12):**
+- index.html's "AMC brief awaiting approval" verdict settles at 211/319/517px against reserves sized for the critical-risk
+  verdict (CLS 0.28 at 1280) - a design call: the brief verdict kept to its one decision, or a reserve per verdict kind.
+- J27 casts one worker through both sides of a dispute (a hop to the founder console no worker is offered).
+- live_mcp_bank: 859 rows expired by M12's edits (A15) - the re-earn runs once the edit wave ends.
+
+---
+
 # M11 release (2026-11-07) - the group's UX face ✅ DEPLOYED
 
 > **✅ M11 DEPLOYED 2026-11-07: every screen each member meets is graded where they meet it, and it is in production.**

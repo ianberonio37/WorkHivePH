@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 6,
+ "open": 0,
  "resolved": 1,
  "incidents": [
   {
@@ -15,60 +15,6 @@
    "started_at": "2026-10-28 21:03:36.632147+00",
    "ended_at": "2026-10-30 21:04:09.367083+00",
    "status": "resolved"
-  },
-  {
-   "id": "gate-reference-pages-uncapped",
-   "source": "gate",
-   "title": "reference-pages-uncapped",
-   "severity": "major",
-   "started_at": "2026-11-07T07:11:11.006064+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-destructive-proportional-confirm",
-   "source": "gate",
-   "title": "destructive-proportional-confirm",
-   "severity": "major",
-   "started_at": "2026-11-07T07:11:11.006064+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-memory_health_gate",
-   "source": "gate",
-   "title": "memory_health_gate",
-   "severity": "major",
-   "started_at": "2026-11-07T07:11:11.006064+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-html-id-unique",
-   "source": "gate",
-   "title": "html-id-unique",
-   "severity": "minor",
-   "started_at": "2026-11-07T07:11:11.006064+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-heading-hierarchy",
-   "source": "gate",
-   "title": "heading-hierarchy",
-   "severity": "minor",
-   "started_at": "2026-11-07T07:11:11.006064+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-provenance-at-foot",
-   "source": "gate",
-   "title": "provenance-at-foot",
-   "severity": "minor",
-   "started_at": "2026-11-07T07:11:11.006064+00:00",
-   "ended_at": null,
-   "status": "open"
   }
  ]
 }

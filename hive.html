@@ -1998,7 +1998,7 @@
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whPresenceFit whRealtimeBackfill whRequireOnline whRowCols whSourcesSync whUse">
+<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whIdAsCode whListError whListSkeleton whLoadFormerMembers whMarkFormerIn whMemberSuffix whMoreNote whPresenceFit whRealtimeBackfill whRequireOnline whRowCols whSourcesSync whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -6911,7 +6911,10 @@ async function loadAuditLog() {
       : { label: String(row.action || 'Action recorded'), icon: '·', tone: '', target: String(row.target_name || '').trim() };
     const meta = row.meta || {};
     const sub  = meta.submitted_by ? ` · ${_t('submitted by', 'isinumite ni')} ${escHtml(meta.submitted_by)}` : '';
-    const targetHtml = v.target ? ` <span class="font-black text-white" data-user-content>${(typeof whIdAsCode === 'function' ? whIdAsCode(escHtml(v.target)) : escHtml(v.target))}</span>` : '';
+    // HS L5 (2026-11-08, M12): a target that NAMES a member who has left - "Bypassed the low-oil trip... (by Rodel Ignacio)",
+    // a report on his post - says so, as audit-log's trail already does (whMarkFormerIn); the actor alone was marked
+    const _tgt = typeof whMarkFormerIn === 'function' ? whMarkFormerIn(v.target || '') : (v.target || '');
+    const targetHtml = v.target ? ` <span class="font-black text-white" data-user-content>${(typeof whIdAsCode === 'function' ? whIdAsCode(escHtml(_tgt)) : escHtml(_tgt))}</span>` : '';
     const when = row.created_at
       ? new Date(row.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
       : '';

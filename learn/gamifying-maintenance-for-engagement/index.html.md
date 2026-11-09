@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 24 Aug 2026
+Updated 8 Nov 2026
 ·
 7 min read
 
@@ -61,7 +61,7 @@ Badges do not motivate on their own. They make the values clear. Then management
 Four design rules:
 
 1. **Hard to earn.** If 80 percent of workers have it, it stops meaning anything. Top 20 to 30 percent is the right rarity for the prestigious badges.
-2. **Tied to documented outcomes.** "Did 5 verified RCM-driven PM changes" beats "knows about RCM".
+2. **Tied to documented outcomes.** "Did 5 verified RCM-driven PM changes" beats "knows about RCM". RCM is reliability-centered maintenance.
 3. **Stackable with skill matrix.** Earning the badge unlocks or evidences a skill matrix level advance.
 4. **Recognised externally.** The badge shows on the worker's WorkHive portfolio. They can share it with future employers.
 
@@ -135,4 +135,4 @@ Mature WorkHive customers do not. The framing matters: do not call them "badges 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 288f4c21cd57cc2f -->
+<!-- md-twin source-sha: a003af0726a9f115 -->

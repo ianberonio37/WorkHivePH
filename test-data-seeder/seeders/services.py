@@ -242,6 +242,10 @@ def seed_services(client, log, ctx: dict) -> dict:
         {"account_type": "provider", "account_id": p_hvac["id"], "entry_type": "commission",
          "amount": -80, "ref_kind": "request", "ref_id": r_consumer["id"], "note": "10% commission — Aircon Cleaning ₱800"},
     ]).execute()
+    # ★A DEBIT RETIRES WHAT IT DESTROYS (2026-11-08). These two rows are written straight to the ledger, the same
+    # one-sided shape mig 53 fixed in mint_settlement_commission: the credits leave the ledger and the treasury still
+    # counts them. Paired here as the product pairs them, so a reseed leaves issued == the whole ledger.
+    client.rpc("retire_credits", {"p_amount": 280}).execute()
     log(f"services: topups 3 ({verified_count} verified via real trigger path -> ledger minted) + 2 commissions")
 
     # ---- 5b. Forwarded GCash receipts the automatic match could not settle (OPC, 2026-10-22) ----

@@ -16,47 +16,47 @@
     ],
     "asset-hub.html": [
       {
-        "line": 1854,
+        "line": 1864,
         "message_head": "Reject this asset? It stays in the queue but will not appear in the approved list."
       },
       {
-        "line": 3634,
+        "line": 3644,
         "message_head": "Delete this FMEA failure mode? Linked RCM strategies will cascade."
       },
       {
-        "line": 3860,
+        "line": 3870,
         "message_head": "Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only)."
       }
     ],
     "community.html": [
       {
-        "line": 2594,
+        "line": 2598,
         "message_head": "Keep this post. Say why, if you like: the person who wrote it and anyone who reported it will read this. Nobody is told who reported it."
       },
       {
-        "line": 2629,
+        "line": 2633,
         "message_head": "Send this reported post to WorkHive. Say what you need WorkHive to decide:"
       },
       {
-        "line": 2714,
+        "line": 2718,
         "message_head": "Make this post public? Workers in every other hive will be able to read it in their Global feed."
       },
       {
-        "line": 3346,
+        "line": 3350,
         "message_head": "Copy this public link:"
       },
       {
-        "line": 3359,
+        "line": 3363,
         "message_head": "Copy this link:"
       }
     ],
     "dayplanner.html": [
       {
-        "line": 3163,
+        "line": 3180,
         "message_head": "Remove this scheduled item?"
       },
       {
-        "line": 3332,
+        "line": 3349,
         "message_head": "A link wants to add \""
       }
     ],
@@ -170,11 +170,11 @@
     ],
     "inventory.html": [
       {
-        "line": 2385,
+        "line": 2388,
         "message_head": "${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty} spends the"
       },
       {
-        "line": 2868,
+        "line": 2871,
         "message_head": "Remove \"${item.part_name}\" (${item.part_number}) from inventory? You can restore it from Recently deleted for at least 30 days."
       }
     ],
@@ -198,25 +198,25 @@
     ],
     "marketplace-admin.html": [
       {
-        "line": 904,
+        "line": 906,
         "message_head": "${_verb} \"${(listing && listing.title) || 'this listing'}\". Tell the seller why:"
       },
       {
-        "line": 983,
+        "line": 985,
         "message_head": "Remove ${workerName}'s ${noun}? They lose the verified badge until re-verified."
       },
       {
-        "line": 1163,
+        "line": 1165,
         "message_head": "${verb} for this dispute? This resolves the escrow and cannot be undone."
       }
     ],
     "marketplace-seller.html": [
       {
-        "line": 2270,
+        "line": 2273,
         "message_head": "Delete \"${item.title}\"? This cannot be undone."
       },
       {
-        "line": 3456,
+        "line": 3459,
         "message_head": "Cancel this job? The client will be notified."
       }
     ],
@@ -266,27 +266,27 @@
     ],
     "platform-actions.html": [
       {
-        "line": 891,
+        "line": 892,
         "message_head": "Verify this top-up? Credits are minted into the provider’s wallet immediately"
       },
       {
-        "line": 1210,
+        "line": 1211,
         "message_head": "A line both parties will read with the outcome (optional)"
       },
       {
-        "line": 1582,
+        "line": 1583,
         "message_head": "Remove ${_who}'s ${_isCert ? 'certification badge' : 'ID Verified badge'}?"
       },
       {
-        "line": 1609,
+        "line": 1610,
         "message_head": "Unpublish \"${btn.dataset.title || 'this listing'}\". Tell the seller why:"
       },
       {
-        "line": 1645,
+        "line": 1646,
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1994,
+        "line": 1995,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
@@ -306,35 +306,35 @@
     ],
     "project-manager.html": [
       {
-        "line": 2007,
+        "line": 2009,
         "message_head": "No scope items checked. Create an empty project?"
       },
       {
-        "line": 2299,
+        "line": 2301,
         "message_head": "Hide project"
       },
       {
-        "line": 3022,
+        "line": 3024,
         "message_head": "Remove this link?"
       },
       {
-        "line": 3360,
+        "line": 3362,
         "message_head": "Remove this role?"
       },
       {
-        "line": 3495,
+        "line": 3497,
         "message_head": "Approve this change order? Cost / schedule impact will be reflected in the project."
       },
       {
-        "line": 3522,
+        "line": 3524,
         "message_head": "Reason for rejection (visible to requester):"
       },
       {
-        "line": 3553,
+        "line": 3555,
         "message_head": "Cancel this change order? It will be hidden from the active queue but kept for history."
       },
       {
-        "line": 3796,
+        "line": 3800,
         "message_head": "Mark project as complete? ${WAY_BACK}"
       }
     ],
@@ -350,21 +350,21 @@
     ],
     "shift-brain.html": [
       {
-        "line": 1425,
+        "line": 1435,
         "message_head": "Publish this shift plan to your crew? They will see it and work from it, released under your name."
       },
       {
-        "line": 1467,
+        "line": 1477,
         "message_head": "Archive this shift plan? It will be hidden from the active view but kept for history."
       }
     ],
     "utils.js": [
       {
-        "line": 7087,
+        "line": 7137,
         "message_head": "Delete X?"
       },
       {
-        "line": 7090,
+        "line": 7140,
         "message_head": "Enter name"
       }
     ]

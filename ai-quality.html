@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whIsAccessDenied whListError whListSkeleton whReadError whReconcileHiveRole whSourcesSync whStartupHive whUse whViewerAdmits">
+<script data-wh-skew-heal="whIsAccessDenied whListError whListSkeleton whNoHiveGate whReadError whReconcileHiveRole whSourcesSync whStartupHive whUse whViewerAdmits">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -181,6 +181,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            it measures) — a filled CTA to the logbook, matching the empty-state's own CTA. -->
       <a href="logbook.html" data-i="aq_draft_cta" style="flex-shrink:0;min-height:44px;display:inline-flex;align-items:center;padding:0.5rem 1rem;border-radius:8px;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:var(--wh-fs-xs, 0.8rem);text-decoration:none;">Draft with AI →</a>
     </header>
+    <!-- I5 (2026-11-08): what this page is for, for someone opening it for the first time - the shared .wh-help disclosure the other 31 pages carry. Every line is what this page's code does. -->
+    <details class="wh-help">
+      <summary>How this page works</summary>
+      <ul style="margin:8px 0 0; padding-left:18px; font-size:var(--wh-fs-2xs, 0.75rem); line-height:1.55; color:var(--wh-text-muted, rgba(255,255,255,0.8));">
+        <li>The figures cover your hive's last 30 days of AI use.</li>
+        <li>Thumbs up and down on AI answers set the quality verdict.</li>
+        <li>A verdict needs enough ratings, so one thumbs down cannot turn it red.</li>
+        <li>Spend is exact from the first AI call.</li>
+        <li>Savings show once the hive logs work and PMs steadily.</li>
+      </ul>
+    </details>
 
     <div id="content">
       <!-- Rendered by render() after maturity gate passes -->

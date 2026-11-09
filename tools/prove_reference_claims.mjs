@@ -9,7 +9,7 @@
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
 import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
-import { SEEDER, signIn as harnessSignIn, psql, psqlAs, assertSignedIn } from './prover_harness.mjs';   // shared preamble + DB truths (2026-09-05)
+import { SEEDER, signIn as harnessSignIn, psql, psqlAs, assertSignedIn, HIVE as HARNESS_HIVE } from './prover_harness.mjs';   // shared preamble + DB truths (2026-09-05)
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 // Truth views that carry an admin/member predicate (v_service_credit_topups_truth, v_gcash_receipts_needing_eyes) return
 // NOTHING to a plain postgres session - the count must be taken AS the signed-in person (SET LOCAL ROLE authenticated +
@@ -52,7 +52,9 @@ const CLAIMS = [
       return {
         topups: (() => { const v = n("select count(*) from v_service_credit_topups_truth where status = 'pending_verification'"); return v == null ? null : Math.min(v, 50); })(),
         drafts: (() => { const v = n("select count(*) from v_marketplace_listings_truth where status = 'draft'"); return v == null ? null : Math.min(v, 50); })(),
-        sellers: (() => { const v = n('select count(*) from v_marketplace_sellers_truth where kyb_verified = false or cert_verified = false'); return v == null ? null : Math.min(v, 50); })(),
+        // a seller is AWAITING verification only when there is something to verify: ID unchecked, or certificates on file
+        // and unchecked (2026-11-09). A verified seller with no certificates is not in the queue - the console's own rule.
+        sellers: (() => { const v = n("select count(*) from v_marketplace_sellers_truth where kyb_verified = false or (cert_verified = false and coalesce(certifications, '') <> '')"); return v == null ? null : Math.min(v, 50); })(),
         gcash: n('select count(*) from v_gcash_receipts_needing_eyes'),
         waiting: (total == null || total > 500) ? null : n("select count(*) from platform_feedback where status in ('new','triaged','in_progress')"),
       };
@@ -103,10 +105,20 @@ const EXPLAIN = [
   // 'this week' the summary strips); the prover requires a window phrase to sit in the same status/summary region as a figure.
   { file: 'logbook.html', wait: 9000, sel: '.wh-source-chip, [role="status"], #meta, .summary, .kpi-strip, .stat-strip, main', signin: true,
     checks: () => ({}), text: (t) => ({ 'window named beside figures': /this shift|today|this week|last \d+ days|refreshed on load/i.test(t) && /\d/.test(t) }) },
+  // ★THE PAGE SHOWS ITS OWN HIVE'S GATEWAY, SO THE TRUTH IS THAT HIVE'S (2026-11-09). This asked for the newest call in ANY hive;
+  // hive-scale-lists lays a week of calls in the 30-member hive, so the platform read 'active' while the signed-in hive
+  // (Baguio, last call 2026-10-26) honestly said 'No gateway calls in last 7 days' - and the page was graded a liar.
   { file: 'plant-connections.html', wait: 9000, sel: 'main, body', signin: true,
-    checks: () => { const h = Number(psql("select coalesce(round(extract(epoch from now()-max(created_at))/3600), 99999) from gateway_audit_log")); return { ['gateway age read (' + h + 'h)']: Number.isFinite(h) && h > 0 }; },
-    text: (t) => { const h = Number(psql("select coalesce(round(extract(epoch from now()-max(created_at))/3600), 99999) from gateway_audit_log")); const idle = h > 168; return { [idle ? 'page says the gateway is IDLE' : 'page shows gateway activity']: idle ? /No gateway calls in last 7 days|IDLE/i.test(t) : /gateway/i.test(t) && !/No gateway calls/i.test(t) }; } },
+    checks: () => { const h = Number(psql("select coalesce(round(extract(epoch from now()-max(created_at))/3600), 99999) from gateway_audit_log where hive_id = '" + HARNESS_HIVE + "'")); return { ['gateway age read (' + h + 'h)']: Number.isFinite(h) && h > 0 }; },
+    text: (t) => { const h = Number(psql("select coalesce(round(extract(epoch from now()-max(created_at))/3600), 99999) from gateway_audit_log where hive_id = '" + HARNESS_HIVE + "'")); const idle = h > 168; return { [idle ? 'page says the gateway is IDLE' : 'page shows gateway activity']: idle ? /No gateway calls in last 7 days|IDLE/i.test(t) : /gateway/i.test(t) && !/No gateway calls/i.test(t) }; } },
 ];
+
+// ★A RETIRED PAGE PAINTS NO FIGURES, BY DESIGN (2026-11-09). agentic-rag-observability moved into the operator console on
+// 2026-10-22 and now opens under its "has moved" gate (data-wh-gate="retired"); its panels never render. This prover went on
+// asking it for the trace count and read every run since as a lying page. A page whose declared retired gate is on screen
+// is reported n/a with the reason - its figures live on the console, which this prover reads in its own rows.
+const RETIRED = () => { const g = document.querySelector('[data-wh-gate="retired"], #wh-retired-overlay');
+  return !!(g && g.getClientRects().length && getComputedStyle(g).display !== 'none' && getComputedStyle(g).visibility !== 'hidden'); };
 
 async function runExplain(ctx) {
   let bad = 0, n = 0, signed = false;
@@ -116,6 +128,7 @@ async function runExplain(ctx) {
     const p = await ctx.newPage();
     await p.goto(`${SEEDER}/workhive/${e.file}`, { waitUntil: 'load' }).catch(() => {});
     await p.waitForTimeout(e.wait);
+    if (await p.evaluate(RETIRED).catch(() => false)) { await p.close(); console.log(`  n/a ${e.file.padEnd(22)} retired: its declared "has moved" gate is the page`); continue; }
     const t = await p.evaluate((sel) => [...document.querySelectorAll(sel)].map((x) => (x.innerText || '').replace(/\s+/g, ' ').trim()).join(' | '), e.sel).catch(() => '');
     await p.close();
     let res = {}; try { res = { ...e.checks(t, json), ...(e.text ? e.text(t) : {}) }; } catch (err) { res = { ['check error: ' + err.message]: false }; }
@@ -138,6 +151,7 @@ for (const c of CLAIMS) {
   const p = await ctx.newPage();
   await p.goto(`${SEEDER}/workhive/${c.file}${c.query || ''}`, { waitUntil: 'load' }).catch(() => {});   // a page that needs a query to render (seller profile)
   await p.waitForTimeout(c.wait);
+  if (await p.evaluate(RETIRED).catch(() => false)) { await p.close(); console.log(`  n/a ${c.file.padEnd(22)} retired: its declared "has moved" gate is the page`); continue; }
   const painted = await p.evaluate(c.read).catch(() => ({}));
   await p.close();
   let truth; try { truth = c.truth(); } catch (e) { truth = { _error: e.message }; }

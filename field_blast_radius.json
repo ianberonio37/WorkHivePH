@@ -4,7 +4,7 @@
     "persisted_fields_analyzed": 101,
     "dead_end_fields": 5,
     "fields_with_causal_cascade": 38,
-    "avg_display_fanout": 3.02,
+    "avg_display_fanout": 3.05,
     "max_display_fanout": 8
   },
   "per_page": {
@@ -47,7 +47,7 @@
       "fields": 38,
       "persisted": 11,
       "dead_end": 0,
-      "fanout_sum": 82,
+      "fanout_sum": 85,
       "max_depth": 3
     },
     "marketplace": {
@@ -1226,9 +1226,10 @@
       "surface": "logbook",
       "field": "a-location",
       "terminus": "asset_nodes.location",
-      "display_fanout": 7,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
+        "alert-hub",
         "asset-hub",
         "assistant",
         "hive",
@@ -1264,9 +1265,10 @@
       "surface": "logbook",
       "field": "a-name",
       "terminus": "asset_nodes.name",
-      "display_fanout": 7,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
+        "alert-hub",
         "asset-hub",
         "assistant",
         "hive",
@@ -1302,9 +1304,10 @@
       "surface": "logbook",
       "field": "a-type",
       "terminus": "asset_nodes.type",
-      "display_fanout": 7,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
+        "alert-hub",
         "asset-hub",
         "assistant",
         "hive",

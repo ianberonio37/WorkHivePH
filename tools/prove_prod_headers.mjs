@@ -58,15 +58,23 @@ const CSP_MUST = [
   // /wh-tw-pub-<family>.css - gate tw-public-sheets), so the policy no longer grants it either.
   ['script-src', 'https://www.googletagmanager.com', 'GA4 - shipped deliberately (wh-ga4.js); absent here it is dead in prod'],
   ['script-src', 'https://challenges.cloudflare.com', 'Turnstile - the documented configure-to-enable switch'],
-  ['script-src', 'https://cdn.plot.ly', 'analytics charts'],
+  // (2026-11-09) cdn.plot.ly left the list: analytics serves Plotly from this origin since 2026-10-22 (the CDN answered
+  // 503 and the charts went with it), and the policy stopped granting it. A promise the pages no longer make is not owed.
   ['connect-src', 'https://hzyvnjtisfgbksicrouu.supabase.co', 'the database every signed-in page reads'],
-  ['connect-src', 'https://workhive-assistant.ian-beronio37.workers.dev', 'the assistant worker'],
-  ['connect-src', 'https://tiles.openfreemap.org', 'the service map tiles'],
-  ['connect-src', 'https://engineering-calc-api.onrender.com', 'the calculator API'],
+  // (2026-11-09) the assistant worker left too: decommissioned (voice-handler keeps only WH_ASSISTANT_WORKER_URL_DEPRECATED,
+  // and validate_legacy_worker_decommission forbids fetching it), so a policy that still granted it would be the defect.
+  ['connect-src', 'https://tiles.openfreemap.org', 'the service map tiles', '/marketplace.html'],
+  ['connect-src', 'https://engineering-calc-api.onrender.com', 'the calculator API', '/engineering-design.html'],
   ['frame-src', 'https://challenges.cloudflare.com', 'the Turnstile challenge iframe'],
   ['font-src', 'https://fonts.gstatic.com', 'the web fonts'],
   ['frame-ancestors', "'none'", 'clickjacking'],
 ];
+// ★A HOST IS PROMISED ON THE PAGE THAT USES IT (2026-11-09). Since SL step 3-4 (2026-10-15) every page serves its own
+// least-privilege CSP: the map tiles are granted on marketplace.html and the calculator API on engineering-design.html,
+// and NOT on the home page, which is exactly right. This prover still asked the home page for both and read production
+// as broken. A row's fourth field names the page whose served policy must grant it; the rest are asked of each sample.
+const PAGE_CSP = {};
+for (const [, , , page] of CSP_MUST) if (page && !PAGE_CSP[page]) PAGE_CSP[page] = get(page).then((r) => r.h['content-security-policy'] || '');
 const PERMS_MUST = [['camera', 'the logbook photo capture and QR scan'], ['microphone', 'the voice journal'], ['geolocation', 'the live location share on an active service job']];
 
 let bad = 0, n = 0, skipped = 0;
@@ -84,10 +92,11 @@ for (const b of blocks) {
     const notes = [];
     if (!got) notes.push('header absent');
     else if (name === 'content-security-policy') {
-      for (const [dir, host, why] of CSP_MUST) {
-        const m = got.match(new RegExp(dir + "\\s+([^;]*)"));
+      for (const [dir, host, why, page] of CSP_MUST) {
+        const pol = page ? await PAGE_CSP[page] : got;
+        const m = pol.match(new RegExp(dir + "\\s+([^;]*)"));
         const has = m && m[1].includes(host);
-        if (!has) { ok = false; notes.push(`${dir} is missing ${host} (${why})`); }
+        if (!has) { ok = false; notes.push(`${dir} is missing ${host} (${why})${page ? ' on ' + page : ''}`); }
       }
     } else if (name === 'permissions-policy') {
       for (const [feat, why] of PERMS_MUST) {

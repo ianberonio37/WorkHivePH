@@ -57,6 +57,29 @@
       "why": "Append-only compliance trail written by 12 surfaces; audit-log.html is the canonical viewer. Not a KPI redundancy."
     },
     {
+      "terminus_table": "asset_nodes",
+      "is_infra": false,
+      "display_pages": [
+        "alert-hub",
+        "asset-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "inventory",
+        "logbook",
+        "pm-scheduler",
+        "project-manager"
+      ],
+      "page_count": 9,
+      "via_canonical_views": [
+        "v_asset_truth"
+      ],
+      "verdict": "KEEP",
+      "canonical_home": "asset-hub.html",
+      "ux_law": "Jakob's Law (consistency)",
+      "why": "Asset registry referenced on 7 pages (pickers, links) = necessary context, one v_asset_truth. Keep."
+    },
+    {
       "terminus_table": "logbook",
       "is_infra": false,
       "display_pages": [
@@ -100,28 +123,6 @@
       "canonical_home": "inventory.html",
       "ux_law": "NN/g #6 + DRY",
       "why": "Stock shown on 7 surfaces (alert-hub stock alert, logbook parts picker, hive low-stock) = legitimate context; all read v_inventory_items_truth.is_low_stock. Keep."
-    },
-    {
-      "terminus_table": "asset_nodes",
-      "is_infra": false,
-      "display_pages": [
-        "asset-hub",
-        "assistant",
-        "hive",
-        "integrations",
-        "inventory",
-        "logbook",
-        "pm-scheduler",
-        "project-manager"
-      ],
-      "page_count": 8,
-      "via_canonical_views": [
-        "v_asset_truth"
-      ],
-      "verdict": "KEEP",
-      "canonical_home": "asset-hub.html",
-      "ux_law": "Jakob's Law (consistency)",
-      "why": "Asset registry referenced on 7 pages (pickers, links) = necessary context, one v_asset_truth. Keep."
     },
     {
       "terminus_table": "pm_scope_items",

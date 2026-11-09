@@ -4,17 +4,20 @@
    "id": "AL4X",
    "page": "alert-hub.html",
    "role": "supervisor",
-   "ran": "2026-11-03T20:05:17.379Z",
+   "ran": "2026-11-07T22:55:58.116Z",
    "same_account": true,
    "pre_state_ok": true,
    "draft_field": null,
    "baseline": null,
    "phone": {
-    "clicked": false
+    "clicked": true
    },
    "marker": null,
-   "appears": false,
-   "why": "the phone write did not complete",
+   "live": true,
+   "live_ms": 2,
+   "mode": "realtime",
+   "draft_kept_live": null,
+   "appears": true,
    "page_errors_desktop": [],
    "cleaned": "scenario"
   },
@@ -22,147 +25,7 @@
    "id": "LOG1@asset-hub",
    "page": "asset-hub.html",
    "role": "worker",
-   "ran": "2026-11-03T20:06:29.605Z",
-   "same_account": true,
-   "draft_field": null,
-   "baseline": null,
-   "phone": {
-    "lenses": {
-     "R": true,
-     "J": true,
-     "T": false
-    },
-    "evidence": {
-     "reach": true,
-     "machineSet": true,
-     "toast": "Entry saved.",
-     "persisted": false
-    }
-   },
-   "marker": "K2-PROBE-1793736409983",
-   "appears": false,
-   "why": "the phone write did not complete",
-   "page_errors_desktop": [],
-   "cleaned": 1
-  },
-  "LOG1@assistant": {
-   "id": "LOG1@assistant",
-   "page": "assistant.html",
-   "role": "worker",
-   "ran": "2026-11-03T20:07:41.351Z",
-   "same_account": true,
-   "draft_field": null,
-   "baseline": null,
-   "phone": {
-    "lenses": {
-     "R": true,
-     "J": true,
-     "T": false
-    },
-    "evidence": {
-     "reach": true,
-     "machineSet": false,
-     "toast": "Entry saved.",
-     "persisted": false
-    }
-   },
-   "marker": null,
-   "appears": false,
-   "why": "the phone write did not complete",
-   "page_errors_desktop": [],
-   "cleaned": 1
-  },
-  "CM1": {
-   "id": "CM1",
-   "page": "community.html",
-   "role": "worker",
-   "ran": "2026-11-03T20:10:24.977Z",
-   "same_account": true,
-   "draft_field": "#post-content",
-   "baseline": null,
-   "phone": {
-    "lenses": {
-     "R": true,
-     "J": true,
-     "T": true
-    },
-    "evidence": {
-     "nonce": "ArcK-CM1-1793736641316",
-     "persisted": true,
-     "cnt": "1"
-    }
-   },
-   "marker": "ArcK-CM1-1793736641316",
-   "live": true,
-   "live_ms": 22,
-   "mode": "realtime",
-   "draft_kept_live": true,
-   "appears": true,
-   "page_errors_desktop": [],
-   "cleaned": 1
-  },
-  "DAY1": {
-   "id": "DAY1",
-   "page": "dayplanner.html",
-   "role": "worker",
-   "ran": "2026-11-03T20:10:44.791Z",
-   "same_account": true,
-   "draft_field": "#m-title",
-   "baseline": null,
-   "phone": {
-    "lenses": {
-     "R": true,
-     "J": true,
-     "T": true
-    },
-    "evidence": {
-     "reach": true,
-     "modal": true,
-     "persisted": true,
-     "cnt": "1"
-    }
-   },
-   "marker": "K2-DP-1793736669295",
-   "live": true,
-   "live_ms": 33,
-   "mode": "realtime",
-   "draft_kept_live": true,
-   "appears": true,
-   "page_errors_desktop": [],
-   "cleaned": 1
-  },
-  "ED2": {
-   "id": "ED2",
-   "page": "engineering-design.html",
-   "role": "worker",
-   "ran": "2026-11-03T20:11:13.366Z",
-   "same_account": true,
-   "draft_field": null,
-   "baseline": null,
-   "phone": {
-    "lenses": {
-     "R": null,
-     "J": false,
-     "T": false
-    },
-    "evidence": {
-     "tag": "ARCK-ED2-1793736701168",
-     "out": false,
-     "persisted": false,
-     "cnt": "0"
-    }
-   },
-   "marker": "ARCK-ED2-1793736701168",
-   "appears": false,
-   "why": "the phone write did not complete",
-   "page_errors_desktop": [],
-   "cleaned": 1
-  },
-  "LOG1@index": {
-   "id": "LOG1@index",
-   "page": "index.html",
-   "role": "worker",
-   "ran": "2026-11-03T20:12:18.409Z",
+   "ran": "2026-11-07T22:56:11.195Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -179,7 +42,157 @@
      "persisted": true
     }
    },
-   "marker": "logbook.html?id=1793736765905",
+   "marker": "K2-PROBE-1794092179902",
+   "live": true,
+   "live_ms": 20,
+   "mode": "on opening the view it lives in",
+   "draft_kept_live": null,
+   "appears": true,
+   "page_errors_desktop": [],
+   "cleaned": 1
+  },
+  "LOG1@assistant": {
+   "id": "LOG1@assistant",
+   "page": "assistant.html",
+   "role": "worker",
+   "ran": "2026-11-07T22:56:37.201Z",
+   "same_account": true,
+   "draft_field": null,
+   "baseline": null,
+   "phone": {
+    "lenses": {
+     "R": true,
+     "J": true,
+     "T": true
+    },
+    "evidence": {
+     "reach": true,
+     "machineSet": true,
+     "toast": "✓ Logged: updated Analytics (MTBF/MTTR + failure f",
+     "persisted": true
+    }
+   },
+   "marker": null,
+   "live": true,
+   "live_ms": 13161,
+   "mode": "in the answer when asked",
+   "draft_kept_live": null,
+   "observed": "K2-PROBE-1794092205118 bearing noise drive end",
+   "appears": true,
+   "page_errors_desktop": [],
+   "cleaned": 1
+  },
+  "CM1": {
+   "id": "CM1",
+   "page": "community.html",
+   "role": "worker",
+   "ran": "2026-11-07T22:57:11.395Z",
+   "same_account": true,
+   "draft_field": "#post-content",
+   "baseline": null,
+   "phone": {
+    "lenses": {
+     "R": true,
+     "J": true,
+     "T": true
+    },
+    "evidence": {
+     "nonce": "ArcK-CM1-1794092241883",
+     "persisted": true,
+     "cnt": "1"
+    }
+   },
+   "marker": "ArcK-CM1-1794092241883",
+   "live": true,
+   "live_ms": 20,
+   "mode": "realtime",
+   "draft_kept_live": true,
+   "appears": true,
+   "page_errors_desktop": [],
+   "cleaned": 1
+  },
+  "DAY1": {
+   "id": "DAY1",
+   "page": "dayplanner.html",
+   "role": "worker",
+   "ran": "2026-11-07T22:57:24.587Z",
+   "same_account": true,
+   "draft_field": "#m-title",
+   "baseline": null,
+   "phone": {
+    "lenses": {
+     "R": true,
+     "J": true,
+     "T": true
+    },
+    "evidence": {
+     "reach": true,
+     "modal": true,
+     "persisted": true,
+     "cnt": "1"
+    }
+   },
+   "marker": "K2-DP-1794092254991",
+   "live": true,
+   "live_ms": 13,
+   "mode": "realtime",
+   "draft_kept_live": true,
+   "appears": true,
+   "page_errors_desktop": [],
+   "cleaned": 1
+  },
+  "ED2": {
+   "id": "ED2",
+   "page": "engineering-design.html",
+   "role": "worker",
+   "ran": "2026-11-07T22:57:38.026Z",
+   "same_account": true,
+   "draft_field": null,
+   "baseline": null,
+   "phone": {
+    "lenses": {
+     "R": null,
+     "J": true,
+     "T": true
+    },
+    "evidence": {
+     "tag": "ARCK-ED2-1794092269571",
+     "out": true,
+     "persisted": true,
+     "cnt": "1"
+    }
+   },
+   "marker": "ARCK-ED2-1794092269571",
+   "live": true,
+   "live_ms": 7,
+   "mode": "on opening the view it lives in",
+   "draft_kept_live": null,
+   "appears": true,
+   "page_errors_desktop": [],
+   "cleaned": 1
+  },
+  "LOG1@index": {
+   "id": "LOG1@index",
+   "page": "index.html",
+   "role": "worker",
+   "ran": "2026-11-07T22:57:59.343Z",
+   "same_account": true,
+   "draft_field": null,
+   "baseline": null,
+   "phone": {
+    "lenses": {
+     "R": true,
+     "J": true,
+     "T": true
+    },
+    "evidence": {
+     "reach": true,
+     "machineSet": true,
+     "toast": "✓ Logged: updated Analytics (MTBF/MTTR + failure f",
+     "persisted": true
+    }
+   },
+   "marker": "logbook.html?id=1794092296190",
    "live": false,
    "live_ms": null,
    "mode": "after a refresh",
@@ -194,7 +207,7 @@
    "id": "SYNCCFG@integrations",
    "page": "integrations.html",
    "role": "supervisor",
-   "ran": "2026-11-03T20:13:11.567Z",
+   "ran": "2026-11-07T22:58:38.717Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -203,7 +216,7 @@
    },
    "marker": null,
    "live": true,
-   "live_ms": 28,
+   "live_ms": 13,
    "mode": "on opening the view it lives in",
    "draft_kept_live": null,
    "appears": true,
@@ -214,7 +227,7 @@
    "id": "INV2",
    "page": "inventory.html",
    "role": "worker",
-   "ran": "2026-11-03T20:13:34.253Z",
+   "ran": "2026-11-07T22:58:51.415Z",
    "same_account": true,
    "draft_field": "#f-part-name",
    "baseline": null,
@@ -227,13 +240,13 @@
     "evidence": {
      "clicked": true,
      "modal": true,
-     "toast": "Used 2 pcs of K2-USE-1793736824448 → off",
+     "toast": "Used 2 pcs of K2-USE-1794092337984 → off",
      "qtyAfter": "18"
     }
    },
    "marker": null,
    "live": true,
-   "live_ms": 5,
+   "live_ms": 2,
    "mode": "on opening the view it lives in",
    "draft_kept_live": true,
    "appears": true,
@@ -244,7 +257,7 @@
    "id": "MK5",
    "page": "marketplace.html",
    "role": "worker",
-   "ran": "2026-11-03T20:13:54.291Z",
+   "ran": "2026-11-07T22:59:06.194Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -260,9 +273,9 @@
      "cnt": "1"
     }
    },
-   "marker": "K6-MK5-1793736846203",
+   "marker": "K6-MK5-1794092354459",
    "live": true,
-   "live_ms": 40,
+   "live_ms": 37,
    "mode": "on opening the view it lives in",
    "draft_kept_live": null,
    "appears": true,
@@ -273,7 +286,7 @@
    "id": "SYNCCFG@plant-connections",
    "page": "plant-connections.html",
    "role": "supervisor",
-   "ran": "2026-11-03T20:14:18.673Z",
+   "ran": "2026-11-07T22:59:26.375Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -295,7 +308,7 @@
    "id": "PMK1",
    "page": "project-manager.html",
    "role": "supervisor",
-   "ran": "2026-11-03T20:14:54.079Z",
+   "ran": "2026-11-07T22:59:55.655Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -306,12 +319,12 @@
      "T": true
     },
     "evidence": {
-     "name": "ARC-K K5 PMK1 1793736922846",
+     "name": "ARC-K K5 PMK1 1794092405212",
      "persisted": true,
      "cnt": "1"
     }
    },
-   "marker": "ARC-K K5 PMK1 1793736922846",
+   "marker": "ARC-K K5 PMK1 1794092405212",
    "live": true,
    "live_ms": 24,
    "mode": "on opening the view it lives in",
@@ -324,7 +337,7 @@
    "id": "RS2",
    "page": "report-sender.html",
    "role": "supervisor",
-   "ran": "2026-11-03T20:15:37.314Z",
+   "ran": "2026-11-07T23:00:08.823Z",
    "same_account": true,
    "draft_field": "#contact-name",
    "baseline": null,
@@ -339,12 +352,12 @@
      "opened": true,
      "listed": true,
      "db": "1:084c113b-99c0-45c6-a8e8-b4b8349da46d",
-     "email": "rs2-1793736957837@qa.workhive.test"
+     "email": "rs2-1794092415674@qa.workhive.test"
     }
    },
-   "marker": "rs2-1793736957837@qa.workhive.test",
+   "marker": "rs2-1794092415674@qa.workhive.test",
    "live": true,
-   "live_ms": 4903,
+   "live_ms": 3070,
    "mode": "on return to the tab",
    "draft_kept_live": true,
    "appears": true,
@@ -355,9 +368,9 @@
    "id": "SBPUB",
    "page": "shift-brain.html",
    "role": "supervisor",
-   "ran": "2026-11-03T20:16:15.209Z",
+   "ran": "2026-11-07T23:00:26.328Z",
    "same_account": true,
-   "pre_state_ok": false,
+   "pre_state_ok": true,
    "draft_field": null,
    "baseline": null,
    "phone": {
@@ -378,7 +391,7 @@
    "id": "SKK2",
    "page": "skillmatrix.html",
    "role": "worker",
-   "ran": "2026-11-03T20:16:57.038Z",
+   "ran": "2026-11-07T23:00:57.389Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -409,5 +422,5 @@
    "cleaned": 1
   }
  },
- "generated": "2026-11-03T20:18:13.908Z"
+ "generated": "2026-11-07T23:01:28.433Z"
 }

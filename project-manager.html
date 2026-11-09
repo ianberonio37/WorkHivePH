@@ -3734,7 +3734,9 @@ async function saveLessons() {
   const { data, error } = await q.select('id, updated_at, meta');
   if (error) { showToast(whWriteError(error, 'Nothing was saved. Your changes are still on the form; try again.'), 'error'); return; }
   if (!data || data.length === 0) {
-    showToast('Someone saved this project while you were writing, so your lessons were not saved. Copy your text, then reopen the project to see theirs.', 'error');
+    // a guarded write that returns no row is UNCONFIRMED (T176): someone may have saved first, or the write landed and the
+    // reply was hidden - so say what is known, and keep the person's text safe either way (2026-11-08)
+    showToast('Your lessons may not have saved: the project may have changed since you opened it. Copy your text, then reopen the project to check.', 'error');
     _lessonsStamp = null;
     return;
   }
