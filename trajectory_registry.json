@@ -1235805,8 +1235805,8 @@
     },
     {
       "id": "CF181",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - ph plant compliance guide · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=5",
       "pages": [
@@ -1235903,7 +1235903,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on ph plant compliance guide for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on ph plant compliance guide for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:33"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/ph-plant-compliance-guide/index.html as anon after the find of 2026-09-11 (ph-plant-compliance-guide: B1 67% - marketese=0 verboseBlocks=5) - tools/family_rubric_sweep.mjs --anon (learn/ph-plant-compliance-guide/index.html, 2026-11-10T06:33, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1235982,8 +1235989,8 @@
     },
     {
       "id": "CF183",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - philippine plants now pay the highest power rates · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=6",
       "pages": [
@@ -1236069,7 +1236076,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on philippine plants now pay the highest power rates for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on philippine plants now pay the highest power rates for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:35"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/philippine-plants-now-pay-the-highest-power-rates/index.html as anon after the find of 2026-10-13T12:58 (philippine-plants-now-pay-the-highest-power-rates: B1 67% - marketese=0 verboseBlocks=6) - tools/family_rubric_sweep.mjs --anon (learn/philippine-plants-now-pay-the-highest-power-rates/index.html, 2026-11-10T06:34, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1236264,8 +1236278,8 @@
     },
     {
       "id": "CF186",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - predictive alert thresholds plants · a signed-out visitor: B3 0% - sentences=72 · >20w=6 · passive=2 · grade>8=17 · worst(45w): \"",
       "pages": [
@@ -1236380,7 +1236394,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on predictive alert thresholds plants for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on predictive alert thresholds plants for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:33"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/predictive-alert-thresholds-plants/index.html as anon after the find of 2026-09-11 (predictive-alert-thresholds-plants: B3 0% - sentences=72 · >20w=6 · passive=2 · grade>8=17 · worst(45w): \"The pattern th) - tools/family_rubric_sweep.mjs --anon (learn/predictive-alert-thresholds-plants/index.html, 2026-11-10T06:33, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1269711,8 +1269732,8 @@
     },
     {
       "id": "CF345",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - ph plant compliance guide · a signed-out visitor: B3 0% - sentences=32 · >20w=10 · passive=2 · grade>8=15 · worst(64w): ",
       "pages": [
@@ -1269809,7 +1269830,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on ph plant compliance guide for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on ph plant compliance guide for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:33"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/ph-plant-compliance-guide/index.html as anon after the find of 2026-09-11 (ph-plant-compliance-guide: B3 0% - sentences=32 · >20w=10 · passive=2 · grade>8=15 · worst(64w): \"Three regimes cover mo) - tools/family_rubric_sweep.mjs --anon (learn/ph-plant-compliance-guide/index.html, 2026-11-10T06:33, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1269921,8 +1269949,8 @@
     },
     {
       "id": "CF347",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - philippine plants now pay the highest power rates · a signed-out visitor: B3 0% - sentences=115 · >20w=19 · passive=1 · grade>8=23 · worst(49w):",
       "pages": [
@@ -1270008,7 +1270036,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on philippine plants now pay the highest power rates for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on philippine plants now pay the highest power rates for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:33"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/philippine-plants-now-pay-the-highest-power-rates/index.html as anon after the find of 2026-10-13T12:58 (philippine-plants-now-pay-the-highest-power-rates: B3 0% - sentences=115 · >20w=19 · passive=1 · grade>8=23 · worst(49w)) - tools/family_rubric_sweep.mjs --anon (learn/philippine-plants-now-pay-the-highest-power-rates/index.html, 2026-11-10T06:33, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1271124,8 +1271159,8 @@
     },
     {
       "id": "CF360",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - reduce unplanned downtime guide · a signed-out visitor: B3 0% - sentences=63 · >20w=11 · passive=3 · grade>8=16 · worst(42w): ",
       "pages": [
@@ -1271214,7 +1271249,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on reduce unplanned downtime guide for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on reduce unplanned downtime guide for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T06:33"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/reduce-unplanned-downtime-guide/index.html as anon after the find of 2026-09-11 (reduce-unplanned-downtime-guide: B3 0% - sentences=63 · >20w=11 · passive=3 · grade>8=16 · worst(42w): \"Three patterns k) - tools/family_rubric_sweep.mjs --anon (learn/reduce-unplanned-downtime-guide/index.html, 2026-11-10T06:33, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {

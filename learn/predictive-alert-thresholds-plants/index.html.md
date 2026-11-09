@@ -10,11 +10,11 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 27 Oct 2026
+Updated 10 Nov 2026
 ·
 7 min read
 
-**Short answer:** A predictive alert that gets silenced after 3 weeks is worse than no alert. The pattern that works in Philippine plants: 3 alert tiers (Notice, Warning, Action) with explicit escalation rules, ISO 10816-compliant vibration thresholds adjusted for asset class, named owners per tier, and a weekly alert-fatigue review that retires or retunes any alert silenced more than 3 times. The discipline is what turns a sensor into a warning; plants that buy the sensor and never tune the thresholds get expensive shelf decoration. How much it catches depends on your assets and your baseline, so measure it against your own failure history rather than against a number from an article.
+**Short answer:** A predictive alert that gets silenced after 3 weeks is worse than no alert. The pattern that works in Philippine plants has four parts. Use 3 alert tiers (Notice, Warning, Action) with clear escalation rules. Use ISO 10816-compliant vibration thresholds, adjusted for asset class. Name an owner for each tier. And hold a weekly alert-fatigue review. It retires or retunes any alert silenced more than 3 times. The discipline is what turns a sensor into a warning. Plants that buy the sensor and never tune the thresholds get costly shelf decoration. How much it catches depends on your assets and your baseline. So test it against your own failure history. Do not use a number from an article.
 
 Who this is for
 
@@ -26,11 +26,11 @@ Who this is for
 - Contractors on condition monitoring
 - New engineering graduates learning PdM
 
-Part of the [maintenance metrics guide: OEE, MTBF, MTTR and reliability](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/): the hub that connects every reliability metric and shows how they chain together.
+Part of the [maintenance metrics guide: OEE, MTBF, MTTR and reliability](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/). That hub links every reliability metric. It shows how they chain together.
 
 ## Why threshold design matters more than sensor count
 
-Most predictive maintenance programs in Philippine plants fail at the threshold layer, not the sensor layer. The plant buys good sensors, the sensors generate accurate data, and the alerts get silenced because every alert is treated as critical or because the alerts cry wolf and the team learns to ignore them.
+Most predictive maintenance programs fail at the thresholds. In Philippine plants, the sensors are rarely the problem. The plant buys good sensors, and the sensors give accurate data. Then the team silences the alerts. Maybe every alert reads as critical. Or the alerts cry wolf, and the team learns to tune them out.
 
 Threshold design is the difference. A well-tuned threshold fires once a quarter, gets acted on, and prevents a real failure. A poorly-tuned threshold fires daily, gets dismissed, and trains the team to ignore the sensor. The sensor is the easy part; the threshold tuning is the discipline.
 
@@ -42,11 +42,11 @@ Threshold design is the difference. A well-tuned threshold fires once a quarter,
 | **Warning** | Reading crossed first action threshold; degradation in progress | Schedule investigation within 7 days; trend daily | Maintenance supervisor |
 | **Action** | Reading crossed second action threshold; failure imminent | Stop or de-rate asset; investigate this shift | Reliability engineer + supervisor on call |
 
-Three tiers, not seven. Many sensor vendor dashboards ship with 5 to 7 alert levels which look sophisticated and fail in practice. Three tiers map to three distinct human responses: keep watching, plan a check, act now.
+Three tiers, not seven. Many sensor vendor dashboards ship with 5 to 7 alert levels. They look clever and fail in practice. Three tiers map to three distinct human responses: keep watching, plan a check, act now.
 
 ## ISO 10816 vibration thresholds by asset class
 
-ISO 10816 defines vibration severity zones for industrial machinery, and the table below is the Class I to IV guidance from ISO 10816-1. The ISO 10816 parts have since been replaced by the ISO 20816 series: ISO 20816-3:2022 (formerly ISO 10816-3) groups machines above 15 kW by Group 1 and Group 2 and foundation, with its own limits, so check large machines against it. The standard is the right starting point; tune from there based on your plant's history.
+ISO 10816 defines vibration severity zones for industrial machinery. The table below is the Class I to IV guidance from ISO 10816-1. The ISO 20816 series has since replaced the ISO 10816 parts. ISO 20816-3:2022 (formerly ISO 10816-3) covers machines above 15 kW. It sorts them into Group 1 and Group 2, and by foundation, with its own limits. So check large machines against it. The standard is the right starting point; tune from there based on your plant's history.
 
 | Asset class | Zone A (Good) | Zone B (Acceptable) | Zone C (Unsatisfactory) | Zone D (Unacceptable) |
 | --- | --- | --- | --- | --- |
@@ -55,41 +55,41 @@ ISO 10816 defines vibration severity zones for industrial machinery, and the tab
 | Class III (large rigid foundation) | < 1.8 | 1.8 to 4.5 | 4.5 to 11.2 | > 11.2 |
 | Class IV (large flexible foundation) | < 2.8 | 2.8 to 7.1 | 7.1 to 18.0 | > 18.0 |
 
-Map to the 3-tier system: Notice fires at the Zone A to B transition, Warning at the B to C transition, Action at the C to D transition.
+Map to the 3-tier system. Notice fires as you move from Zone A to B. Warning fires from B to C. Action fires from C to D.
 
 ## Temperature alert design
 
-Bearing temperature is the cleanest predictive signal for rotating equipment after vibration. Indicative thresholds for an ambient 30 deg C Philippine plant:
+For rotating machines, bearing heat is the best signal after vibration. Indicative thresholds for an ambient 30 deg C Philippine plant:
 
-- Notice: bearing temperature 5 to 10 deg C above the running baseline (which itself is measured during commissioning, not assumed)
+- Notice: 5 to 10 deg C above the running baseline. You measure that baseline at commissioning; you never assume it.
 - Warning: 10 to 20 deg C above baseline, or absolute above 75 deg C
-- Action: more than 20 deg C above baseline, or absolute above 85 deg C, or rate of rise more than 5 deg C in 1 hour
+- Action: more than 20 deg C above baseline. Or above 85 deg C absolute. Or a rise of more than 5 deg C in 1 hour.
 
-Always tune the absolute thresholds to your asset's OEM specification; the rate-of-rise threshold is the one that catches sudden failures the OEM did not anticipate.
+Always tune the absolute thresholds to your asset's OEM specification. The rate-of-rise threshold is the one that catches sudden failures the OEM did not expect.
 
 ## Escalation rules and named owners
 
 Every alert tier must have a named owner. Unowned alerts get silenced. The pattern that works:
 
 - **Notice alerts** go to the operator on duty for the asset. Logged in WorkHive Logbook automatically. If no action recorded in 24 hours, escalates to Warning.
-- **Warning alerts** go to the maintenance supervisor in addition to the operator. If no action recorded in 72 hours, escalates to Action.
-- **Action alerts** go to the reliability engineer and the supervisor on call simultaneously. Phone call (not just notification) within 15 minutes is the SLA.
+- **Warning alerts** go to the operator and to the maintenance supervisor. If no action recorded in 72 hours, escalates to Action.
+- **Action alerts** go to two people at the same time. One is the reliability engineer. The other is the supervisor on call. Phone call (not just notification) within 15 minutes is the SLA.
 
 ## Preventing alert fatigue with weekly review
 
-The single most important discipline: weekly review of any alert silenced more than 3 times. If a Notice alert keeps firing without action, one of three things is true:
+The most important habit of all: each week, review any alert silenced more than 3 times. If a Notice alert keeps firing without action, one of three things is true:
 
 - The threshold is too tight (false alarms); retune to a higher value
 - The asset is genuinely degraded; promote the alert to Warning
 - The asset is being run outside design conditions; root-cause that, not the alert
 
-15 minutes per week with the reliability engineer and the operator. Acknowledge and resolve the alert in WorkHive Alert Hub, then document the retuning reasoning in a logbook entry. This single discipline is the difference between a PdM program that compounds and one that dies in year 1.
+15 minutes per week with the reliability engineer and the operator. Acknowledge and resolve the alert in WorkHive Alert Hub. Then write down why you retuned it in a logbook entry. This one habit separates a PdM program that compounds from one that dies in year 1.
 
 The tool this guide is about
 
 ### WorkHive Alert Hub manages the threshold + escalation discipline
 
-Be clear about the division of labour here, because it decides how you roll this out. **The threshold discipline above is yours to run** — naming the three tiers, assigning an owner to each, agreeing the escalation clock and holding the weekly review are decisions a plant makes, and Alert Hub does not hold a screen for configuring them. What it does is the part that is tedious by hand: it collects asset-risk, PM-due, low-stock, failure-pattern and automation alerts into one chronological inbox with a severity on each, lets you snooze or dismiss so the list stays honest, and delivers the AMC daily brief at 06:00 PHT for batch approval. Note the vocabulary differs: the product labels severity critical, high, medium and watch rather than Notice/Warning/Action, so map your tiers onto those when you write your procedure. There is no SMS or voice-call escalation; alerts live in-app. Free at the worker tier, and Alert Hub opens at **Stair 3 (Predictive-Ready)** — PM compliance at or above 70 percent and logbook hygiene at or above 80 percent on your hive’s readiness score.
+Be clear about the division of labour here, because it decides how you roll this out. **The threshold discipline above is yours to run.** Your plant names the three tiers and gives each an owner. It agrees the escalation clock and holds the weekly review. Alert Hub has no screen for setting these up. What it does is the part that is tedious by hand. It gathers five kinds of alert into one inbox, in time order. They are asset-risk, PM-due, low-stock, failure-pattern and automation alerts. Each alert carries a severity. You can snooze or dismiss one, so the list stays honest. And it delivers the AMC daily brief at 06:00 PHT, for you to approve in one batch. Note that the words differ. The product labels severity critical, high, medium and watch. It does not use Notice, Warning and Action. Map your tiers onto those when you write your procedure. There is no SMS or voice-call escalation; alerts live in-app. It is free at the worker tier. Alert Hub opens at Stair 3 (Predictive-Ready). On your hive's readiness score, that means PM compliance at 70 percent or more. It also means logbook hygiene at 80 percent or more.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -129,4 +129,4 @@ Start with vendor defaults (or ISO 10816 for vibration), but tune within 90 days
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 6e65bbb22c1147b1 -->
+<!-- md-twin source-sha: 16f19ca9fcf899c8 -->

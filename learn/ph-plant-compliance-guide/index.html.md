@@ -6,7 +6,7 @@ Source: https://workhiveph.com/learn/ph-plant-compliance-guide/
 
 By WorkHive Editorial Team · Published 2026-08-05 · 8 min read
 
-Three regimes cover most Philippine plant maintenance compliance: **DOLE OSHS** (the Occupational Safety and Health Standards, made mandatory and penalised under RA 11058 and its revised rules, DO 252-25) requires documented safety procedures and training; **lockout/tagout** under the same rules requires a written, auditable energy-isolation procedure for every maintenance intervention; and **RA 11285** (the Energy Efficiency and Conservation Act) requires designated establishments to report energy use and run a conservation programme. In every case an inspector asks the same thing : *show me the records*, and a dated digital audit trail is the fastest way to pass. RA 11058 penalties for wilful violations reach **₱100,000 per day**.
+Three regimes cover most Philippine plant maintenance compliance. **DOLE OSHS** requires documented safety procedures and training. OSHS means the Occupational Safety and Health Standards. RA 11058 and its revised rules, DO 252-25, make them mandatory and set the penalties. The same rules cover **lockout/tagout**. Every maintenance job needs a written procedure to isolate energy. An auditor must be able to check it. And **RA 11285** sets its own duty. It is the Energy Efficiency and Conservation Act. Designated establishments must report energy use and run a conservation programme. In every case an inspector asks the same thing: *show me the records*. A dated digital audit trail is the fastest way to pass. RA 11058 penalties for wilful violations reach **₱100,000 per day**.
 
 Who this is for
 
@@ -19,25 +19,35 @@ Who this is for
 
 ## DOLE OSHS and the audit trail
 
-The Occupational Safety and Health Standards are no longer advisory: RA 11058 and its implementing rules make them mandatory, and wilful non-compliance can draw an administrative fine of up to **₱100,000 per day**. What an inspector actually checks is documentation: safety induction records, equipment inspection logs, incident reports, and permits. A digital logbook that timestamps every entry turns a frantic pre-inspection scramble into a search box. The full method is in [building a DOLE/ISO audit trail from your logbook](https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/).
+The Occupational Safety and Health Standards are no longer advice. RA 11058 and its implementing rules make them mandatory. Wilful non-compliance can draw an administrative fine of up to **₱100,000 per day**. What an inspector checks is paperwork.
 
-**The rules changed in 2025.** Since **16 May 2025** the implementing rules are the Revised IRR, **DOLE Department Order 252, Series of 2025**, which succeeded DO 198-18. Repeat violations now draw progressive fines, and a safety officer may stop work where there is imminent danger, notifying DOLE at once. If your safety manual or training slides still cite DO 198-18 as the current rules, update the reference.
+That means induction records, inspection logs, incident reports and permits. A digital logbook puts a time on every entry. The frantic scramble before an inspection becomes a search box. The full method is in [building a DOLE/ISO audit trail from your logbook](https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/).
+
+**The rules changed in 2025.** Since 16 May 2025 the implementing rules are the Revised IRR. That is DOLE Department Order 252, Series of 2025. It replaced DO 198-18. Repeat violations now draw rising fines.
+
+A safety officer may stop work where there is imminent danger. The officer must tell DOLE at once. Do your safety manual or training slides still cite DO 198-18 as the current rules? Update the reference.
 
 ## Lockout/tagout (LOTO) under the OSH rules
 
-Every maintenance task that exposes a worker to stored or live energy needs a documented lockout/tagout procedure: the isolation points, the sequence, the verification, and who signed off. LOTO (lock-out/tag-out) is one of the highest-liability areas in a plant because the failure mode is a fatality, and it is one of the first things a DOLE inspector examines. Use the ready-made procedure and permit format in [LOTO procedures and DOLE OSHS template](https://workhiveph.com/learn/loto-procedures-dole-oshs-template/). Keep each completed permit in the record: a LOTO you performed but cannot prove is, to an auditor, a LOTO you did not perform.
+Some maintenance tasks expose a worker to stored or live energy. Each one needs a written lockout/tagout procedure. It names the isolation points, the sequence and the check. It also names who signed off. LOTO (lock-out/tag-out) carries some of the highest liability in a plant. When it fails, someone can die.
+
+It is also one of the first things a DOLE inspector checks. There is a ready-made procedure and permit. See [LOTO procedures and DOLE OSHS template](https://workhiveph.com/learn/loto-procedures-dole-oshs-template/). Keep each completed permit in the record. To an auditor, a LOTO you cannot prove is a LOTO you did not do.
 
 ## RA 11285: energy efficiency reporting
 
-The Energy Efficiency and Conservation Act (RA 11285) requires *designated establishments* to report annual energy consumption to the Department of Energy and run a conservation programme. The type is set by the previous year's total energy use, electricity and fuels together in kWh equivalent, and for industrial plants the bands changed on **11 January 2024** under DOE Department Circular **DC2023-12-0037**: up to **50,000 kWh** is "Others", **50,001 to 1,000,000 kWh** is Type 1, **1,000,001 to 8,000,000 kWh** is Type 2, and above **8,000,000 kWh** is Type 3. Commercial and transport establishments have their own circulars. The older figures many summaries still quote (Type 1 from 500,000 kWh, Type 2 from 4 million) predate that change. **Which officer you appoint depends on your type**: the law ties each type to a **Certified Energy Conservation Officer** or a **Certified Energy Manager**, who must be a licensed engineer (RA 11285 § 19–20), and the circular's annex sets the practitioner and the energy-audit level for each industrial type, so read it for your band before you appoint (checked 27 October 2026). Maintenance is central: well-maintained motors, compressors, and steam systems are the single largest lever on industrial energy use. The plant-readiness checklist is in [the RA 11285 energy-efficiency checklist](https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/), and the design side is covered by the free [power factor correction](https://workhiveph.com/tools/power-factor-correction-calculator/) and [compressed air](https://workhiveph.com/tools/compressed-air-calculator/) calculators.
+RA 11285 is the Energy Efficiency and Conservation Act. It applies to designated establishments. They must report yearly energy use to the Department of Energy. They must also run a conservation programme. Your type comes from last year's total energy use. That counts electricity and fuels together, in kWh equivalent. For industrial plants the bands changed on **11 January 2024**. The change came under DOE Department Circular **DC2023-12-0037**. Up to **50,000 kWh** is "Others". **50,001 to 1,000,000 kWh** is Type 1. **1,000,001 to 8,000,000 kWh** is Type 2. Above **8,000,000 kWh** is Type 3. Commercial and transport establishments have their own circulars. Many summaries still quote older figures: Type 1 from 500,000 kWh, Type 2 from 4 million. Those came before the change.
+
+**Which officer you appoint depends on your type.** The law ties each type to one of two roles. One is the **Certified Energy Conservation Officer**. The other is the **Certified Energy Manager**. That person must be a licensed engineer (RA 11285 § 19–20). For each industrial type, the circular's annex names the practitioner. It also sets the energy-audit level. Read it for your band before you appoint (checked 27 October 2026). Maintenance is central. Keeping motors, compressors and steam systems in shape saves the most energy. For plant readiness, use [the RA 11285 energy-efficiency checklist](https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/). The design side has two free calculators. Use [power factor correction](https://workhiveph.com/tools/power-factor-correction-calculator/) and [compressed air](https://workhiveph.com/tools/compressed-air-calculator/).
 
 ## Why digital records win inspections
 
-Paper logbooks fail inspections in predictable ways: entries are missing, dates are ambiguous, the book is at the other end of the plant, or the one legible copy walked out with a resigned supervisor. A digital audit trail is timestamped, searchable, tamper-evident, and backed up. When an inspector asks for the last six months of LOTO permits or PM completions, the answer is a filtered list, not a storeroom search. This is the same “documented work compounds” principle behind the [skill matrix](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/) and the [maintenance metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/).
+Paper logbooks fail inspections in ways you can predict. Entries go missing, and dates are unclear. The book sits at the other end of the plant. Or the one clear copy left with a supervisor who quit. A digital audit trail carries a time on every entry. You can search it, it shows any tampering, and it keeps a backup.
+
+An inspector may ask for six months of LOTO permits or PM completions. The answer is a filtered list, not a search of the storeroom. Documented work compounds. The same idea runs through the [skill matrix](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/). It also runs through the [maintenance metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/).
 
 ## Compliance toolkit
 
-Start the audit trail with a [digital maintenance rollout](https://workhiveph.com/learn/start-digital-maintenance-guide/), keep LOTO and permit records in the logbook, and use the free [engineering calculators](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) for the design-compliance side (electrical per PEC 2017, fire per NFPA, energy per RA 11285). Every WorkHive record carries a date stamp and the standard it references, which is exactly the form an auditor wants.
+Start the audit trail with a [digital maintenance rollout](https://workhiveph.com/learn/start-digital-maintenance-guide/). Keep LOTO and permit records in the logbook. For design compliance, use the free [engineering calculators](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/). They cover electrical per PEC 2017, fire per NFPA, and energy per RA 11285. Every WorkHive record carries a date stamp. Each calculation also names the standard it follows. That is the form an auditor wants.
 
 ## Frequently asked questions
 
@@ -61,7 +71,7 @@ It can, but it fails often: missing entries, ambiguous dates, and records that c
 
 Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tags records to the applicable standard, producing the dated, searchable audit trail that DOLE OSHS, LOTO, and RA 11285 inspections require: at no software cost.
 
-**Build your DOLE-ready audit trail**: timestamped, attributed, append-only, and free at the worker tier.
+**Build your DOLE-ready audit trail**. Each entry has a time and a name. Nobody can overwrite it. And it is free at the worker tier.
 
 ## Sources
 
@@ -72,4 +82,4 @@ Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tag
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: c2465acba4c24326 -->
+<!-- md-twin source-sha: 02761efde9009b0b -->
