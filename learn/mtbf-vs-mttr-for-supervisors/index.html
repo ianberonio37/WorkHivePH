@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-08-24",
+        "dateModified": "2026-11-10",
         "mainEntityOfPage": "https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -328,14 +328,14 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
+      <span>Updated <time datetime="2026-11-10">10 Nov 2026</time></span>
       <span class="opacity-40">·</span>
       <span>9 min read</span>
     </div>
 
     <div class="answer-first">
-      <strong>Short answer:</strong> MTBF (Mean Time Between Failures) measures how long equipment runs before the next breakdown. MTTR (Mean Time To Repair) measures how long it takes to fix it once it breaks. Higher MTBF and lower MTTR is the goal. Most Philippine plants do not track either, which is why the same fault keeps recurring on the same equipment for years. The fix is not a CMMS purchase. It is a logbook entry per fault, recorded honestly, reviewed weekly.
-     The worked example below uses a cooling-tower pump motor at a Cabuyao food plant running <strong>24 hours a day, 7 days a week</strong> over <strong>12 months</strong>.</div>
+      <strong>Short answer:</strong> MTBF (Mean Time Between Failures) measures how long equipment runs. It counts the time until it breaks down again. MTTR (Mean Time To Repair) measures how long it takes to fix it once it breaks. Higher MTBF and lower MTTR is the goal. Most Philippine plants track neither. That is why the same fault keeps coming back on the same equipment for years. The fix is not a CMMS purchase. It is a logbook entry per fault, recorded honestly, reviewed weekly.
+     Our worked example is a cooling-tower pump motor. It sits in a Cabuyao food plant. It ran 24 hours a day, 7 days a week, for 12 months.</div>
 
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
@@ -367,11 +367,11 @@
     </div>
 
     <div class="prose-wh">
-      <div class="callout">Part of the <a href="/learn/maintenance-metrics-reliability-guide/">maintenance metrics guide: OEE, MTBF, MTTR and reliability</a>: the hub that connects every reliability metric and shows how they chain together.</div>
+      <div class="callout">Part of the <a href="/learn/maintenance-metrics-reliability-guide/">maintenance metrics guide: OEE, MTBF, MTTR and reliability</a>. That hub links every reliability metric. It shows how they chain together.</div>
 
 
       <h2 id="two-metrics">The two metrics, side by side</h2>
-      <p>MTBF and MTTR answer two different questions about your plant. A supervisor who knows both numbers per critical asset can defend a maintenance budget; one who knows neither cannot.</p>
+      <p>MTBF and MTTR answer two different questions about your plant. Know both numbers for each critical asset. Then you can defend a maintenance budget. Know neither, and you cannot.</p>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th></th><th>MTBF</th><th>MTTR</th></tr></thead>
         <tbody>
@@ -388,22 +388,22 @@
       <p>The formula:</p>
       <pre tabindex="0">MTBF = Total Operating Time / Number of Failures</pre>
       <p><strong>Worked example: cooling tower pump motor at a Cabuyao food plant.</strong></p>
-      <p>The pump runs 24 hours a day, 7 days a week. It ran continuously for the past 12 months except during failure events. During that year, it failed 8 times: 4 bearing failures, 2 motor winding faults, 1 coupling break, and 1 control panel issue.</p>
+      <p>The pump runs 24 hours a day, 7 days a week. It ran nonstop for the past 12 months, apart from the failures. During that year, it failed 8 times. There were 4 bearing failures and 2 motor winding faults. There was also 1 coupling break and 1 control panel issue.</p>
       <pre tabindex="0">Total Calendar Hours    = 365 × 24 = 8,760 hr
 Total Downtime          = 8 failures × avg 4 hr = 32 hr
 Total Operating Time    = 8,760 - 32 = 8,728 hr
 Number of Failures      = 8
 MTBF                    = 8,728 / 8 = 1,091 hr (≈ 45 days)</pre>
-      <p>Interpretation: on average, this pump runs about 45 days before the next failure. That is below the benchmark for a critical process pump (usually 8,000+ hours), which means either the PM strategy is not catching the failure modes or the asset is past its useful life.</p>
+      <p>What it means: on average, this pump runs about 45 days between failures. That is below the benchmark for a critical process pump, usually 8,000+ hours. Maybe the PM strategy is missing the failure modes. Or the asset is past its useful life.</p>
 
       <h3>Counting rules that matter</h3>
       <ul>
         <li><strong>Only count unplanned failures.</strong> Planned PM shutdowns are not failures.</li>
         <li><strong>Use operating hours, not calendar hours,</strong> if the equipment does not run 24/7.</li>
-        <li><strong>Define "failure" consistently.</strong> A failure is any unplanned event that stops the equipment from performing its intended function. A minor adjustment that took 30 seconds is not a failure unless the asset stopped.</li>
+        <li><strong>Define "failure" consistently.</strong> A failure is any unplanned event that stops the equipment doing its job. A minor adjustment that took 30 seconds is not a failure unless the asset stopped.</li>
         <li><strong>Calculate per asset, not per fleet.</strong> Averaging MTBF across 12 pumps hides which one is the problem.</li>
       </ul>
-      <p>The free <a href="/tools/mtbf-calculator/">MTBF and MTTR calculator</a> does both figures at once from operating hours, failure count and total repair time, and derives Availability from them: useful precisely because the per-asset arithmetic above is where the fleet-averaging mistake creeps back in.</p>
+      <p>The free <a href="/tools/mtbf-calculator/">MTBF and MTTR calculator</a> does both figures at once. It takes operating hours, failures and total repair time. It works out Availability too. That helps. The per-asset sums above are where the fleet-average error creeps back.</p>
 
       <h2 id="mttr-formula">How to calculate MTTR (worked example)</h2>
       <p>The formula:</p>
@@ -420,38 +420,38 @@ MTTR               = 38 / 12 = 3.17 hr</pre>
         <li>Actual repair: 11 hr (29 percent)</li>
         <li>Restart and verification: 5 hr (13 percent)</li>
       </ul>
-      <p>The biggest MTTR fix here is not faster repair; it is making the right spare parts available within minutes. That points to a spare-parts inventory and reorder-point fix, not a wrench-time fix.</p>
+      <p>The biggest MTTR fix here is not faster repair. It is having the right spare parts ready within minutes. That points to a fix in spare parts and reorder points, not in wrench time.</p>
 
       <h3>Counting rules that matter</h3>
       <ul>
         <li><strong>Repair time means total restoration time,</strong> from stop to verified restart. Not just wrench time.</li>
         <li><strong>Include diagnosis and waiting time</strong> (for parts, for the right skill, for permits). These are usually the biggest chunks.</li>
         <li><strong>Stop the clock when the equipment is producing again,</strong> not when the technician signs off.</li>
-        <li><strong>Calculate per asset and per fault category.</strong> "Electrical faults take 5 hours on average; mechanical faults take 90 minutes" is more useful than a fleet-wide MTTR.</li>
+        <li><strong>Calculate per asset and per fault category.</strong> A fleet-wide MTTR helps less than a split by fault type. Electrical faults take 5 hours on average. Mechanical faults take 90 minutes.</li>
       </ul>
 
       <h2 id="what-mtbf-tells">What MTBF tells you about your plant</h2>
       <p>MTBF is a reliability metric. A falling MTBF usually means one of three things:</p>
       <ol>
         <li><strong>The asset is in its wear-out phase.</strong> Mechanical assets follow a bathtub curve. After useful life, MTBF drops sharply. Time to plan replacement.</li>
-        <li><strong>The PM strategy is not catching the dominant failure mode.</strong> If 4 of 8 failures were bearing failures, your PM is probably not lubricating or replacing bearings on the right interval.</li>
-        <li><strong>Operating conditions changed.</strong> A pump that worked fine for 5 years can drop MTBF if upstream pressure changed, the duty cycle increased, or someone bypassed a protection.</li>
+        <li><strong>The PM strategy is not catching the dominant failure mode.</strong> Were 4 of 8 failures bearings? Then your PM is probably not greasing or replacing them on the right interval.</li>
+        <li><strong>Operating conditions changed.</strong> A pump that worked fine for 5 years can still drop in MTBF. Maybe upstream pressure changed or the duty cycle rose. Or someone bypassed a protection.</li>
       </ol>
-      <p>A rising MTBF means your reliability investment is working. Track it monthly per critical asset and you get an honest answer to "is what I am spending on PM actually paying back?"</p>
+      <p>A rising MTBF means your reliability investment is working. Track it monthly for each critical asset. Then you get an honest answer on whether your PM spend pays back.</p>
 
       <h2 id="what-mttr-tells">What MTTR tells you about your plant</h2>
       <p>MTTR is a response metric. A high MTTR usually means one of three things:</p>
       <ol>
-        <li><strong>Parts are not on the shelf.</strong> The most common cause. Run an ABC analysis of your critical-asset spares and stock the items with high failure frequency.</li>
-        <li><strong>The right skill was not on the floor.</strong> A pump motor electrical fault that waited 3 hours for an electrician to drive in from Manila is a skill matrix and shift-coverage gap, not a maintenance gap.</li>
-        <li><strong>The procedure was not documented.</strong> If the technician spent 90 minutes finding out how the previous failure was fixed, that is a knowledge management problem the logbook directly solves.</li>
+        <li><strong>Parts are not on the shelf.</strong> The most common cause. Run an ABC analysis of your critical spares. Stock the items that fail most often.</li>
+        <li><strong>The right skill was not on the floor.</strong> Say a pump motor fault waited 3 hours for an electrician to drive in from Manila. That is a gap in the skill matrix and shift cover, not in maintenance.</li>
+        <li><strong>The procedure was not documented.</strong> Say the technician spent 90 minutes finding out how someone fixed the last failure. That is a knowledge problem, and the logbook solves it directly.</li>
       </ol>
-      <p>MTTR breakdowns by category usually reveal that 40 to 60 percent of total repair time is waiting time, not work time. That is the cheapest 40 percent to cut.</p>
+      <p>Split MTTR by category, and you usually find a pattern. Waiting takes 40 to 60 percent of total repair time, not the work itself. That is the cheapest 40 percent to cut.</p>
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
         <h3>WorkHive Analytics computes MTBF and MTTR per asset</h3>
-        <p>Every fault entry in the WorkHive Logbook feeds the Analytics reliability dashboard. The field that does the work is <strong>downtime hours</strong> on the entry: there is no separate stop and restart timestamp to fill in: alongside the category, root cause and the closing time. MTBF and MTTR are recomputed on the first view of each day and saved, so the figures are never more than a day stale and nobody waits for a recalculation. One caveat worth carrying with you: the dashboard labels its own figure <em>&ldquo;Worst MTBF (partial)&rdquo;</em>, because it divides calendar time rather than operating time: which is the shortcut this page warns about, declared openly rather than hidden. For an asset that runs 24/7 the two are the same; for one that does not, treat the dashboard figure as the conservative one. No spreadsheets, no per-user CMMS (computerized maintenance management system) license. Built for Stage 1 of the 4-stage path.</p>
+        <p>Every fault you log in WorkHive feeds Analytics. The field that does the work is downtime hours on the entry. There is no separate stop and restart time to fill in. It sits beside the category, root cause and closing time. The first view of each day recomputes MTBF and MTTR and saves them. So the figures are never more than a day old. Nobody waits for a recalculation. One caveat to carry with you. The dashboard labels its own figure “Worst MTBF (partial)”. It divides calendar time, not operating time. That is the shortcut this page warns about, stated openly instead of hidden. For an asset that runs 24/7, the two are the same. For one that does not, treat the dashboard figure as the cautious one. No spreadsheets, no per-user CMMS (computerized maintenance management system) license. Built for Stage 1 of the 4-stage path.</p>
         <a href="/analytics.html" class="cta-btn">Open Analytics</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
@@ -460,30 +460,30 @@ MTTR               = 38 / 12 = 3.17 hr</pre>
       <p>Engineering availability is the cleanest combined metric:</p>
       <pre tabindex="0">Availability = MTBF / (MTBF + MTTR)</pre>
       <p>For the Cabuyao pump example: <code>1,091 / (1,091 + 4) = 99.6%</code></p>
-      <p>That 99.6 percent looks excellent on paper, but the OEE (overall equipment effectiveness) on the production line that depends on this pump may still be 50 percent because the 4-hour repair always hits at the worst possible moment. Engineering availability does not capture criticality; it just captures up-time fraction.</p>
-      <p>This is why MTBF and MTTR alone are not enough. They feed into OEE, RCM (reliability-centered maintenance) analysis, and PM strategy decisions. Use them as inputs, not as the final scorecard.</p>
+      <p>That 99.6 percent looks excellent on paper. But the line that depends on this pump may still run at 50 percent OEE. The 4-hour repair always hits at the worst moment. Engineering availability does not capture criticality; it just captures up-time fraction.</p>
+      <p>This is why MTBF and MTTR alone are not enough. They feed OEE, RCM analysis and PM strategy. RCM means reliability-centered maintenance. Use them as inputs, not as the final scorecard.</p>
 
       <h2 id="zero-budget">Tracking both with zero CMMS budget</h2>
       <p>You do not need to buy SAP PM, IBM Maximo, or any paid CMMS to track MTBF and MTTR. You need a digital logbook that captures three things per fault:</p>
       <ol>
-        <li><strong>How long the asset was down</strong>, in hours. Two timestamps: stopped and producing again: are the most rigorous way to get this, because they cannot drift the way a remembered number does. A single downtime-hours field entered at the close is the practical way, and it is what WorkHive&rsquo;s logbook asks for.</li>
-        <li><strong>When the job closed</strong>, so the entries can be bucketed into a period without anyone re-typing dates.</li>
+        <li><strong>How long the asset was down</strong>, in hours. Two times, stopped and producing again, are the strictest way to get this. They cannot drift the way a remembered number does. One downtime-hours field filled in at the close is the practical way. It is what WorkHive’s logbook asks for.</li>
+        <li><strong>When the job closed</strong>. Then the entries fall into a period without anyone typing dates again.</li>
         <li><strong>Fault category</strong> from a controlled list (mechanical, electrical, instrumentation, process, safety).</li>
       </ol>
-      <p>That is it. Once a month, the supervisor exports the logbook, filters by asset, and calculates both metrics for the top 10 critical assets. 30 minutes per month. No software bill.</p>
-      <p>This is exactly what the <a href="/learn/start-digital-logbook-philippine-factory/">digital logbook rollout playbook</a> teaches at Step 2 (Weeks 2 to 4: one entry per shift). The discipline that makes the logbook work is the same discipline that makes MTBF and MTTR meaningful.</p>
+      <p>That is it. Once a month, the supervisor exports the logbook and filters by asset. Then they work out both metrics for the top 10 critical assets. 30 minutes per month. No software bill.</p>
+      <p>This is what the <a href="/learn/start-digital-logbook-philippine-factory/">digital logbook rollout playbook</a> teaches at Step 2. That covers weeks 2 to 4: one entry per shift. The discipline that makes the logbook work is the same discipline that makes MTBF and MTTR meaningful.</p>
 
       <h2 id="mistakes">Common Philippine plant mistakes</h2>
       <ul>
-        <li><strong>Reporting an MTBF without saying which assets were included.</strong> "Our MTBF is 1,200 hours" is meaningless. "Our 8 critical process pumps had MTBF 1,200 hours last quarter" is useful.</li>
-        <li><strong>Counting only "official" breakdowns.</strong> A 15-minute jam that the operator cleared without calling maintenance is still a failure for MTBF purposes. Hiding small faults inflates MTBF artificially.</li>
-        <li><strong>Including PM downtime in MTTR.</strong> Planned PM is not a repair. A pump that was taken offline for 6 hours of scheduled bearing replacement should not show up as a 6-hour MTTR event.</li>
-        <li><strong>Calculating MTBF over too short a window.</strong> If an asset failed twice in the past month, your "MTBF" is statistical noise. Use rolling 12-month windows for stable assets and rolling 3-month windows for assets that fail often.</li>
-        <li><strong>Treating MTBF and MTTR as the goal.</strong> They are diagnostic, not strategic. Improving MTBF on a non-critical asset while ignoring the bottleneck pump that drives OEE is wasted effort.</li>
+        <li><strong>Reporting an MTBF without saying which assets it covers.</strong> "Our MTBF is 1,200 hours" is meaningless. "Our 8 critical process pumps had MTBF 1,200 hours last quarter" is useful.</li>
+        <li><strong>Counting only "official" breakdowns.</strong> Say an operator cleared a 15-minute jam without calling maintenance. For MTBF, that still counts as a failure. Hiding small faults inflates MTBF artificially.</li>
+        <li><strong>Including PM downtime in MTTR.</strong> Planned PM is not a repair. Say you took a pump offline for 6 hours to replace a bearing on schedule. That should not count as a 6-hour MTTR event.</li>
+        <li><strong>Calculating MTBF over too short a window.</strong> If an asset failed twice in the past month, your "MTBF" is statistical noise. Use a rolling 12-month window for stable assets. Use a rolling 3-month window for assets that fail often.</li>
+        <li><strong>Treating MTBF and MTTR as the goal.</strong> They are diagnostic, not strategic. Raising MTBF on a minor asset wastes effort if you ignore the bottleneck pump. That pump drives OEE.</li>
       </ul>
 
       <div class="callout">
-        <strong>The bigger picture:</strong> MTBF tells you "is the asset itself good?" MTTR tells you "is the response system good?" OEE tells you "is the operation good?" All three feed each other. Without the logbook discipline at the bottom of the stack, none of them work.
+        <strong>The bigger picture:</strong> MTBF tells you if the asset itself is good. MTTR tells you if your response is good. OEE tells you if the operation is good. All three feed each other. Without the logbook discipline at the bottom of the stack, none of them work.
       </div>
 
       <h2 id="faq">Frequently asked questions</h2>
@@ -550,7 +550,7 @@ MTTR               = 38 / 12 = 3.17 hr</pre>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-10">10 Nov 2026</time></p>
     <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

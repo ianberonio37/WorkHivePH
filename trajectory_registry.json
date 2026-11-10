@@ -1234857,8 +1234857,8 @@
     },
     {
       "id": "CF170",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - mtbf vs mttr for supervisors · a signed-out visitor: B3 0% — sentences=127 · >20w=15 · passive=5 · grade>8=30 · worst(36w):",
       "pages": [
@@ -1234983,7 +1234983,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on mtbf vs mttr for supervisors for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on mtbf vs mttr for supervisors for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T13:32"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/mtbf-vs-mttr-for-supervisors/index.html as anon after the find of 2026-09-07 (learn/mtbf-vs-mttr-for-supervisors/index.html: B3 0% — sentences=127 · >20w=15 · passive=5 · grade>8=30 · worst(36w): \"T) - tools/family_rubric_sweep.mjs --anon (learn/mtbf-vs-mttr-for-supervisors/index.html, 2026-11-10T13:31, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1238544,8 +1238551,8 @@
     },
     {
       "id": "CF210",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - voice to text maintenance philippine plant floor · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=7",
       "pages": [
@@ -1238635,7 +1238642,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on voice to text maintenance philippine plant floor for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on voice to text maintenance philippine plant floor for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T13:32"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/voice-to-text-maintenance-philippine-plant-floor/index.html as anon after the find of 2026-10-13T12:58 (voice-to-text-maintenance-philippine-plant-floor: B1 67% - marketese=0 verboseBlocks=7) - tools/family_rubric_sweep.mjs --anon (learn/voice-to-text-maintenance-philippine-plant-floor/index.html, 2026-11-10T13:31, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1272649,8 +1272663,8 @@
     },
     {
       "id": "CF374",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - voice to text maintenance philippine plant floor · a signed-out visitor: B3 0% - sentences=87 · >20w=21 · passive=3 · grade>8=33 · worst(40w): ",
       "pages": [
@@ -1272743,7 +1272757,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on voice to text maintenance philippine plant floor for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on voice to text maintenance philippine plant floor for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-10T13:32"
+      },
+      "basis": "[2026-11-10] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/voice-to-text-maintenance-philippine-plant-floor/index.html as anon after the find of 2026-09-11 (voice-to-text-maintenance-philippine-plant-floor: B3 0% - sentences=87 · >20w=21 · passive=3 · grade>8=33 · worst(40w): ) - tools/family_rubric_sweep.mjs --anon (learn/voice-to-text-maintenance-philippine-plant-floor/index.html, 2026-11-10T13:31, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {

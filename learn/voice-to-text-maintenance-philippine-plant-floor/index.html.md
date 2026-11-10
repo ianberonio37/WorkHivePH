@@ -1,20 +1,20 @@
 # Voice-to-text on the Philippine plant floor (Filipino, English, Taglish)
 
-> A practical voice-journal guide for the Philippine plant floor: hands-free logging when gloves and oil make typing impossible, Filipino and Taglish speech recognition, and the 5 use cases that change the day.
+> A practical voice-to-text guide for the Philippine plant floor: hands-free logging when gloves and oil make typing impossible, Filipino and Taglish speech recognition, and the 5 use cases that change the day.
 
 Source: https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/
 
-Voice Journal · Hands-free logging
+Logbook · Hands-free logging
 
 By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 24 Aug 2026
+Updated 10 Nov 2026
 ·
 8 min read
 
-**Short answer:** Voice-to-text removes the typing friction that kills most logbook rollouts. A technician with greasy gloves on, standing at a noisy pump, will not stop to type a 50-word fault entry; they will postpone it and forget most of the detail by the time they reach the break room. The WorkHive Voice Journal accepts Filipino, English, and Taglish; transcribes the recording; lets the technician confirm in 5 seconds; and logs the entry to the right asset automatically. Five use cases drive 80 percent of the value: fault capture at the asset, supervisor handover walks, contractor status updates, safety observations, and operator route readings.
+**Short answer:** Voice removes the typing that kills most logbook rollouts. A technician with greasy gloves at a noisy pump will not stop to type a 50-word entry. They put it off and forget the detail by the break. In the WorkHive Logbook, tap the mic and say the fault. The AI fills the entry: the asset from the code you said, the problem, the action and the cause. You check it and save. Five uses drive 80 percent of the value. They are faults at the asset, handover walks and contractor updates. Then come safety notes and route readings.
 
 Who this is for
 
@@ -28,105 +28,109 @@ Who this is for
 
 ## Why the plant floor needs voice
 
-Typing is a desk-worker invention. The plant floor was never designed around it. A field technician with both hands on a wrench cannot stop to type. A technician wearing chemical-resistant gloves cannot reliably touch a phone screen. A technician standing next to a 95 dBA screw compressor cannot have a phone call, let alone use a soft keyboard.
+Typing is a desk-worker invention. Nobody designed the plant floor around it. A field technician with both hands on a wrench cannot stop to type. A technician in chemical-resistant gloves cannot reliably touch a phone screen. Next to a 95 dBA screw compressor, you cannot even take a call. A soft keyboard is out of the question.
 
-The result with typed-only logbooks: entries get postponed to break time, shortened to a sentence by the time they get written, or never written at all. The plant loses the most valuable observation (the one made standing at the asset, while the symptoms are fresh) and replaces it with a tired one-liner an hour later.
+With typed-only logbooks, entries wait for the break, shrink to one line, or never happen. The plant loses its best observation: the one made at the asset, while the signs are fresh. It gets a tired one-liner an hour later instead.
 
-Voice removes this friction. A technician taps a record button on the phone, speaks naturally for 30 to 120 seconds about what they see, and the entry lands in the Logbook with a time stamp and asset tag. The full description is captured. The detail does not fade.
+Voice removes this friction. In the Logbook, a technician taps the mic and says what they see. The AI fills the entry, and the technician checks it and saves. The entry carries the time, the asset and the author. The detail does not fade.
 
 ## Filipino, English, and Taglish recognition
 
-WorkHive Voice Journal accepts Filipino (Tagalog), English, and Taglish. The transcription engine recognizes natural code-switching, which is how most Filipino industrial workers actually speak on the floor.
+WorkHive has two voice tools, and they listen in different ways. The Logbook's mic uses your phone's speech recognition. It listens in Philippine English, on Chrome for Android. The Voice Journal transcribes your audio and detects the language for you.
 
-Example: a technician says *"Sa Pump P-204B, may mild leak sa mechanical seal area, walang dripping pero may damp spot, baka grasa lang yan pero need i-check ulit next shift."* The transcription captures it verbatim and tags the asset (Pump P-204B) automatically from the spoken asset code.
+Example: a technician says *"Sa Pump P-204B, may mild leak sa seal"*. Then: *"Walang dripping, check ulit next shift"*. In the Logbook, the AI reads that text and fills the entry. It picks up the asset, Pump P-204B, from the code you said. Say codes and key words clearly, because the phone listens for English.
 
-Recognition quality is highest when the speaker uses their natural language. Forcing English produces shorter, less specific entries because the speaker drops nuances that did not translate cleanly. The practical consequence is that an entry dictated in the speaker's own register tends to carry more usable detail than the same speaker forced into English-only: which is why the field accepts Taglish rather than correcting it.
+Speaking in your own way helps. Forcing English gives shorter, less specific entries. The speaker drops what does not translate. The AI that fills the entry reads Taglish, so you do not have to correct yourself.
 
-Cebuano, Hiligaynon and Ilocano already transcribe as well: the engine auto-detects the language rather than being told it, and the journal labels and filters entries by what it detected, so a Bisaya entry files itself as Bisaya. Expect accuracy below what you get in Tagalog or English, because there is far less training audio in those languages; the 5-second confirm step is doing more work on a Cebuano entry than on a Taglish one, and it is worth reading before you submit.
+The Voice Journal goes further on language. It detects Tagalog, English and Taglish. It also detects Cebuano, Hiligaynon and Ilocano. It labels and filters each entry by the language it heard. Expect lower accuracy in the smaller languages. There is less training audio for them. Read the text before you save.
 
 ## Handling plant noise
 
 | Environment | Typical dBA | Voice usable? |
 | --- | --- | --- |
 | Office or control room | 50 to 65 | Excellent |
-| General plant floor | 70 to 85 | Very good with noise suppression |
+| General plant floor | 70 to 85 | Very good |
 | Near operating pump or motor | 85 to 95 | Good with the phone held close |
 | Compressor room, screw compressor inlet | 95 to 100 | Marginal: use Bluetooth headset |
 | Turbine hall, large grinder, pile driver | 100+ | Voice not reliable: fall back to text |
 
-Voice Journal applies noise suppression preprocessing before transcription, which handles typical Philippine plant ambient well. For the loudest 5 to 10 percent of zones, a Bluetooth bone-conduction headset (PHP 1,500 to PHP 3,000) gets voice working again. Above 100 dBA, the regulation says you should be wearing hearing protection and not lingering; type the entry from a quieter spot.
+Hold the phone close and speak clearly. For the loudest 5 to 10 percent of zones, use a bone-conduction headset. It costs PHP 1,500 to PHP 3,000. Above 100 dBA, the rules say to wear hearing protection and not linger. Type the entry from a quieter spot.
 
 ## The 5 use cases that change the day
 
-1. **Fault capture at the asset.** Technician spots an issue and records it in 60 seconds while standing there, with the detail captured at peak observation freshness and no "I'll write it later" loss. Add the photo afterwards in the Logbook entry itself: the Voice Journal captures speech, not images.
-2. **Supervisor handover walks.** Outgoing supervisor does the 5S round at end of shift, dictates a walking commentary that pre-fills sections of the shift handover. Saves 10 minutes of typing per shift.
-3. **Contractor status updates.** A third-party service team visiting the plant for a scheduled job records their verbal status (work done, parts used, follow-up needed) without needing to access a desktop. Updates flow into WorkHive and back to SAP via the integration.
-4. **Safety walkthroughs.** Safety officer dictates observations during a walk without breaking flow. Each observation lands as a logbook entry tagged with the area. DOLE OSHS-compliant record by default.
-5. **Operator PdM route readings.** Reading aloud the vibration value, temperature, and observation is faster and less error-prone than typing numbers on a phone while holding a thermal camera or vibration analyzer in the other hand.
+1. **Fault capture at the asset.** The technician spots an issue and logs it in 60 seconds, standing right there. The detail is fresh, and nothing waits for later. Add a photo in the same Logbook entry.
+2. **Supervisor handover walks.** The outgoing supervisor logs what they see on the 5S round at the end of the shift. Shift Brain drafts the handover from the shift's logbook entries, so the walk feeds it. That saves about 10 minutes of typing per shift.
+3. **Contractor status updates.** A visiting service team with an account in your hive says its status: work done, parts used, follow-up needed. They need no desktop.
+4. **Safety walkthroughs.** The safety officer says each observation without breaking stride. Each one lands as a logbook entry with its time and author. That is the kind of record DOLE OSHS asks for.
+5. **Operator PdM route readings.** Saying the readings out loud beats typing numbers. Your other hand holds the thermal camera or analyzer.
 
 The tool this guide is about
 
-### WorkHive Voice Journal turns spoken observations into logbook entries
+### WorkHive's Logbook turns a spoken fault into an entry
 
-Tap to record, speak in Filipino, English, or Taglish, confirm the transcription in 5 seconds, submit. The entry lands in your hive's Logbook with the right asset tag and timestamp, ready for the AI Assistant to reference and the supervisor to review. Free at the worker tier. The audio is never stored: it is transcribed and discarded, and the saved record is the transcript you confirmed.
+Tap the mic and say what you see. The AI fills the asset, problem, action and cause. You check the fields and save. It goes into your hive's Logbook with its time and author. The AI Assistant and the supervisor can use it right away. Free at the worker tier. WorkHive never keeps the audio.
 
-No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
+Want to talk through your day instead? Try the [Voice Journal](https://workhiveph.com/voice-journal.html). No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
 ## Compliance and DOLE OSHS
 
-Voice-captured entries are fully DOLE OSHS Rule 1063 compliant. The requirement is that safety and health records be:
+Voice-captured logbook entries meet DOLE OSHS Rule 1063. The rule wants safety and health records that are:
 
-- Time-stamped at recording (server-side, not editable)
-- Attributable to a specific worker (logged-in user)
-- Amendable only by their author, with every amendment preserved in the audit trail
+- Time-stamped when saved (on the server, not editable)
+- Tied to a specific worker (the signed-in user)
+- Correctable, with every change kept in the audit trail
 - Available for inspector sampling (PDF export, electronic search)
 
-WorkHive Voice Journal satisfies all four, and the fourth one works in a way worth understanding before an inspection. An entry is *not* frozen: its author can correct it, which matters because the alternative to amending is a wrong record standing forever. What Rule 1063 needs is the trail, and that is what is preserved: every amendment is written to the DOLE/ISO audit log, and that log accepts inserts and reads only, so the history of a correction cannot itself be edited or deleted. Nobody but the author can touch the entry, and nobody at all can touch the record of what changed. The confirmed transcript plus the metadata (asset, location, time, user) then form a stronger compliance record than handwritten entries typically do, because the trail is automatic rather than remembered. The record is the text, not a recording: the audio is never stored.
+The Logbook meets all four. The third one is worth understanding before an inspection. An entry is *not* frozen: its author can correct it. That matters, because the other choice is a wrong record that stands forever.
+
+What Rule 1063 needs is the trail, and that is what WorkHive keeps. Every change goes to the DOLE/ISO audit log. That log accepts inserts and reads only. So nobody can edit or delete the history of a correction. The record is the text you checked, not a recording: the audio is never stored.
 
 ## Privacy and data retention
 
-**WorkHive does not keep your audio.** A recording is sent over an encrypted connection to be transcribed, the text comes back, and the audio is not written to WorkHive storage at any point: there is no recording to retain, expire or subpoena. What is saved is the TRANSCRIPT, scoped to the hive that recorded it, and WorkHive does not share data across hives without explicit consent.
+**WorkHive does not keep your audio.** In the Logbook, your phone's speech service turns speech into text. WorkHive only receives the text. The Voice Journal transcribes your audio over an encrypted link. The text comes back, and the audio is never written to WorkHive storage. So there is no recording to keep, expire or subpoena. Logbook entries stay in your hive. Voice Journal entries are private to the person who spoke them.
 
-The part worth knowing before you roll this out: transcription is done by a third-party speech-to-text service, so the audio does leave the platform for the few seconds it takes to turn into text. For plants with confidentiality concerns about voice content that may include process details, safety incidents or personnel names, that is the fact to weigh, and the practical control is the one your team already has, which is to say the fault and the asset rather than anything that does not belong on a record.
+The part to know before you roll this out: the audio does leave your phone. A speech service hears it. That takes only a few seconds. Some plants worry about what a voice note might hold.
+
+Process details, safety incidents and names are the usual concerns. For them, that is the fact to weigh. The control your team already has still works. Say the fault and the asset, and nothing that does not belong on a record.
 
 ## Rollout sequence
 
 The pattern that works for Philippine plants adopting voice:
 
-- **Week 1:** enable voice for the supervisor only. Supervisor uses it for handover walks and observation capture. Builds familiarity with the tool and the team sees them using it.
-- **Weeks 2 to 4:** extend to one shift's field technicians (3 to 5 people). Daily voice entries for fault capture, with the supervisor verifying transcription quality in the weekly Monday review.
+- **Week 1:** start with the supervisor only. They use voice for handover walks and observations. They learn the tool, and the team sees them using it.
+- **Weeks 2 to 4:** extend to one shift's field technicians (3 to 5 people). They log faults by voice daily. The supervisor checks the text quality in the weekly Monday review.
 - **Weeks 5 to 8:** roll out to all field technicians on the pilot shift. Add safety officers and operator route users.
-- **Months 3 to 6:** expand to all shifts and onboard contractors who do recurring site work.
+- **Months 3 to 6:** expand to all shifts, and add contractors who do repeat site work.
 
-By month 6, voice typically accounts for 40 to 60 percent of all Logbook entries in a mature plant, with typed entries reserved for situations where voice is impractical (loud zones, confidential content, or long structured forms like PM checklists).
+By month 6, voice often makes up 40 to 60 percent of Logbook entries in a mature plant. Typing stays for loud zones, confidential notes and long forms like PM checklists.
 
-**The bigger picture:** Voice is not a gimmick; it is the missing input method for a workforce that works with their hands. Plants that adopt voice see logbook entry rates rise 2 to 3x in the first quarter because the friction is finally low enough. More entries means better history, which means better AI assistance, which means more visible workers, which means the career-protection thesis from the AI Assistant guide actually compounds.
+**The bigger picture:** Voice is not a gimmick. It is the missing input for a workforce that works with its hands. Plants that adopt voice often see logbook entries rise 2 to 3x in the first quarter. The friction is finally low enough. More entries mean better history and better AI help. They also make workers more visible. That is how the career case in the AI Assistant guide compounds.
 
 ## Frequently asked questions
 
 ### Why does a plant need voice-to-text for the logbook?
 
-Because typing on the plant floor is rarely practical. Hands are dirty, gloves are on, the asset is in a noisy area, the technician is mid-task. The result with typed logbooks: entries get postponed to the break room, get shortened to a sentence, or never get written at all. Voice removes the friction. A technician can speak a 2-minute observation while standing at the asset and the entry lands in the WorkHive Logbook automatically time-stamped and asset-tagged.
+Because typing on the plant floor is rarely practical. Hands are dirty, gloves are on, and the asset is loud. With typed logbooks, entries wait for the break room, shrink to one line, or never happen. Voice removes that friction. In the Logbook, tap the mic and say the fault at the asset. The AI fills the entry, and you check it and save.
 
 ### Does it work in Filipino and Taglish?
 
-Yes. WorkHive Voice Journal accepts Filipino (Tagalog), English, and Taglish (the mixed code-switching most Filipino industrial workers actually speak). Recognition quality is best when the speaker uses their natural language; forcing English on a Filipino-thinking team produces shorter, less specific entries. Cebuano, Hiligaynon and Ilocano work too - the language is auto-detected rather than selected, and entries are labelled and filtered by the language they were spoken in - though accuracy in those languages is lower than in Tagalog or English, so read the transcript before confirming.
+It depends on the tool. The Logbook's mic uses your phone's speech recognition, in Philippine English. Say the asset code and key words clearly; the AI that fills the entry reads Taglish. The Voice Journal detects the language for you. It handles Tagalog, English and Taglish. It also handles Cebuano, Hiligaynon and Ilocano. It labels each entry by the language it heard. Accuracy is lower in the smaller languages, so read the text before you save.
 
 ### What if the plant floor is noisy?
 
-Voice Journal uses noise-suppression preprocessing that handles typical plant ambient (80 to 95 dBA from motors, fans, compressors). Above 95 dBA (close to a screw compressor inlet, near a power saw), accuracy drops; use the phone's hands-free Bluetooth headset for those zones. For very loud areas (above 100 dBA, like a turbine hall), text entry is still the fallback. Most plant zones are quiet enough for voice to work well most of the time.
+Hold the phone close and speak clearly. Near a pump or motor, at 85 to 95 dBA, that usually works. Above 95 dBA, such as a screw compressor inlet, use a Bluetooth headset. In very loud areas above 100 dBA, like a turbine hall, step away and type the entry.
 
 ### Is voice transcription accurate enough for compliance records?
 
-Yes, with a review step. The Voice Journal transcribes the recording into text and shows it for the technician to confirm or correct in 5 seconds before submitting. That review step is the safeguard, and it is load-bearing: the audio is not kept and cannot be replayed later, so the confirmed text is the only record there will ever be. DOLE OSHS Rule 1063 on Safety and Health Records is satisfied because the entry is time-stamped and technician-identified, and because every later amendment is written to an audit log that accepts inserts and reads only. The entry can be corrected by its author; the record of the correction cannot be removed by anyone.
+Yes, with a review step. The Logbook shows the fields the AI filled before you save. Check them; that check is the safeguard. DOLE OSHS Rule 1063 on Safety and Health Records needs a time stamp and a named worker. Every saved entry has both. Later edits go to an audit log that accepts inserts and reads only. So no one can remove the record of a correction.
 
 ### What are the highest-value use cases for voice?
 
-Five use cases that consistently change the day: (1) capturing a fault description while standing at the asset, before the details fade; (2) dictating a shift handover walk-through as the supervisor does the 5S round; (3) recording a contractor's verbal status update during a site visit; (4) capturing safety observations during a walkthrough without breaking the safety officer's flow; (5) operator route readings where reading aloud is faster and less error-prone than typing numbers on a phone.
+Five uses change the day the most. First, logging a fault at the asset, before the details fade. Second, logging the supervisor's end-of-shift walk. Shift Brain then uses it for the handover. Third, a contractor's spoken status during a site visit. Fourth, safety notes during a walkthrough. Fifth, route readings, where saying a number beats typing it.
 
 ### Does the voice data stay private?
 
-WorkHive does not keep your audio. The recording is sent over an encrypted connection to a third-party speech-to-text service, the text comes back, and the audio is never written to WorkHive storage, so there is no recording to retain or delete. The transcript is what is saved, scoped to the hive that recorded it, with no cross-hive sharing without explicit hive-to-hive consent.
+WorkHive does not keep your audio. In the Logbook, your phone's speech service turns speech into text, and WorkHive only gets the text. The Voice Journal transcribes your audio over an encrypted link. The text comes back, and the audio is never stored. Logbook entries stay in your hive. Voice Journal entries are private to you.
 
 ## Sources
 
@@ -137,4 +141,4 @@ WorkHive does not keep your audio. The recording is sent over an encrypted conne
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ceb512a6a37c9616 -->
+<!-- md-twin source-sha: 22b5edd84ce20ab9 -->
