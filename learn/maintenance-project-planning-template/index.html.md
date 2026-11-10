@@ -10,11 +10,11 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 24 Aug 2026
+Updated 10 Nov 2026
 ·
 9 min read
 
-**Short answer:** A maintenance project (turnaround, shutdown, capex install) needs 6 things: a frozen scope 90 days out, a schedule with critical path, resources matched to skill matrix, identified risks with named owners, costs allocated to the asset (not just to the project code), and disciplined daily standups plus handback. The 6 reasons Philippine plant projects blow over budget are scope creep, discovery work, contractor delays, late parts, safety stand-downs, and weather. Each has a documented mitigation in this template.
+**Short answer:** A maintenance project needs 6 things. Think of a turnaround, a shutdown or a new install. Freeze the scope 90 days out. Build a schedule with a critical path. Match people to the skill matrix. Name an owner for each risk. Charge costs to the asset, not just the project code. And hold daily standups, then a clean handback. Plant projects here go over budget for 6 reasons. They are scope creep, surprise work and contractor delays. Then come late parts, safety stand-downs and weather. Each has a documented mitigation in this template.
 
 Who this is for
 
@@ -26,7 +26,7 @@ Who this is for
 - Equipment and parts suppliers
 - New engineering graduates joining projects
 
-Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/): the four-step, zero-budget rollout this article is one step of.
+Part of our [guide to going digital](https://workhiveph.com/learn/start-digital-maintenance-guide/) in a Philippine plant. This article is one step of that four-step, zero-budget rollout.
 
 ## Maintenance project versus routine PM
 
@@ -39,28 +39,28 @@ Part of the [guide to starting digital maintenance in a Philippine factory](http
 | Coordination need | Low | High |
 | Risk | Bounded | Cascading: one job delay shifts the rest |
 
-The most common Philippine plant mistake is treating a 2-week turnaround as a long list of PMs. PMs do not have critical-path dependencies, do not need contractor coordination, and do not need handback. Projects have all three. Use the right tool for the work.
+The most common Philippine plant mistake is treating a 2-week turnaround as a long list of PMs. PMs have no critical path and need no handback. They need no contractor coordination either. Projects have all three. Use the right tool for the work.
 
 ## The 6 reasons projects blow over budget
 
-Six causes account for most budget overruns on maintenance projects, and they recur often enough to be worth planning against by name:
+Six causes explain most budget overruns on maintenance projects. They come back often enough to plan against by name:
 
-1. **Scope creep after freeze.** Production adds a "while you have it open" job 2 weeks before the project. The 30-minute add takes 6 hours and shifts the critical path. Hard freeze at 90 days is the rule; only true emergencies add after that, and every emergency add gets a documented justification.
-2. **Discovery work.** The team opens an asset and finds worse damage than expected (corrosion under insulation, cracked housing, contaminated oil, undocumented modifications). Plan 15 to 20 percent contingency time and budget for discovery. Plants that plan zero contingency are surprised every time.
-3. **Contractor delays.** The third-party crew arrives 2 days late, or arrives with fewer people than contracted, or arrives without the right tools. Mitigation: contractual penalties, pre-arrival kit verification, backup contractor on call.
-4. **Late parts.** Imported parts have 60 to 120-day lead times. A single late delivery on a critical-path job extends the whole project. Order long-lead-time parts 120 days out; have backup suppliers identified for everything Tier 1 critical.
-5. **Safety incidents triggering stand-down.** A near-miss or actual incident triggers DOLE-required investigation and a plant-wide safety pause. Plan that this will happen approximately once per major project; build a 1-day stand-down into the contingency budget.
-6. **Weather.** The Philippine rainy season (June to October) affects outdoor work, scaffolding, hot work, and crane lifts. Schedule weather-sensitive work for early shifts; have indoor-only fallback jobs ready for rain days.
+1. **Scope creep after freeze.** Production adds a "while you have it open" job 2 weeks before the project. The 30-minute add takes 6 hours and shifts the critical path. The rule is a hard freeze at 90 days. After that, only true emergencies get added, and each one gets a written reason.
+2. **Discovery work.** The team opens an asset and finds worse damage than expected. Think rust under insulation, a cracked housing or dirty oil. Or changes nobody wrote down. Plan 15 to 20 percent contingency time and budget for discovery. Plants that plan no buffer get surprised every time.
+3. **Contractor delays.** The outside crew arrives 2 days late, or with fewer people than agreed, or without the right tools. Mitigation: contractual penalties, pre-arrival kit verification, backup contractor on call.
+4. **Late parts.** Imported parts have 60 to 120-day lead times. One late delivery on a critical-path job delays the whole project. Order slow-to-arrive parts 120 days out. Line up backup suppliers for everything Tier 1 critical.
+5. **Safety incidents triggering stand-down.** A near-miss or real incident halts work for a safety review. Plan for this about once per big project. Put a 1-day stand-down into the buffer budget.
+6. **Weather.** The rainy season, June to October, hits outdoor work, scaffolding, hot work and crane lifts. Put weather-sensitive work on early shifts. Keep indoor jobs ready for rain days.
 
 ## The 6-step project planning workflow
 
 ### Step 1: Freeze the scope 90 days out
 
-One workshop with production, maintenance, engineering, and plant manager. Every proposed job goes on the wall. Each job gets a written justification, an asset reference (from Asset Hub), and an estimated duration. Plant manager signs the frozen scope. After the freeze, only documented emergencies add.
+One workshop with production, maintenance, engineering, and plant manager. Every proposed job goes on the wall. Each job gets a written reason, an asset tag from Asset Hub and a time estimate. Plant manager signs the frozen scope. After the freeze, only documented emergencies add.
 
 ### Step 2: Build the schedule with critical path
 
-Sequence every job. Identify dependencies (you cannot reassemble before alignment; you cannot align before bearing install; you cannot bearing install before bearing arrival). The longest dependency chain is the critical path. Total project duration equals critical path duration; non-critical jobs have slack.
+Sequence every job. Map what waits on what. You cannot reassemble before you align. You cannot align before the bearing goes in, and that waits for the bearing to arrive. The longest dependency chain is the critical path. Total project duration equals critical path duration; non-critical jobs have slack.
 
 Compression options:
 
@@ -71,7 +71,7 @@ Compression options:
 
 ### Step 3: Allocate resources by skill matrix
 
-Match every job to the people and equipment needed. Cross-check against the Skill Matrix to confirm Level 3+ coverage on every critical-path job on every shift. Surface single-point-of-failure people (only one technician can do X) and pre-arrange backup or train a second.
+Match every job to the people and equipment needed. Check the Skill Matrix for each critical-path job. Every shift needs a Level 3 or higher person on it. Find the jobs only one person can do. Line up a backup, or train a second person.
 
 ### Step 4: Identify risks and assign mitigations
 
@@ -85,19 +85,23 @@ Top-10 risk workshop with the project team. Each risk gets:
 
 ### Step 5: Cost the project to the asset, not the project code
 
-Every peso spent gets allocated to the asset that benefited (rebuild cost on Pump P-101A, not "Turnaround 2026 Q3"). Three years later when you decide replace versus refurbish, you have the data; plants that lump everything under one project code lose this forever. Note that this one is a discipline you keep in your finance system, not something WorkHive does for you: a project carries a budget figure and links to the assets it touched, but there is no per-asset cost rollup to read back, so the ledger that answers "what has this pump cost us" is still yours to keep.
+Charge every peso to the asset that got the work. The rebuild goes on Pump P-101A, not on "Turnaround 2026 Q3". Three years later, when you choose between replace and refurbish, you have the data. Plants that lump it all under one project code lose it for good.
+
+You keep this one in your finance system, because WorkHive does not do it for you. A project carries a budget and links to the assets it touched. But there is no cost total per asset to read back. So the ledger that says what a pump has cost you is still yours to keep.
 
 ### Step 6: Execute with daily standups and handback discipline
 
 15-minute daily standup at start of shift. Standing agenda: yesterday completed, today planned, blockers, risk status. Contractors attend alongside in-house leads.
 
-Per-asset handback: PM schedule updated, Logbook entry of the work, parts consumed, photos in Asset Hub, supervisor and operations sign-off. No asset returns to operations until handback complete.
+Per-asset handback: update the PM schedule and log the work in the Logbook. Record the parts used and keep photos in your shared drive. Then get sign-off from the supervisor and operations. No asset returns to operations until handback complete.
 
 The tool this guide is about
 
 ### WorkHive Project Manager runs the 6 steps end to end
 
-Project Manager has a critical-path Gantt, Monte Carlo schedule risk so the end date comes with a spread, resource-overload flagging, change orders when scope moves, a daily progress log with supervisor sign-off, BOM (bill of materials) import from Engineering Design, and a variance and lessons-learned summary at the close. Projects carry a budget figure and link to the assets, logbook entries, PM completions, inventory items and calculations they touch. Free at the worker tier. Closing a work order can push the completion to SAP or Maximo; the financial side stays in those systems.
+Project Manager has a critical-path Gantt chart. Its Monte Carlo schedule risk gives the end date a range. It flags people booked twice and logs change orders when scope moves. It keeps a daily progress log with supervisor sign-off. It imports a BOM (bill of materials) from Engineering Design.
+
+At the close it sums up variance and lessons learned. A project carries a budget. It links to the assets and logbook entries it touches. It also links PM completions, stock items and calculations. Free at the worker tier. Closing a work order can send the completion to SAP or Maximo. The money side stays in those systems.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -105,21 +109,21 @@ No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, take
 
 Critical path is the longest dependency chain through your schedule. Its duration sets the minimum total project duration. Example for a pump overhaul:
 
-The leverage: if Jobs D, E, or F slip 4 hours, the project finishes 4 hours late. If Job H slips, nobody cares. Knowing this directs the supervisor's attention. Plants without explicit critical path treat every job equally and miss the leverage.
+The leverage: if Jobs D, E, or F slip 4 hours, the project finishes 4 hours late. If Job H slips, nobody cares. Knowing this directs the supervisor's attention. Plants with no critical path treat every job the same and miss where the time really goes.
 
 ## Coordinating multiple contractors
 
-Most major projects in Philippine plants involve 3 to 8 contractor crews working in parallel: mechanical, electrical, instrumentation, scaffolding, insulation, painting, lifting, civil. Without explicit coordination, they trip over each other: scaffolding crew leaves before electrical needs to access, insulation goes back before instrumentation has had time to check.
+Most big projects in plants here run 3 to 8 contractor crews at once. Crews cover mechanical and electrical work, instruments and scaffolding. Others do insulation, painting, lifting and civil work. Without clear coordination, they trip over each other. The scaffolding crew leaves before the electricians need access. Insulation goes back on before the instrument techs can check.
 
 Three rules that work:
 
-1. **Single coordinator owns the master schedule.** Contractors do not negotiate schedule with each other; they negotiate through the coordinator. The coordinator is usually a senior planner or project engineer, not a contractor.
-2. **Decide what system access each contractor gets: deliberately.** WorkHive will not scope it for you: hive membership is worker or supervisor, and a member sees the hive's records. So either keep vendors out of the hive and have your own staff log their work against a contractor project, or accept that a vendor you add can read the plant's logbook. Whichever you choose, make status updates land in Project Manager rather than in WhatsApp groups, so the trail survives the project.
+1. **Single coordinator owns the master schedule.** Contractors do not agree the schedule with each other. They go through the coordinator. The coordinator is usually a senior planner or engineer. It is never a contractor.
+2. **Decide what system access each contractor gets: deliberately.** WorkHive will not limit it for you. A member is a worker or a supervisor. Every member sees the hive's records. So you have two choices. Keep vendors out of the hive and have your own staff log their work against a contractor project. Or accept that a vendor you add can read the plant's logbook. Either way, post status updates in Project Manager, not in chat groups. Then the record outlives the project.
 3. **Daily standup includes contractor leads.** Same 15-minute meeting, same agenda. Blockers surface immediately. Email handoffs and side-chat coordination kill projects.
 
 ## Coexistence with SAP PS and Maximo Projects
 
-WorkHive Project Manager does not replace SAP PS (Project System) or Maximo Project Management. Those handle the financial side:
+WorkHive Project Manager does not replace SAP PS (Project System). It does not replace Maximo's project module either. Those handle the financial side:
 
 - WBS structure for finance reporting
 - Cost allocation to project codes and assets
@@ -129,20 +133,22 @@ WorkHive Project Manager does not replace SAP PS (Project System) or Maximo Proj
 WorkHive Project Manager handles the operations side:
 
 - Who does what when: a Gantt with the critical path computed
-- Schedule risk by Monte Carlo simulation over the task durations, so the end date comes with a spread rather than a single optimistic number
-- Resource overload flagged when the same people are booked twice
+- Schedule risk by Monte Carlo runs, so the end date comes as a range
+- A flag when you book the same person twice
 - Change orders raised against a project when scope moves
 - Daily progress log with supervisor sign-off
-- Scope items, and links to the asset, the logbook entries, PM completions, inventory items and engineering calculations the project touches
+- Scope items, and links to the assets, logs, PMs, parts and calculations it touches
 - Variance summary and lessons learned at the close
 
-They meet at one point today, and it is worth knowing exactly where: when a worker closes a work order in the logbook, WorkHive pushes that completion out to your configured CMMS (computerized maintenance management system): the machine, who did it, actual hours and the close timestamp: translated into that system’s own status code rather than the literal word “closed”. See the [CMMS integration guide](https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/) for the setup. Nothing financial crosses in either direction: budgets, WBS structure, PO matching and capitalisation stay entirely in SAP or Maximo, and a cost figure you want in both places is entered in both places. Plants that use both well treat them as complementary; plants that try to make either do both end up with one half-used system.
+They meet at one point today. A worker closes a work order in the logbook. WorkHive then sends it to your CMMS (maintenance software). It sends the machine, who did it, the hours and the close time. The status goes in that system's own code, not the word "closed". See the [CMMS integration guide](https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/) for the setup.
+
+Nothing financial crosses in either direction. Budgets, the WBS and PO matching stay in SAP or Maximo. So does capitalisation. A cost you want in both places gets typed in both places. Plants that use both well let each do its own job. Plants that make one do both end up with a half-used system.
 
 ## Handback discipline: where most projects end badly
 
-The pattern that ruins post-project credibility: the project hits its deadline, the assets restart, production celebrates, and 3 weeks later operations is still asking maintenance for the updated drawings, the new PM schedules, the as-built photos. The work happened; the documentation did not.
+Here is the pattern that ruins trust after a project. It hits its deadline, the assets restart and production celebrates. Then, 3 weeks later, operations still asks for the papers. They want new drawings, PM schedules and as-built photos. The work happened; the documentation did not.
 
-Handback discipline closes this gap. For every asset touched by the project, before it returns to operations:
+Handback discipline closes this gap. For every asset the project touched, before operations takes it back:
 
 - Asset Hub record updated with any spec changes
 - PM schedule reviewed and any frequency changes captured
@@ -153,7 +159,7 @@ Handback discipline closes this gap. For every asset touched by the project, bef
 
 No signature, no handback. No handback, the asset stays project-owned and the project does not close.
 
-**The bigger picture:** A maintenance project is not a longer PM; it is a different discipline. Scope freeze, critical path, risk register, contractor coordination, per-asset costing, and handback are the differences between a project that lands on time and budget and one that becomes a cautionary tale. WorkHive Project Manager makes the discipline cheap to apply; the discipline itself is on you.
+**The bigger picture:** A maintenance project is not a longer PM. It is a different discipline. Six habits split a project that lands on time and budget from one that becomes a warning to others. They are scope freeze, a critical path and a risk register. The rest are contractor coordination, per-asset costs and handback. WorkHive Project Manager makes the discipline cheap to apply. The discipline itself is on you.
 
 ## Frequently asked questions
 
@@ -177,7 +183,7 @@ Three rules: (1) Single coordinator owns the master schedule; contractors do not
 
 The critical path is the longest dependency chain through your project schedule; its total duration sets the minimum project duration. A delay on any critical-path job delays the whole project. A delay on a non-critical-path job has slack and may not affect the end date. Identifying the critical path tells you where to focus your best people, your morning standup attention, and your contingency parts. Most Philippine plants do not formally compute critical path; they plan as a list and miss the leverage.
 
-### How does WorkHive Project Manager fit with SAP or Maximo project modules?
+### How does WorkHive Project Manager fit with SAP or Maximo?
 
 SAP PS (Project System) and Maximo Project Management handle the financial side: WBS structure, cost allocation, vendor PO tracking, capitalisation. WorkHive Project Manager handles the operations side: who does what when, daily standups, parts staged at the asset, contractor check-in, handback per asset. They meet at one point: closing a work order in the WorkHive logbook pushes that completion out to your configured CMMS, mapped to its own status code. Nothing financial crosses: budgets, WBS and PO matching stay in SAP or Maximo. Most plants use both; few use both well.
 
@@ -191,4 +197,4 @@ SAP PS (Project System) and Maximo Project Management handle the financial side:
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 49fc1cf5977e998b -->
+<!-- md-twin source-sha: 919545d0b6ab8692 -->

@@ -31,6 +31,10 @@
   "content_sha": "f2a4ac9f1c89f17b",
   "stamped": "2026-11-10"
  },
+ "connecting-workhive-to-sap-maximo-cmms": {
+  "content_sha": "c1d0ac3e92b98d2f",
+  "stamped": "2026-11-10"
+ },
  "dilo-wilo-day-planner-supervisors": {
   "content_sha": "19d0d3442b4d3a7e",
   "stamped": "2026-11-10"
@@ -122,6 +126,10 @@
  "maintenance-metrics-reliability-guide": {
   "content_sha": "a851d67afb9aca79",
   "stamped": "2026-10-27"
+ },
+ "maintenance-project-planning-template": {
+  "content_sha": "8fc091a9b1ff053a",
+  "stamped": "2026-11-10"
  },
  "maintenance-shift-handover-template": {
   "content_sha": "0d31646ba79b9d2a",
