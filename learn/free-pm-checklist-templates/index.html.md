@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 8 Nov 2026
+Updated 10 Nov 2026
 ·
 9 min read
 
@@ -121,7 +121,7 @@ The pattern that works: a PM cannot be marked complete in PM Scheduler unless th
 ## Sources
 
 - Society for Maintenance and Reliability Professionals (SMRP), **Best Practices, 5th Edition**, 2017. PM frequency benchmarks and compliance KPI (key performance indicator) definitions.
-- Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1063**: Safety and Health Records, plus Rule 1090 on Mechanical Equipment safety.
+- Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1050**: Notification and Keeping of Records of Accidents and/or Occupational Illnesses (records kept under 1054), plus Rule 1200 on Machine Guarding.
 - ISO 14224:2016, **Petroleum, petrochemical and natural gas industries: Collection and exchange of reliability and maintenance data for equipment**. Source for failure-mode-driven PM frequency.
 - OEM PM schedules for any specific equipment (always supersedes generic guidance).
 - WorkHive platform positioning, "Four Gaps One Hive": Execution, Skills, Intelligence, Marketplace. [workhiveph.com](https://workhiveph.com/)
@@ -129,4 +129,4 @@ The pattern that works: a PM cannot be marked complete in PM Scheduler unless th
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 40a50ea951bd69d0 -->
+<!-- md-twin source-sha: 7004fc9dfe8254b6 -->

@@ -74,16 +74,16 @@ Want to talk through your day instead? Try the [Voice Journal](https://workhivep
 
 ## Compliance and DOLE OSHS
 
-Voice-captured logbook entries meet DOLE OSHS Rule 1063. The rule wants safety and health records that are:
+Voice-captured logbook entries are records a DOLE inspector can sample. Every entry is:
 
 - Time-stamped when saved (on the server, not editable)
 - Tied to a specific worker (the signed-in user)
 - Correctable, with every change kept in the audit trail
 - Available for inspector sampling (PDF export, electronic search)
 
-The Logbook meets all four. The third one is worth understanding before an inspection. An entry is *not* frozen: its author can correct it. That matters, because the other choice is a wrong record that stands forever.
+All four hold for every entry. The third one is worth understanding before an inspection. An entry is *not* frozen: its author can correct it. That matters, because the other choice is a wrong record that stands forever.
 
-What Rule 1063 needs is the trail, and that is what WorkHive keeps. Every change goes to the DOLE/ISO audit log. That log accepts inserts and reads only. So nobody can edit or delete the history of a correction. The record is the text you checked, not a recording: the audio is never stored.
+What an inspector can check is the trail, and that is what WorkHive keeps. Every change goes to the DOLE/ISO audit log. That log accepts inserts and reads only. So nobody can edit or delete the history of a correction. The record is the text you checked, not a recording: the audio is never stored.
 
 ## Privacy and data retention
 
@@ -122,7 +122,7 @@ Hold the phone close and speak clearly. Near a pump or motor, at 85 to 95 dBA, t
 
 ### Is voice transcription accurate enough for compliance records?
 
-Yes, with a review step. The Logbook shows the fields the AI filled before you save. Check them; that check is the safeguard. DOLE OSHS Rule 1063 on Safety and Health Records needs a time stamp and a named worker. Every saved entry has both. Later edits go to an audit log that accepts inserts and reads only. So no one can remove the record of a correction.
+Yes, with a review step. The Logbook shows the fields the AI filled before you save. Check them; that check is the safeguard. A record an inspector can trust carries a time stamp and a named worker. Every saved entry has both. Later edits go to an audit log that accepts inserts and reads only. So no one can remove the record of a correction.
 
 ### What are the highest-value use cases for voice?
 
@@ -134,11 +134,11 @@ WorkHive does not keep your audio. In the Logbook, your phone's speech service t
 
 ## Sources
 
-- Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1063**: Safety and Health Records.
+- Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1050**: Notification and Keeping of Records of Accidents and/or Occupational Illnesses (records kept under 1054).
 - OSHA / DOLE-BWC, **Noise exposure guidance** for industrial workplaces.
 - WorkHive platform positioning, "Four Gaps One Hive" with voice as a Stage 2 accelerator. [workhiveph.com](https://workhiveph.com/)
 - Related WorkHive guides: [Digital logbook rollout](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/) · [AI work assistant](https://workhiveph.com/learn/ai-work-assistant-maintenance-technicians/) · [Shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/)
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 22b5edd84ce20ab9 -->
+<!-- md-twin source-sha: 8bc8eb36afea5213 -->

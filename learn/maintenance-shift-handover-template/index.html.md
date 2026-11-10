@@ -15,7 +15,7 @@ Updated 10 Nov 2026
 9 min read
 
 **Short answer:** A good maintenance shift handover has 5 sections that fit on one screen. They are equipment status and work in progress. Then open issues, ranked P1, P2 or P3. Last come parts awaited, and a safety and signature line. It takes 10 to 15 minutes to write at the end of a shift. It takes 5 minutes to read at the start of the next. A good handover lets the next shift solve a problem in 5 minutes. A bad one makes them find it again over 5 hours.
- The stake is concrete. With a good handover, the next shift solves a problem in 5 minutes. Without one, they find it again over 5 hours. This is not just good practice. DOLE OSHS Rule 1063 says to record safety and health observations. You must be able to find it again. The UK HSE review, Research Report 558, is still the most cited study of what makes a handover work.
+ The stake is concrete. With a good handover, the next shift solves a problem in 5 minutes. Without one, they find it again over 5 hours. This is not just good practice. DOLE's OSH Standards ask you to keep records of accidents and illnesses (Rule 1050). You must be able to find them again. The UK HSE review, Research Report 558, is still the most cited study of what makes a handover work.
 
 Who this is for
 
@@ -146,7 +146,7 @@ Before sending it, the outgoing supervisor reads it back. They check:
 
 ### Is a verbal handover enough?
 
-No. Verbal handovers fail two tests: the incoming supervisor cannot retrieve the information mid-shift when they need it, and DOLE OSHS Rule 1063 requires that safety and health observations be recorded in a way an inspector can sample. A 10-minute verbal walk-through plus a written handover is the standard. The walk-through builds context; the written record makes the handover useful 6 hours later when something escalates.
+No. Verbal handovers fail two tests: the incoming supervisor cannot retrieve the information mid-shift when they need it, and nothing is left that an inspector can sample. A 10-minute verbal walk-through plus a written handover is the standard. The walk-through builds context; the written record makes the handover useful 6 hours later when something escalates.
 
 ### Should handover use Filipino or English?
 
@@ -166,7 +166,7 @@ The logbook captures individual events as they happen during the shift. The hand
 
 ## Sources
 
-- Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1063**: Safety and Health Records.
+- Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1050**: Notification and Keeping of Records of Accidents and/or Occupational Illnesses (records kept under 1054).
 - UK Health and Safety Executive (HSE), **"Effective Shift Handover: A Literature Review"**, Research Report 558. The most widely-cited industrial-safety study on handover failures, drawn on across the global process industry.
 - American Petroleum Institute (API) Recommended Practice 754, **"Process Safety Performance Indicators for the Refining and Petrochemical Industries"**. Includes handover quality as a Tier 4 safety indicator.
 - WorkHive platform positioning, "Four Gaps One Hive": Execution, Skills, Intelligence, Marketplace. [workhiveph.com](https://workhiveph.com/)
@@ -174,4 +174,4 @@ The logbook captures individual events as they happen during the shift. The hand
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: b0735c1bea9613cb -->
+<!-- md-twin source-sha: 95a2ab97cb21db3f -->

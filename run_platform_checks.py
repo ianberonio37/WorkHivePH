@@ -14253,7 +14253,9 @@ VALIDATORS = [
         # Assistant guide). persona.ts: "UNDERSTAND any of these. Always REPLY in English" - yet voice-journal.html's
         # description, the companion's own platform knowledge and three learn guides promised a reply "in the language
         # you used", and one printed a Taglish reply as its worked example. Tied to persona.ts: lift the rule, the gate lifts.
-        "label":   "no shipped page promises an AI reply in the speaker's language while persona.ts says 'Always REPLY in English'",
+        # The same walk found the Logbook's Speak to Fill (browser SpeechRecognition, rec.lang='en-PH') sold as hearing
+        # "Bisaya, Ilocano or any of the eight Philippine languages" - that is the companion mic's Whisper path.
+        "label":   "language claims match the code: no AI reply promised in the speaker's language while persona.ts says 'Always REPLY in English', and Speak to Fill is never said to hear a language other than logbook.html's rec.lang",
         "group":   "Platform",
         "skip_if_fast": False,
     },

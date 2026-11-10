@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 16 May 2026
 ·
-Updated 24 Aug 2026
+Updated 10 Nov 2026
 ·
 11 min read
 
@@ -209,7 +209,7 @@ Pair them with a younger technician for the first two weeks. Do not bypass them.
 
 ### Is a digital logbook compliant with DOLE OSHS?
 
-Yes, if it provides time-stamped entries, identifies the recording technician, and produces a non-editable audit trail. DOLE OSHS Rule 1063 on Safety and Health Records does not require paper; it requires a record that an inspector can sample. Most digital logbooks satisfy this with PDF exports and an immutable audit log.
+Software cannot make you compliant, but it can hold the records. Look for time-stamped entries, the name of the recording technician, and an audit trail no one can edit. DOLE's OSH Standards ask you to keep records of work accidents and occupational illnesses (Rule 1050) and to produce them when inspected. PDF exports and an append-only audit log cover that.
 
 ### How long until I see ROI on a digital logbook rollout?
 
@@ -226,11 +226,11 @@ The opposite is more likely. The technicians most at risk from AI are the ones w
 ## Sources
 
 - Jenni Munar, **"Why Many Imported ERP Systems Fail in the Philippines"**, The Daily Chronicle, 7 May 2026. [thechronicle.com.ph](https://thechronicle.com.ph/why-many-imported-erp-systems-fail-in-the-philippines/)
-- Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1063**: Safety and Health Records.
+- Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1050**: Notification and Keeping of Records of Accidents and/or Occupational Illnesses (records kept under 1054).
 - ISO 14224:2016, **Petroleum, petrochemical and natural gas industries: Collection and exchange of reliability and maintenance data for equipment**, International Organization for Standardization.
 - Society for Maintenance and Reliability Professionals (SMRP), **Best Practices, 5th Edition**, 2017.
 - WorkHive platform positioning, "Four Gaps One Hive": Execution, Skills, Intelligence, Marketplace. [workhiveph.com](https://workhiveph.com/)
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: e39a5f1eafda0dd5 -->
+<!-- md-twin source-sha: 922ec0b4474e79eb -->

@@ -85,7 +85,7 @@
             "name": "Is voice transcription accurate enough for compliance records?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes, with a review step. The Logbook shows the fields the AI filled before you save. Check them; that check is the safeguard. DOLE OSHS Rule 1063 on Safety and Health Records needs a time stamp and a named worker. Every saved entry has both. Later edits go to an audit log that accepts inserts and reads only. So no one can remove the record of a correction."
+              "text": "Yes, with a review step. The Logbook shows the fields the AI filled before you save. Check them; that check is the safeguard. A record an inspector can trust carries a time stamp and a named worker. Every saved entry has both. Later edits go to an audit log that accepts inserts and reads only. So no one can remove the record of a correction."
             }
           },
           {
@@ -399,15 +399,15 @@
       </div>
 
       <h2 id="compliance">Compliance and DOLE OSHS</h2>
-      <p>Voice-captured logbook entries meet DOLE OSHS Rule 1063. The rule wants safety and health records that are:</p>
+      <p>Voice-captured logbook entries are records a DOLE inspector can sample. Every entry is:</p>
       <ul>
         <li>Time-stamped when saved (on the server, not editable)</li>
         <li>Tied to a specific worker (the signed-in user)</li>
         <li>Correctable, with every change kept in the audit trail</li>
         <li>Available for inspector sampling (PDF export, electronic search)</li>
       </ul>
-      <p>The Logbook meets all four. The third one is worth understanding before an inspection. An entry is <em>not</em> frozen: its author can correct it. That matters, because the other choice is a wrong record that stands forever.</p>
-      <p>What Rule 1063 needs is the trail, and that is what WorkHive keeps. Every change goes to the DOLE/ISO audit log. That log accepts inserts and reads only. So nobody can edit or delete the history of a correction. The record is the text you checked, not a recording: the audio is never stored.</p>
+      <p>All four hold for every entry. The third one is worth understanding before an inspection. An entry is <em>not</em> frozen: its author can correct it. That matters, because the other choice is a wrong record that stands forever.</p>
+      <p>What an inspector can check is the trail, and that is what WorkHive keeps. Every change goes to the DOLE/ISO audit log. That log accepts inserts and reads only. So nobody can edit or delete the history of a correction. The record is the text you checked, not a recording: the audio is never stored.</p>
 
       <h2 id="privacy">Privacy and data retention</h2>
       <p><strong>WorkHive does not keep your audio.</strong> In the Logbook, your phone's speech service turns speech into text. WorkHive only receives the text. The Voice Journal transcribes your audio over an encrypted link. The text comes back, and the audio is never written to WorkHive storage. So there is no recording to keep, expire or subpoena. Logbook entries stay in your hive. Voice Journal entries are private to the person who spoke them.</p>
@@ -447,7 +447,7 @@
 
       <details class="faq-item">
         <summary>Is voice transcription accurate enough for compliance records?</summary>
-        <div class="faq-answer">Yes, with a review step. The Logbook shows the fields the AI filled before you save. Check them; that check is the safeguard. DOLE OSHS Rule 1063 on Safety and Health Records needs a time stamp and a named worker. Every saved entry has both. Later edits go to an audit log that accepts inserts and reads only. So no one can remove the record of a correction.</div>
+        <div class="faq-answer">Yes, with a review step. The Logbook shows the fields the AI filled before you save. Check them; that check is the safeguard. A record an inspector can trust carries a time stamp and a named worker. Every saved entry has both. Later edits go to an audit log that accepts inserts and reads only. So no one can remove the record of a correction.</div>
       </details>
 
       <details class="faq-item">
@@ -462,7 +462,7 @@
 
       <h2 id="sources">Sources</h2>
       <ul>
-        <li>Department of Labor and Employment (DOLE), <strong>Occupational Safety and Health Standards (OSHS) Rule 1063</strong>: Safety and Health Records.</li>
+        <li>Department of Labor and Employment (DOLE), <strong>Occupational Safety and Health Standards (OSHS) Rule 1050</strong>: Notification and Keeping of Records of Accidents and/or Occupational Illnesses (records kept under 1054).</li>
         <li>OSHA / DOLE-BWC, <strong>Noise exposure guidance</strong> for industrial workplaces.</li>
         <li>WorkHive platform positioning, "Four Gaps One Hive" with voice as a Stage 2 accelerator. <a href="/">workhiveph.com</a></li>
         <li>Related WorkHive guides: <a href="/learn/start-digital-logbook-philippine-factory/">Digital logbook rollout</a> · <a href="/learn/ai-work-assistant-maintenance-technicians/">AI work assistant</a> · <a href="/learn/maintenance-shift-handover-template/">Shift handover template</a></li>

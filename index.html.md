@@ -73,7 +73,7 @@ Get out of paper. Build the operating rhythm.
 
 NowHive joined
 
-Next10 assets logged, 1 SOP documented
+Next10 assets logged, 1 standard operating procedure (SOP) written
 
 02
 
@@ -416,4 +416,4 @@ Sign Up
 
 Source: [our downtime guide](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/). A common industry range, not a fixed standard · updated 24 Aug 2026
 
-<!-- md-twin source-sha: cbed8829f1760208 -->
+<!-- md-twin source-sha: 912fdc7c05408bb4 -->

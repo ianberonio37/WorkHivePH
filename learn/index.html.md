@@ -200,7 +200,7 @@ Learn how to apply FMEA to a Philippine bottling line filler to identify and mit
 [Safety
 15 min read · 18 May 2026
 Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template
-Learn how to create a Lock-Out Tag-Out (LOTO) procedure template based on DOLE OSHS Rule 1063, including the 7-step lockout sequence and sample equipment-specific LOTO procedure.](https://workhiveph.com/learn/loto-procedures-dole-oshs-template/)
+Learn how to create a Lock-Out Tag-Out (LOTO) procedure template under RA 11058 and DO 252-25, including the 7-step lockout sequence and sample equipment-specific LOTO procedure.](https://workhiveph.com/learn/loto-procedures-dole-oshs-template/)
 [Predictive
 14 min read · 18 May 2026
 Vibration Analysis on a Phone Budget (Philippine PdM)
@@ -250,4 +250,4 @@ Show more guides
 
 Static · the Learn library index, rendered as of this page load · articles link to their own sources
 
-<!-- md-twin source-sha: 5356135525863ff1 -->
+<!-- md-twin source-sha: a1f42a20ccd7a546 -->

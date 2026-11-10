@@ -32,7 +32,7 @@
   "stamped": "2026-11-10"
  },
  "dole-iso-audit-trail-from-logbook": {
-  "content_sha": "b7846a90c5e183cc",
+  "content_sha": "33f7c941995ea788",
   "stamped": "2026-11-10"
  },
  "feedback": {
@@ -43,16 +43,20 @@
   "content_sha": "f5ffd5d65a01c223",
   "stamped": "2026-10-27"
  },
+ "free-pm-checklist-templates": {
+  "content_sha": "834f87e477e5b7af",
+  "stamped": "2026-11-10"
+ },
  "industrial-community-of-practice-philippines": {
   "content_sha": "88e927d2e21a1ef7",
   "stamped": "2026-11-10"
  },
  "industrial-marketplace-philippine-specialists": {
-  "content_sha": "ec30f8e74f13c7d9",
+  "content_sha": "addbf9168e0f8774",
   "stamped": "2026-11-10"
  },
  "joining-and-growing-your-hive": {
-  "content_sha": "cdb8611116af3f90",
+  "content_sha": "f6a93d17bc7f06aa",
   "stamped": "2026-11-10"
  },
  "learn": {
@@ -116,7 +120,7 @@
   "stamped": "2026-10-27"
  },
  "maintenance-shift-handover-template": {
-  "content_sha": "ecde1d2ae11a7428",
+  "content_sha": "0d31646ba79b9d2a",
   "stamped": "2026-11-10"
  },
  "mtbf-vs-mttr-for-supervisors": {
@@ -161,6 +165,10 @@
  },
  "spare-parts-inventory-philippine-plants": {
   "content_sha": "df1cc16a3988611e",
+  "stamped": "2026-11-10"
+ },
+ "start-digital-logbook-philippine-factory": {
+  "content_sha": "5c2e66db26528aa8",
   "stamped": "2026-11-10"
  },
  "start-digital-maintenance-guide": {
@@ -244,7 +252,7 @@
   "stamped": "2026-10-27"
  },
  "voice-to-text-maintenance-philippine-plant-floor": {
-  "content_sha": "5a32e618f6a4b4f1",
+  "content_sha": "53823c5dfb44cd2b",
   "stamped": "2026-11-10"
  },
  "what-is-oee-how-to-calculate": {
@@ -256,7 +264,7 @@
   "stamped": "2026-11-10"
  },
  "workhive-ai-companion-complete-capabilities": {
-  "content_sha": "e09d174d2d9ae379",
+  "content_sha": "609a1861367d6974",
   "stamped": "2026-11-10"
  },
  "workhive-vs-maintainx-comparison": {

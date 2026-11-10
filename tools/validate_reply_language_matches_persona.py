@@ -45,6 +45,41 @@ CLAIMS = [
 ]
 NEGATION = re.compile(r"\b(?:not|never|no|n't|instead\s+of|rather\s+than)\b[^.<]{0,40}$", re.I)
 
+# ★AND THE LOGBOOK'S SPEAK TO FILL HEARS ONE LANGUAGE (same walk). startSmartVoice() in logbook.html is the browser's
+# SpeechRecognition with rec.lang = 'en-PH' (Chrome); the eight Philippine languages are the companion mic's Whisper path
+# (voice-handler.js -> voice-transcribe). The capabilities guide's HowTo told readers to describe a work order to Speak to
+# Fill "in Bisaya, Ilocano or any of the eight Philippine languages". Checked from logbook.html: for each "Speak to Fill",
+# the text up to the next mention of the companion's mic / Voice Journal must not promise another language.
+LOGBOOK = ROOT / "logbook.html"
+FILL_SUBJECT = re.compile(r"Speak to Fill", re.I)
+FILL_BOUNDARY = re.compile(r"companion'?s mic|companion mic|floating (?:helper|companion)|Voice Journal|voice-handler", re.I)
+FILL_LANG = re.compile(r"\b(?:Bisaya|Cebuano|Ilocano|Hiligaynon|Kapampangan|Waray|Bikol|Pangasinan|Tagalog|"
+                       r"eight\s+(?:Philippine\s+)?languages|any\s+(?:Philippine\s+)?language|your\s+own\s+language)\b", re.I)
+
+
+def logbook_voice_lang() -> str:
+    try:
+        src = LOGBOOK.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+    i = src.find("function startSmartVoice")
+    m = re.search(r"rec\.lang\s*=\s*'([A-Za-z-]+)'", src[i:i + 4000]) if i >= 0 else None
+    return m.group(1) if m else ""
+
+
+def check_fill_text(src: str) -> list[str]:
+    out = []
+    for m in FILL_SUBJECT.finditer(src):
+        tail = src[m.end():m.end() + 420]
+        b = FILL_BOUNDARY.search(tail)
+        if b:
+            tail = tail[:b.start()]
+        lm = FILL_LANG.search(tail)
+        if lm and not NEGATION.search(tail[max(0, lm.start() - 60):lm.start()]):
+            out.append("Speak to Fill is said to hear another language: "
+                       + repr(src[m.start():m.end() + lm.end() + 20].replace("\n", " ")[:200]))
+    return out
+
 
 def english_only() -> bool:
     try:
@@ -100,35 +135,46 @@ def _self_test() -> int:
     for s in good:
         if check_text(s):
             fails.append("must pass: " + s[:60])
+    fill_bad = ('{ "@type": "HowToStep", "position": 1, "name": "Open Speak to Fill on the Logbook", "text": "Go to the Logbook." }, '
+                '{ "@type": "HowToStep", "position": 2, "text": "Say what happened in one plain sentence, in English, Taglish, '
+                'Bisaya, Ilocano or any of the eight Philippine languages it understands." }')
+    if not check_fill_text(fill_bad):
+        fails.append("the old HowTo (Speak to Fill + eight languages) must fail")
+    fill_good = ("On the Logbook, Speak to Fill takes one sentence in Philippine English and fills the problem. From the "
+                 "companion's mic on any page, you can speak an action in any of the eight languages.")
+    if check_fill_text(fill_good):
+        fails.append("Speak to Fill in Philippine English, then the companion mic in eight languages, must pass")
     print("FAIL reply-language-matches-persona self-test - " + "; ".join(fails) if fails
-          else f"self-test OK: {len(bad)} non-English reply promises fail, {len(good)} true sentences pass")
+          else f"self-test OK: {len(bad)} non-English reply promises fail, {len(good)} true sentences pass, "
+               "Speak to Fill language claims checked both ways")
     return 1 if fails else 0
 
 
 def main() -> int:
     if "--self-test" in sys.argv:
         return _self_test()
-    if not english_only():
-        print("PASS reply-language-matches-persona - persona.ts no longer holds the English-reply rule, so a reply in the "
-              "speaker's language is not ruled out")
-        return 0
+    reply_rule = english_only()
+    fill_lang = logbook_voice_lang()
+    fill_rule = fill_lang.lower().startswith("en")
     hits = {}
     for p in shipped():
         try:
-            errs = check_text(p.read_text(encoding="utf-8", errors="replace"))
+            text = p.read_text(encoding="utf-8", errors="replace")
         except Exception:
             continue
+        errs = (check_text(text) if reply_rule else []) + (check_fill_text(text) if fill_rule else [])
         if errs:
             hits[p.relative_to(ROOT).as_posix()] = errs
     for f, errs in sorted(hits.items()):
         for e in errs[:3]:
             print(f"  BAD {f}: {e[:220]}")
     if hits:
-        print(f"FAIL reply-language-matches-persona - {sum(len(v) for v in hits.values())} sentence(s) in {len(hits)} file(s) "
-              "promise an AI reply in the speaker's language, but persona.ts says 'Always REPLY in English'")
+        print(f"FAIL reply-language-matches-persona - {sum(len(v) for v in hits.values())} claim(s) in {len(hits)} file(s) "
+              f"promise a language the code does not use (persona.ts English-reply rule: {reply_rule}; "
+              f"Speak to Fill rec.lang: {fill_lang or '?'})")
         return 1
-    print("PASS reply-language-matches-persona - no shipped page promises a reply in another language "
-          "(persona.ts: understand any Philippine language, always reply in English)")
+    print(f"PASS reply-language-matches-persona - no shipped page promises a language the code does not use "
+          f"(replies: English per persona.ts = {reply_rule}; Speak to Fill hears {fill_lang or '?'})")
     return 0
 
 

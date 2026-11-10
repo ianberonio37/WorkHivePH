@@ -14,7 +14,7 @@ Updated 10 Nov 2026
 ·
 8 min read
 
-**Short answer:** The WorkHive Marketplace links Philippine plants with sellers. There are three kinds. Specialist contractors: vibration analysts, motor rewinders, refrigeration specialists. Equipment suppliers: pumps, seals, instrumentation. And service providers: calibration, NDT, training. Listings go through review before they show. Buyers pay sellers directly. WorkHive takes no commission, because the job money never passes through it. It is built around three patterns. Finding a specialist in an emergency. Repeat supply of consumables. And bidding for one-off projects.
+**Short answer:** The WorkHive Marketplace links Philippine plants with sellers. There are three kinds. Specialist contractors: vibration analysts, motor rewinders, refrigeration specialists. Equipment suppliers: pumps, seals, instrumentation. And service providers: calibration, NDT, training. Listings go through review before they show. Buyers pay sellers directly. WorkHive takes 0% commission, because the job money never passes through it. It is built around three patterns. Finding a specialist in an emergency. Repeat supply of consumables. And bidding for one-off projects.
 
 Who this is for
 
@@ -121,4 +121,4 @@ Reviews are tied to completed transactions only (no buying reviews without using
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: a5cfd62a76de9b06 -->
+<!-- md-twin source-sha: 90c15c4477f47761 -->

@@ -87,9 +87,9 @@ No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, take
 
 ## Frequently asked questions
 
-### Does DOLE accept digital logbooks for OSHS Rule 1063?
+### Can a digital logbook hold your DOLE safety records?
 
-Yes, when the digital record satisfies time-of-event recording, worker identification, and non-editability after submission. DOLE OSHS Rule 1063 on Safety and Health Records does not require paper; it requires a record an inspector can sample. WorkHive Audit Log satisfies all three properties and produces PDF exports inspectors accept.
+It can, if it records when each event happened, who recorded it, and every change made after saving. DOLE's OSH Standards ask you to keep records of work accidents and occupational illnesses (Rule 1050) and to produce them when inspected. WorkHive's Audit Log has all three properties, and you can export it for the inspector.
 
 ### What are the immutability guarantees?
 
@@ -113,7 +113,7 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 ## Sources
 
-- Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1063**: Safety and Health Records.
+- Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1050**: Notification and Keeping of Records of Accidents and/or Occupational Illnesses (records kept under 1054).
 - ISO 9001:2015, **Quality management systems: Requirements**, Clauses 7.1.5 and 10.2.
 - ISO 14001:2015, **Environmental management systems: Requirements with guidance for use**, Clause 9.1.1.
 - ISO 45001:2018, **Occupational health and safety management systems: Requirements with guidance for use**, Clauses 9.1.1 and 10.2.
@@ -122,4 +122,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 3eb32a8c51fd7af9 -->
+<!-- md-twin source-sha: f28a81032e347861 -->
