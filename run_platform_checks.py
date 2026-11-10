@@ -14260,6 +14260,28 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "photo-pickers-allow-gallery",
+        "script":  "tools/validate_photo_pickers_allow_gallery.py",
+        "args":    [],
+        # ★"I CANNOT ATTACH MY SAVED PHOTOS TO INVENTORIES, IT IS ONLY TAKING A PHOTO" (Ian, 2026-11-10; ENH436-438).
+        # capture="environment" made a phone open the camera and skip the gallery on inventory's part photo, logbook's
+        # defect capture and its nameplate scan. The rule is enhancement_inventory class G, read here, never re-derived.
+        "label":   "every image picker on a production page lets a person take a photo or choose a saved one (no camera-only `capture` without a gallery-capable sibling)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "retired-predictive-not-described",
+        "script":  "tools/validate_retired_predictive_not_described.py",
+        "args":    [],
+        # ★A PAGE RETIRED IN JUNE WAS STILL SOLD IN NOVEMBER (2026-11-10). predictive.html (Risk Ranking, Health Heatmap,
+        # 0-100) retired 2026-06-10; the landing page, the assistant's and companion's knowledge and the Asset Brain guide
+        # still described it. Keys on the page being gone: bring it back and the gate passes again.
+        "label":   "no shipped page describes the retired predictive dashboard (Health Heatmap, 0-100 score, predictive.html as live) while predictive.html is not served",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "osh-rule-citations",
         "script":  "tools/validate_osh_rule_citations.py",
         "args":    [],

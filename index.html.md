@@ -131,7 +131,7 @@ See All Tools
 - [Achievements: 12-domain XP system (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.). Tier frames Iron to Legend. XP rewards real work, not clicks.](https://workhiveph.com/achievements.html)
 - [Analytics Engine: MTBF, MTTR, Availability, OEE, PM Compliance, Pareto. 4 phases (descriptive, diagnostic, predictive, prescriptive). ISO 14224 + SMRP + ISA-101 anchored.](https://workhiveph.com/analytics.html)
 - [Analytics Report: Print-ready report compiled from all 4 phases. RAG-coloured tiles + AI action plan + sign-off block. Mirrors the maintenance audit format.](https://workhiveph.com/analytics-report.html)
-- [Predictive Maintenance: Risk Ranking, Health Heatmap, Failure Trend forecast. Rules engine from Day 1; GBM ML model activates after 500+ corrective records. Honest gating: we suppress predictions on insufficient data.](https://workhiveph.com/asset-hub.html)
+- [Predictive Maintenance: A risk band on every asset in Asset Hub, and a failure-trend forecast in Analytics. A rules engine scores from day 1; the GBM model retrains weekly and warns below 500 corrective records. A machine with too little history gets no score, and its card says so.](https://workhiveph.com/asset-hub.html)
 - [Philippine Industrial Intelligence Report: Monthly Philippine Industrial Maintenance Report. MTBF benchmarks by equipment type, top failure causes, seasonal patterns (typhoon, brownout, salt-air). N≥5 hive privacy guard.](https://workhiveph.com/ph-intelligence.html)
 - [Shift Brain: Autonomous shift planner. 4 sub-agents (risk-ranking, PMs-due, carry-forward open work, parts pre-stage) plus AI briefing synthesis. Cron at 06:00, 14:00, 22:00 PHT. Supervisor publishes to crew.](https://workhiveph.com/shift-brain.html)
 - [Reliability Workbench: Per-asset FMEA (AIAG-VDA S/O/D) + RCM (SAE JA1011 decision tree) + Weibull MLE fit + P-F interval. AI auto-populates from logbook clusters; engineer approves before RPN counts.](https://workhiveph.com/asset-hub.html)
@@ -416,4 +416,4 @@ Sign Up
 
 Source: [our downtime guide](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/). A common industry range, not a fixed standard · updated 24 Aug 2026
 
-<!-- md-twin source-sha: 912fdc7c05408bb4 -->
+<!-- md-twin source-sha: 8de8ea2933d8a812 -->

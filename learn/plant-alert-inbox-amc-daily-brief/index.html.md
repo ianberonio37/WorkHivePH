@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 6 min read
 
-**Short answer:** A plant alert inbox consolidates risk, maintenance, stock and automation alerts into one ranked list instead of scattered notifications. **Alert Hub** pairs that inbox with one **6 AM** brief a day, so a supervisor reads a ranked list once every **24 hours** and acts on the critical items first.
+**Short answer:** A plant alert inbox puts your risk, PM, stock and automation alerts in one ranked list. Nothing is left scattered across screens. In WorkHive that is Alert Hub. Every 24 hours, at 06:00 PHT, it also gets the AMC Daily Brief. Five sub-agents build that ranked plan, and a supervisor approves it in one tap.
 
 Who this is for
 
@@ -25,90 +25,75 @@ Who this is for
 
 ## One Inbox for All Plant Alerts
 
-WorkHive's Alert Hub brings all your plant's alerts into one chronological inbox. This unified view helps supervisors and technicians stay on top of issues without being overwhelmed by scattered notifications. In the Alert Hub, you'll find five types of alerts: asset risk alerts, PM-due alerts, low-stock or reorder alerts, failure-pattern alerts, and automation alerts. For example, a supervisor at a manufacturing plant in Cabuyao can now see all alerts in one place, from equipment nearing failure to low stock levels.
+On round-the-clock shifts, a supervisor gets alerts from many places. Asset risk, PM due dates, low stock and failure patterns each live on their own screen. Alert Hub puts them in one queue, each with the asset it names attached.
 
-Everything arrives in one queue with the asset attached, so you can rank the list once instead of re-deciding what matters every time a notification arrives. You can view alert details with the 'Show details' button, and acknowledge or resolve alerts directly from the inbox. The AI compiles a daily brief, sent at 06:00 PHT, which provides a prioritized list of recommended actions. With a single tap, you can approve the brief, ensuring that your team addresses critical issues promptly.
-
-**Worked example:** In a Bulacan plant, the maintenance team uses Alert Hub to track alerts. When a low-stock alert for a critical spare part appears, they acknowledge it and assign a technician to resolve the issue. Once resolved, the alert clears, and the part's status updates in the plant view, ensuring a smoother operation.
+Five kinds land there: asset risk, PM due, low stock, failure patterns and automation. You rank the list once, instead of deciding again with every new ping.
 
 ## Why a Unified Inbox Beats Scattered Notifications
 
-A plant supervisor in a Philippine manufacturing plant typically receives numerous alerts from various systems, which can be overwhelming. These alerts may come from different sources, such as asset monitoring, preventive maintenance, and inventory management. Having multiple alerts scattered across different platforms can lead to alert fatigue, causing important notifications to be missed or ignored.
+Alerts spread across several systems lead to alert fatigue. People start to skip them, and the one that mattered gets missed. One queue fixes that.
 
-WorkHive's **Alert Hub** solves this problem by providing a unified inbox for all plant alerts. This single chronological inbox collects five types of alerts: asset risk alerts, PM-due alerts, low-stock/reorder alerts, failure-pattern alerts, and automation alerts. By having all alerts in one place, supervisors can efficiently prioritize and address issues, reducing the time spent on managing multiple systems and notifications.
+Take a supervisor at a plant in Cabuyao. Equipment near failure and low spare parts now sit in the same list. The critical items go first, and nothing waits on another screen.
 
-With **Alert Hub**, a maintenance planner or shift in-charge can quickly identify and act on critical alerts, such as a sudden change in asset condition or a low-stock warning. By acknowledging or resolving an alert, they can clear it from the inbox and focus on other tasks. The unified inbox also helps to reduce duplicate efforts and ensures that all alerts are addressed in a timely manner, allowing the plant to run more smoothly and efficiently.
+An acknowledged alert leaves the queue for the whole hive. So what remains is the list of open problems. Planners and reliability engineers can work straight from it.
 
 ## How Alert Hub Works: Receiving and Acting on Alerts
 
-On the round-the-clock shift patterns common in Philippine plants, supervisors and technicians must stay on top of equipment alerts. With Alert Hub in WorkHive, they can do just that. Alerts from various sources - asset risk, preventive maintenance due, low stock, failure patterns, and automation - all land in one chronological inbox. This unified view helps prevent supervisors from being overwhelmed by scattered notifications across multiple systems.
+Alerts come from rules over your own records. Those are risk scores, PM schedules, stock levels, failure patterns and sensor readings. Each alert names its asset. Show details opens the evidence behind it.
 
-Here's how Alert Hub works:
+You act on an alert in one of three ways. Acknowledge it, resolve it, or snooze it for 7 days. Each choice records who made it and when, and it holds for everyone in the hive.
 
-1. Alerts are generated based on predefined rules and conditions.
-2. The alerts appear in the Alert Hub inbox, which displays a list of all alerts.
-3. Users can view alert details by clicking **Show details**.
-4. To act on an alert, users can **Acknowledge** or **Resolve** it, which updates the alert status and affects the rest of the plant view.
-5. Users can also use **Alert filters** to categorize and prioritize alerts.
-6. At 06:00 PHT, the AI compiles a 5-sub-agent batched recommendation, the AMC Daily Brief, which supervisors can approve with a single tap using the **Approve brief** button.
-
-By using Alert Hub, plant personnel can save time and focus on more critical tasks. For example, a supervisor at a Philippine plant can start their day with a clear view of all alerts and prioritize their response. As the plant's logbook and PM history grow, the alerts become sharper, providing more accurate insights without requiring a significant budget for implementation.
+Acting on an alert does not change the record behind it. Acknowledging a low-stock alert does not restock the part. Resolving a PM-due alert does not complete the PM. You still restock in Inventory and close the PM in the PM Scheduler.
 
 ## The 6 AM Brief: Prioritized Recommendations for Supervisors
 
-Every morning at 6:00 AM, the AMC Daily Brief lands in your Alert Hub inbox. This prioritized list helps you tackle the most critical alerts first. For example, at a Philippine plant, Pump P-204B's increased vibration triggered a risk alert. The AI includes this in the brief, along with other pressing issues like PM-due alerts and low-stock warnings. You can quickly scan and approve the brief with one tap, letting the AI draft the initial response.
+At 06:00 PHT, WorkHive builds the AMC Daily Brief for each hive. Five sub-agents run side by side. One ranks the three riskiest assets, and one picks the five PMs most due.
 
-The AMC Daily Brief is a 5-sub-agent batched recommendation that your AI compiles overnight. This means you start the day with a clear plan, focusing on the most urgent issues. By approving the brief, you're directing the AI to take initial action. You can then review and act on each alert in more detail using the Alert Hub's 'Show details' feature. The brief is the decision; the alert detail is where you check it before acting.
+A third lists the parts to stage, and a fourth matches a worker to each asset. The fifth writes a short summary of it all. The supervisor reviews the brief in Alert Hub and approves it with one tap.
 
-| Alert Type | AMC Daily Brief Priority |
-| --- | --- |
-| Asset Risk Alerts | High |
-| PM-Due Alerts | Medium |
-| Low-Stock/Reorder Alerts | Medium |
+Say pump P-204B shows rising vibration. Its risk score climbs, so the brief lists it among the top risks. Beside it sit the PMs due today and the parts to stage.
 
 ## Zero-Budget Rollout: Improving Alerts Over Time
 
-As you use Alert Hub in WorkHive, its alerts get sharper over time, with no extra budget needed. For example, a plant in Calabarzon, known for its industrial estates, started with basic alerts. But as they logged more issues and performed preventive maintenance, their alerts became more accurate. This is because Alert Hub learns from your plant's history, improving its alerts without requiring additional spending.
+Alert Hub costs nothing to start. Its alerts come from records your team already keeps. So the more you log, the sharper they get.
 
-The more you use Alert Hub, the better it gets at identifying critical issues. Your team's past actions, like resolving alerts and performing maintenance, help refine the system. This means you get more relevant alerts, and your team can focus on addressing real problems. When you act on an alert, it clears and affects the rest of the plant view, giving you a clearer picture of your operations.
+A plant in Calabarzon might start with only a few alerts. As the team logs breakdowns and closes PMs, the risk scores and failure patterns have more to work with. Nothing learns on its own, though. Better records make better alerts.
 
-That is also the answer to when the brief starts arriving: the readiness thresholds that open Alert Hub: PM compliance at 70 percent, logbook hygiene at 80 percent: are earned by exactly the logging discipline described here, not bought. The work that unlocks the tool is the same work that makes its alerts worth reading. By using your plant's growing logbook and PM history, Alert Hub's AI improves its alert recommendations. The queue gets shorter as the recommendations get more specific to your plant, which is the opposite of what happens to an alert system nobody tunes. With Alert Hub, your AI watches the plant so you don't have to, saving you time and effort. This is the power of building your own AI with WorkHive, helping you make the most of your resources.
+One panel waits for more history. The anomaly panel opens when your hive reaches Stair 3, Predictive-Ready. That takes 70 percent PM compliance and 80 percent logbook hygiene. It also takes 5 supervisor sign-offs in a week. Below that, the panel shows only the anomalies already measured.
 
 ## From Alert to Resolution: The Impact on Plant View
 
-When a plant supervisor acts on an alert in WorkHive's **Alert Hub**, it directly impacts the rest of the plant view. For instance, resolving a **PM-due alert** for a critical asset updates the asset's status, reflecting that maintenance is now overdue or completed. This change helps the supervisor and other team members quickly understand the asset's current condition and plan accordingly.
+**Worked example:** A shift in-charge sees a low-stock alert for a critical spare. They acknowledge it, so the rest of the hive knows someone has it. Then they restock the part in Inventory, and the low-stock alert stops firing.
 
-Acting on an alert also clears it from the inbox, reducing clutter and ensuring that only outstanding issues remain visible. In the case of a **low-stock alert**, acknowledging it and taking corrective action removes the alert, providing a clear view of current inventory levels and avoiding unnecessary stockouts. Because an acknowledged alert leaves the queue, what remains IS the list of open problems - which is what lets maintenance planners and reliability engineers work on priority tasks.
+A failure-pattern alert on a production line works the same way. Resolve it once you log the repair. The queue then shows only what is still open.
 
-**Worked example:** A shift in-charge in a Philippine plant uses **Alert Hub** to resolve a **failure-pattern alert** for a key production line. By doing so, they update the equipment's status, ensuring that the maintenance team is aware of the issue and can plan repairs. This swift action minimizes downtime and helps maintain production targets.
-
-**Open the tool:** Alert Hub is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants. One thing to know before you plan a morning routine around it: **Alert Hub opens at Stair 3 (Predictive-Ready)** on your hive’s readiness score, which the platform derives from PM compliance at or above 70 percent and logbook hygiene at or above 80 percent. A brand new hive will not see the 6 AM brief on day one.
+**Open the tool:** Alert Hub is the WorkHive surface this guide funnels into. It is free at the worker tier and built for Philippine plants.
 
 ## Frequently asked questions
 
-### What types of alerts are included in Alert Hub?
+### What types of alerts does Alert Hub show?
 
-Alert Hub consolidates five types of alerts: asset risk alerts, PM-due alerts, low-stock/reorder alerts, failure-pattern alerts, and automation alerts.
+Five kinds: asset risk, PM due, low stock and reorder, failure patterns, and automation events. Each one names the asset it is about.
 
 ### How does the 6 AM Brief help supervisors?
 
-The 6 AM Brief provides a prioritized list of alerts for supervisors to review and approve, helping them focus on critical issues.
+Every day at 06:00 PHT, five sub-agents build a brief: the riskiest assets, the PMs most due, the parts to stage, a worker for each asset, and a short summary. The supervisor reviews it in Alert Hub and approves it with one tap.
 
 ### Can I customize the alerts in Alert Hub?
 
-Yes, Alert Hub improves over time as your logbook and PM history grow, allowing for more targeted and relevant alerts.
+You shape the queue rather than the rules. Acknowledge, resolve or snooze an alert for 7 days, and that holds for the whole hive. The alerts come from your records, so better logging gives sharper alerts.
 
 ### How does Alert Hub affect plant operations?
 
-Alert Hub puts risk, PM, stock and fault alerts in one queue instead of four places, each one carrying the asset it names, so a supervisor triages a list instead of hunting across screens for what is on fire. It changes plant performance.
+It puts risk, PM, stock and fault alerts in one queue instead of four places, each carrying the asset it names. A supervisor triages one list instead of hunting across screens. Acting on an alert clears it from the queue; the fix itself still happens in Inventory, the PM Scheduler or the Logbook.
 
 ### Is Alert Hub compatible with existing systems?
 
-Yes, Alert Hub is designed to integrate with existing plant systems, providing a unified inbox for all alerts.
+Alert Hub reads WorkHive's own records: the logbook, PM schedule, inventory, risk scores, and sensor readings sent in through the sensor gateway. It does not pull alerts from other systems.
 
 ### What kind of support does WorkHive offer for Alert Hub?
 
-WorkHive provides support and training for Alert Hub, ensuring a smooth rollout and effective use of the platform.
+WorkHive is free and self-serve. The Learn guides and the AI companion explain each part, and the feedback page reaches the team.
 
 ## Sources
 
@@ -117,4 +102,4 @@ WorkHive provides support and training for Alert Hub, ensuring a smooth rollout 
 - TESDA (Technical Education and Skills Development Authority of the Philippines)
 - Related WorkHive guides: [Autonomous shift planning](https://workhiveph.com/learn/autonomous-shift-planning-philippine-plants/) · [Predictive alert thresholds](https://workhiveph.com/learn/predictive-alert-thresholds-plants/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
 
-<!-- md-twin source-sha: ded43483c100f955 -->
+<!-- md-twin source-sha: 30cd9835d4203e17 -->

@@ -6,7 +6,7 @@ Source: https://workhiveph.com/about/
 
 About
 
-Last updated 9 Nov 2026
+Last updated 10 Nov 2026
 
 WorkHive is a free platform for Filipino plant workers, from the shop floor to the head office. You get a logbook, a PM planner, a parts list and a skill matrix. You also get design calculators and an AI work assistant. All of it stays free for workers, for good.
 
@@ -62,6 +62,4 @@ For partnerships, press, association memberships, or general inquiries: [admin@w
 
 Have a question about the platform? Ask the AI Work Assistant in your hive, or email the same address.
 
-Source: the DTI business name record, No. 8080496. Page last updated 9 November 2026.
-
-<!-- md-twin source-sha: 08eafa5c82cc2be2 -->
+<!-- md-twin source-sha: d0832d42a7485755 -->

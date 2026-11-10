@@ -66,7 +66,15 @@ CLASSES = OrderedDict([
     ("J", ("a production page with no live journey", "CI")),
     ("C", ("an open critic cell on a production page, signed in", "F")),
     ("R", ("provenance moves out of the top, to a Sources area at the foot", "F")),
+    ("G", ("a photo picker lets a person choose a saved photo, not only take one", "F")),
 ])
+# G (Ian, 2026-11-10: "I cannot attach my saved photos to inventories, it is only taking a photo"). An image file input
+# carrying `capture` makes a phone open the camera and skip the gallery, so a photo taken earlier (on a walk-down, offline,
+# by a colleague) cannot be attached. The logbook's own Attach Photo input has no `capture`, and the phone offers camera
+# AND saved photos - the parity the person asked for. A camera-first input is fine when a gallery-capable image input sits
+# beside it (resume.html pairs "take photos" with "choose any file"); measured within GALLERY_NEAR characters.
+FILE_INPUT = re.compile(r'<input\b[^>]*?type=["\']file["\'][^>]*>', re.S)
+GALLERY_NEAR = 800
 # capability: (regex, the ask's verb phrase). Order is the planner's own order, appliance list first.
 SOLAR_CAPS = OrderedDict([
     ("appliance list builder", (r"appliance", "list the appliances the station will power, each with its watts and "
@@ -268,9 +276,40 @@ def _provenance(sources: dict | None) -> list[dict]:
     return out
 
 
+def _is_image_input(tag: str) -> bool:
+    acc = re.search(r'accept=["\']([^"\']*)["\']', tag)
+    return bool(acc and re.search(r"image|\*", acc.group(1)))
+
+
+def _gallery(sources: dict | None) -> list[dict]:
+    """G: one cell per image file input on a production page that forces the camera (`capture`) with no
+    gallery-capable image input beside it. The cell ends when a person can pick a saved photo there."""
+    pages = (sorted(p for p in sources if p.endswith(".html")) if sources is not None else production_pages())
+    out = []
+    for p in pages:
+        s = sources[p] if sources is not None else _read(p)
+        tags = [(m.start(), m.group(0)) for m in FILE_INPUT.finditer(s)]
+        for pos, tag in tags:
+            if not (_is_image_input(tag) and re.search(r"\bcapture\b", tag)):
+                continue
+            paired = any(abs(q - pos) <= GALLERY_NEAR and _is_image_input(t) and not re.search(r"\bcapture\b", t)
+                         for q, t in tags if q != pos)
+            if paired:
+                continue
+            idm = re.search(r'id=["\']([^"\']+)', tag)
+            key = idm.group(1) if idm else f"input@{s.count(chr(10), 0, pos) + 1}"
+            name = re.search(r'aria-label=["\']([^"\']+)', tag)
+            what = name.group(1) if name else f"the #{key} photo"
+            out.append({"cls": "G", "page": p, "key": key,
+                        "ask": "let a person attach a photo already saved on the phone, not only take a new one",
+                        "detail": f"{p}'s picker #{key} ({what}) carries capture, so a phone opens the camera and "
+                                  f"skips the gallery: a photo taken earlier cannot be attached"})
+    return out
+
+
 def collect(sources: dict | None = None) -> list[dict]:
     """Every measured cell, class-major in CLASSES order, then page, then key (the planner's own order for S)."""
-    sites = _solar(sources) + _calculators(sources) + _guides(sources) + _provenance(sources)
+    sites = _solar(sources) + _calculators(sources) + _guides(sources) + _provenance(sources) + _gallery(sources)
     if sources is None:
         prod = production_pages()
         sites += _journeys(prod) + _critic(prod)
@@ -322,6 +361,14 @@ def self_test() -> int:
             {"id": "W3", "status": "critiqued", "cell": "phone-390|anon|x|y", "findings": ev("hive", "A1")}]
     c_cells = {(c["page"], c["key"]) for c in _critic(["skillmatrix.html", "assistant.html", "hive.html"], crit, {"W2"})}
     ok = ok and c_cells == {("skillmatrix.html", "B3")}
+    # G: a camera-only image picker is a cell; one paired with a gallery-capable sibling is not; a plain picker is not
+    g_src = {"inventory.html": '<input id="f-photo-input" type="file" accept="image/*" capture="environment" class="hidden" />',
+             "resume.html": ('<input type="file" id="file-photo" accept="image/*" capture="environment" multiple>\n'
+                             '<input type="file" id="file-any" accept="image/*,application/pdf">'),
+             "logbook.html": '<input id="f-photo" type="file" accept="image/*" class="hidden" />',
+             "integrations.html": '<input type="file" id="file-input" accept=".csv,.xlsx" capture>'}
+    g_cells = {(c["page"], c["key"]) for c in _gallery(g_src)}
+    ok = ok and g_cells == {("inventory.html", "f-photo-input")}
     print(("PASS" if ok else "FAIL") + f" enhancement inventory self-test - {dict(by)}")
     return 0 if ok else 1
 

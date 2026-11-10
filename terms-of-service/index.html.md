@@ -6,7 +6,7 @@ Source: https://workhiveph.com/terms-of-service/
 
 Terms
 
-Last updated 9 Nov 2026
+Last updated 10 Nov 2026
 
 By using WorkHive, you agree to these terms. We wrote them in plain language. If a clause is unclear, email [admin@workhiveph.com](mailto:admin@workhiveph.com) and we will explain.
 
@@ -125,6 +125,4 @@ Email [admin@workhiveph.com](mailto:admin@workhiveph.com) with any question abou
 
 [Join the Hive](https://workhiveph.com/?signup=1)
 
-Issued by WorkHive Engineering Services, DTI Business Name 8080496. Last updated 9 Nov 2026.
-
-<!-- md-twin source-sha: d63b5f271fc21677 -->
+<!-- md-twin source-sha: b96894212c49ae3d -->

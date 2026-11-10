@@ -178,6 +178,9 @@ GATES["ENH-P"] = ["calc-share-compare", "kpi-calc", "calc-handoff", "preset-chip
 # ENH-J (2026-10-23): a live journey on the page in Chromium and WebKit - CI2's gates, read through bank_prover
 GATES["ENH-J"] = ["page-journeys", "live-page-journeys", "live-page-journeys-webkit"]
 GATES["ENH-C"] = ["critic-cells", "rubric-teeth", "scripts-parse", "design-detector-ratchet"]
+# ENH-G (2026-11-10, Ian: "I cannot attach my saved photos to inventories, it is only taking a photo"): a photo picker
+# that forced the camera now offers saved photos too - held by its own gate over enhancement_inventory's measurement
+GATES["ENH-G"] = ["photo-pickers-allow-gallery", "scripts-parse", "design-detector-ratchet"]
 # OPC (2026-10-22): a panel in the one operator console - its home held by operator-console, its reads by the generated
 # migration and the lens's read list, the page's scripts by scripts-parse
 GATES["OPC"] = ["operator-console", "lens-read-rpcs", "scripts-parse", "design-detector-ratchet"]
@@ -368,6 +371,13 @@ CONDITION["ENH-R"] = ("the page read as served, signed in as the row's cast, its
                       "excluded (none), the area's own lines read, the explainer opened and closed with a real click, the "
                       "area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift "
                       "and every page error recorded")
+CONDITION["ENH-G"] = ("the page read as served, signed in as the row's cast, at a true phone viewport (emulated 390x844, mobile, "
+                      "touch) and at desktop-1280: the picker's input read for `capture` (must be absent), a photo already "
+                      "on disk chosen through the page's own visible control (the file chooser it opens, never the hidden "
+                      "input directly), and the photo followed to where the page keeps it - saved with the row and drawn "
+                      "back on its card after a reload, or handed to the step it feeds; every edge-function call to a "
+                      "model refused by the walk and counted (none may reach a model); the walk's rows and stored photos "
+                      "removed afterwards")
 CONDITION["ENH-S"] = ("the page read as served to the row's cast, the service worker blocked: the solar planner used end to end "
                       "at each width - appliances added from the list and typed in, edited and removed; the place, its peak "
                       "sun hours and a custom value; the days without sun and the battery chemistry; each step's figures "
@@ -442,6 +452,7 @@ GATE_SCRIPTS = {"csp-covers-what-ships": "tools/validate_csp_covers_what_ships.p
                 "cache-contract": "tools/prove_cache_contract.py",
                 "scripts-parse": "tools/validate_scripts_parse.mjs",
                 "design-detector-ratchet": "tools/prove_design_detector_ratchet.py",
+                "photo-pickers-allow-gallery": "tools/validate_photo_pickers_allow_gallery.py",
                 "design-tokens": "validate_design_tokens.py",
                 "dom_xss_fields": "tools/validate_dom_xss_fields.py",
                 "handler-values-escaped": "tools/validate_handler_values_escaped.py",

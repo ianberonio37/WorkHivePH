@@ -1,7 +1,7 @@
 {
  "about": {
-  "content_sha": "a942880e86e47c21",
-  "stamped": "2026-11-09"
+  "content_sha": "31161726f3dcaa33",
+  "stamped": "2026-11-10"
  },
  "ai-companion-hezekiah-zaniah-personas": {
   "content_sha": "6bb2aea48a72e5a8",
@@ -13,6 +13,10 @@
  },
  "ai-work-assistant-maintenance-technicians": {
   "content_sha": "bc0199bb831d84b0",
+  "stamped": "2026-11-10"
+ },
+ "asset-brain-360-one-machine-history-philippine-plant": {
+  "content_sha": "5c1c36f9b412e80f",
   "stamped": "2026-11-10"
  },
  "autonomous-shift-planning-philippine-plants": {
@@ -147,6 +151,10 @@
   "content_sha": "0bb7c1655fb72000",
   "stamped": "2026-11-10"
  },
+ "plant-alert-inbox-amc-daily-brief": {
+  "content_sha": "14f5cb401bce399f",
+  "stamped": "2026-11-11"
+ },
  "predictive-alert-thresholds-plants": {
   "content_sha": "b3342a5b841acfd9",
   "stamped": "2026-11-10"
@@ -155,9 +163,13 @@
   "content_sha": "a8bfd6db35944e98",
   "stamped": "2026-11-10"
  },
+ "print-ready-maintenance-analytics-report": {
+  "content_sha": "acc7ea89617c6b72",
+  "stamped": "2026-11-11"
+ },
  "privacy-policy": {
-  "content_sha": "c94f170f3c7f4b12",
-  "stamped": "2026-11-09"
+  "content_sha": "817bbbfc47dadd3e",
+  "stamped": "2026-11-10"
  },
  "ra-11285-energy-efficiency-plant-checklist": {
   "content_sha": "82149bf74e5e48fd",
@@ -175,6 +187,10 @@
   "content_sha": "e572b6d46132b11c",
   "stamped": "2026-11-10"
  },
+ "skill-matrix-for-maintenance-technicians": {
+  "content_sha": "5956e415b11f62e4",
+  "stamped": "2026-11-11"
+ },
  "spare-parts-inventory-philippine-plants": {
   "content_sha": "df1cc16a3988611e",
   "stamped": "2026-11-10"
@@ -188,8 +204,8 @@
   "stamped": "2026-11-10"
  },
  "terms-of-service": {
-  "content_sha": "abb019856a719765",
-  "stamped": "2026-11-09"
+  "content_sha": "d8282db448fb018e",
+  "stamped": "2026-11-10"
  },
  "tools/ahu-sizing-calculator": {
   "content_sha": "6b3f963bba2cad0a",

@@ -91,9 +91,11 @@ def shell(items: str = "", hidden: bool | None = None, live: bool = True) -> str
     hidden = live
     return (OPEN_MARK + "\n"
             '<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title"' + (" hidden" if hidden else "") + ' '
-            'style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">\n'
-            '<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;'
-            'color:rgba(255,255,255,0.80);">Where these figures come from</h2>\n'
+            # tokens with their literal as the fallback (2026-11-10): the bare literals this wrote raised
+            # design-source-drift on every page rendered after the 2026-10-19 sweep had tokenized the rest
+            'style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">\n'
+            '<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;'
+            'color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>\n'
             '<div data-wh-sources-list style="display:grid;gap:10px;">' + items + '</div>\n'
             "</section>\n" + (NUDGE + "\n" if live else "") + CLOSE_MARK)
 

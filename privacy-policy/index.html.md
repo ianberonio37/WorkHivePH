@@ -6,7 +6,7 @@ Source: https://workhiveph.com/privacy-policy/
 
 Privacy
 
-Last updated 9 Nov 2026
+Last updated 10 Nov 2026
 
 This page explains what data WorkHive collects, how we use it, and your rights. Plain language; no dark patterns.
 
@@ -96,6 +96,4 @@ Email [admin@workhiveph.com](mailto:admin@workhiveph.com) for any privacy questi
 
 [Join the Hive](https://workhiveph.com/?signup=1)
 
-Issued by WorkHive Engineering Services, DTI Business Name 8080496. Last updated 9 Nov 2026.
-
-<!-- md-twin source-sha: abd363ba48c17088 -->
+<!-- md-twin source-sha: 07028c7daf2f90ae -->

@@ -294,7 +294,9 @@ if "_brp" in dir():
 # ...and the sub-layer (SL-*), enhancement (ENH-*) and operator-console (OPC-*) waves, seeded after BRH in that order.
 # ...and ENH-R (Ian, 2026-10-19: provenance out of the top), seeded in the ENH id space (ENH336..) AFTER the OPC rows -
 # so its block follows OPC in the registry, the order it was written, while its ids continue ENH's own count.
-_ENH_SEEDED_AFTER_OPC = ("ENH-R",)
+# ...and ENH-G (Ian, 2026-11-10: "I cannot attach my saved photos to inventories, it is only taking a photo"): camera-only
+# photo pickers, seeded after ENH-R (ENH436..438), so its block follows R's.
+_ENH_SEEDED_AFTER_OPC = ("ENH-R", "ENH-G")
 for _set_name in ("_lxc", "_lm", "_brh", "_sl", "_enh", "_opc"):
     if _set_name in dir():
         _seen_new = []

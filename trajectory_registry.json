@@ -1054322,6 +1054322,411 @@
       }
     },
     {
+      "id": "ENH433",
+      "status": "locking",
+      "pct": 60,
+      "wave": "ENH-R",
+      "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · about",
+      "pages": [
+        "about/index.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "anon",
+      "device": "any",
+      "entry": "search-arrival",
+      "framing": "person",
+      "story": "an anonymous visitor reaches about (about) wanting what the page does not yet give: about/index.html shows its provenance where a person's attention is, and has no Sources area at its foot. The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page. ENHANCEMENT (provenance moves out of the top, to a Sources area at the foot): it is built, then walked live through the chrome-devtools MCP at phone-390 and desktop-1280. It closes when every source line and how-it-is-computed note on about sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was",
+      "journey": {
+        "archetype": "ENH-R:anon",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "about/index.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "enh": {
+        "kind": "enhancement",
+        "cls": "R",
+        "page": "about/index.html",
+        "page_class": "public",
+        "key": "provenance at the foot",
+        "detail": "about/index.html shows its provenance where a person's attention is, and has no Sources area at its foot",
+        "ask": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page",
+        "layer": "F",
+        "persona": "anon",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "every source line and how-it-is-computed note on about sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-11-10] pct -> 60. WALKED LIVE 2026-11-10 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, as a visitor, signed out; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: the page's DTI/issuer line now sits in its one Sources area at the foot, at both widths. Witness: chrome-devtools MCP walk, isolatedContext enhr-anon, signed out; each page loaded fresh (cache no-store) at emulated 390x844 mobile+touch and 1280x800; provenance-at-foot passes on 99 pages; design-source-drift green after the area's colours were tokenized Receipt .tmp/mcp_walks/ENH433.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
+      }
+    },
+    {
+      "id": "ENH434",
+      "status": "locking",
+      "pct": 60,
+      "wave": "ENH-R",
+      "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · privacy policy",
+      "pages": [
+        "privacy-policy/index.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "anon",
+      "device": "any",
+      "entry": "search-arrival",
+      "framing": "person",
+      "story": "an anonymous visitor reaches privacy policy (privacy policy) wanting what the page does not yet give: privacy-policy/index.html shows its provenance where a person's attention is, and has no Sources area at its foot. The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page. ENHANCEMENT (provenance moves out of the top, to a Sources area at the foot): it is built, then walked live through the chrome-devtools MCP at phone-390 and desktop-1280. It closes when every source line and how-it-is-computed note on privacy policy sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was",
+      "journey": {
+        "archetype": "ENH-R:anon",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "privacy-policy/index.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "enh": {
+        "kind": "enhancement",
+        "cls": "R",
+        "page": "privacy-policy/index.html",
+        "page_class": "public",
+        "key": "provenance at the foot",
+        "detail": "privacy-policy/index.html shows its provenance where a person's attention is, and has no Sources area at its foot",
+        "ask": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page",
+        "layer": "F",
+        "persona": "anon",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "every source line and how-it-is-computed note on privacy policy sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-11-10] pct -> 60. WALKED LIVE 2026-11-10 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, as a visitor, signed out; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: the page's DTI/issuer line now sits in its one Sources area at the foot, at both widths. Witness: chrome-devtools MCP walk, isolatedContext enhr-anon, signed out; each page loaded fresh (cache no-store) at emulated 390x844 mobile+touch and 1280x800; provenance-at-foot passes on 99 pages; design-source-drift green after the area's colours were tokenized Receipt .tmp/mcp_walks/ENH434.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
+      }
+    },
+    {
+      "id": "ENH435",
+      "status": "locking",
+      "pct": 60,
+      "wave": "ENH-R",
+      "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · terms of service",
+      "pages": [
+        "terms-of-service/index.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "anon",
+      "device": "any",
+      "entry": "search-arrival",
+      "framing": "person",
+      "story": "an anonymous visitor reaches terms of service (terms of service) wanting what the page does not yet give: terms-of-service/index.html shows its provenance where a person's attention is, and has no Sources area at its foot. The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page. ENHANCEMENT (provenance moves out of the top, to a Sources area at the foot): it is built, then walked live through the chrome-devtools MCP at phone-390 and desktop-1280. It closes when every source line and how-it-is-computed note on terms of service sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was",
+      "journey": {
+        "archetype": "ENH-R:anon",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "terms-of-service/index.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "enh": {
+        "kind": "enhancement",
+        "cls": "R",
+        "page": "terms-of-service/index.html",
+        "page_class": "public",
+        "key": "provenance at the foot",
+        "detail": "terms-of-service/index.html shows its provenance where a person's attention is, and has no Sources area at its foot",
+        "ask": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page",
+        "layer": "F",
+        "persona": "anon",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "every source line and how-it-is-computed note on terms of service sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-11-10] pct -> 60. WALKED LIVE 2026-11-10 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, as a visitor, signed out; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: the page's DTI/issuer line now sits in its one Sources area at the foot, at both widths. Witness: chrome-devtools MCP walk, isolatedContext enhr-anon, signed out; each page loaded fresh (cache no-store) at emulated 390x844 mobile+touch and 1280x800; provenance-at-foot passes on 99 pages; design-source-drift green after the area's colours were tokenized Receipt .tmp/mcp_walks/ENH435.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
+      }
+    },
+    {
+      "id": "ENH436",
+      "status": "locking",
+      "pct": 60,
+      "wave": "ENH-G",
+      "title": "The platform must let a person attach a photo already saved on the phone, not only take a new one (f-photo-input) - worker · inventory",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "inventory.html",
+        "logbook.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches inventory (index -> hive -> inventory -> logbook) wanting what the page does not yet give: inventory.html's picker #f-photo-input (the #f-photo-input photo) carries capture, so a phone opens the camera and skips the gallery: a photo taken earlier cannot be attached. The platform must let a person attach a photo already saved on the phone, not only take a new one. ENHANCEMENT (a photo picker lets a person choose a saved photo, not only take one): it is built, then walked live through the chrome-devtools MCP at phone-390 and desktop-1280. It closes when the capability is BUILT on inventory itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build",
+      "journey": {
+        "archetype": "ENH-G:worker",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "inventory.html",
+          "logbook.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "enh": {
+        "kind": "enhancement",
+        "cls": "G",
+        "page": "inventory.html",
+        "page_class": "production",
+        "key": "f-photo-input",
+        "detail": "inventory.html's picker #f-photo-input (the #f-photo-input photo) carries capture, so a phone opens the camera and skips the gallery: a photo taken earlier cannot be attached",
+        "ask": "The platform must let a person attach a photo already saved on the phone, not only take a new one",
+        "layer": "F",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "the capability is BUILT on inventory itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-11-10] pct -> 60. WALKED LIVE 2026-11-10 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, at a true phone viewport (emulated 390x844, mobile, touch) and at desktop-1280: the picker's input read for `capture` (must be absent), a photo already on disk chosen through the page's own visible control (the file chooser it opens, never the hidden input directly), and the photo followed to where the page keeps it - saved with the row and drawn back on its card after a reload, or handed to the step it feeds; every edge-function call to a model refused by the walk and counted (none may reach a model); the walk's rows and stored photos removed afterwards): ENH-G: the picker no longer forces the camera; a saved photo attaches at both widths. Witness: chrome-devtools MCP walk, isolatedContext enhg-walk, signed in as anareyes (worker); phone emulated 390x844 mobile+touch, desktop 1280; a photo already on disk chosen through the page's own picker; equipment-label-ocr / visual-defect-capture refused in-page (0 model calls); walk rows and stored photos removed Receipt .tmp/mcp_walks/ENH436.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "photo-pickers-allow-gallery",
+          "scripts-parse"
+        ]
+      }
+    },
+    {
+      "id": "ENH437",
+      "status": "locking",
+      "pct": 60,
+      "wave": "ENH-G",
+      "title": "The platform must let a person attach a photo already saved on the phone, not only take a new one (a-scan-input) - worker · logbook",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches logbook (index -> hive -> logbook -> pm scheduler) wanting what the page does not yet give: logbook.html's picker #a-scan-input (Scan equipment nameplate photo) carries capture, so a phone opens the camera and skips the gallery: a photo taken earlier cannot be attached. The platform must let a person attach a photo already saved on the phone, not only take a new one. ENHANCEMENT (a photo picker lets a person choose a saved photo, not only take one): it is built, then walked live through the chrome-devtools MCP at phone-390 and desktop-1280. It closes when the capability is BUILT on logbook itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build",
+      "journey": {
+        "archetype": "ENH-G:worker",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "enh": {
+        "kind": "enhancement",
+        "cls": "G",
+        "page": "logbook.html",
+        "page_class": "production",
+        "key": "a-scan-input",
+        "detail": "logbook.html's picker #a-scan-input (Scan equipment nameplate photo) carries capture, so a phone opens the camera and skips the gallery: a photo taken earlier cannot be attached",
+        "ask": "The platform must let a person attach a photo already saved on the phone, not only take a new one",
+        "layer": "F",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "the capability is BUILT on logbook itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-11-10] pct -> 60. WALKED LIVE 2026-11-10 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, at a true phone viewport (emulated 390x844, mobile, touch) and at desktop-1280: the picker's input read for `capture` (must be absent), a photo already on disk chosen through the page's own visible control (the file chooser it opens, never the hidden input directly), and the photo followed to where the page keeps it - saved with the row and drawn back on its card after a reload, or handed to the step it feeds; every edge-function call to a model refused by the walk and counted (none may reach a model); the walk's rows and stored photos removed afterwards): ENH-G: the picker no longer forces the camera; a saved photo attaches at both widths. Witness: chrome-devtools MCP walk, isolatedContext enhg-walk, signed in as anareyes (worker); phone emulated 390x844 mobile+touch, desktop 1280; a photo already on disk chosen through the page's own picker; equipment-label-ocr / visual-defect-capture refused in-page (0 model calls); walk rows and stored photos removed Receipt .tmp/mcp_walks/ENH437.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "photo-pickers-allow-gallery",
+          "scripts-parse"
+        ]
+      }
+    },
+    {
+      "id": "ENH438",
+      "status": "locking",
+      "pct": 60,
+      "wave": "ENH-G",
+      "title": "The platform must let a person attach a photo already saved on the phone, not only take a new one (vdc-file-input) - worker · logbook",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches logbook (index -> hive -> logbook -> pm scheduler) wanting what the page does not yet give: logbook.html's picker #vdc-file-input (Photo of equipment defect) carries capture, so a phone opens the camera and skips the gallery: a photo taken earlier cannot be attached. The platform must let a person attach a photo already saved on the phone, not only take a new one. ENHANCEMENT (a photo picker lets a person choose a saved photo, not only take one): it is built, then walked live through the chrome-devtools MCP at phone-390 and desktop-1280. It closes when the capability is BUILT on logbook itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build",
+      "journey": {
+        "archetype": "ENH-G:worker",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "enh": {
+        "kind": "enhancement",
+        "cls": "G",
+        "page": "logbook.html",
+        "page_class": "production",
+        "key": "vdc-file-input",
+        "detail": "logbook.html's picker #vdc-file-input (Photo of equipment defect) carries capture, so a phone opens the camera and skips the gallery: a photo taken earlier cannot be attached",
+        "ask": "The platform must let a person attach a photo already saved on the phone, not only take a new one",
+        "layer": "F",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "the capability is BUILT on logbook itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-11-10] pct -> 60. WALKED LIVE 2026-11-10 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, at a true phone viewport (emulated 390x844, mobile, touch) and at desktop-1280: the picker's input read for `capture` (must be absent), a photo already on disk chosen through the page's own visible control (the file chooser it opens, never the hidden input directly), and the photo followed to where the page keeps it - saved with the row and drawn back on its card after a reload, or handed to the step it feeds; every edge-function call to a model refused by the walk and counted (none may reach a model); the walk's rows and stored photos removed afterwards): ENH-G: the picker no longer forces the camera; a saved photo attaches at both widths. Witness: chrome-devtools MCP walk, isolatedContext enhg-walk, signed in as anareyes (worker); phone emulated 390x844 mobile+touch, desktop 1280; a photo already on disk chosen through the page's own picker; equipment-label-ocr / visual-defect-capture refused in-page (0 model calls); walk rows and stored photos removed Receipt .tmp/mcp_walks/ENH438.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "photo-pickers-allow-gallery",
+          "scripts-parse"
+        ]
+      }
+    },
+    {
       "id": "KA1",
       "status": "locking",
       "pct": 60,
@@ -1229414,8 +1229819,8 @@
     },
     {
       "id": "CF118",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - asset brain 360 one machine history philippine plant · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=6",
       "pages": [
@@ -1229508,7 +1229913,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on asset brain 360 one machine history philippine plant for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on asset brain 360 one machine history philippine plant for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T08:14"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/asset-brain-360-one-machine-history-philippine-plant/index.html as anon after the find of 2026-09-11 (asset-brain-360-one-machine-history-philippine-plant: B1 67% - marketese=0 verboseBlocks=6) - tools/family_rubric_sweep.mjs --anon (learn/asset-brain-360-one-machine-history-philippine-plant/index.html, 2026-11-10T20:19, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1236235,8 +1236647,8 @@
     },
     {
       "id": "CF184",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - plant alert inbox amc daily brief · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=11",
       "pages": [
@@ -1236325,7 +1236737,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on plant alert inbox amc daily brief for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on plant alert inbox amc daily brief for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T08:14"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/plant-alert-inbox-amc-daily-brief/index.html as anon after the find of 2026-09-11 (plant-alert-inbox-amc-daily-brief: B1 67% - marketese=0 verboseBlocks=11) - tools/family_rubric_sweep.mjs --anon (learn/plant-alert-inbox-amc-daily-brief/index.html, 2026-11-11T08:13, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1236700,8 +1237119,8 @@
     },
     {
       "id": "CF189",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - print ready maintenance analytics report · a signed-out visitor: B1 67% - marketese=1 verboseBlocks=3",
       "pages": [
@@ -1236790,7 +1237209,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on print ready maintenance analytics report for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on print ready maintenance analytics report for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T08:14"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/print-ready-maintenance-analytics-report/index.html as anon after the find of 2026-09-11 (print-ready-maintenance-analytics-report: B1 67% - marketese=1 verboseBlocks=3) - tools/family_rubric_sweep.mjs --anon (learn/print-ready-maintenance-analytics-report/index.html, 2026-11-11T08:13, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1237609,8 +1238035,8 @@
     },
     {
       "id": "CF199",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - skill matrix for maintenance technicians · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=4",
       "pages": [
@@ -1237708,7 +1238134,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on skill matrix for maintenance technicians for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on skill matrix for maintenance technicians for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T08:14"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/skill-matrix-for-maintenance-technicians/index.html as anon after the find of 2026-10-13T12:58 (skill-matrix-for-maintenance-technicians: B1 67% - marketese=0 verboseBlocks=4) - tools/family_rubric_sweep.mjs --anon (learn/skill-matrix-for-maintenance-technicians/index.html, 2026-11-11T08:13, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1267590,8 +1268023,8 @@
     },
     {
       "id": "CF322",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - asset brain 360 one machine history philippine plant · a signed-out visitor: B3 0% - sentences=76 · >20w=23 · passive=4 · grade>8=48 · worst(39w): ",
       "pages": [
@@ -1267684,7 +1268117,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on asset brain 360 one machine history philippine plant for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on asset brain 360 one machine history philippine plant for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T08:14"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/asset-brain-360-one-machine-history-philippine-plant/index.html as anon after the find of 2026-09-11 (asset-brain-360-one-machine-history-philippine-plant: B3 0% - sentences=76 · >20w=23 · passive=4 · grade>8=48 · worst(39) - tools/family_rubric_sweep.mjs --anon (learn/asset-brain-360-one-machine-history-philippine-plant/index.html, 2026-11-10T20:19, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1270223,8 +1270663,8 @@
     },
     {
       "id": "CF348",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - plant alert inbox amc daily brief · a signed-out visitor: B3 0% - sentences=92 · >20w=16 · passive=6 · grade>8=46 · worst(29w): ",
       "pages": [
@@ -1270313,7 +1270753,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on plant alert inbox amc daily brief for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on plant alert inbox amc daily brief for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T08:14"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/plant-alert-inbox-amc-daily-brief/index.html as anon after the find of 2026-09-11 (plant-alert-inbox-amc-daily-brief: B3 0% - sentences=92 · >20w=16 · passive=6 · grade>8=46 · worst(29w): \"The unified in) - tools/family_rubric_sweep.mjs --anon (learn/plant-alert-inbox-amc-daily-brief/index.html, 2026-11-11T08:13, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1270805,8 +1271252,8 @@
     },
     {
       "id": "CF354",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - print ready maintenance analytics report · a signed-out visitor: B3 0% - sentences=87 · >20w=16 · passive=4 · grade>8=56 · worst(35w): ",
       "pages": [
@@ -1270895,7 +1271342,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on print ready maintenance analytics report for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on print ready maintenance analytics report for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T08:14"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/print-ready-maintenance-analytics-report/index.html as anon after the find of 2026-09-11 (print-ready-maintenance-analytics-report: B3 0% - sentences=87 · >20w=16 · passive=4 · grade>8=56 · worst(35w): \"For ins) - tools/family_rubric_sweep.mjs --anon (learn/print-ready-maintenance-analytics-report/index.html, 2026-11-11T08:13, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1271954,8 +1272408,8 @@
     },
     {
       "id": "CF366",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - skill matrix for maintenance technicians · a signed-out visitor: B3 0% - sentences=138 · >20w=10 · passive=8 · grade>8=43 · worst(37w):",
       "pages": [
@@ -1272056,7 +1272510,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on skill matrix for maintenance technicians for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on skill matrix for maintenance technicians for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T08:14"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/skill-matrix-for-maintenance-technicians/index.html as anon after the find of 2026-09-11 (skill-matrix-for-maintenance-technicians: B3 0% - sentences=138 · >20w=10 · passive=8 · grade>8=43 · worst(37w): \"A skil) - tools/family_rubric_sweep.mjs --anon (learn/skill-matrix-for-maintenance-technicians/index.html, 2026-11-11T08:13, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1276606,5 +1277067,5 @@
       }
     }
   ],
-  "count": 21419
+  "count": 21425
 }

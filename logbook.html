@@ -630,7 +630,7 @@
 
       <!-- ── LEFT: LOG FORM ── -->
       <div class="lg:col-span-2">
-        <div class="card p-6 sticky top-6">
+        <div id="lb-form-card" class="card p-6 sticky top-6">
           <div class="flex items-center gap-2 mb-6">
             <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);">
               <span class="ic ic-add" aria-hidden="true"></span>
@@ -735,14 +735,14 @@
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
                   <div>
                     <p data-i="p_photodefectcapture_20b7" style="font-size:var(--wh-fs-xs, 0.8rem); font-weight:700; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.9);">Photo defect capture</p>
-                    <p data-i="p_snapaphotoofthedefectrustlea_5dc1" style="font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:2px;">Snap a photo of the defect (rust, leak, crack, burn). AI drafts the entry from the image.</p>
+                    <p data-i="p_snapaphotoofthedefectrustlea_5dc1" style="font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:2px;">Take or choose a photo of the defect (rust, leak, crack, burn). AI drafts the entry from the image.</p>
                   </div>
                   <button id="vdc-capture-btn" type="button" style="padding:12px 16px; min-height:44px; background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.15); color:var(--wh-green); border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.4); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:var(--wh-fs-xs, 0.8rem); font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
                     <span class="ic ic-image" aria-hidden="true"></span>
                     <span data-i="capture">Capture</span>
                   </button>
                 </div>
-                <input id="vdc-file-input" aria-label="Photo of equipment defect" type="file" accept="image/*" capture="environment" style="display:none;" />
+                <input id="vdc-file-input" aria-label="Photo of equipment defect" type="file" accept="image/*" style="display:none;" />
                 <div id="vdc-preview" style="display:none; margin-top:10px;">
                   <!-- a transparent 1x1 until a photo arrives: the preview is never a broken image (K, 2026-10-15) -->
                   <img id="vdc-preview-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Captured defect preview" style="max-width:100%; max-height:220px; border-radius:8px; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));" />
@@ -1368,7 +1368,7 @@
                  outside the accessibility tree, so the visible "Scan nameplate" button is what a
                  screen-reader user meets - but the file-picker dialog itself can surface the input's
                  own name, and the platform already labels its other hidden picker. -->
-            <input id="a-scan-input" type="file" accept="image/*" capture="environment" class="hidden"
+            <input id="a-scan-input" type="file" accept="image/*" class="hidden"
                    aria-label="Scan equipment nameplate photo" />
             <button id="a-scan-btn" type="button" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]" style="background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); color:var(--wh-orange-text);">
               <span class="ic ic-image" aria-hidden="true"></span>
@@ -7426,6 +7426,21 @@ function vdcApplyDraft(payload, voiceNote) {
 }
 
 vdcWireOnce();
+
+// ★A STICKY FORM TALLER THAN THE SCREEN PINS ITS OWN BOTTOM OUT OF REACH (ENH-G walk, 2026-11-10). At desktop width the
+// left column stretches to the grid row, so `sticky top-6` pins the entry form at 24px - and the form is ~900px tall. On
+// a 1280-wide laptop whose viewport is ~590px (a 768px screen less the browser's chrome), Capture, the asset picker,
+// "What happened? ->" and Clear form sat below the fold and stayed there while the page scrolled: reachable only at the
+// very end of the page, where the sticky lets go. The form keeps sticking while it fits the screen, and scrolls with
+// the page when it does not. Its own height changes (the defect preview, a long draft), so it is measured again then.
+(function lbFormStickyOnlyWhenItFits() {
+  const card = document.getElementById('lb-form-card');
+  if (!card) return;
+  const fit = () => card.classList.toggle('sticky', card.offsetHeight <= window.innerHeight - 48);
+  fit();
+  window.addEventListener('resize', fit, { passive: true });
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(card);
+})();
 
 
 // ────────────────────────────────────────────
