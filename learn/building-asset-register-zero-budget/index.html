@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-08-24",
+        "dateModified": "2026-11-10",
         "mainEntityOfPage": "https://workhiveph.com/learn/building-asset-register-zero-budget/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -59,7 +59,7 @@
         "description": "Five-step process to build a working ISO 14224-aligned asset register for a Philippine plant without buying any asset-management software.",
         "totalTime": "P30D",
         "step": [
-          { "@type": "HowToStep", "position": 1, "name": "Walk the plant and capture every asset on paper or phone", "text": "One supervisor plus one technician walk every production area, utility room, and outdoor compound. Photograph and note every tagged asset and every untagged asset bigger than a microwave. Most plants find 30 to 50 percent more assets than they thought they had. This step alone takes 3 to 5 working days for a typical Philippine plant of 200 to 500 assets." },
+          { "@type": "HowToStep", "position": 1, "name": "Walk the plant and capture every asset on paper or phone", "text": "Two people walk the whole plant: one supervisor and one technician. They cover every production area, utility room and outdoor yard. Take a photo and a note of every tagged asset. Do the same for any untagged one bigger than a microwave. Most plants find 30 to 50 percent more assets than they thought they had. This step alone takes 3 to 5 working days for a typical Philippine plant of 200 to 500 assets." },
           { "@type": "HowToStep", "position": 2, "name": "Build the hierarchy: Site, Area, System, Asset, Subassembly", "text": "ISO 14224 prescribes 9 levels but most Philippine plants need only 5: Site (plant), Area (production line, utility area), System (compressed air, cooling water), Asset (the named pump or motor), Subassembly (bearing, coupling, seal). Drop levels you do not need. Avoid the trap of building 9-level hierarchies for 200-asset plants." },
           { "@type": "HowToStep", "position": 3, "name": "Apply naming convention: AREA-SYSTEM-ASSET-INSTANCE", "text": "Example: LIN1-CW-PMP-001 (Line 1, Cooling Water, Pump, instance 001). Three rules: short, consistent, no spaces. Document the convention in a one-page SOP so every new asset gets named the same way. Most plants fail at month 6 because two different naming conventions emerged in parallel." },
           { "@type": "HowToStep", "position": 4, "name": "Rank criticality on a 4-point scale", "text": "Tier 1 (critical): asset failure stops production immediately, no redundancy. Tier 2 (high): failure stops production within 24 hours or with backup workaround. Tier 3 (medium): failure causes degradation, plant runs at reduced capacity. Tier 4 (low): failure is inconvenient but does not affect production or safety. Expect a small minority of assets to land in Tier 1 or 2, and put the bulk of maintenance attention there. Rank your own plant rather than trusting a published share: it depends on how much redundancy your site was built with." },
@@ -334,14 +334,13 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
+      <span>Updated <time datetime="2026-11-10">10 Nov 2026</time></span>
       <span class="opacity-40">·</span>
       <span>9 min read</span>
     </div>
 
     <div class="answer-first">
-      <strong>Short answer:</strong> An asset register is the master list of every physical asset in a plant, with a unique identifier, location, criticality, and link to PM and fault history. Most Philippine plants do not have one (they have 3 contradictory spreadsheets). Building a clean 200 to 500 asset register takes 30 working days with one supervisor and one technician: 5 days walking and counting, 3 days hierarchy and naming, 5 days criticality, 7 days loading into WorkHive Asset Hub, 10 days for the inevitable gap-filling. No software budget needed; the discipline matters more than the tool.
-     A clean <strong>200 to 500 asset register takes about 30 working days</strong> with one supervisor and one technician: 5 days walking and counting, 3 days on hierarchy and naming, 5 days on criticality, 7 days loading.</div>
+      <strong>Short answer:</strong> An asset register is the master list of all the assets in a plant. Each one gets its own ID, a location and a rank for how critical it is. It also links to its PM and fault history. Most Philippine plants do not have one (they have 3 contradictory spreadsheets). A clean register of 200 to 500 assets takes about 30 working days. It needs one supervisor and one technician. Spend 5 days walking and counting. Spend 3 on the hierarchy and names, and 5 on criticality. Then spend 7 loading it into WorkHive Asset Hub, and 10 filling gaps. No software budget needed; the discipline matters more than the tool.</div>
 
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
@@ -372,16 +371,18 @@
     </div>
 
     <div class="prose-wh">
-      <div class="callout">Part of the <a href="/learn/start-digital-maintenance-guide/">guide to starting digital maintenance in a Philippine factory</a>: the four-step, zero-budget rollout this article is one step of.</div>
+      <div class="callout">Part of our <a href="/learn/start-digital-maintenance-guide/">guide to going digital</a> in a Philippine plant. This article is one step of that four-step, zero-budget rollout.</div>
 
 
       <h2 id="why-register">Why every plant needs a real asset register</h2>
-      <p>Walk into any Philippine plant and ask "how many critical pumps do you have?" You will get three answers from three people. The maintenance supervisor knows it is "around 40, more or less." The planner has a spreadsheet that says 47. The finance team's depreciation schedule says 52. The procurement records show 38 in active service. All four are partially right and entirely useless for running maintenance.</p>
-      <p>An asset register fixes this by making one canonical source of truth. Every asset has exactly one identity. Every logbook entry, PM, fault, parts consumption, and skill assignment points to that identity. The result is searchable history, accurate MTBF (mean time between failures), defensible insurance valuations, and a foundation that every higher-stage system (PdM, CMMS integration, AI assistant) depends on.</p>
-      <p>The most common reason Philippine plants do not have an asset register is not budget. It is that nobody owned the project. The supervisor thought it was the engineer's job; the engineer thought it was the planner's job; the planner thought it was IT's job. After 5 years of mutual assumption, you have 3 spreadsheets and a problem.</p>
+      <p>Walk into any Philippine plant and ask how many critical pumps it has. You will get three answers from three people. The maintenance supervisor says it is around 40. The planner has a spreadsheet that says 47.</p>
+      <p>The finance team's depreciation schedule says 52. The procurement records show 38 in active service. All four are partially right and entirely useless for running maintenance.</p>
+      <p>An asset register fixes this by making one canonical source of truth. Every asset has exactly one identity. Every logbook entry, PM, fault and part used points to that ID.</p>
+      <p>You get history you can search and a true MTBF (mean time between failures). It also gives you insurance values you can defend. And it is the base every later system needs.</p>
+      <p>Budget is not the usual reason a plant here has no asset register. It is that nobody owned the project. The supervisor thought it was the engineer's job. The engineer thought it was the planner's job. The planner thought it was IT's job. After 5 years of mutual assumption, you have 3 spreadsheets and a problem.</p>
 
       <h2 id="iso-14224">ISO 14224 hierarchy (and the simplified 5-level version)</h2>
-      <p>ISO 14224 is the international standard for collecting reliability and maintenance data for petroleum, petrochemical, and natural gas equipment. The taxonomy is widely adopted across general manufacturing because it provides the only globally comparable framework. The full standard defines a 9-level hierarchy:</p>
+      <p>ISO 14224 is the world standard for collecting reliability and maintenance data. It started with oil, petrochemical and gas equipment. Other factories use it too. No other scheme lets plants compare data worldwide. The full standard defines a 9-level hierarchy:</p>
       <ol>
         <li>Industry (oil and gas, petrochemical, etc.)</li>
         <li>Business category (upstream, midstream, downstream)</li>
@@ -406,11 +407,11 @@
       <h2 id="five-step">The 5-step 30-day rollout</h2>
 
       <h3>Step 1: Walk the plant and count (Days 1 to 5)</h3>
-      <p>One supervisor plus one technician walk every production area, utility room, and outdoor compound. Photograph and note every tagged asset and every untagged asset bigger than a microwave. Use a phone, a clipboard, or the WorkHive Logbook in field-count mode.</p>
-      <p>The honest finding: most Philippine plants discover 30 to 50 percent more assets than the existing spreadsheet shows. The missing assets are usually instruments (transmitters, control valves), small motors, lighting circuits, and anything outdoor. Account for all of them.</p>
+      <p>Two people walk the whole plant: one supervisor and one technician. They cover every production area, utility room and outdoor yard. Take a photo and a note of every tagged asset. Do the same for any untagged one bigger than a microwave. Use a phone, a clipboard, or the WorkHive Logbook in field-count mode.</p>
+      <p>The honest finding: most plants here find 30 to 50 percent more assets than their spreadsheet shows. The missing ones are usually sensors, valves, small motors, lights and outdoor gear. Account for all of them.</p>
 
       <h3>Step 2: Build the hierarchy (Days 6 to 8)</h3>
-      <p>Workshop with the supervisor, the engineer, and the planner. Map every counted asset into the 5-level hierarchy. Disagreements about which System a borderline asset belongs to are normal; pick one and move on. You can re-classify later.</p>
+      <p>Workshop with the supervisor, the engineer, and the planner. Map every counted asset into the 5-level hierarchy. People will argue about which System a borderline asset belongs to. That is normal, so pick one and move on. You can re-classify later.</p>
 
       <h3>Step 3: Apply naming convention (Days 9 to 13)</h3>
       <p>Pattern: <code>AREA-SYSTEM-ASSET-INSTANCE</code>. Examples:</p>
@@ -423,25 +424,27 @@ WHS-LGT-PNL-005    Warehouse, Lighting, Panel, instance 005</pre>
       <p>Workshop with production, maintenance, and safety. Each asset gets a Tier from the 4-point scale (next section). Document the reasoning so the ranking survives turnover.</p>
 
       <h3>Step 5: Load into WorkHive Asset Hub (Days 19 to 30)</h3>
-      <p>Import the CSV from steps 1 to 4 into WorkHive Asset Hub. Keep the photos from step 1 in your own shared drive, named by asset tag: Asset Hub does not hold images. Link Tier 1 and Tier 2 assets to their PM templates. The register goes live; from this point on, every new asset must be created in Asset Hub before any logbook entry can reference it.</p>
+      <p>Import the CSV from steps 1 to 4 into WorkHive Asset Hub. Keep the photos from step 1 in your own shared drive, named by asset tag. Asset Hub does not hold images.</p>
+      <p>Link Tier 1 and Tier 2 assets to their PM templates. The register goes live. From now on, add every new asset in Asset Hub before any logbook entry points to it.</p>
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
         <h3>WorkHive Asset Hub is the canonical asset register</h3>
-        <p>Asset Hub holds your ISO 14224-aligned hierarchy, criticality, PM links, fault history, linked spare parts and the skill-assignment matrix per asset. Every other WorkHive surface (Logbook, PM Scheduler, Inventory, Skill Matrix, Analytics, AI Assistant) reads from Asset Hub as the single source of truth. Free at the worker tier, and note what the section above says: hive membership is whole-hive, so there is no contractor or supplier login that sees only its own assets.</p>
+        <p>Asset Hub holds your ISO 14224 hierarchy and criticality ranks. It also holds PM links, fault history and linked spare parts. Other pages read their asset list from Asset Hub.</p>
+        <p>That includes the Logbook, PM Scheduler, Inventory, Analytics and AI Assistant. Free at the worker tier. As the section above says, a hive member sees the whole hive. So there is no contractor login that sees only its own assets.</p>
         <a href="/asset-hub.html" class="cta-btn">Open Asset Hub</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
 
       <h2 id="naming">Naming conventions that survive 5 years</h2>
-      <p>The naming convention is the most underrated part of an asset register. Plants that fail at year 2 usually had two parallel conventions emerge: one from the supervisor who built the original register, one from the engineer who added new assets after the supervisor was promoted. Within 18 months, half the new assets do not match the old pattern.</p>
+      <p>The naming scheme is the most overlooked part of an asset register. Plants that fail at year 2 usually grew two naming styles side by side. One came from the supervisor who built the register. The other came from the engineer who took over later. Within 18 months, half the new assets do not match the old pattern.</p>
       <p>Rules that survive:</p>
       <ul>
         <li><strong>Document it in one page</strong> and post it where new assets get added.</li>
         <li><strong>Single authority</strong> to approve new asset names (usually the planner). No new asset gets a number without their sign-off.</li>
-        <li><strong>Consistent abbreviations</strong> in a published glossary (PMP for pump, FAN for fan, MTR for motor, VLV for valve, etc).</li>
+        <li><strong>Short codes</strong> everyone uses, in a published list: PMP for pump, FAN for fan, MTR for motor, VLV for valve.</li>
         <li><strong>No special characters</strong> except dash. Spaces and slashes break URL parsing and CSV exports.</li>
-        <li><strong>Reserve instance numbers</strong> by hundreds: 001 to 099 for primary production, 100 to 199 for utilities, 200 to 299 for warehouse, etc. Makes the asset code self-describing.</li>
+        <li><strong>Reserve numbers</strong> by hundreds. Use 001 to 099 for main production and 100 to 199 for utilities. Use 200 to 299 for the warehouse, and so on. Makes the asset code self-describing.</li>
       </ul>
 
       <h2 id="criticality">Criticality ranking on a 4-point scale</h2>
@@ -454,28 +457,29 @@ WHS-LGT-PNL-005    Warehouse, Lighting, Panel, instance 005</pre>
           <tr><td><strong>Tier 4 Low</strong></td><td>Failure is inconvenient; no production or safety impact</td><td>30-50%</td><td>Annual PM or run to failure; reorder when stock dips</td></tr>
         </tbody>
       </table></div>
-      <p>As a planning assumption rather than a measurement, expect a small minority of your assets to land in Tier 1 or 2 - and that minority is where the bulk of maintenance attention belongs. Rank your own plant before trusting any published share; the split depends on how much redundancy you have, which is a design decision unique to your site. Plants that treat all assets equally over-maintain non-critical and under-maintain critical.</p>
+      <p>Treat this as a guess, not a measurement. Expect only a small share of your assets in Tier 1 or 2. That small share is where most of your attention belongs. Rank your own plant before you trust any published share.</p>
+      <p>The split depends on how much backup equipment you have, and that is unique to your site. Plants that treat all assets equally over-maintain non-critical and under-maintain critical.</p>
 
       <h2 id="contractors">Contractors and outside work against the register</h2>
-      <p>A register earns its keep the moment outside work is recorded against it rather than against a job description in an email. Be clear about what WorkHive does today, because this is an area where it is easy to promise more than any small platform delivers:</p>
+      <p>A register earns its keep once you log outside work against it. Not against a job note in an email. Be clear about what WorkHive does today. Here it is easy to promise more than any small platform delivers:</p>
       <ul>
-        <li><strong>What exists now:</strong> outside work is tracked as a <em>contractor</em> project in the Project Manager, and the jobs under it point at the same asset IDs your own PMs use - so the cooling-water overhaul a vendor performed sits in the asset's timeline beside everything your team did. If you run SAP, a job closed in WorkHive is pushed back to SAP automatically.</li>
-        <li><strong>What does not exist yet:</strong> a contractor login that sees only their own systems. Hive membership is whole-hive: everyone you invite can see the hive's assets, and the only elevated role is supervisor. If a vendor must not see the rest of your plant, do not invite them - have your own planner record the completion against the asset instead.</li>
-        <li><strong>Insurance and audit:</strong> the value at renewal is not an account for the assessor, it is that you can EXPORT the hierarchy and criticality as a CSV in one pass instead of rebuilding it from three spreadsheets. That is what turns a fortnight of document-chasing into an afternoon.</li>
+        <li><strong>What exists now:</strong> log outside work as a contractor project. Do it in the Project Manager. Its jobs point at the same asset IDs your own PMs use. So a vendor's overhaul sits in the asset's timeline, beside your team's work. Connect SAP in Integrations, and WorkHive can report back. Close a job on an asset imported from SAP, and the completion goes back to SAP.</li>
+        <li><strong>What does not exist yet:</strong> a contractor login that sees only their own systems. A hive member sees the whole hive. Everyone you invite sees its assets. The only higher role is supervisor. If a vendor must not see the rest of your plant, do not invite them. Have your own planner log the finished job against the asset instead.</li>
+        <li><strong>Insurance and audit:</strong> export the register as one CSV file. It carries the hierarchy and criticality. You no longer rebuild it from three spreadsheets at renewal. That is what turns a fortnight of document-chasing into an afternoon.</li>
       </ul>
-      <p>None of this is possible without a clean register, and all of it gets easier the closer your coverage gets to complete. Scoped external accounts are a genuinely valuable pattern and a fair thing to ask a vendor for; this guide will say so when WorkHive has them.</p>
+      <p>None of this works without a clean register. All of it gets easier as your coverage gets closer to complete. Limited outside accounts are a fair thing to want. This guide will say so when WorkHive has them.</p>
 
       <h2 id="common-mistakes">Common mistakes that kill the register</h2>
       <ul>
-        <li><strong>Building the perfect hierarchy before walking the plant.</strong> 90 percent of the structural decisions become obvious only after you have walked and counted. Walk first, structure second.</li>
-        <li><strong>Trying to capture every part down to bolts.</strong> Stop at the asset level for most things; only go to subassembly for Tier 1 critical. A bolts-level register is unmaintainable.</li>
-        <li><strong>Two parallel naming conventions.</strong> Single authority for new asset codes; document the SOP; tag every existing asset before adding any new one.</li>
-        <li><strong>Treating criticality as a once-and-done.</strong> Re-rank annually; criticality shifts as the plant changes (new bottleneck, new product, decommissioned redundancy).</li>
-        <li><strong>No owner.</strong> Asset register decay is silent. Assign a single planner as the data steward, with 2 hours per month protected for register maintenance.</li>
+        <li><strong>Building the perfect hierarchy before walking the plant.</strong> Most structure decisions only become clear after you have walked and counted. Walk first, structure second.</li>
+        <li><strong>Trying to capture every part down to bolts.</strong> Stop at the asset level for most things. Go down to subassembly only for Tier 1 critical assets. A bolts-level register is unmaintainable.</li>
+        <li><strong>Two parallel naming conventions.</strong> One person issues new asset codes. Write the procedure down. Tag every existing asset before you add a new one.</li>
+        <li><strong>Treating criticality as a once-and-done.</strong> Re-rank every year. Ranks shift as the plant changes. A new bottleneck, a new product or a retired spare unit can move them.</li>
+        <li><strong>No owner.</strong> Asset register decay is silent. Make one planner the register's keeper, with 2 hours a month set aside for upkeep.</li>
       </ul>
 
       <div class="callout">
-        <strong>The bigger picture:</strong> The asset register is the foundation everything else sits on. Logbook entries need it to be searchable. PM Scheduler needs it to assign work. Inventory needs it to forecast parts. Skill Matrix needs it to match competency. AI Assistant needs it to answer fault questions. Plants that build a clean register in 30 days compound benefits for the next 10 years. Plants that postpone it stay stuck in spreadsheet purgatory.
+        <strong>The bigger picture:</strong> Everything else sits on the asset register. Logbook entries need it to be searchable. PM Scheduler needs it to assign work. Inventory needs it to forecast parts. Skill Matrix needs it to match competency. AI Assistant needs it to answer fault questions. Plants that build a clean register in 30 days compound benefits for the next 10 years. Plants that postpone it stay stuck in spreadsheet purgatory.
       </div>
 
       <h2 id="faq">Frequently asked questions</h2>
@@ -538,7 +542,7 @@ WHS-LGT-PNL-005    Warehouse, Lighting, Panel, instance 005</pre>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-10">10 Nov 2026</time></p>
     <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

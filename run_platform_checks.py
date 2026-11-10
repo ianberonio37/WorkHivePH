@@ -14260,6 +14260,17 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "osh-rule-citations",
+        "script":  "tools/validate_osh_rule_citations.py",
+        "args":    [],
+        # ★"RULE 1063 ON SAFETY AND HEALTH RECORDS" IS THE WALKWAY-SURFACE RULE (2026-11-10). Six learn guides, the learn
+        # hub and llms.txt cited it as the records rule (records are Rule 1050); the calculator family cited "OSHS PD 856"
+        # (the Code on Sanitation) and Rule 1230 (piping identification) for boilers and pressure vessels (1160 / 1170).
+        "label":   "a cited DOLE OSHS rule number sits beside its own subject (records 1050, boiler 1160, pressure vessel 1170, electrical 1210, ...), and PD 856 is cited only for sanitation",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "listing-hold-disclosed",
         "script":  "tools/validate_listing_hold_disclosed.py",
         "args":    [],

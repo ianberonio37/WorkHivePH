@@ -2628,7 +2628,7 @@ const GUIDES = {
       'ASME BPVC Section VIII Division 1: Unfired Pressure Vessels',
       'ASME Section II Part D: Material Properties and Allowable Stresses',
       'ASME B16.5: Pipe Flanges and Flanged Fittings',
-      'DOLE OSHS PD 856: Occupational Safety and Health Standards (PH)',
+      'DOLE OSHS Rule 1170: Unfired Pressure Vessels (PH registration)',
     ],
     formulas: [
       'Cylindrical shell (UG-27): t = P×R / (S×E − 0.6P)',
@@ -2659,7 +2659,7 @@ const GUIDES = {
       'MAWP is the maximum allowable working pressure at the actual shell thickness: it will always be ≥ design pressure if the plate is adequate.',
       'Hydrostatic test pressure = 1.3 × MAWP per UG-99(b). The vessel must hold this for 30 minutes with no leaks, witnessed by an Authorized Inspector (AI).',
       'ASME U-stamp is mandatory for pressure vessels in the Philippines. The AI (from an ASME-accredited Inspection Agency) must witness fabrication milestones.',
-      'DOLE Registration: all pressure vessels with MAWP > 15 psi (1.03 bar) must be registered with DOLE before first use (PD 856, OSHS Rule 1230).',
+      'DOLE Registration: all pressure vessels with MAWP > 15 psi (1.03 bar) must be registered with DOLE before first use (OSHS Rule 1170, Unfired Pressure Vessels).',
       'This calculator covers internal pressure only. External pressure (vacuum), wind/seismic loads, and nozzle loads require additional checks per ASME VIII-1.',
     ],
   },
@@ -8026,7 +8026,7 @@ function renderInputForm(calcType) {
         <div><div class="field-label">No. Nozzles</div><input aria-label="No. Nozzles" id="f-n-nozzles" class="wh-input" type="number" value="2" min="0"/></div>
       </div>
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
-        Standards: ASME BPVC Section VIII Div.1 (UG-27/32/34/37/99) | DOLE OSHS PD 856 (PH registration)
+        Standards: ASME BPVC Section VIII Div.1 (UG-27/32/34/37/99) | DOLE OSHS Rule 1170 (PH registration)
       </div>
     `;
     setStep(4);
@@ -24509,9 +24509,9 @@ function buildBoilerSystemSVG(inputs, results) {
    ['Safety Valve (min)', `${svKgHr} kg/hr  ASME Sec. I`, STM_C]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
 
   dy += 6;
-  p.push(T(DX+DW/2, dy, 'ASME BPVC Sec. I  |  PD Act Philippines', {sz:7, c:GY}));
+  p.push(T(DX+DW/2, dy, 'ASME BPVC Sec. I  |  PSME Code', {sz:7, c:GY}));
   dy += 11;
-  p.push(T(DX+DW/2, dy, 'DOLE OSHS Rule 1230  |  PSME Code', {sz:7, c:GY}));
+  p.push(T(DX+DW/2, dy, 'DOLE OSHS Rule 1160 (Boiler)', {sz:7, c:GY}));
 
   // ── LEGEND ──
   const LY = STRIP_Y + 6;
@@ -24529,7 +24529,7 @@ function buildBoilerSystemSVG(inputs, results) {
   });
   const notes=[`1. Safety valve capacity ≥ full boiler output per ASME Sec. I PG-70. ASME stamped.`,
     `2. Blowdown ${bdPct}%: (TDS_makeup)/(TDS_max − TDS_makeup). Blowdown separator required.`,
-    `3. Boiler operator license per PD Act and DOLE OSHS Rule 1230. BPRT inspection required.`];
+    `3. DOLE registration and inspection per OSHS Rule 1160 (Boiler).`];
   notes.forEach((n,i) => p.push(T(18, LY+72+i*11, n, {a:'start', sz:6.5, c:CC})));
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` + p.join('\n  ') + `\n</svg>`;
@@ -32513,7 +32513,7 @@ function renderPressureVesselReport(inputs, r, narrative) {
     ${(r.code_notes || []).map(n => `<p style="font-size:0.83rem;color:#333;margin:0.2rem 0;">- ${escHtml(n)}</p>`).join('')}
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify ${r.material} plate ${r.t_shell_actual_mm} mm thk (shell) and ${r.t_head_actual_mm} mm thk (${r.head_type} heads). Mill certificates and material test reports (MTR) traceable to heat number required.\n2. Welding: qualify all WPS/WPQ per ASME Section IX before fabrication. ${Number(r.t_shell_actual_mm) > 38 ? `Post-weld heat treatment (PWHT) REQUIRED per UCS-56 for shell t = ${r.t_shell_actual_mm} mm exceeds 38 mm carbon steel.` : `PWHT not required for shell t = ${r.t_shell_actual_mm} mm (less than 38 mm threshold per UCS-56).`}\n3. NDE: ${r.joint_efficiency >= 1.0 ? '100 percent radiographic testing (RT) on all longitudinal and circumferential pressure-retaining welds per UW-51' : r.joint_efficiency >= 0.85 ? 'spot RT per UW-52 (1 ft per 50 ft minimum)' : 'visual inspection only acceptable for E = 0.70'}; ultrasonic testing (UT) on shell-to-head welds; magnetic particle (MT) on nozzle-to-shell weld toes after PWHT.\n4. Hydro test: ${r.hydro_test_bar} bar for 30 minutes minimum hold; clean potable water at temperature not less than 17 deg C above MDMT. ASME Authorized Inspector (AI) witness required.\n5. Saddle supports: design per Zick analysis (ASME PTB-4) at L/5 from each tangent line; verify shell stress concentrations at saddle locations do not exceed 1.25 S.\n6. Nameplate and stamping: ASME U-stamp per UG-118 + UG-119; complete Manufacturer Data Report Form U-1 (UG-120) and submit to National Board for registration.\n7. Philippine compliance: complete DOLE pressure vessel registration per PD 856 and OSHS Rule 1170 before first commissioning; submit U-1 data report, hydro test record, AI final inspection certificate, and material mill certs to DOLE Regional Office.\n8. ${r.nozzle_reinforcement_pad_required ? `Add nozzle reinforcement pads per UG-37 with A_pad not less than ${r.nozzle_A_pad_required_mm2} mm&sup2; for the ${r.nozzle_diameter_mm} mm nozzles.` : 'No nozzle reinforcement pads required (excess shell area covers UG-37 requirement).'}\n9. Operation: install pressure-relief valve set at MAWP = ${r.mawp_bar} bar per UG-125; size capacity per UG-127 / API 520; route discharge to safe vent location.\n10. A PRC-licensed Mechanical Engineer plus an ASME-commissioned Authorized Inspector (AI) must sign and seal this calculation and the U-1 data report before fabrication and before placing the vessel into service.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify ${r.material} plate ${r.t_shell_actual_mm} mm thk (shell) and ${r.t_head_actual_mm} mm thk (${r.head_type} heads). Mill certificates and material test reports (MTR) traceable to heat number required.\n2. Welding: qualify all WPS/WPQ per ASME Section IX before fabrication. ${Number(r.t_shell_actual_mm) > 38 ? `Post-weld heat treatment (PWHT) REQUIRED per UCS-56 for shell t = ${r.t_shell_actual_mm} mm exceeds 38 mm carbon steel.` : `PWHT not required for shell t = ${r.t_shell_actual_mm} mm (less than 38 mm threshold per UCS-56).`}\n3. NDE: ${r.joint_efficiency >= 1.0 ? '100 percent radiographic testing (RT) on all longitudinal and circumferential pressure-retaining welds per UW-51' : r.joint_efficiency >= 0.85 ? 'spot RT per UW-52 (1 ft per 50 ft minimum)' : 'visual inspection only acceptable for E = 0.70'}; ultrasonic testing (UT) on shell-to-head welds; magnetic particle (MT) on nozzle-to-shell weld toes after PWHT.\n4. Hydro test: ${r.hydro_test_bar} bar for 30 minutes minimum hold; clean potable water at temperature not less than 17 deg C above MDMT. ASME Authorized Inspector (AI) witness required.\n5. Saddle supports: design per Zick analysis (ASME PTB-4) at L/5 from each tangent line; verify shell stress concentrations at saddle locations do not exceed 1.25 S.\n6. Nameplate and stamping: ASME U-stamp per UG-118 + UG-119; complete Manufacturer Data Report Form U-1 (UG-120) and submit to National Board for registration.\n7. Philippine compliance: complete DOLE pressure vessel registration per OSHS Rule 1170 before first commissioning; submit U-1 data report, hydro test record, AI final inspection certificate, and material mill certs to DOLE Regional Office.\n8. ${r.nozzle_reinforcement_pad_required ? `Add nozzle reinforcement pads per UG-37 with A_pad not less than ${r.nozzle_A_pad_required_mm2} mm&sup2; for the ${r.nozzle_diameter_mm} mm nozzles.` : 'No nozzle reinforcement pads required (excess shell area covers UG-37 requirement).'}\n9. Operation: install pressure-relief valve set at MAWP = ${r.mawp_bar} bar per UG-125; size capacity per UG-127 / API 520; route discharge to safe vent location.\n10. A PRC-licensed Mechanical Engineer plus an ASME-commissioned Authorized Inspector (AI) must sign and seal this calculation and the U-1 data report before fabrication and before placing the vessel into service.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">

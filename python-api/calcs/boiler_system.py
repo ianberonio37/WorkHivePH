@@ -1,7 +1,7 @@
 """
 Boiler System — Mechanical (unifies with Python, was TypeScript-only)
-Standards: ASME BPVC Section I/IV, ASME B31.1, PD 8 (Philippines),
-           DOLE OSHS Rule 1230, PSME Code
+Standards: ASME BPVC Section I/IV, ASME B31.1,
+           DOLE OSHS Rule 1160 (Boiler), PSME Code
 Libraries: iapws (replaces 21-point lookup table for steam properties)
 
 Frontend name: "Boiler System"  ← distinct from "Boiler / Steam System"

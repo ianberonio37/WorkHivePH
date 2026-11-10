@@ -1,7 +1,7 @@
 """
 Earthing / Grounding System — Phase 7b (Option B port from TypeScript)
 Standards: PEC 2017 Art. 2.50 (Grounding), IEC 60364-5-54,
-           IEEE Std 142 (Green Book), OSHS PD 856 (Philippines)
+           IEEE Std 142 (Green Book), DOLE OSHS Rule 1210 (Electrical Safety)
 Libraries: math
 
 Formulae:

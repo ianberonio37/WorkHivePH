@@ -97,7 +97,7 @@ Three: (1) server-side timestamp (worker cannot backdate by adjusting phone cloc
 
 ### How long should I retain records?
 
-DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive does not purge maintenance records or their audit history, so every one of these is met for as long as the record is not deleted. A deleted record waits in Recently deleted for 30 days (longer if a supervisor sets it), can be restored until then, and is then removed for good; correct a record a regulation requires you to hold, never delete it.
+DOLE's OSH Standards ask you to keep records of work accidents and occupational illnesses (Rule 1050). Check the current DOLE text, and your auditor, for how long each kind must be kept. WorkHive does not purge maintenance records or their audit history, so a record stays for as long as it is not deleted. A deleted record waits in Recently deleted for 30 days (longer if a supervisor sets it), can be restored until then, and is then removed for good; correct a record a regulation requires you to hold, never delete it.
 
 ### What export does an ISO auditor want?
 
@@ -122,4 +122,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f28a81032e347861 -->
+<!-- md-twin source-sha: 23e72b28858bf747 -->

@@ -23,6 +23,10 @@
   "content_sha": "43ec08799113373e",
   "stamped": "2026-11-10"
  },
+ "building-asset-register-zero-budget": {
+  "content_sha": "0d4b368c75138c7f",
+  "stamped": "2026-11-10"
+ },
  "cmms-vs-excel-spreadsheet-maintenance": {
   "content_sha": "f2a4ac9f1c89f17b",
   "stamped": "2026-11-10"
@@ -32,7 +36,7 @@
   "stamped": "2026-11-10"
  },
  "dole-iso-audit-trail-from-logbook": {
-  "content_sha": "33f7c941995ea788",
+  "content_sha": "f028a937067a877c",
   "stamped": "2026-11-10"
  },
  "feedback": {
@@ -206,6 +210,10 @@
  "tools/noise-acoustics-calculator": {
   "content_sha": "689f39f3ca97b07e",
   "stamped": "2026-11-02"
+ },
+ "tools/pressure-vessel-calculator": {
+  "content_sha": "749eb775a7661a65",
+  "stamped": "2026-11-10"
  },
  "tools/roof-drain-calculator": {
   "content_sha": "4a3da62bbcfc9c58",

@@ -227,7 +227,7 @@ def calculate(inputs: dict) -> dict:
         f"Nozzle {nozzle_dia_mm}mm: reinforcement pad "
         f"{'required' if nozzle_check['reinforcement_pad_required'] else 'NOT required'} (UG-37).",
         "ASME Sec. VIII Div.1 stamp (U-stamp) required; Authorized Inspector (AI) oversight.",
-        "Philippines: DOLE registration required for vessels with MAWP > 15 psi (PD 856, OSHS).",
+        "Philippines: DOLE registration required for vessels with MAWP > 15 psi (OSHS Rule 1170, Unfired Pressure Vessels).",
         "NDT: all pressure welds per UW-11; post-weld heat treatment per UCS-56 if t > 38mm (CS).",
     ]
 
@@ -284,5 +284,5 @@ def calculate(inputs: dict) -> dict:
             "head_type":           head_type,
         },
         "calculation_source": "python/math",
-        "standard": "ASME BPVC Sec. VIII Div.1 | ASME Sec. II Part D | DOLE OSHS PD 856",
+        "standard": "ASME BPVC Sec. VIII Div.1 | ASME Sec. II Part D | DOLE OSHS Rule 1170",
     }

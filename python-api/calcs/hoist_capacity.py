@@ -3,7 +3,7 @@ Hoist Capacity — Vertical Transport (Option B port from TypeScript)
 Standards: ASME B30.2 (Overhead and Gantry Cranes),
            ASME HST-4 (Hand Chain Lever Hoists),
            FEM 1.001 (Rules for Design of Hoisting Appliances),
-           DOLE OSHS Rule 1230 (Philippines)
+           DOLE OSH Standards (Philippines)
 Libraries: math
 
 Method:
