@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 7 July 2026
 ·
-Updated 24 Aug 2026
+Updated 10 Nov 2026
 ·
 12 min read
 
@@ -61,7 +61,7 @@ And it is **built not to pass off an invented number as yours**. This is not a p
 
 ## Talk in your own language, and it reads the answer back out loud
 
-You do not have to type, and you do not have to speak English. You can talk to the companion in **English, Taglish, Bisaya (Cebuano), Ilocano, and more**: it understands eight Philippine languages. It listens, works out which language you used, writes down what you said, and replies in the same language. There is no need to slow down or “speak like a computer” just talk the way you talk on the floor. There are usage caps behind the scenes, sized to stop one account running up the bill for everyone rather than to ration a working shift, so an ordinary day of asking and dictating will not meet them.
+You do not have to type, and you do not have to speak English. You can talk to the companion in **English, Taglish, Bisaya (Cebuano), Ilocano, and more**: it understands eight Philippine languages. It listens, works out which language you used and writes down what you said. It replies in English. There is no need to slow down or “speak like a computer” just talk the way you talk on the floor. There are usage caps behind the scenes, sized to stop one account running up the bill for everyone rather than to ration a working shift, so an ordinary day of asking and dictating will not meet them.
 
 It also **reads the reply back out loud** in a natural-sounding Filipino English voice. That means you can keep both hands on the job, ask a question, and listen to the answer, instead of stopping to read a screen. This is the whole point of a hands-free helper at the machine. For more on speaking to WorkHive instead of typing, see [voice to text on the plant floor](https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/).
 
@@ -152,7 +152,7 @@ Not as one of yours. On the floating helper, a built-in check removes any senten
 
 ### What languages can I speak to it in?
 
-You can speak to it in English, Taglish, Bisaya (Cebuano), Ilocano, and more: it understands eight Philippine languages. It listens, works out which language you used, writes down what you said, and replies in the same language. It also reads the reply back out loud in a natural-sounding Filipino English voice, so you can stay hands-free at the machine.
+You can speak to it in English, Taglish, Bisaya (Cebuano), Ilocano, and more: it understands eight Philippine languages. It listens, works out which language you used and writes down what you said. It replies in English. It also reads the reply back out loud in a natural-sounding Filipino English voice, so you can stay hands-free at the machine.
 
 ### Can it fill in a work order for me by voice?
 
@@ -179,4 +179,4 @@ It grounds its safety guidance in Philippine rules: the workplace-safety law RA 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 63c8983d3bf360da -->
+<!-- md-twin source-sha: 1020418bb71dd1fd -->

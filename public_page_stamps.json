@@ -3,8 +3,16 @@
   "content_sha": "a942880e86e47c21",
   "stamped": "2026-11-09"
  },
+ "ai-companion-hezekiah-zaniah-personas": {
+  "content_sha": "6bb2aea48a72e5a8",
+  "stamped": "2026-11-10"
+ },
  "ai-quality-and-roi-stage-2-plants": {
   "content_sha": "15945b8811a9d010",
+  "stamped": "2026-11-10"
+ },
+ "ai-work-assistant-maintenance-technicians": {
+  "content_sha": "bc0199bb831d84b0",
   "stamped": "2026-11-10"
  },
  "autonomous-shift-planning-philippine-plants": {
@@ -151,6 +159,10 @@
   "content_sha": "e572b6d46132b11c",
   "stamped": "2026-11-10"
  },
+ "spare-parts-inventory-philippine-plants": {
+  "content_sha": "df1cc16a3988611e",
+  "stamped": "2026-11-10"
+ },
  "start-digital-maintenance-guide": {
   "content_sha": "0791a239a55bccb6",
   "stamped": "2026-11-10"
@@ -241,6 +253,10 @@
  },
  "what-is-workhive-complete-platform-guide": {
   "content_sha": "7d2aad5bcbf074ab",
+  "stamped": "2026-11-10"
+ },
+ "workhive-ai-companion-complete-capabilities": {
+  "content_sha": "e09d174d2d9ae379",
   "stamped": "2026-11-10"
  },
  "workhive-vs-maintainx-comparison": {

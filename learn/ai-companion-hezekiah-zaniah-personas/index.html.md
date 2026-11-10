@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 12 June 2026
 ·
-Updated 8 Nov 2026
+Updated 10 Nov 2026
 ·
 8 min read
 
@@ -83,7 +83,7 @@ They share the same models and memory. A fact you set up in one shows up in the 
 
 ## Voice, Filipino, and Taglish
 
-On the floor, most technicians here think in Filipino or Taglish. Many also wear gloves. The companion takes English, Filipino and Taglish. It replies in the language you used. It also takes voice through the [Voice Journal](https://workhiveph.com/voice-journal.html). Speak your entry or your question, and it writes it down and replies.
+On the floor, most technicians here think in Filipino or Taglish. Many also wear gloves. The companion takes English, Filipino and Taglish. It replies in English. It also takes voice through the [Voice Journal](https://workhiveph.com/voice-journal.html). Speak your entry or your question, and it writes it down and replies.
 
 Voice goes wider than Tagalog. It also speaks **Cebuano, Ilocano, Hiligaynon, Kapampangan, Waray, Bikol and Pangasinan**. For anything else, it falls back to English. If your floor does not think in Tagalog, it does not have to. A plain Taglish question often carries more detail than a forced English one. That gives the companion more to work with, and a better answer.
 
@@ -129,7 +129,7 @@ No. The global persona knowledge base holds only general expertise, no customer'
 
 ### Can I talk to the AI Companion in Filipino or Taglish, and by voice?
 
-Yes. It accepts English, Filipino and Taglish and replies in the language you used, and through the Voice Journal it also handles Cebuano, Ilocano, Hiligaynon, Kapampangan, Waray, Bikol and Pangasinan, and it supports voice through the Voice Journal: speak your entry or question and it transcribes and responds, which is faster than typing with gloves on.
+Yes. It understands English, Filipino and Taglish, and it replies in English. The Voice Journal also takes Cebuano, Ilocano, Hiligaynon, Kapampangan, Waray, Bikol and Pangasinan. Speak your entry or question, and it writes it down and answers. That is faster than typing with gloves on.
 
 ## Sources
 
@@ -138,4 +138,4 @@ Yes. It accepts English, Filipino and Taglish and replies in the language you us
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: d3f4c34ce351e169 -->
+<!-- md-twin source-sha: 257fdda324771f8e -->

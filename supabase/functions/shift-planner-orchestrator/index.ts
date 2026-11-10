@@ -1,8 +1,9 @@
 /**
  * shift-planner-orchestrator - Phase 4: Shift Brain autonomous planner.
  *
- * Triggered by pg_cron at Philippine 3-shift boundaries (06:00 / 14:00 / 22:00 PHT)
- * or manually via POST { shift_window, hive_id? }. Writes one DRAFT row per hive
+ * Called by shift-brain.html on the first open of a shift that has no plan yet, or by Re-run plan,
+ * via POST { shift_window, hive_id? }. The pg_cron schedule that once ran it at the 06:00 / 14:00 /
+ * 22:00 PHT boundaries was retired by migration 20260610000005. Writes one DRAFT row per hive
  * per shift window into shift_plans.
  *
  * Sub-agents run in parallel via Promise.allSettled:

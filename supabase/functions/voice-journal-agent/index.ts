@@ -8,7 +8,7 @@
  *   3. Gateway redacts PII, loads memory (last 10 turns + rolling summary),
  *      forwards to THIS function with { message, context, memory, gateway: true }.
  *   4. This function builds a journal companion prompt that:
- *        - Speaks back in the same language the user used.
+ *        - Understands the language the user spoke; replies in English (persona.ts language rule).
  *        - Acknowledges what was shared in 1-3 sentences.
  *        - Asks at most one gentle follow-up to keep the journal flowing.
  *        - Surfaces a recurring theme when the memory block shows one.

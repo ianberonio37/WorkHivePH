@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-08-24",
+        "dateModified": "2026-11-10",
         "mainEntityOfPage": "https://workhiveph.com/learn/spare-parts-inventory-philippine-plants/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -188,6 +188,7 @@
     .answer-first { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: var(--wh-fs-lead, 1.05rem); line-height: 1.75; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); }
     .callout { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: var(--wh-fs-md, 0.95rem); line-height: 1.7; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); }
     .callout strong { color: var(--wh-cyan-300, #A4E2F2); }
+    .callout p:last-child { margin-bottom: 0; }
     .cta-box { background: linear-gradient(135deg, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.85) 100%); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
     .cta-box .cta-eyebrow { color: var(--wh-orange,#F7A21B); font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 800; letter-spacing: 0.02em; margin-bottom: 8px; }
     .cta-box h3, .cta-box h4 { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 800; color: var(--wh-cloud,#F4F6FA); margin-bottom: 8px; }
@@ -334,13 +335,13 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
+      <span>Updated <time datetime="2026-11-10">10 Nov 2026</time></span>
       <span class="opacity-40">·</span>
       <span>10 min read</span>
     </div>
 
     <div class="answer-first">
-      <strong>Short answer:</strong> A working spare parts inventory in a Philippine plant needs three things: ABC classification so management time goes to the top 20 percent of SKUs that drive 80 percent of value, FIFO discipline on every shelf so shelf-life parts do not silently degrade, and reorder points calculated from real usage history so critical parts arrive before they are needed. Done well, this takes 20 to 25 percent off MTTR, because waiting for the part is 40 to 50 percent of it and a stocked shelf halves that.
+      <strong>Short answer:</strong> A working spare parts store needs three things. First, ABC classes, so your time goes to the 20 percent of parts that hold 80 percent of value. Second, first in, first out (FIFO) on every shelf, so parts do not age unseen. Third, reorder points built from real usage, so critical parts arrive in time. Done well, this takes 20 to 25 percent off MTTR. Waiting for the part is 40 to 50 percent of it, and a stocked shelf halves that.
     </div>
 
     <div class="audience-block">
@@ -373,21 +374,22 @@
 
     <div class="prose-wh">
 
-      <p>Run your spare parts inventory on three disciplines: ABC classification, FIFO on every shelf, and reorder points built from real usage history (ABC and reorder points follow APICS/ASCM CPIM methods). It matters because 40 to 50 percent of MTTR (mean time to repair) in Philippine plants is just waiting for the part to arrive, and a well-run storeroom cuts that.</p>
+      <p>Run your spare parts store on three habits: ABC classes, FIFO on every shelf, and reorder points from real usage. The ABC and reorder methods follow APICS/ASCM CPIM. It matters most in Philippine plants. There, 40 to 50 percent of MTTR (mean time to repair) is waiting for parts. A well-run storeroom cuts that.</p>
 
       <h2 id="why-storerooms-fail">Why most Philippine storerooms fail</h2>
       <p>Walk any Philippine plant storeroom and you will see the same four failures:</p>
       <ul>
-        <li><strong>Phantom inventory.</strong> The bin card says 12 bearings; the shelf has 3. The other 9 were used but never written off, or were issued without a withdrawal slip, or are sitting in another technician's toolbox. Phantom inventory is the #1 reason a planned repair stops mid-job.</li>
-        <li><strong>Dead inventory.</strong> 30 to 50 percent of SKUs have not moved in 12+ months. Some are obsolete (the asset they served was retired 4 years ago). Some are over-ordered (we panic-bought during a supplier crisis in 2022 and never used the rest).</li>
-        <li><strong>Wrong-shelf inventory.</strong> The part is there, but it is labelled wrong, or it is in the bin for the previous SKU code, or it migrated during a storeroom reorganisation in 2024. The technician spends 90 minutes looking for it.</li>
+        <li><strong>Phantom inventory.</strong> The bin card says 12 bearings; the shelf has 3. Someone used the other 9 and never wrote them off. Or the store issued them without a withdrawal slip. Or they sit in another technician's toolbox. Phantom inventory is the #1 reason a planned repair stops mid-job.</li>
+        <li><strong>Dead inventory.</strong> 30 to 50 percent of SKUs have not moved in 12+ months. Some are obsolete, because the plant retired their asset 4 years ago. Some come from over-ordering. We panic-bought in a 2022 supply crunch and never used the rest.</li>
+        <li><strong>Wrong-shelf inventory.</strong> The part is there, but the label is wrong. Or it sits in the bin for the old SKU code. Or it moved during a storeroom shake-up in 2024. The technician spends 90 minutes looking for it.</li>
         <li><strong>Expired inventory.</strong> Rubber O-rings, gaskets, greases, sealants, and batteries all have shelf lives of 1 to 3 years. After that they fail on installation. A storeroom that does not track date-received installs degraded parts as if they were new.</li>
       </ul>
-      <p>None of these failures are about the storeroom keeper being lazy. They are about the absence of three disciplines that the rest of this guide teaches: ABC classification, FIFO, and reorder points. With those three, the storeroom becomes a reliability asset. Without them, it becomes a place where ₱8M of capital quietly rots.</p>
+      <p>None of these failures are about the storeroom keeper being lazy. They come from three missing habits, which the rest of this guide teaches: ABC classes, FIFO and reorder points. With those three, the storeroom becomes a reliability asset. Without them, it becomes a place where ₱8M of capital quietly rots.</p>
 
       <h2 id="abc-analysis">ABC analysis explained with a worked example</h2>
-      <p>ABC analysis is a Pareto sort applied to spare parts. Sort every SKU by annual usage value (unit cost times annual quantity used). The top 20 percent of SKUs will almost always account for 70 to 85 percent of total spend. Those are A items. The next 30 percent are B items (about 15 percent of spend). The remaining 50 percent are C items (about 5 percent of spend).</p>
-      <p>Why this matters: each tier gets a different control regime, because spending equal management time on a ₱180,000 motor and a ₱25 cable tie is wasted effort.</p>
+      <p>ABC analysis is a Pareto sort applied to spare parts. Sort every SKU by its yearly spend. That is the unit cost times how many you use a year. The top 20 percent of SKUs will almost always account for 70 to 85 percent of total spend.</p>
+      <p>Those are A items. The next 30 percent are B items (about 15 percent of spend). The remaining 50 percent are C items (about 5 percent of spend).</p>
+      <p>Why this matters: each tier gets its own controls. Equal time on a ₱180,000 motor and a ₱25 cable tie wastes effort.</p>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
         <thead><tr><th>Tier</th><th>% of SKUs</th><th>% of value</th><th>Cycle count</th><th>Reorder review</th><th>Storage</th></tr></thead>
         <tbody>
@@ -396,7 +398,8 @@
           <tr><td><strong>C</strong></td><td>~50%</td><td>~5%</td><td>Annual</td><td>Visual ("bin is half")</td><td>Open bins</td></tr>
         </tbody>
       </table></div>
-      <p>Most Philippine plants have never done this sort. When they do it for the first time, they discover 3 to 5 obviously dead SKUs in their A tier (an asset retired but the spare still being held), and 30 to 50 dead SKUs in C tier (write-off candidates that should not even count toward inventory value). The first ABC analysis usually surfaces ₱500K to ₱2M of paper inventory that can be removed.</p>
+      <p>Most Philippine plants have never done this sort. The first time they do it, they find 3 to 5 dead SKUs in the A tier. The asset is gone, but the plant still holds its spare.</p>
+      <p>They also find 30 to 50 dead SKUs in the C tier. Those are write-offs that should not count toward stock value. The first ABC analysis usually finds ₱500K to ₱2M of paper stock you can remove.</p>
 
       <h2 id="fifo">FIFO discipline (it is paint, not software)</h2>
       <p>FIFO (First In First Out) means the oldest unit on the shelf gets picked first. It is critical for any spare with a shelf life:</p>
@@ -407,19 +410,19 @@
         <li>Sealants and adhesives: 6 months to 2 years</li>
         <li>Filters with treated media: 1 to 2 years</li>
       </ul>
-      <p>The mistake most plants make is treating FIFO as a software feature. It is not. FIFO is enforced with paint on the storeroom shelf label: every receipt gets a date-received written in permanent marker on the bag or box. The keeper picks from the oldest date first. The shelf is organised left-to-right by date. No app required.</p>
-      <p>A digital inventory tool then records the date-received in the database so the supervisor can run a "expiring in next 60 days" report monthly. The WorkHive Inventory tool does this automatically; any system you use should.</p>
+      <p>The mistake most plants make is treating FIFO as a software feature. It is not. You enforce FIFO with paint on the shelf label. Every receipt gets its date received, in permanent marker, on the bag or box. The keeper picks from the oldest date first. Arrange the shelf left to right by date. No app required.</p>
+      <p>A tool that logs the date can show, each month, what expires in the next 60 days. WorkHive's Inventory does not keep that date. So the marker on the bag is your record.</p>
 
       <h2 id="reorder-point">The reorder point formula</h2>
-      <p>For A items, the reorder point is the inventory level that triggers an automatic PO. The formula:</p>
+      <p>For A items, the reorder point is the stock level at which you raise a purchase order. The formula:</p>
       <pre tabindex="0">Reorder Point = (Average Daily Usage × Lead Time in Days) + Safety Stock</pre>
-      <p>Average Daily Usage and Lead Time both come from historical data, not from guesswork. If you have a digital logbook with parts-used entries, you already have the data. If you do not, this is one more reason to start a digital logbook (see <a href="/learn/start-digital-logbook-philippine-factory/">our 12-week rollout guide</a>).</p>
+      <p>Average Daily Usage and Lead Time both come from your past records, not guesswork. If your digital logbook lists the parts on each job, you already have the data. If you do not, this is one more reason to start a digital logbook (see <a href="/learn/start-digital-logbook-philippine-factory/">our 12-week rollout guide</a>).</p>
       <p>Safety Stock covers usage variability and supplier delays. A common rule:</p>
       <pre tabindex="0">Safety Stock = (Max Daily Usage − Average Daily Usage) × Lead Time</pre>
-      <p>For B items, periodic review is enough: review weekly, order back up to a target level. For C items, visual review at the bin is enough: when the bin looks half-full, order more.</p>
+      <p>For B items, a regular review is enough. Check them each week and order back up to a target level. For C items, visual review at the bin is enough: when the bin looks half-full, order more.</p>
 
       <h2 id="worked-example">Worked example: a bearing in a Cabuyao plant</h2>
-      <p>A food-processing plant in Cabuyao uses a specific 6205-2RS deep-groove bearing across 14 motors in its conveyor system. The supervisor wants to set a reorder point.</p>
+      <p>A food plant in Cabuyao uses one 6205-2RS deep-groove bearing on 14 conveyor motors. The supervisor wants to set a reorder point.</p>
       <p>From the WorkHive Logbook, the past 12 months show:</p>
       <ul>
         <li>156 bearings used across 14 motors (average 13 per month, 0.43 per day)</li>
@@ -431,37 +434,41 @@
 Max Daily Usage     = 22 / 30 = 0.73 bearings/day
 Safety Stock        = (0.73 − 0.43) × 21 = 6.3 → round up to 7
 Reorder Point       = (0.43 × 21) + 7 = 9 + 7 = 16 bearings</pre>
-      <p>When the bin drops to 16, the PO triggers automatically. The 21-day lead time gets covered, plus a safety buffer for the December peak. The plant typically holds 30 to 40 of these on the shelf at month-end (above the safety stock but below the EOQ-derived maximum).</p>
+      <p>When the bin drops to 16, the PO triggers automatically. The 21-day lead time gets covered, plus a safety buffer for the December peak. The plant usually holds 30 to 40 of these at month-end. That is above the safety stock but below the maximum that EOQ sets.</p>
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
         <h3>WorkHive Inventory holds the reorder point and deducts parts as you log the job</h3>
-        <p>Each item carries a reorder point, and low-stock and critical-low flags ride into Alert Hub from there, so the trigger this guide describes is the one the product implements. The counting half is automatic too: closing a logbook entry with parts used cascades an inventory deduction and writes an <code>inventory_transactions</code> row as the per-movement record, so there is no second stock ledger to keep. What it does NOT do is the classification: there is no date-received field to drive FIFO and no ABC class computed for you, so the sort above and the paint-rotation discipline stay yours to run: use the reorder point to hold the A items and review the rest on the cycle this guide sets out. Free at the worker tier forever.</p>
+        <p>Each item carries a reorder point. Low-stock and critical-low flags go from there into Alert Hub. So the trigger this guide describes is the one the product uses. The counting is automatic too. Save a logbook entry with its parts, and it takes them off the shelf count. Each move also gets its own ledger row.</p>
+        <p>So you keep no second stock book. The Inventory page does not classify for you. It computes no ABC class and keeps no date received for FIFO. So the sort above and the marker-date rotation stay yours. Use the reorder point to hold the A items. Review the rest on this guide's cycle. Free at the worker tier forever.</p>
         <a href="/inventory.html" class="cta-btn">Open the Inventory</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
 
       <h2 id="mttr-link">Why this is the cheapest MTTR fix you can buy</h2>
-      <p>In our <a href="/learn/mtbf-vs-mttr-for-supervisors/"><abbr title="mean time between failures">MTBF</abbr> vs MTTR guide</a> we showed a Pampanga beverage-line conveyor with MTTR of 3.17 hours, of which 42 percent was waiting for the part to arrive. That pattern is the common one: on a plant without a disciplined store, a large share of total MTTR is parts-waiting rather than work time: which is why the reorder point, not the technician, is usually the thing to fix. Measure the split on your own repairs before you size the fix.</p>
-      <p>This means that for every hour you reduce parts-waiting time, you reduce MTTR by roughly 25 minutes. Compare cost-per-hour saved:</p>
+      <p>Our <a href="/learn/mtbf-vs-mttr-for-supervisors/"><abbr title="mean time between failures">MTBF</abbr> vs MTTR guide</a> showed a conveyor on a Pampanga bottling line. Its MTTR was 3.17 hours, and 42 percent of that was waiting for the part.</p>
+      <p>That pattern is common. In a plant without a disciplined store, much of the MTTR is waiting for parts, not work. That is why you usually fix the reorder point, not the technician. Measure the split on your own repairs before you size the fix.</p>
+      <p>So about 25 minutes of every repair hour went to waiting for parts. Compare cost-per-hour saved:</p>
       <ul>
-        <li><strong>Hiring a second electrician for a 24/7 shift</strong> to reduce wait-for-skill time: PHP 600,000 to PHP 900,000 per year.</li>
-        <li><strong>Buying a CMMS (computerized maintenance management system) work-order system</strong> to reduce admin time: PHP 200,000 to PHP 1.2M per year in licenses.</li>
-        <li><strong>Fixing the storeroom</strong> with ABC, FIFO, and reorder points: usually free (one supervisor weekend + ongoing 30 minutes per month).</li>
+        <li><strong>Hiring a second electrician for a 24/7 shift</strong> to cut waiting for skills: PHP 600,000 to PHP 900,000 a year.</li>
+        <li><strong>Buying a CMMS (maintenance software)</strong> to cut admin time: PHP 200,000 to PHP 1.2M a year in licenses.</li>
+        <li><strong>Fixing the storeroom</strong> with ABC, FIFO and reorder points: usually free. It takes one supervisor weekend, then 30 minutes a month.</li>
       </ul>
-      <p>The storeroom fix is almost always the cheapest hour of MTTR reduction available. It is also the one most plants put off because nobody owns it. The maintenance supervisor thinks it is the storeroom keeper's job; the storeroom keeper thinks it is procurement's job; procurement thinks it is the supervisor's job. The fix is to assign the maintenance supervisor formal ownership of MRO inventory health, with 30 minutes monthly tied to the existing 5S walk.</p>
+      <p>The storeroom fix is almost always the cheapest hour you can take off MTTR. It is also the one most plants put off because nobody owns it. The maintenance supervisor thinks it is the storeroom keeper's job.</p>
+      <p>The keeper thinks it is procurement's job. Procurement thinks it is the supervisor's job. The fix: make the maintenance supervisor the owner of MRO stock health. Give it 30 minutes a month, tied to the 5S walk you already do.</p>
 
       <h2 id="common-mistakes">Common Philippine plant mistakes</h2>
       <ul>
-        <li><strong>Treating MRO inventory as a procurement metric.</strong> Procurement cares about price-per-PO; maintenance cares about availability. The two pull in opposite directions. MRO inventory health is a maintenance metric reported on the maintenance KPI (key performance indicator) sheet, not procurement.</li>
+        <li><strong>Treating MRO inventory as a procurement metric.</strong> Procurement cares about price-per-PO; maintenance cares about availability. The two pull in opposite directions. MRO stock health is a maintenance metric. It goes on the maintenance <abbr title="key performance indicator">KPI</abbr> sheet, not on procurement's.</li>
         <li><strong>Bulk-buying to get unit discount.</strong> A 15 percent discount on a 6-month supply of an item with 24-month shelf life is real money. The same discount on an item with 6-month shelf life is a guaranteed write-off in month 7.</li>
-        <li><strong>No write-off discipline.</strong> A part withdrawn from inventory but not used is supposed to be returned and re-shelved with a "previously issued" note. In practice, technicians keep it in their toolbox, and the system shows the part as still on the shelf. Quarterly reconciliation between bin card and shelf catches this.</li>
-        <li><strong>One reorder point set in 2019.</strong> Usage patterns change. ABC classification should be recomputed annually; reorder points should be recomputed quarterly on A items.</li>
-        <li><strong>No supplier diversification on A items.</strong> If the only supplier for a critical bearing is on a 60-day lead time from Manila and they have a strike, your plant stops. Two suppliers for every A item is the rule, even if one is more expensive.</li>
+        <li><strong>No write-off discipline.</strong> If a technician draws a part and does not use it, they should return it. The keeper re-shelves it with a "previously issued" note. In practice, technicians keep it in their toolbox, and the system shows the part as still on the shelf. Quarterly reconciliation between bin card and shelf catches this.</li>
+        <li><strong>One reorder point set in 2019.</strong> Usage patterns change. Redo the ABC classes once a year. Redo the reorder points on A items every quarter.</li>
+        <li><strong>No supplier diversification on A items.</strong> Say your only supplier for a critical bearing has a 60-day lead time from Manila. If they strike, your plant stops. The rule is two suppliers for every A item, even if one costs more.</li>
       </ul>
 
       <div class="callout">
-        <strong>The bigger picture:</strong> Good MRO inventory feeds MTTR (less waiting for parts), feeds MTBF (no installation of degraded parts), feeds <abbr title="overall equipment effectiveness">OEE</abbr> (less unplanned downtime), and feeds the plant's bottom line. It is one of the highest-ROI interventions available to a supervisor and one of the easiest to put off. Start with the storeroom walk-through and the first ABC sort. Most plants find the payback in the first 90 days.
+        <p><strong>The bigger picture:</strong> Good MRO stock cuts MTTR, since less time goes to waiting for parts. It lifts MTBF, since no aged parts go in. It lifts OEE through less unplanned downtime. And it shows on the bottom line.</p>
+        <p>It is one of the best returns a supervisor can get. It is also one of the easiest to put off. Start with the storeroom walk-through and the first ABC sort. Most plants find the payback in the first 90 days.</p>
       </div>
 
       <h2 id="faq">Frequently asked questions</h2>
@@ -524,7 +531,7 @@ Reorder Point       = (0.43 × 21) + 7 = 9 + 7 = 16 bearings</pre>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-10">10 Nov 2026</time></p>
     <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

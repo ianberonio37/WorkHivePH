@@ -39,7 +39,8 @@ CLAIMS = [
         "subject": re.compile(r"shift brain|shift planner|shift[- ]plan|shift'?s brief|briefs? per shift|no briefing yet", re.I),
         "except": re.compile(r"\bAMC\b|amc-orchestrator", re.I),
         "wording": re.compile(r"cron schedule|runs? on (?:a|the) (?:schedule|hour)|automatic schedule|auto-?generate[sd]? at \d|"
-                              r"(?:runs?|generat\w+)[^.<]{0,40}\bat 06:00|three briefs a day|on a fixed cadence", re.I),
+                              r"(?:runs?|generat\w+)[^.<]{0,40}\bat 06:00|three briefs a day|on a fixed cadence|"
+                              r"\bpg_cron\b|triggered by (?:a )?cron|at each shift change \(\d", re.I),
         "needs_function": "shift-planner-orchestrator",
     },
 ]
@@ -128,6 +129,12 @@ def _self_test() -> int:
         fails.append("shift times alone are not a claim that a job runs")
     if not check_text("Your supervisor needs to generate one. The automatic schedule runs at 06:00 once enabled. No briefing yet.", set()):
         fails.append("the old empty-state wording must fail")
+    if not check_text("- Shift Brain (shift-brain.html): Autonomous shift planner. Triggered by pg_cron at the Filipino "
+                      "3-shift boundaries (06:00 / 14:00 / 22:00 PHT).", set()):
+        fails.append("the assistant's old platform-context line (Triggered by pg_cron) must fail")
+    if not check_text("- Shift Brain (shift-brain.html): Autonomous shift planner. At each shift change (06:00, 14:00, "
+                      "22:00 PHT) the orchestrator runs four sub-agents in parallel.", set()):
+        fails.append("the companion's old line (At each shift change (06:00 ...) the orchestrator runs) must fail")
     if check_text("The AMC brief is generated daily at 06:00 PHT by amc-orchestrator.", set()):
         fails.append("the AMC daily brief is a different job, and it is scheduled")
     print("FAIL schedule-claims-match-cron self-test - " + "; ".join(fails) if fails

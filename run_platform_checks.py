@@ -14246,6 +14246,18 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "reply-language-matches-persona",
+        "script":  "tools/validate_reply_language_matches_persona.py",
+        "args":    [],
+        # ★THE COMPANION REPLIES IN ENGLISH; SIX SURFACES SAID IT ANSWERS IN YOURS (2026-11-10, found rewriting the AI
+        # Assistant guide). persona.ts: "UNDERSTAND any of these. Always REPLY in English" - yet voice-journal.html's
+        # description, the companion's own platform knowledge and three learn guides promised a reply "in the language
+        # you used", and one printed a Taglish reply as its worked example. Tied to persona.ts: lift the rule, the gate lifts.
+        "label":   "no shipped page promises an AI reply in the speaker's language while persona.ts says 'Always REPLY in English'",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "listing-hold-disclosed",
         "script":  "tools/validate_listing_hold_disclosed.py",
         "args":    [],
