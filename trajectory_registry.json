@@ -1247765,8 +1247765,8 @@
     },
     {
       "id": "CF242",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - voice journal · a signed-out visitor: B3 67% - sentences=4 · >20w=0 · passive=1 · grade>8=0",
       "pages": [
@@ -1247826,7 +1247826,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on voice journal for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on voice journal for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:07"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on voice-journal.html as anon after the find of 2026-10-13T12:58 (voice-journal: B3 67% - sentences=4 · >20w=0 · passive=1 · grade>8=0) - tools/family_rubric_sweep.mjs --anon (voice-journal.html, 2026-11-11T14:06, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {

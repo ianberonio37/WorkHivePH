@@ -460936,7 +460936,7 @@
     {
       "id": "W41111",
       "wave": "W4",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/voice-to-text-maintenance-philippine-plant-floor/index.html",
         "index.html",
@@ -461207,12 +461207,31 @@
       "lens_sha": "b89b42a7b335",
       "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): anon at phone-390 in en, vertical a search result for a learn article, cast anon. 4 page(s) surveyed live, denied=false on all. 20 failing dim(s). 2 of 4 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: hive 91 dims, 7 sub-100 | index 91 dims, 7 sub-100 | voice-journal 91 dims, 3 sub-100 | voice-to-text-maintenance-philippine-plant-floor 91 dims, 3 sub-100.",
       "banked_at": "2026-10-13T12:58:11",
-      "banked_at_note": "upper bound, backfilled: banked before this moment (the field was added 2026-10-13)"
+      "banked_at_note": "upper bound, backfilled: banked before this moment (the field was added 2026-10-13)",
+      "improvement_refs": [
+        "CF60 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF61 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF103 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF106 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF210 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF242 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF243 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF246 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF303 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF304 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF305 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF306 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF309 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF310 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF312 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF374 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF417 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)"
+      ]
     },
     {
       "id": "W41112",
       "wave": "W4",
-      "status": "critiqued",
+      "status": "improving",
       "pages": [
         "learn/voice-to-text-maintenance-philippine-plant-floor/index.html",
         "index.html",
@@ -461491,7 +461510,27 @@
       "lens_sha": "b89b42a7b335",
       "clean_note": "One in-motion MCP walk, banked onto 1 row(s) that share its cell, page path, language, condition and moment (they differ only in which hive's data sits behind the screens - see tools/critic_walk_groups.py). 1-row critic walk (batch, critic_walk_batch.mjs): anon at narrow-320 in en, vertical a search result for a learn article, cast anon. 4 page(s) surveyed live, denied=false on all. 21 failing dim(s). 2 of 4 page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run. Surveyed: hive 91 dims, 8 sub-100 | index 91 dims, 7 sub-100 | voice-journal 91 dims, 3 sub-100 | voice-to-text-maintenance-philippine-plant-floor 91 dims, 3 sub-100.",
       "banked_at": "2026-10-13T12:58:11",
-      "banked_at_note": "upper bound, backfilled: banked before this moment (the field was added 2026-10-13)"
+      "banked_at_note": "upper bound, backfilled: banked before this moment (the field was added 2026-10-13)",
+      "improvement_refs": [
+        "CF60 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF61 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF103 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF106 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF210 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF242 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF243 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF246 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF303 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF304 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF305 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF306 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF307 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF309 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF310 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF312 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF374 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)",
+        "CF417 (Wave CF: the defect re-graded clean at phone and desktop, gate cf-rows-hold, 2026-11-11)"
+      ]
     },
     {
       "id": "W41114",
