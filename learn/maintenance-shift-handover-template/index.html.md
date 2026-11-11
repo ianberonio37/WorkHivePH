@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 10 Nov 2026
+Updated 11 Nov 2026
 ·
 9 min read
 
@@ -98,7 +98,7 @@ Without the note, the line walk would start at 7 AM. The supervisor would hear t
 | **Multi-audience (plant mgr, reliability, safety)** | No (only the binder) | Yes (shared dashboard) |
 | **Survives technician turnover** | No | Yes |
 | **DOLE OSHS audit response** | Manual photocopy | PDF export in seconds |
-| **Cost** | Notebook + pen | Free with a free tool, or ₱20-200/user/month for a paid CMMS |
+| **Cost** | Notebook + pen | Free with a free tool. A paid CMMS (computerized maintenance management system) costs more. That runs ₱20-200 a user a month. |
 
 **Where paper still wins.** Every row above favours digital. A table that only goes one way deserves some doubt. Paper needs no battery, no signal and no login. It works in a wash-down area, where nobody sensible brings a phone. It works in a power cut, which is often when a handover matters most.
 
@@ -174,4 +174,4 @@ The logbook captures individual events as they happen during the shift. The hand
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 95a2ab97cb21db3f -->
+<!-- md-twin source-sha: 7f76e5e5d7b7ae8f -->

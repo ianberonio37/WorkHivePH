@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 10 Nov 2026
+Updated 11 Nov 2026
 ·
 10 min read
 
@@ -114,7 +114,7 @@ That pattern is common. In a plant without a disciplined store, much of the MTTR
 So about 25 minutes of every repair hour went to waiting for parts. Compare cost-per-hour saved:
 
 - **Hiring a second electrician for a 24/7 shift** to cut waiting for skills: PHP 600,000 to PHP 900,000 a year.
-- **Buying a CMMS (maintenance software)** to cut admin time: PHP 200,000 to PHP 1.2M a year in licenses.
+- **Buying a CMMS (computerized maintenance management system)** to cut admin time. Licenses run PHP 200,000 to PHP 1.2M a year.
 - **Fixing the storeroom** with ABC, FIFO and reorder points: usually free. It takes one supervisor weekend, then 30 minutes a month.
 
 The storeroom fix is almost always the cheapest hour you can take off MTTR. It is also the one most plants put off because nobody owns it. The maintenance supervisor thinks it is the storeroom keeper's job.
@@ -129,7 +129,7 @@ The keeper thinks it is procurement's job. Procurement thinks it is the supervis
 - **One reorder point set in 2019.** Usage patterns change. Redo the ABC classes once a year. Redo the reorder points on A items every quarter.
 - **No supplier diversification on A items.** Say your only supplier for a critical bearing has a 60-day lead time from Manila. If they strike, your plant stops. The rule is two suppliers for every A item, even if one costs more.
 
-**The bigger picture:** Good MRO stock cuts MTTR, since less time goes to waiting for parts. It lifts MTBF, since no aged parts go in. It lifts OEE through less unplanned downtime. And it shows on the bottom line.
+**The bigger picture:** Good MRO stock cuts MTTR, since less time goes to waiting for parts. It lifts MTBF, since no aged parts go in. It lifts OEE (overall equipment effectiveness) through less unplanned downtime. And it shows on the bottom line.
 
 It is one of the best returns a supervisor can get. It is also one of the easiest to put off. Start with the storeroom walk-through and the first ABC sort. Most plants find the payback in the first 90 days.
 
@@ -169,4 +169,4 @@ No, not for plants with fewer than 1,000 SKUs. A clean spreadsheet or the free W
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 0309d18b08d22f32 -->
+<!-- md-twin source-sha: e76912a804168355 -->

@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 10 Nov 2026
+Updated 11 Nov 2026
 ·
 7 min read
 
@@ -101,7 +101,7 @@ Cross-hive access exists, but only through clear, named permissions with a set s
 Filipino conglomerates often run 3 to 20 plants across the country. The pattern that works:
 
 - **Each plant is its own hive.** Each plant runs its own day. Its supervisor manages its members and PM schedule.
-- **There is no group layer yet.** A corporate roll-up across child hives is on the roadmap, not in the product. It would be one dashboard with PM compliance, MTBF, MTTR and OEE for every plant. Today, a director who wants that comparison collects it plant by plant. Worth knowing before you plan a rollout around it.
+- **There is no group layer yet.** A corporate roll-up across child hives is on the roadmap, not in the product. It would be one dashboard for every plant. It would show PM compliance and MTBF (mean time between failures). It would show MTTR (mean time to repair) too. And OEE (overall equipment effectiveness). Today, a director who wants that comparison collects it plant by plant. Worth knowing before you plan a rollout around it.
 - **Per-plant benchmarking** becomes natural. Plant A's PM compliance is 87 percent; Plant B's is 62 percent. The corporate team can see the gap and dispatch help.
 
 **The bigger picture:** The hive is not just a workspace; it is the trust boundary. Plants adopt WorkHive because the boundary is real. The database holds it. Workers join hives because their skill badges sit under their own name. The badges stay with them when they leave. The plant's records stay with the plant. That is the same boundary, seen from the other side. A free industrial platform needs both halves of that trust to work in the Philippines. Data here is sensitive. And cloud software still has to earn people's trust.
@@ -140,4 +140,4 @@ Each site is its own hive. The parent company can create a hive group that lets 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 1823db1ff21be079 -->
+<!-- md-twin source-sha: f0bbca58651b8507 -->

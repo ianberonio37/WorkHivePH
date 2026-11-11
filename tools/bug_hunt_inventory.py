@@ -69,6 +69,11 @@ through the claude.ai Supabase connector (read-only) into the committed supabase
      (2026-10-26, Ian's own hands)          manifest / apple-touch-icon declares wrongly, and the launch itself
   AN the hub's panel opens off the screen   per hub host x 2: opened where the FAB rests, opened after the FAB is
      (2026-10-26, Ian's own hands)          dragged to the top - while nav-hub.js anchors the panel by `bottom`
+  AQ a record time a member can rewrite     per (table, time column): a signed-in member may UPDATE the column and no
+     (2026-11-11, the M13 claim audit)      BEFORE UPDATE trigger puts the old value back - a worker moved their own
+                                            logbook entry's created_at to 2020 through the API. Read from
+                                            record_time_pin_evidence.json (tools/record_time_pins.py), whose `seeded`
+                                            list is the population as measured before the fix
 The Vercel email (Deployment Storage, 75% of 10 GB, 2026-10-13) is the one class N already holds.
 
 Only PRODUCTION pages seed rows (LX_NON_PRODUCTION, per Ian 2026-09-30). Deterministic: source regexes and committed
@@ -98,6 +103,7 @@ DESIGN_BASELINE = ROOT / "design_detector_baseline.json"
 ADVISOR = ROOT / "supabase_advisor_evidence.json"   # P..Y, read from production's advisor (tools/supabase_advisor_evidence.py)
 FREE_PLAN = ROOT / "free_plan_evidence.json"        # Z..AE, the two free plans (tools/free_plan_evidence.py)
 RELEASE_FOLLOWUP = ROOT / "release_followup_evidence.json"   # AF..AL, what the 2026-10-24 release left open
+RECORD_TIMES = ROOT / "record_time_pin_evidence.json"   # AQ, the record times a member can rewrite (tools/record_time_pins.py)
 MANIFEST = ROOT / "manifest.json"                   # AM, the icon the home screen gets and the control that puts it there
 NAV_HUB = ROOT / "nav-hub.js"                       # AN, the panel's geometry
 
@@ -451,6 +457,9 @@ def collect(sources: dict | None = None) -> list[dict]:
         sites += hub_panel_sites()
         sites += client_prompt_sites()
         sites += client_steering_sites()
+    # AQ - the record times a signed-in member can rewrite (2026-11-11), from record_time_pin_evidence.json
+    if sources is None and RECORD_TIMES.exists():
+        sites += record_time_sites(json.loads(RECORD_TIMES.read_text(encoding="utf-8")))
     sites.sort(key=lambda s: (s["cls"], s["page"], s["line"], s["key"]))
     return sites
 
@@ -816,6 +825,25 @@ def client_steering_sites() -> list[dict]:
     return out
 
 
+def record_time_sites(ev: dict) -> list[dict]:
+    """AQ - one site per (table, time column) a signed-in member could rewrite when it was measured. The population is
+    the evidence's `seeded` snapshot, not today's open cells, so a cell fixed later keeps its row (the replay rule).
+    A created_at cell is the record's own birth time; a domain cell (completed_at, closed_at, approved_at, resolved_at,
+    recorded_at) is a time the product sets on a state change and a report reads - PM compliance, MTTR, approvals."""
+    out = []
+    for c in ev.get("seeded", []):
+        t, col = c["table"], c["column"]
+        if col == "created_at":
+            what = (f"public.{t}.created_at - when the record was made - can be moved by any signed-in member the table "
+                    f"lets update the row; nothing puts the old value back and nothing records the change")
+        else:
+            what = (f"public.{t}.{col} is a time the product sets when the record changes state, and a signed-in member "
+                    f"the table lets update the row can set it to any moment; the reports that read it believe it")
+        out.append({"cls": "AQ", "page": "index.html", "line": 0, "key": f"{t}.{col}", "persona": "worker",
+                    "detail": what + f" (measured {ev.get('read', '?')}, {ev.get('source', 'record_time_pins.py')})"})
+    return out
+
+
 def advisor_sites(ev: dict) -> list[dict]:
     """One site per finding in supabase_advisor_evidence.json. The walk is an API probe made as the person the defect
     exposes, so every row is met on the home and walked by platform staff (N's precedent)."""
@@ -966,11 +994,12 @@ def main() -> int:
                      ("AM", "an install icon a person cannot find        (layer F, per host / icon)"),
                      ("AN", "the hub's panel opens off the screen        (layer F, per host x 2)"),
                      ("AO", "a client assembly no reader reads           (layer AV, per read)"),
-                     ("AP", "steering the companion never receives      (layer AV, per anchor)")):
+                     ("AP", "steering the companion never receives      (layer AV, per anchor)"),
+                     ("AQ", "a record time a member can rewrite         (layer D, per table x column)")):
         print(f"    {c} · {label}: {by_cls.get(c, 0)}")
     print()
     for c in list("DEFGHJKLMNPQRSTUVWXY") + ["Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL",
-                                             "AM", "AN", "AO", "AP"]:
+                                             "AM", "AN", "AO", "AP", "AQ"]:
         rows = [s for s in sites if s["cls"] == c]
         if not rows:
             continue

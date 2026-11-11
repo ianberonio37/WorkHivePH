@@ -14271,6 +14271,20 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "record-time-pins",
+        "script":  "tools/record_time_pins.py",
+        "args":    ["--check"],
+        # ★"CAN THE ENTRY BE BACKDATED?" - THE GUIDE SAID NO, THE DATABASE SAID YES (2026-11-11, BRH-AQ, BRH730..813).
+        # The M13 claim audit of the digital-logbook guide: a worker, signed in, moved their own open entry's created_at
+        # to 2020 through the API, and nothing recorded it. Supabase grants `authenticated` UPDATE on every column, so on
+        # all 70 member-updatable tables created_at was writable. 20261111000001 pins it (wh_pin_created_at). Reads the
+        # LOCAL database: no open created_at cell; the 15 domain times (completed_at, closed_at, approved_at,
+        # resolved_at, recorded_at) forward-only against record_time_pin_evidence.json; plus a rolled-back member probe.
+        "label":   "no record time a signed-in member can rewrite: every member-updatable created_at is pinned, domain times only shrink, and a member's backdate of their own logbook entry does not hold",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "retired-predictive-not-described",
         "script":  "tools/validate_retired_predictive_not_described.py",
         "args":    [],

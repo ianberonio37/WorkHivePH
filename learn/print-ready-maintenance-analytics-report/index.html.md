@@ -27,7 +27,7 @@ Who this is for
 
 The Analytics Report is the printable output of WorkHive's Analytics Engine. It reads your logbook and PM completions. So a plant in the Laguna Technopark starts the month's review from a document. Nobody retypes figures the night before.
 
-The KPI strip has four tiles, each green, amber or red against its own threshold:
+The KPI (key performance indicator) strip has four tiles. Each turns green, amber or red against its own threshold:
 
 - **PM Compliance**, as a percentage
 - **Fleet MTBF (mean time between failures)**, in days (the metrics guides work in hours)
@@ -113,4 +113,4 @@ No. It is free, and it is built from the records you already keep.
 - DOLE OSHS - Department of Labor and Employment - Occupational Safety and Health Standards
 - Related WorkHive guides: [The 4 phases of maintenance analytics](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/) · [DOLE and ISO audit trail](https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/) · [What is OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 
-<!-- md-twin source-sha: cad5e450f26386e9 -->
+<!-- md-twin source-sha: 741fda98b9c406aa -->

@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 10 Nov 2026
+Updated 11 Nov 2026
 ·
 9 min read
 
@@ -120,7 +120,7 @@ Engineering availability is the cleanest combined metric:
 
 For the Cabuyao pump example: `1,091 / (1,091 + 4) = 99.6%`
 
-That 99.6 percent looks excellent on paper. But the line that depends on this pump may still run at 50 percent OEE. The 4-hour repair always hits at the worst moment. Engineering availability does not capture criticality; it just captures up-time fraction.
+That 99.6 percent looks excellent on paper. But the line this pump feeds may still run at 50 percent. That is its OEE (overall equipment effectiveness). The 4-hour repair always hits at the worst moment. Engineering availability does not capture criticality; it just captures up-time fraction.
 
 This is why MTBF and MTTR alone are not enough. They feed OEE, RCM analysis and PM strategy. RCM means reliability-centered maintenance. Use them as inputs, not as the final scorecard.
 
@@ -185,4 +185,4 @@ No. A digital logbook with structured fault entries (asset name, fault time, res
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: c76b3ce72160c84f -->
+<!-- md-twin source-sha: 2c9745c8bc07e4fc -->

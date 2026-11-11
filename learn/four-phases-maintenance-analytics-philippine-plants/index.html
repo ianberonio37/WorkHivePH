@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-07-03",
-        "dateModified": "2026-08-24",
+        "dateModified": "2026-11-11",
         "mainEntityOfPage": "https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -59,9 +59,9 @@
           { "@type": "Question", "name": "What is the difference between descriptive and predictive analytics?", "acceptedAnswer": { "@type": "Answer", "text": "Descriptive analytics looks at what happened, while predictive analytics forecasts what will happen. In the context of Philippine plants, predictive analytics can help identify potential equipment failures before they occur." } },
           { "@type": "Question", "name": "How does WorkHive's Analytics Engine integrate with existing systems?", "acceptedAnswer": { "@type": "Answer", "text": "The engine reads the logbook entries and PM completions your team already writes, so there is no second system to keep fed - the analysis is built from the record, not from a separate data entry step." } },
           { "@type": "Question", "name": "What is the role of ISO 14224 in maintenance analytics?", "acceptedAnswer": { "@type": "Answer", "text": "ISO 14224 provides guidelines for reliability and maintenance data collection and analysis. It is an important standard for ensuring data accuracy and consistency in Philippine plants." } },
-          { "@type": "Question", "name": "Can WorkHive's Analytics Engine be used for small-scale plants?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, the engine can be used for small-scale plants. It is designed to be flexible and adaptable to different plant sizes and operations." } },
-          { "@type": "Question", "name": "How does the engine handle data from different equipment types?", "acceptedAnswer": { "@type": "Answer", "text": "The engine can handle data from various equipment types, including rotating equipment, electrical systems, and mechanical systems. It provides a comprehensive view of plant operations and performance." } },
-          { "@type": "Question", "name": "What kind of support does WorkHive offer for Analytics Engine users?", "acceptedAnswer": { "@type": "Answer", "text": "WorkHive provides technical support and training for Analytics Engine users. This ensures that users can maximize the engine's capabilities and get the most out of their data." } }
+          { "@type": "Question", "name": "Can a small plant use WorkHive's Analytics Engine?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It needs only logbook entries and PM completions, so a team of three can use it. The figures get sharper as the record grows." } },
+          { "@type": "Question", "name": "How does the engine handle data from different equipment types?", "acceptedAnswer": { "@type": "Answer", "text": "It reads every logbook entry and PM completion, whatever the asset. Discipline chips split the results into Mechanical, Electrical, Instrumentation and the rest." } },
+          { "@type": "Question", "name": "What kind of support does WorkHive offer for Analytics Engine users?", "acceptedAnswer": { "@type": "Answer", "text": "The guides on this site explain each tab. For anything else, email admin@workhiveph.com." } }
         ]
       },
       {
@@ -202,16 +202,16 @@
       <span>6 min read</span>
     </div>
 
-    <div class="answer-first"><strong>Short answer:</strong> Maintenance analytics comes in four phases, and a plant can only stand on one at a time: descriptive (what happened), diagnostic (why), predictive (what will), prescriptive (what to do about it). WorkHive's Analytics Engine computes all four from the logbook entries and PM completions a team already writes, which is what decides how far up the four a plant can actually get. The metrics underneath are the standard ones: <strong>ISO 14224</strong> for how failure data is collected, and the <strong>SMRP</strong> benchmark of <strong>90 percent</strong> PM compliance as the leading indicator that moves the rest.</div>
+    <div class="answer-first"><strong>Short answer:</strong> Maintenance analytics has four phases. Descriptive says what happened. Diagnostic asks why. Predictive looks at what is likely next. Prescriptive says what to do. WorkHive's Analytics page has a tab for each one. Every tab reads the logbook and PM records your team already keeps. Pick a period of 30, 90 or 180 days, or 1 year. The PM compliance tile turns green at 85 percent.</div>
 
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
       <ul>
-        <li>Reliability engineers who want to know which phase their data can actually support</li>
-        <li>Supervisors reading KPI tiles that have to mean something at the morning huddle</li>
+        <li>Reliability engineers who want to know which phase their data supports</li>
+        <li>Supervisors who read KPI (key performance indicator) tiles at the huddle</li>
         <li>Planners who need a Pareto of causes before they re-cut the PM schedule</li>
-        <li>Plant managers deciding whether to buy prediction or fix the record first</li>
-        <li>Technicians whose logbook entries are the only input every number here is built from</li>
+        <li>Plant managers choosing between buying prediction and fixing the record</li>
+        <li>Technicians whose logbook entries feed every number here</li>
         <li>Anyone who has been sold a dashboard before the plant had data to put in it</li>
       </ul>
     </div>
@@ -229,41 +229,45 @@
     </div>
 
     <div class="prose-wh">
-      <div class="callout">Part of the <a href="/learn/maintenance-metrics-reliability-guide/">maintenance metrics guide: OEE, MTBF, MTTR and reliability</a>: the hub that connects every reliability metric and shows how they chain together.</div>
+      <div class="callout">Part of the <a href="/learn/maintenance-metrics-reliability-guide/">maintenance metrics guide</a>. That hub links every reliability metric and shows how they connect.</div>
 
       <h2 id="introduction">What is maintenance analytics?</h2>
-      <p>Maintenance analytics is what a plant can say about its own equipment from the records it keeps - and how far it can say it depends entirely on how good those records are. WorkHive's Analytics Engine takes logbook entries and PM completions as its only inputs and computes MTBF, MTTR, Availability, OEE, PM compliance and a Pareto of failure causes from them. Nothing else is typed; if the entries are thin, so is every number below.</p>
-      <p>The Analytics Engine is designed to guide maintenance teams through four phases of analytics maturity: descriptive, diagnostic, predictive, and prescriptive analytics. The <strong>Descriptive</strong> phase provides a snapshot of what has happened, through live KPI tiles. The <strong>Diagnostic</strong> phase delves into why things happened, using Pareto and root-cause analysis. The <strong>Predictive</strong> phase forecasts what might happen, through failure risk and forecast tools. Finally, the <strong>Prescriptive</strong> phase recommends what to do next, via an AI-driven action plan. This structured approach ensures that maintenance teams can systematically improve their operations.</p>
-      <p>WorkHive's Analytics Engine is built with industry standards in mind, including ISO 14224 and ISA-101. It offers a zero-budget, no-CMMS (computerized maintenance management system) rollout solution that gets richer as your logbook grows. By starting with logbook entries, plants can begin their analytics journey without significant upfront investment. The engine's outputs, such as Predictive Analytics, Asset Hub, and print-ready Analytics Reports, are all interconnected, providing a comprehensive view of maintenance performance. This holistic approach enables Philippine plants, such as those in Cabuyao or Batangas, to benchmark their performance against PH Industry Intelligence standards.</p>
-      <h2 id="descriptive-analytics">Descriptive Analytics: What Happened</h2>
-      <p>As a plant supervisor in the Philippines, you need to know what happened in your facility. WorkHive's Analytics Engine provides descriptive analytics to help you understand past events. The engine computes key performance indicators (KPIs) such as Mean Time Between Failures (MTBF) and Mean Time To Repair (MTTR) from logbook entries and preventive maintenance (PM) completions. Live KPI tiles display these metrics, giving you a clear picture of your plant's performance.</p>
-      <p>The Analytics Engine also calculates other important metrics, including Availability, Overall Equipment Effectiveness (OEE), and PM Compliance. A Pareto analysis helps identify the most common causes of equipment failures. You can view these metrics for different time periods by selecting '30 days', '90 days', '180 days', or '1 year' and clicking the '🔄 Refresh' button. This allows you to track changes in your plant's performance over time.</p>
-      <div class="callout"><strong>Worked example:</strong> A maintenance planner at a Philippine manufacturing plant used WorkHive's Analytics Engine to analyze equipment failures over the past 90 days. The planner selected the '90 days' option and clicked '🔄 Refresh' to view the live KPI tiles. The engine showed a low MTBF for a specific equipment, indicating a high failure rate. The planner then used this information to schedule a root-cause analysis.</div>
+      <p>Maintenance analytics is what a plant learns from its own records. How far it gets depends on how good those records are.</p>
+      <p>WorkHive's Analytics page takes two inputs: logbook entries and PM completions. Nobody types anything else. So if the entries are thin, every figure is thin too.</p>
+      <p>The page splits the work into four tabs, one per phase. Each tab names the standards it follows. Read them in order, because each phase needs the one before it.</p>
       <figure class="article-fig"><img src="/learn/four-phases-maintenance-analytics-philippine-plants/fig-1-step-flow.svg" alt="WorkHive Analytics Engine Flow. Logbook Entries. PM Completions. MTBF/MTTR Calculation. Live KPI Tiles" width="660" height="440" loading="lazy" /><figcaption>WorkHive Analytics Engine Flow</figcaption></figure>
+      <h2 id="descriptive-analytics">Descriptive Analytics: What Happened</h2>
+      <p>The Descriptive tab shows what happened in the period you pick. It follows ISO 14224 and the SMRP metrics. Its main tiles are:</p>
+      <ul>
+        <li><strong>MTBF</strong>: mean time between failures</li>
+        <li><strong>MTTR</strong>: mean time to repair</li>
+        <li><strong>OEE</strong>: overall equipment effectiveness</li>
+        <li><strong>Availability</strong>: the share of time the asset could run</li>
+        <li><strong>PM compliance</strong>: the share of due PM tasks done on time</li>
+      </ul>
+      <p>Below them sit failure counts, a downtime Pareto, parts use and repeat failures. Pick 30, 90 or 180 days, or 1 year, then tap Refresh. The PM compliance tile turns green at 85 percent and red below 70.</p>
+      <figure class="article-fig"><img src="/learn/four-phases-maintenance-analytics-philippine-plants/fig-2-bar.svg" alt="Pareto Analysis Example. ISO 14224 (2016). Equipment A. Equipment B. Equipment C" width="660" height="440" loading="lazy" /><figcaption>An example Pareto of failure causes. The bars are made up, and the failure types follow ISO 14224 (2016).</figcaption></figure>
+      <div class="callout"><p><strong>Worked example:</strong> A planner picks 90 days and taps Refresh. One pump shows a short MTBF, so it fails often. The planner books a root-cause review for it.</p></div>
       <h2 id="diagnostic-analytics">Diagnostic Analytics: Why It Happened</h2>
-      <p>In the <strong>Diagnostic</strong> phase of WorkHive Analytics, we analyze <strong>what happened</strong> and <strong>why</strong> it happened. This phase provides insights into the root causes of equipment failures and maintenance issues. For example, a round-the-clock schedule with changing personnel at 06:00, 14:00, and 22:00 can lead to variations in maintenance quality. The Analytics Engine helps identify these patterns.</p>
-      <p>The engine provides <strong>Pareto analysis</strong> to highlight the most common causes of failures. This information is crucial for maintenance teams to prioritize tasks and allocate resources effectively. By analyzing data from logbook entries and PM completions, the engine computes key metrics such as <strong>MTBF</strong>, <strong>MTTR</strong>, and <strong>Availability</strong>. These metrics help teams understand the impact of maintenance activities on equipment performance.</p>
-      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Diagnostic Analytics</th><th>WorkHive Capability</th></tr></thead><tbody><tr><td>Pareto Analysis</td><td>Identifies common causes of failures</td></tr><tr><td>Root-Cause Identification</td><td>Analyzes logbook entries and PM completions</td></tr><tr><td>Failure Mode Analysis</td><td>Computes MTBF, MTTR, and Availability metrics</td></tr></tbody></table></div>
-      <figure class="article-fig"><img src="/learn/four-phases-maintenance-analytics-philippine-plants/fig-2-bar.svg" alt="Pareto Analysis Example. ISO 14224 (2016). Equipment A. Equipment B. Equipment C" width="660" height="440" loading="lazy" /><figcaption>Illustrative Pareto of failure causes: the bars are an example, not measured data; the failure taxonomy follows ISO 14224 (2016).</figcaption></figure>
+      <p>The Diagnostic tab looks for causes. It follows the ISO 14224 failure taxonomy and SAE JA1011. It measures each link with a Spearman correlation.</p>
+      <p>It shows which failure modes come up most. It checks whether missed PMs line up with failures. It checks whether repair time tracks a technician's skill level. It also checks whether waiting for parts adds downtime.</p>
+      <p>It groups repeat failures, so one recurring fault stands out from many one-offs. It also sorts each failure by its RCM consequence. RCM means reliability-centered maintenance.</p>
       <h2 id="predictive-analytics">Predictive Analytics: What Will Happen</h2>
-      <p>The WorkHive Analytics Engine takes maintenance analytics to the next level with predictive analytics, enabling your team to anticipate and prepare for potential equipment failures. For instance, consider Pump P-204B in a Philippine plant. By analyzing historical data, the engine provides failure risk scores and forecasts, giving maintenance teams a proactive edge.</p>
-      <p>With the engine's predictive capabilities, you can assess the likelihood of equipment failure and prioritize maintenance activities accordingly. Risk scores are computed by a batch run at <strong>13:00 PHT each day</strong>, which is worth knowing before you distrust a figure: a score you read at nine in the morning reflects yesterday's evidence, not this morning's breakdown. A supervisor can skip the wait with the <strong>Recompute risk</strong> button, which re-runs the scoring for the hive on demand. It is supervisor-only, so if you are a technician and the numbers look stale, that is the person to ask. The engine's predictions are based on industry-recognized standards, such as ISO 14224, ensuring that your plant's maintenance practices are aligned with global best practices.</p>
-      <ol>
-  <li>Navigate to the <strong>Predictive</strong> tab to access failure risk scores and forecasts for your equipment.</li>
-  <li>Filter by risk band with the traffic-light chips &mdash; <strong>🔴 Critical</strong>, <strong>🟠 High</strong>, <strong>🟡 Medium</strong>, <strong>🟢 Low</strong> &mdash; or <strong>All</strong> to drop the filter. There are discipline chips beside them too (Mechanical, Electrical, Instrumentation, Hydraulic, Pneumatic, Lubrication), which is how you get from &ldquo;everything at risk&rdquo; to &ldquo;everything at risk that my team owns&rdquo;.</li>
-  <li>Click <strong>Show details</strong> to view more information on the predicted failures and plan maintenance activities.</li>
-</ol>
+      <p>The Predictive tab looks ahead. It follows ISO 13381-1, the standard for forecasting how equipment will wear. It shows a health score per asset, the next likely failure date and a failure trend. It also shows a PM due calendar and parts that may run out.</p>
+      <p>Risk scores come from a batch run at 13:00 PHT each day. So a score you read at nine in the morning reflects yesterday's evidence. A supervisor can tap Recompute risk to run it now. Only supervisors see that button, so ask yours if a score looks stale.</p>
+      <p>Two rows of chips filter every tab. One picks asset criticality: Critical, High, Medium or Low. The other picks a discipline, such as Mechanical, Electrical or Instrumentation. Together they take you from everything at risk to what your team owns.</p>
       <h2 id="prescriptive-analytics">Prescriptive Analytics: What to Do Next</h2>
-      <p>Prescriptive Analytics in WorkHive's Analytics Engine takes maintenance strategy to the next level. By analyzing data from logbook entries and PM completions, the engine provides AI-driven action plans. These plans help prioritize and schedule maintenance tasks effectively. For example, a plant in Calabarzon can use prescriptive analytics to identify the most critical assets that require immediate attention.</p>
-      <p>The engine's prescriptive analytics capability is built on industry-recognized standards such as ISO 14224 and ISA-101. This ensures that the recommended actions are aligned with best practices in reliability and maintenance. By using these standards, the engine can provide actionable insights that maintenance teams can trust. The <strong>Prescriptive</strong> tab in the Analytics Engine provides a clear and concise view of the recommended actions.</p>
-      <div class="callout"><strong>How to read a prescriptive recommendation:</strong> each one names the analysis it came from and the standard behind it: a PM interval suggestion cites SAE JA1011 &sect;7, a reorder recommendation comes from an inventory &times; PM cross-reference, a training-gap recommendation from MTTR &times; skill. Read the basis before you act on the advice, because the recommendation is only as good as the history underneath it, and on a thin logbook it will say so rather than guess. Be wary of any tool, this one included, that tells you it prevented a failure: the downtime that did not happen leaves no record, so that claim can never be checked.</div>
+      <p>The Prescriptive tab turns the other three into advice. It follows ISO 55000 and SAE JA1011. It builds an AI action plan and ranks assets by priority. It suggests PM intervals, parts to reorder, who to assign and where training is short.</p>
+      <p>Each recommendation names its source. A PM interval suggestion cites SAE JA1011 &sect;7. A reorder comes from parts use set against the PM plan. A training gap comes from repair times set against skill levels.</p>
+      <p>Read the basis before you act. Advice is only as good as the history under it, and on a thin logbook it says so. Be wary of any tool, this one too, that claims it prevented a failure. A failure that never happened leaves no record to check.</p>
       <h2 id="implementation">Implementation and Integration</h2>
-      <p>To implement and integrate WorkHive's Analytics Engine into existing plant operations, start by ensuring that your logbook entries and PM completions are up-to-date. This raw data is fed into the engine, which then computes key performance indicators such as MTBF, MTTR, Availability, OEE, PM Compliance, and Pareto. For instance, a Filipino <strong>Plant Supervisor</strong> can use the engine's <strong>Descriptive</strong> analytics to view live KPI tiles and quickly identify areas for improvement.</p>
-      <p>The Analytics Engine is designed to be interconnected, feeding predictive analytics, asset hub, and print-ready analytics reports. Click the <strong>'🔄 Refresh'</strong> button to update the data and ensure that your analytics are current. The engine also connects to <strong>PH Industry Intelligence</strong> benchmarks, providing a broader context for your plant's performance. By using these features, maintenance planners and reliability engineers can make evidence-backed choices to optimize plant operations.</p>
-      <p>With the Analytics Engine, you can move through the four phases of maintenance analytics - descriptive, diagnostic, predictive, and prescriptive - to gain a deeper understanding of your plant's performance. For example, click <strong>'Predictive'</strong> to view risk scores and forecast potential failures. The engine's <strong>'Prescriptive'</strong> analytics even provides an AI action plan, recommending specific actions to take next. By following these steps and utilizing the engine's features, you can improve maintenance outcomes and achieve industry-recognized standards such as ISO 14224 and SMRP.</p>
+      <p>Start with the record. The Analytics page needs no setup and no budget. You do not need a CMMS either. A CMMS is a computerized maintenance management system.</p>
+      <p>So the first job is a clean logbook. Log every failure, and close every PM when it is done. Then climb the phases in order. A prediction from a thin record is a guess with a chart on it.</p>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Phase</th><th>Question</th><th>What the tab shows</th></tr></thead><tbody><tr><td>Descriptive</td><td>What happened?</td><td>MTBF, MTTR, OEE, availability, PM compliance, a downtime Pareto</td></tr><tr><td>Diagnostic</td><td>Why?</td><td>Failure modes, PM and failure links, skill and repair time</td></tr><tr><td>Predictive</td><td>What is likely next?</td><td>Health scores, next failure dates, a PM due calendar, parts at risk</td></tr><tr><td>Prescriptive</td><td>What should we do?</td><td>An AI action plan, a priority list, PM, parts and training advice</td></tr></tbody></table></div>
+      <p>The Asset Hub and the Analytics Report read the same records.</p>
 
       <div class="tool-cta">
-        <p style="margin:0; font-size:var(--wh-fs-md, 0.95rem); color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85);"><strong>Open the tool:</strong> Analytics is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants.</p>
+        <p style="margin:0; font-size:var(--wh-fs-md, 0.95rem); color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85);"><strong>Open the tool:</strong> this guide leads to WorkHive's Analytics page. It is free at the worker tier and built for Philippine plants.</p>
         <a href="/analytics.html">Open Analytics &rarr;</a>
       </div>
 
@@ -271,9 +275,9 @@
       <details class="faq-item"><summary>What is the difference between descriptive and predictive analytics?</summary><div class="faq-answer">Descriptive analytics looks at what happened, while predictive analytics forecasts what will happen. In the context of Philippine plants, predictive analytics can help identify potential equipment failures before they occur.</div></details>
       <details class="faq-item"><summary>How does WorkHive's Analytics Engine integrate with existing systems?</summary><div class="faq-answer">The engine reads the logbook entries and PM completions your team already writes, so there is no second system to keep fed - the analysis is built from the record, not from a separate data entry step.</div></details>
       <details class="faq-item"><summary>What is the role of ISO 14224 in maintenance analytics?</summary><div class="faq-answer">ISO 14224 provides guidelines for reliability and maintenance data collection and analysis. It is an important standard for ensuring data accuracy and consistency in Philippine plants.</div></details>
-      <details class="faq-item"><summary>Can WorkHive's Analytics Engine be used for small-scale plants?</summary><div class="faq-answer">Yes, the engine can be used for small-scale plants. It is designed to be flexible and adaptable to different plant sizes and operations.</div></details>
-      <details class="faq-item"><summary>How does the engine handle data from different equipment types?</summary><div class="faq-answer">The engine can handle data from various equipment types, including rotating equipment, electrical systems, and mechanical systems. It provides a comprehensive view of plant operations and performance.</div></details>
-      <details class="faq-item"><summary>What kind of support does WorkHive offer for Analytics Engine users?</summary><div class="faq-answer">WorkHive provides technical support and training for Analytics Engine users. This ensures that users can maximize the engine's capabilities and get the most out of their data.</div></details>
+      <details class="faq-item"><summary>Can a small plant use WorkHive's Analytics Engine?</summary><div class="faq-answer">Yes. It needs only logbook entries and PM completions, so a team of three can use it. The figures get sharper as the record grows.</div></details>
+      <details class="faq-item"><summary>How does the engine handle data from different equipment types?</summary><div class="faq-answer">It reads every logbook entry and PM completion, whatever the asset. Discipline chips split the results into Mechanical, Electrical, Instrumentation and the rest.</div></details>
+      <details class="faq-item"><summary>What kind of support does WorkHive offer for Analytics Engine users?</summary><div class="faq-answer">The guides on this site explain each tab. For anything else, email admin@workhiveph.com.</div></details>
 
       <h2 id="sources">Sources</h2>
       <ul class="sources-list">
@@ -289,7 +293,7 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:var(--wh-blue-light,#5FCCE8);text-decoration:underline;text-underline-offset:2px;">admin@workhiveph.com</a> with corrections or contributions. · <span data-wh-freshness>Last updated <time datetime="2026-08-24">24 Aug 2026</time></span></p>
+    <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:var(--wh-blue-light,#5FCCE8);text-decoration:underline;text-underline-offset:2px;">admin@workhiveph.com</a> with corrections or contributions. · <span data-wh-freshness>Last updated <time datetime="2026-11-11">11 Nov 2026</time></span></p>
     <div class="flex gap-5" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/65 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/65 transition-colors" data-i="faq">FAQ</a>

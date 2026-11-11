@@ -20,8 +20,8 @@
   "stamped": "2026-11-10"
  },
  "autonomous-shift-planning-philippine-plants": {
-  "content_sha": "a711df7a5369bc45",
-  "stamped": "2026-11-10"
+  "content_sha": "e830278db438bff7",
+  "stamped": "2026-11-11"
  },
  "best-free-cmms-software-philippines": {
   "content_sha": "43ec08799113373e",
@@ -36,8 +36,8 @@
   "stamped": "2026-11-10"
  },
  "connecting-workhive-to-sap-maximo-cmms": {
-  "content_sha": "c1d0ac3e92b98d2f",
-  "stamped": "2026-11-10"
+  "content_sha": "6bdfeacdf4a2a2e4",
+  "stamped": "2026-11-11"
  },
  "dilo-wilo-day-planner-supervisors": {
   "content_sha": "19d0d3442b4d3a7e",
@@ -50,6 +50,14 @@
  "feedback": {
   "content_sha": "d54047c42ccd1a19",
   "stamped": "2026-11-03"
+ },
+ "fmea-worked-example-philippine-bottling-line": {
+  "content_sha": "b16cd46d62daed02",
+  "stamped": "2026-11-11"
+ },
+ "four-phases-maintenance-analytics-philippine-plants": {
+  "content_sha": "47d6a2a3865aed82",
+  "stamped": "2026-11-11"
  },
  "free-engineering-calculators-philippine-plants": {
   "content_sha": "f5ffd5d65a01c223",
@@ -68,8 +76,8 @@
   "stamped": "2026-11-10"
  },
  "joining-and-growing-your-hive": {
-  "content_sha": "f6a93d17bc7f06aa",
-  "stamped": "2026-11-10"
+  "content_sha": "b287c3e2e552bad6",
+  "stamped": "2026-11-11"
  },
  "learn": {
   "content_sha": "13112409d87fa6d0",
@@ -124,24 +132,24 @@
   "stamped": "2026-11-09"
  },
  "loto-procedures-dole-oshs-template": {
-  "content_sha": "c9c3eaee3c0694ac",
-  "stamped": "2026-10-27"
+  "content_sha": "7a13ab18b1bef004",
+  "stamped": "2026-11-11"
  },
  "maintenance-metrics-reliability-guide": {
   "content_sha": "a851d67afb9aca79",
   "stamped": "2026-10-27"
  },
  "maintenance-project-planning-template": {
-  "content_sha": "8fc091a9b1ff053a",
-  "stamped": "2026-11-10"
+  "content_sha": "d3371c2facf2548d",
+  "stamped": "2026-11-11"
  },
  "maintenance-shift-handover-template": {
-  "content_sha": "0d31646ba79b9d2a",
-  "stamped": "2026-11-10"
+  "content_sha": "ac7d35c2b17cf5e1",
+  "stamped": "2026-11-11"
  },
  "mtbf-vs-mttr-for-supervisors": {
-  "content_sha": "ed7148e9b229e9c1",
-  "stamped": "2026-11-10"
+  "content_sha": "e657f4c0158dc6f8",
+  "stamped": "2026-11-11"
  },
  "ph-plant-compliance-guide": {
   "content_sha": "ca62b7f26acf9194",
@@ -164,7 +172,7 @@
   "stamped": "2026-11-10"
  },
  "print-ready-maintenance-analytics-report": {
-  "content_sha": "acc7ea89617c6b72",
+  "content_sha": "8abe7412b696e9eb",
   "stamped": "2026-11-11"
  },
  "privacy-policy": {
@@ -179,25 +187,29 @@
   "content_sha": "228386d92b92c5c1",
   "stamped": "2026-11-10"
  },
+ "reliability-centered-maintenance-philippine-plants": {
+  "content_sha": "a6fd6c362e8d9ee2",
+  "stamped": "2026-11-11"
+ },
  "resume-builder-for-filipino-industrial-workers": {
   "content_sha": "fa3df269d0898725",
   "stamped": "2026-11-10"
  },
  "sensor-cmms-gateway-operations": {
-  "content_sha": "e572b6d46132b11c",
-  "stamped": "2026-11-10"
+  "content_sha": "11b880c59a1ef8ef",
+  "stamped": "2026-11-11"
  },
  "skill-matrix-for-maintenance-technicians": {
-  "content_sha": "5956e415b11f62e4",
+  "content_sha": "ba8a323d01626651",
   "stamped": "2026-11-11"
  },
  "spare-parts-inventory-philippine-plants": {
-  "content_sha": "df1cc16a3988611e",
-  "stamped": "2026-11-10"
+  "content_sha": "ee24d6c53d4a08ea",
+  "stamped": "2026-11-11"
  },
  "start-digital-logbook-philippine-factory": {
-  "content_sha": "5c2e66db26528aa8",
-  "stamped": "2026-11-10"
+  "content_sha": "67bcad34bbc2ae73",
+  "stamped": "2026-11-11"
  },
  "start-digital-maintenance-guide": {
   "content_sha": "0791a239a55bccb6",
@@ -206,6 +218,10 @@
  "terms-of-service": {
   "content_sha": "d8282db448fb018e",
   "stamped": "2026-11-10"
+ },
+ "tesda-nc-mapping-to-skill-matrix": {
+  "content_sha": "1f498fa4a5052f33",
+  "stamped": "2026-11-11"
  },
  "tools/ahu-sizing-calculator": {
   "content_sha": "6b3f963bba2cad0a",
@@ -276,8 +292,8 @@
   "stamped": "2026-11-02"
  },
  "vibration-analysis-on-a-phone-budget": {
-  "content_sha": "0df424ebcbee105f",
-  "stamped": "2026-10-27"
+  "content_sha": "f9da54b55ef031ae",
+  "stamped": "2026-11-11"
  },
  "vibration-isolation-calculator": {
   "content_sha": "ca37b1e344e2661f",

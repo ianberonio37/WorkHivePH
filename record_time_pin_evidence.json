@@ -1,0 +1,1017 @@
+{
+ "read": "2026-11-11",
+ "source": "local stack (docker psql), tools/record_time_pins.py",
+ "seeded": [
+  {
+   "table": "agent_episodic_memory",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "agent_followups",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "agent_followups",
+   "column": "resolved_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "agent_memory",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "ai_knowledge_gap",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "ai_quality_escalation",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "alert_dismissals",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "amc_briefings",
+   "column": "approved_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "anomaly_signals",
+   "column": "resolved_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "api_keys",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "asset_edges",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "asset_nodes",
+   "column": "approved_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "asset_nodes",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "bom_knowledge",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "calc_knowledge",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "community_posts",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "community_reactions",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "community_replies",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "companion_handoff",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "conversation_analytics",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "dialog_state",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "drone_inspections",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "engineering_calcs",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "fault_knowledge",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "hive_quotas",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "hive_service_settings",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "hives",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "integration_configs",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "inventory_items",
+   "column": "approved_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "inventory_items",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "inventory_transactions",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "knowledge_graph_facts",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "logbook",
+   "column": "closed_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "logbook",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_disputes",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_disputes",
+   "column": "resolved_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "marketplace_inquiries",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_listings",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_orders",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_reviews",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_saved_searches",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_sellers",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_watchlist",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "mentor_relay_queue",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "parts_records",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "pdf_jobs",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "platform_feedback",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "platform_feedback",
+   "column": "resolved_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "pm_assets",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "pm_completions",
+   "column": "completed_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "pm_knowledge",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "pm_scope_items",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "project_change_orders",
+   "column": "approved_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "project_change_orders",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "project_items",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "project_knowledge",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "project_links",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "project_progress_logs",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "projects",
+   "column": "closed_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "projects",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "push_subscriptions",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "rcm_fmea_modes",
+   "column": "approved_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "rcm_fmea_modes",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "rcm_strategies",
+   "column": "approved_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "rcm_strategies",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "report_contacts",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "resume_documents",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "schedule_items",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "sensor_readings",
+   "column": "recorded_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "sensor_topic_map",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_catalog",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_credit_topups",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_offers",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_providers",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_requests",
+   "column": "completed_at",
+   "state": "open",
+   "kind": "domain"
+  },
+  {
+   "table": "service_requests",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_vouchers",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "shared_voice_notes",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "shift_plans",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "skill_knowledge",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "sso_configs",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "tts_quality_log",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "voice_journal_entries",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  },
+  {
+   "table": "worker_profiles",
+   "column": "created_at",
+   "state": "open",
+   "kind": "created_at"
+  }
+ ],
+ "open_domain_allowed": [],
+ "cells": [
+  {
+   "table": "agent_episodic_memory",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "agent_followups",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "agent_followups",
+   "column": "resolved_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "agent_memory",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "ai_knowledge_gap",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "ai_quality_escalation",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "alert_dismissals",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "amc_briefings",
+   "column": "approved_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "anomaly_signals",
+   "column": "resolved_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "api_keys",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "asset_edges",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "asset_nodes",
+   "column": "approved_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "asset_nodes",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "bom_knowledge",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "calc_knowledge",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "community_posts",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "community_reactions",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "community_replies",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "companion_handoff",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "conversation_analytics",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "dialog_state",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "drone_inspections",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "engineering_calcs",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "fault_knowledge",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "hive_quotas",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "hive_service_settings",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "hives",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "integration_configs",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "inventory_items",
+   "column": "approved_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "inventory_items",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "inventory_transactions",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "knowledge_graph_facts",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "logbook",
+   "column": "closed_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "logbook",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_disputes",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_disputes",
+   "column": "resolved_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "marketplace_inquiries",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_listings",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_orders",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_reviews",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_saved_searches",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_sellers",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "marketplace_watchlist",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "mentor_relay_queue",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "parts_records",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "pdf_jobs",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "platform_feedback",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "platform_feedback",
+   "column": "resolved_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "pm_assets",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "pm_completions",
+   "column": "completed_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "pm_knowledge",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "pm_scope_items",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "project_change_orders",
+   "column": "approved_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "project_change_orders",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "project_items",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "project_knowledge",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "project_links",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "project_progress_logs",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "projects",
+   "column": "closed_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "projects",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "push_subscriptions",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "rcm_fmea_modes",
+   "column": "approved_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "rcm_fmea_modes",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "rcm_strategies",
+   "column": "approved_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "rcm_strategies",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "report_contacts",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "resume_documents",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "schedule_items",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "sensor_readings",
+   "column": "recorded_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "sensor_topic_map",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_catalog",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_credit_topups",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_offers",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_providers",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_requests",
+   "column": "completed_at",
+   "state": "pinned",
+   "kind": "domain"
+  },
+  {
+   "table": "service_requests",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "service_vouchers",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "shared_voice_notes",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "shift_plans",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "skill_knowledge",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "sso_configs",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "tts_quality_log",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "voice_journal_entries",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  },
+  {
+   "table": "worker_profiles",
+   "column": "created_at",
+   "state": "pinned",
+   "kind": "created_at"
+  }
+ ]
+}

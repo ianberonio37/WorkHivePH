@@ -7738,10 +7738,14 @@ document.getElementById('btn-export-csv').addEventListener('click', async () => 
   // Audit-grade columns (DOLE/ISO trail — Extension 3): WHO (Worker) + WHEN signed off (Closed At)
   // are compliance-critical and were missing, making the old export a field-dump rather than an
   // auditable record of who did what, to which asset, when it was signed off.
-  const cols = ['Date Logged','Worker','Machine/Asset','Category','Maintenance Type','Problem','Root Cause','Action Taken','Failure Consequence','LOTO Applied','Permit Ref','Knowledge','Downtime (hrs)','Status','Signed Off (Closed At)'];
+  const cols = ['Date Logged','Saved on Server','Worker','Machine/Asset','Category','Maintenance Type','Problem','Root Cause','Action Taken','Failure Consequence','LOTO Applied','Permit Ref','Knowledge','Downtime (hrs)','Status','Signed Off (Closed At)'];
   const esc  = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
   const rows = entries.map(e => [
     e.date ? whFmtDate(e.date, { time: true }) : '',
+    // BRH-AQ (2026-11-11): the server's own time beside the phone's. 'Date Logged' is the phone's clock at capture;
+    // created_at is set by the database when the entry arrives and no member can move it (20261111000001), so an
+    // auditor asking 'can this entry be backdated?' reads both - an offline entry shows the gap honestly.
+    e.created_at ? whFmtDate(e.created_at, { time: true }) : '',
     e.worker_name || '',
     e.machine, e.category, e.maintenance_type, e.problem,
     e.root_cause, e.action, e.failure_consequence,

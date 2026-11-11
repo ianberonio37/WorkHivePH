@@ -46,7 +46,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-05-17",
-      "dateModified": "2026-11-10",
+      "dateModified": "2026-11-11",
       "mainEntityOfPage": "https://workhiveph.com/learn/sensor-cmms-gateway-operations/",
       "inLanguage": "en-PH",
       "articleSection": "Maintenance",
@@ -322,7 +322,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-11-10">10 Nov 2026</time></span>
+      <span>Updated <time datetime="2026-11-11">11 Nov 2026</time></span>
       <span class="opacity-40">·</span>
       <span>8 min read</span>
     </div>
@@ -348,7 +348,7 @@
       <p>Operate the Plant Connections gateway daily, not install-and-forget. Three things keep it reliable. Run a 5-minute edge-gateway health check every day. Keep a current sensor list with each one's health. And set an OT/IT security boundary. Build it on ISA/IEC 62443, and have IT and reliability both sign it off. Skip the check and gateway problems surface 6 to 18 hours late, as missing alerts.</p>
       <h2 id="what-gateway">What the Plant Connections gateway does</h2>
       <p>The edge gateway is a small server, physical or virtual, on the plant network. It:</p>
-      <ul><li>Reads sensor data from your OT systems via OPC-UA (for PLCs and SCADA) or MQTT (for IoT sensors)</li><li>Reads work orders, the asset master and the PM schedule from your CMMS through its REST API. That covers SAP PM, IBM Maximo and others</li><li>Sends condition summaries and running data to the WorkHive cloud. It uses secure HTTPS</li><li>Sends WorkHive completion data back to the CMMS. That keeps finance and the asset register in step</li></ul>
+      <ul><li>Reads sensor data from your OT systems via OPC-UA (for PLCs and SCADA) or MQTT (for IoT sensors)</li><li>Pulls work orders from your CMMS (computerized maintenance management system). That covers SAP PM, IBM Maximo and other REST APIs</li><li>Sends condition summaries and running data to the WorkHive cloud. It uses secure HTTPS</li><li>Sends WorkHive completion data back to the CMMS. That keeps finance and the asset register in step</li></ul>
       <p>The gateway runs on site. Sensitive plant data never leaves your network unencrypted. It sends only the condition-data summaries WorkHive needs. This matters for Philippine plants with strict security rules. Some limit direct cloud access from the OT network.</p>
       <h2 id="daily-health">Daily 5-minute gateway health check</h2>
       <p>At the start of shift, the OT engineer opens the Plant Connections console. They check five things:</p>
@@ -401,7 +401,7 @@
 </article></main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-10">10 Nov 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-11">11 Nov 2026</time></p>
     <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

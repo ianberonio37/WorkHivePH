@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 10 Nov 2026
+Updated 11 Nov 2026
 ·
 9 min read
 
@@ -60,7 +60,7 @@ WorkHive reads SAP PM through an **OData** endpoint you configure. It polls on a
 
 **Authentication is a bearer token.** You give WorkHive an endpoint URL and a token. It sends the token as a Bearer header. There is no OAuth or basic-auth flow to set up. That is less flexible than full ERP middleware, but far less work to stand up. Whatever your SAP gateway issues that token as, that is what you paste in.
 
-**WorkHive does not ship a fixed list of SAP objects.** It is worth being plain here, because most guides promise the opposite. You map the fields yourself, on the CMMS Integration page.
+**WorkHive does not ship a fixed list of SAP objects.** It is worth being plain here, because most guides promise the opposite. You map the fields yourself. Use the CMMS (computerized maintenance management system) Integration page.
 
 You say which SAP field is the asset ID, which is the work-order status and which is the completion date. WorkHive then translates statuses and maintenance types through that map. Every plant sets up SAP its own way, so a fixed object list would only guess at yours.
 
@@ -174,4 +174,4 @@ Trying to integrate everything before the WorkHive side has 90 days of stable da
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 429bafdb2154c0e1 -->
+<!-- md-twin source-sha: 3162064708975fde -->

@@ -33,7 +33,7 @@ It is the first thing dropped when a shift starts badly. So the shifts that most
 
 **Shift Brain** builds one brief per shift. The first open of each shift builds it. It uses four sub-agents to gather information. One ranks the assets most likely to fail. One lists the PM tasks due. One carries forward open work from the last shift. And one sets aside the parts the work needs. The supervisor reviews the draft and publishes it to the crew with one tap. So the crew reads one ranked list, instead of hearing four answers at handover.
 
-Shift Brain builds the plan for you, so plant staff spend less time on paperwork. You need no budget and no CMMS rollout. Start logging work and scheduling PM tasks.
+Shift Brain builds the plan for you, so plant staff spend less time on paperwork. You need no budget. You also skip the CMMS (computerized maintenance management system) rollout. Start logging work and scheduling PM tasks.
 
 As your history grows, the brief has more to rank from. It matters most in brownout and typhoon season. A shift can lose half its hours to events nobody planned. The little time left has to go to the right asset.
 
@@ -123,4 +123,4 @@ Yes, Shift Brain can be used for various types of maintenance operations, includ
 - DOLE OSHS (Occupational Safety and Health Standards)
 - Related WorkHive guides: [One alert inbox for the whole plant](https://workhiveph.com/learn/plant-alert-inbox-amc-daily-brief/) · [Shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/) · [DILO/WILO day planner](https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/)
 
-<!-- md-twin source-sha: 086654dc95aa0345 -->
+<!-- md-twin source-sha: e83b6412398a1875 -->

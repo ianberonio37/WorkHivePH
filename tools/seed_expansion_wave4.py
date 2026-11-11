@@ -1357,6 +1357,17 @@ BRH_CLASS = {
            "confined space, PPE, crisis); a behaviour the PAGE applies (a timer, a share link, an erasure) keeps its client "
            "action and drops the dead instruction; a claim with neither is removed with its detector. Proven by a walk that "
            "says the trigger and reads the reply, and a gate that fails when the anchor is again built and sent nowhere"),
+    "AQ": ("D", "worker",
+           "a record time a member can rewrite",
+           "sign in as a member who owns a row of the table and send PATCH /rest/v1/<table>?id=eq.<own row> with "
+           "{\"<column>\": \"2020-01-01T00:00:00Z\"}, then read the row back: the time is now 2020 and nothing recorded the "
+           "change (measured 2026-11-11 on logbook.created_at, a worker's own open entry; tools/record_time_pins.py --probe)",
+           "created_at is the record's birth time and never changes: a BEFORE UPDATE OF created_at trigger "
+           "(wh_pin_created_at) puts the old value back for any signed-in caller, and the service role keeps repair rights. "
+           "A domain time (completed_at, closed_at, approved_at, resolved_at, recorded_at) is set by the server on its "
+           "state change - the moment it becomes set - and kept after; a member's value is ignored. Held by the gate "
+           "record-time-pins (no open created_at; domain cells forward-only) and its rolled-back member probe, and walked "
+           "as the member through the product's own client with every touched row snapshotted and restored"),
 }
 
 

@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 9 min read
 
-**Short answer:** FMEA (Failure Mode and Effects Analysis) is a powerful tool to identify and mitigate potential failures in industrial equipment. In this article, we'll walk through a real-life FMEA example on a Philippine bottling line filler. Learn how to prioritize and address potential failures to minimize downtime and maximize productivity. The arithmetic that drives every RPN decision here: at **PHP 180,000 per hour** and an average **2 hours** of downtime, one filler failure costs **PHP 360,000**.
+**Short answer:** FMEA (failure mode and effects analysis) lists how a machine can fail and ranks each way. Rate each failure mode from 1 to 10 on three scales. They are severity, occurrence and detection. Multiply the three to get the RPN, then fix the highest first. On our Cabuyao filler, a fill-level mode scores 192 and a pump failure 96. At PHP 180,000 an hour, a 2-hour stop costs PHP 360,000.
 
 Who this is for
 
@@ -25,88 +25,89 @@ Who this is for
 - Suppliers and contractors providing equipment and services
 - Auditors and officers ensuring compliance with regulations
 
-Part of the [maintenance metrics guide: OEE, MTBF, MTTR and reliability](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/): the hub that connects every reliability metric and shows how they chain together.
+Part of the [maintenance metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/). That hub links every reliability metric and shows how they connect.
 
 ## Introduction to FMEA
 
-Failure Mode and Effects Analysis, or FMEA, is a systematic approach to identifying potential equipment failures and their impact on a production line. In the Philippines, a bottling plant in Calabarzon, specifically in Cabuyao, Laguna, can benefit from FMEA to minimize downtime and maximize overall equipment effectiveness. Asset Hub provides a digital platform to facilitate FMEA, making it easier to identify and prioritize potential failures.
+FMEA stands for failure mode and effects analysis. It lists the ways a machine can fail and what each failure does. Then it ranks them, so the team fixes the worst first.
 
-FMEA helps plant supervisors and maintenance planners in Philippine plants like those in PEZA zones to anticipate potential equipment failures and prioritize corrective actions. By analyzing failure modes, their effects, and likelihood of occurrence, teams can focus on high-risk areas and prevent costly downtime. For example, a 1-hour downtime on a bottling line can cost around PHP 180,000 in lost production revenue.
+This guide works one example. It is the filler on a bottling line in Cabuyao, Laguna. The line runs 24/7. We assume a stop costs PHP 180,000 an hour in lost production. That figure is an assumption for the example, so use your own plant's number.
 
-The FMEA process involves a cross-functional team, including shift in-charges, maintenance planners, and production supervisors. They assess potential failure modes, their severity, occurrence, and detection methods. A common FMEA worksheet consists of 7 columns, which Asset Hub can help you organize and calculate the Risk Priority Number (RPN) for each failure mode. RPN is calculated as the product of Severity, Occurrence, and Detection.
-
-Let's consider a real example from a bottling line in a Calabarzon plant. Suppose the filler machine, which operates 24/7, experiences frequent issues with inaccurate fill levels. The FMEA team identifies this as a potential failure mode, with a Severity rating of 8, Occurrence of 6, and Detection rating of 4. With an RPN of 192 (8 × 6 × 4), this fill-level failure mode would be prioritized for corrective action. Keep it distinct from the pump example worked through below: a line has many failure modes, they are rated separately, and the whole point of the exercise is comparing them.
+Do it as a team. Bring the shift in-charge, the maintenance planner and the production supervisor. Each knows failures the others miss.
 
 ## FMEA Worksheet Example
 
-Let's take a look at a real-life example of an FMEA worksheet for a bottling line filler at a plant located in Calabarzon, Philippines. The 7-column FMEA worksheet is a widely used tool for identifying potential failure modes, and Asset Hub provides a platform for creating and storing these worksheets. In this example, we'll walk through the process of completing an FMEA worksheet for a bottling line filler at a plant in Cabuyao, Laguna.
+A worksheet has one row per failure mode. Each row records:
 
-The FMEA worksheet consists of 7 columns: Failure Mode, Effects of Failure, Severity, Occurrence, Current Controls, Detection, and Risk Priority Number (RPN). For our bottling line filler example, let's say we're analyzing the failure mode of 'pump failure' (Pump P-204B). The effects of failure would be 'inability to fill bottles', with a severity rating of 8 out of 10. The occurrence rating would be 4 out of 10, based on historical data showing that pump failures occur about 4 times per year. Convert that to the unit your team thinks in before you rate it: a 24/7 line runs roughly 1,095 shifts a year, so 4 failures is about 1 shift in 270. Rating the same asset from “a few times a year” and from “once in a hundred shifts” gives two different answers, and the second is nearly three times the first. The current controls in place are regular maintenance checks by the plant's maintenance planner.
+- the failure mode, such as "the pump stops delivering"
+- its effect, such as "bottles go out underfilled or not at all"
+- its cause, if you know it
+- **Severity** (S): how bad the effect is, from 1 to 10
+- **Occurrence** (O): how often it happens, from 1 to 10
+- **Detection** (D): how hard it is to catch in time, from 1 to 10, where 10 is hardest
+- the controls already in place
 
-To calculate the RPN, we multiply the severity, occurrence, and detection ratings. In this case, let's assume the detection rating is 3 out of 10, as the plant supervisor or shift in-charge may not always detect the pump failure immediately. The RPN would be 8 x 4 x 3 = 96. Asset Hub allows users to easily calculate and track RPNs for multiple failure modes. For example, if the cost of downtime for this pump failure is estimated to be PHP 180,000 per hour, and the average downtime is 2 hours, the total cost of downtime would be PHP 360,000.
-
-Based on the RPN, we can prioritize the top 3 failure modes to address first. Let's say the top 3 failure modes for our bottling line filler are pump failure (RPN = 96), conveyor belt failure (RPN = 80), and electrical control failure (RPN = 72). By focusing on these high-priority failure modes, the plant can reduce downtime and increase overall efficiency. Asset Hub provides a platform for storing and tracking FMEA worksheets, making it easier to review and update the analysis over time. For instance, a failure on the night shift that nobody can clear until the day crew arrives costs the whole gap between them, which is the argument for having the part picked and set aside in advance rather than finding it at 03:00.
+Rate occurrence in a unit your team thinks in. Our pump, P-204B, fails about 4 times a year. A 24/7 line runs about 1,095 shifts a year, so that is about 1 shift in 270. "A few times a year" and "once in a hundred shifts" sound alike. Yet the second is almost three times as often.
 
 ## Calculating RPN
 
-To calculate the Risk Priority Number (RPN) for each failure mode, we multiply three key ratings: Severity, Occurrence, and Detection. At the Calabarzon bottling line in Cabuyao, Laguna, a plant supervisor would want to prioritize failure modes with the highest RPN values. In Asset Hub, these ratings are scored on a scale of 1-10, with 10 being the most severe, frequent, or difficult to detect.
+RPN is the risk priority number. Multiply the three ratings: RPN = S × O × D. It runs from 1 to 1,000. Here is the pump's row:
 
-Here is that worksheet for the pump example, on a Cabuyao bottling line running 24/7. These are the three ratings and the product they produce:
-
-| Rating | Value | Basis |
+| Rating | Value | Why |
 | --- | --- | --- |
-| Severity | 8 | PHP 180,000 in lost production per hour |
-| Occurrence | 4 | about 4 failures a year: roughly 1 shift in 270 on a 24/7 line |
-| Detection | 3 | difficult to detect, 30-minute delay |
-| **RPN** | **96** | 8 x 4 x 3 |
+| Severity | 8 of 10 | The filler stops, at about PHP 180,000 an hour |
+| Occurrence | 4 of 10 | About 4 failures a year, or 1 shift in 270 |
+| Detection | 3 of 10 | A failing pump shows within about 30 minutes |
+| RPN | 96 of 1,000 | 8 × 4 × 3 |
 
-The shift in-charge would use this data to prioritize maintenance tasks.
+The same line has a second mode: the filler puts the wrong amount in each bottle. It rates S 8, O 6 and D 4, so its RPN is 192. Fill errors happen more often than pump stops, and they are harder to catch.
 
-In Asset Hub, you can easily calculate RPN values for each failure mode using our FMEA worksheet template. Simply input the ratings for Severity, Occurrence, and Detection, and the tool will compute the RPN value for you. This helps maintenance planners in Philippine plants like Calabarzon focus on the most critical failure modes and schedule proactive maintenance in genuinely off-peak hours, which on a bottling line usually means the small hours rather than the afternoon.
-
-By prioritizing failure modes with high RPN values, plant teams can efficiently allocate resources and minimize downtime costs. For instance, if Pump P-204B at the bottling line has a high RPN value, the maintenance team can schedule a replacement during a planned shutdown, reducing the likelihood of unexpected failures and costly repairs.
+In WorkHive's Asset Hub, you enter S, O and D for each mode. The database computes the RPN for you. It also colors each RPN. 200 or more is critical, and 100 to 199 is high. 40 to 99 is medium, and below 40 is low.
 
 ## Prioritizing Failure Modes
 
-Now that we have calculated the Risk Priority Number (RPN) for each failure mode, it's time to prioritize which ones to address first. In our Philippine bottling line example, located in the Calabarzon region, we have several failure modes with varying RPN values. Asset Hub's FMEA worksheet helps us organize and rank these failure modes based on their potential impact.
+Rank the modes by RPN and work from the top. On our line, the order is:
 
-The top 3 failure modes with the highest RPN values are the ones that require immediate attention from the plant supervisor and maintenance planner. For instance, if a failure mode has a high RPN due to its severity, occurrence, and low detection rating, it would be considered a high-priority item. In the case of our Cabuyao bottling line, the pump-failure mode on Pump P-204B scores the 96 worked out in the worksheet above: below the filler's fill-level mode at 192, which is exactly the comparison an FMEA exists to make. Ranking is the output; the individual number means little on its own.
+1. Fill level wrong: RPN 192 (high)
+2. Pump P-204B fails: RPN 96 (medium)
+3. Conveyor belt fails: RPN 80 (medium)
+4. Electrical control fails: RPN 72 (medium)
 
-Keeping the same assumption as above, Pump P-204B's downtime is costed at PHP 180,000 for every hour the line is stopped. With a 24-hour operation, every hour of unplanned downtime can result in significant losses. At a shift change, the shift in-charge and maintenance planner must work together to quickly assess and mitigate the issue. By prioritizing the top 3 failure modes, such as Pump P-204B, Boiler B-1, and Conveyor #2, we can minimize the risk of costly downtime.
+The single number means little alone. What matters is the order. A severity of 9 or 10 usually means a safety risk. Look at those rows even when the RPN is low.
 
-Asset Hub's FMEA tool allows us to store and track the prioritized failure modes, making it easier to review and update the analysis over time. By focusing on the top 3 failure modes, we can allocate resources more effectively and reduce the overall risk of equipment failure. For example, addressing Pump P-204B's failure mode prevents an estimated PHP 180,000 for every hour the line would otherwise have stood still, ensuring a more efficient and reliable bottling line operation in our Philippine plant.
+Rank first, then fix in order. When you can, plan the fix into a planned stop, on a bottling line usually the small hours. A fault that strikes at night and waits for the day crew costs the whole gap. So pick the part and set it aside in advance.
 
 ## Storing FMEA Output in Asset Hub
 
-After completing the FMEA worksheet and prioritizing the top failure modes, the next step is to store the output for easy access and tracking. In the Calabarzon bottling line example, the FMEA team identified the top 3 failure modes to focus on. Asset Hub provides a centralized platform to store the FMEA output, allowing the plant supervisor to easily review and track the progress of the recommended actions.
+Each asset in Asset Hub has its own FMEA list. Tap Add failure mode to enter one by hand. Each mode holds its function, failure mode, effect and cause. It also holds the three ratings, a consequence class and notes. The consequence class is safety, production, environment, cost or quality.
 
-The FMEA output for the Cabuyao bottling line filler, located in the PEZA zone, is stored in Asset Hub. This includes the failure modes, causes, effects, and recommended actions. For instance, the team identified a potential failure mode in Pump P-204B carrying the same PHP 180,000 for every hour the line is down. With Asset Hub, the maintenance planner can track the implementation of the recommended actions and verify their effectiveness.
+The AI button can also suggest modes. It reads the asset's corrective logbook entries from the last 365 days and groups them by root cause. Each suggestion waits for a supervisor to approve it.
 
-Asset Hub's storage of FMEA output enables seamless collaboration among team members, including the shift in-charge and maintenance personnel. For example, on the afternoon shift the team can review the FMEA output on their mobile devices and make updates in real-time. This ensures that everyone is on the same page and working towards the same goals.
-
-By storing the FMEA output in Asset Hub, the Calabarzon bottling line team can easily review and update the analysis as needed. For instance, if a recommended action is completed, the team can update the status and add comments. This helps to ensure that the FMEA process is a living document, rather than a static report. At 02:30, the plant supervisor can review the FMEA output and plan for the next day's activities.
+The list keeps the analysis in one place as the asset ages. When a fix lands, update the ratings, and the RPN moves with them. Asset Hub does not track the cost of downtime or the actions themselves. Keep those in the work order or the logbook.
 
 ## Cost of Downtime Calculation
 
-To prioritize maintenance actions, we need to calculate the cost of downtime for each failure mode. Let's consider the bottling line filler at a plant in Calabarzon, Philippines. Assume the shift in-charge estimates a downtime of 2 hours on the night shift, from 02:30 to 04:30. In this scenario, the plant supervisor and maintenance planner would want to know the financial impact of such an event. Asset Hub's FMEA worksheet helps here.
+The cost of downtime tells you what fixing a failure mode is worth. Work it out by hand:
 
-The cost of downtime calculation involves several factors, including lost production, labor costs, and potential revenue loss. For simplicity, let's assume the bottling line produces 10,000 bottles per hour, with a revenue of PHP 180,000 per hour. Using these numbers, we can estimate the revenue loss per hour of downtime. In our example, a 2-hour downtime would result in a revenue loss of PHP 360,000. This figure is a significant motivator for the maintenance team to address the root cause of the failure mode.
+- Lost production: hours stopped × output value per hour
+- Labour: crew hours × your labour rate
+- Damage: parts and repair
 
-In addition to revenue loss, we must consider labor costs during downtime. In the Philippines, labor costs can range from PHP 500 to PHP 2,000 per hour, depending on the role and location. For our example, let's assume an average labor cost of PHP 1,000 per hour. Over 2 hours, this amounts to PHP 2,000 in additional costs. Asset Hub's FMEA worksheet allows users to input these costs and calculate the total cost of downtime per failure mode.
+In our example, the line makes 10,000 bottles an hour, worth PHP 180,000. A 2-hour pump stop at 02:30 costs PHP 360,000 in lost production. Add the crew's hours at your own labour rate, plus any parts.
 
-Using the FMEA worksheet in Asset Hub, we can now calculate the total cost of downtime for our example failure mode. Assume the failure mode 'Pump P-204B failure' results in a 2-hour downtime on the afternoon shift, from 14:45 to 16:45, just before a critical production run. The total cost of downtime would be the sum of revenue loss (PHP 360,000) and labor costs (PHP 2,000), totaling PHP 362,000. This figure helps the maintenance planner and plant supervisor prioritize the 'Pump P-204B failure' mode for immediate attention.
+Set that figure beside the RPN. A mode with a lower RPN but a much higher cost may still go first.
 
-**Open the tool:** Asset Hub is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants.
+**Open the tool:** this guide leads to WorkHive's Asset Hub. It is free at the worker tier and built for Philippine plants.
 
 ## Frequently asked questions
 
 ### What is the purpose of FMEA in a Philippine bottling plant?
 
-FMEA helps identify potential failures and prioritize mitigation efforts to minimize downtime and maximize productivity. In the Philippines, this is especially important to comply with DOLE OSHS regulations.
+FMEA finds the ways your equipment can fail and ranks them, so the team fixes the worst first. It cuts downtime by putting effort where the risk is.
 
-### How do I determine the severity, occurrence, and detection ratings for each failure mode?
+### How do I rate severity, occurrence and detection?
 
-Use a standard FMEA worksheet and consult with experts to determine the ratings. For example, a severity rating of 10 could be assigned to a failure mode that causes major equipment damage.
+Rate them as a team, on 1-to-10 scales your plant writes down once. A severity of 9 or 10 usually means a safety risk. Base occurrence on your logbook history, and detection on how soon the failure shows.
 
 ### What is RPN and how is it calculated?
 
@@ -118,7 +119,7 @@ Prioritize failure modes with the highest RPN ratings. On the bottling line work
 
 ### Can I use Asset Hub to store and track FMEA outputs?
 
-Yes, Asset Hub allows you to store and track FMEA outputs for easy access and tracking. This helps ensure that all stakeholders have access to the same information.
+Yes. Each asset has an FMEA list with the three ratings, and the database computes the RPN. The AI can suggest modes from your logbook, and a supervisor approves each one. Asset Hub does not track downtime cost or actions.
 
 ### How do I calculate the cost of downtime for each failure mode?
 
@@ -126,9 +127,8 @@ Use a standard formula to calculate the cost of downtime, taking into account fa
 
 ## Sources
 
-- ISO 14224:2016, 'Reliability centred maintenance (RCM: reliability-centered maintenance) - Process for specification and analysis of equipment reliability'
+- IEC 60812:2018, 'Failure modes and effects analysis (FMEA and FMECA)'
+- ISO 14224:2016, 'Collection and exchange of reliability and maintenance data for equipment'
 - SMRP CMRP BoK, 'Failure Mode and Effects Analysis (FMEA)'
-- DOLE OSHS, 'Guidelines on Occupational Safety and Health in the Philippines'
-- IIEE Code, 'Code of Practice for Electrical Safety in the Philippines'
 
-<!-- md-twin source-sha: 26ed114b1dc7f171 -->
+<!-- md-twin source-sha: e1e9fc48ba34a71e -->

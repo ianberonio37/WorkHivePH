@@ -44,7 +44,10 @@ GLOSSARY = {
     "MTBF": r"mean time between failures",
     "MTTR": r"mean time to repair",
     "OEE": r"overall equipment effectiveness",
-    "RCM": r"reliability.cent(?:er|re)d maintenance",
+    # (?:ere|re): "centered" and "centred". The old (?:er|re) matched "centerd", never "centered" - so the whole
+    # platform passed on ONE British "centred" in the FMEA guide's Sources, a line that was itself a wrong ISO 14224
+    # title. Removing that false line on 2026-11-11 turned the gate red with the RCM guide still explaining RCM.
+    "RCM": r"reliability.cent(?:ere|re)d maintenance",
     "FMEA": r"failure mode(?:s)? and effects",
     "RPN": r"risk priority number",
     "EVM": r"earned value",

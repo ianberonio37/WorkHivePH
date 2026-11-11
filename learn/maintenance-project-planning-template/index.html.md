@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 10 Nov 2026
+Updated 11 Nov 2026
 ·
 9 min read
 
@@ -140,7 +140,7 @@ WorkHive Project Manager handles the operations side:
 - Scope items, and links to the assets, logs, PMs, parts and calculations it touches
 - Variance summary and lessons learned at the close
 
-They meet at one point today. A worker closes a work order in the logbook. WorkHive then sends it to your CMMS (maintenance software). It sends the machine, who did it, the hours and the close time. The status goes in that system's own code, not the word "closed". See the [CMMS integration guide](https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/) for the setup.
+They meet at one point today. A worker closes a work order in the logbook. WorkHive then sends it to your CMMS (computerized maintenance management system). It sends the machine, who did it, the hours and the close time. The status goes in that system's own code, not the word "closed". See the [CMMS integration guide](https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/) for the setup.
 
 Nothing financial crosses in either direction. Budgets, the WBS and PO matching stay in SAP or Maximo. So does capitalisation. A cost you want in both places gets typed in both places. Plants that use both well let each do its own job. Plants that make one do both end up with a half-used system.
 
@@ -197,4 +197,4 @@ SAP PS (Project System) and Maximo Project Management handle the financial side:
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 919545d0b6ab8692 -->
+<!-- md-twin source-sha: 96dd93289c6c84b2 -->
