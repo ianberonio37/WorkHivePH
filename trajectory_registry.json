@@ -1237564,8 +1237564,8 @@
     },
     {
       "id": "CF137",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "K2 Field legibility & reach - fmea worked example philippine bottling line · a signed-out visitor: K2 50% - 0/1 glanceable KPI(s), 0 under-44 target(s)",
       "pages": [
@@ -1237658,7 +1237658,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "K2 graded clean on fmea worked example philippine bottling line for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "K2 graded clean on fmea worked example philippine bottling line for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:03"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): K2 (Field legibility & reach) on learn/fmea-worked-example-philippine-bottling-line/index.html as anon after the find of 2026-09-11 (fmea-worked-example-philippine-bottling-line: K2 50% - 0/1 glanceable KPI(s), 0 under-44 target(s)) - tools/family_rubric_sweep.mjs --anon (learn/fmea-worked-example-philippine-bottling-line/index.html, 2026-11-11T14:03, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1239833,8 +1239840,8 @@
     },
     {
       "id": "CF158",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - loto procedures dole oshs template · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=24",
       "pages": [
@@ -1239923,7 +1239930,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on loto procedures dole oshs template for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on loto procedures dole oshs template for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:03"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/loto-procedures-dole-oshs-template/index.html as anon after the find of 2026-09-11 (loto-procedures-dole-oshs-template: B1 67% - marketese=0 verboseBlocks=24) - tools/family_rubric_sweep.mjs --anon (learn/loto-procedures-dole-oshs-template/index.html, 2026-11-11T14:03, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1244245,8 +1244259,8 @@
     },
     {
       "id": "CF203",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - start digital logbook philippine factory · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=6",
       "pages": [
@@ -1244343,7 +1244357,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on start digital logbook philippine factory for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on start digital logbook philippine factory for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:03"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/start-digital-logbook-philippine-factory/index.html as anon after the find of 2026-09-11 (start-digital-logbook-philippine-factory: B1 67% - marketese=0 verboseBlocks=6) - tools/family_rubric_sweep.mjs --anon (learn/start-digital-logbook-philippine-factory/index.html, 2026-11-11T14:03, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1244600,8 +1244621,8 @@
     },
     {
       "id": "CF207",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - tesda nc mapping to skill matrix · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=26",
       "pages": [
@@ -1244690,13 +1244711,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on tesda nc mapping to skill matrix for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on tesda nc mapping to skill matrix for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:03"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/tesda-nc-mapping-to-skill-matrix/index.html as anon after the find of 2026-09-11 (tesda-nc-mapping-to-skill-matrix: B1 67% - marketese=0 verboseBlocks=26) - tools/family_rubric_sweep.mjs --anon (learn/tesda-nc-mapping-to-skill-matrix/index.html, 2026-11-11T14:03, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF208",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - thermography for pm philippine plants · a signed-out visitor: B1 33% - marketese=1 verboseBlocks=26",
       "pages": [
@@ -1244785,7 +1244813,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on thermography for pm philippine plants for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on thermography for pm philippine plants for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:01"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/thermography-for-pm-philippine-plants/index.html as anon after the find of 2026-09-11 (thermography-for-pm-philippine-plants: B1 33% - marketese=1 verboseBlocks=26) - tools/family_rubric_sweep.mjs --anon (learn/thermography-for-pm-philippine-plants/index.html, 2026-11-11T14:00, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1248531,8 +1248566,8 @@
     },
     {
       "id": "CF249",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - fmea worked example philippine bottling line · a signed-out visitor: B1 33% - marketese=1 verboseBlocks=21",
       "pages": [
@@ -1248625,7 +1248660,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on fmea worked example philippine bottling line for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on fmea worked example philippine bottling line for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:03"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/fmea-worked-example-philippine-bottling-line/index.html as anon after the find of 2026-09-11 (fmea-worked-example-philippine-bottling-line: B1 33% - marketese=1 verboseBlocks=21) - tools/family_rubric_sweep.mjs --anon (learn/fmea-worked-example-philippine-bottling-line/index.html, 2026-11-11T14:03, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1274762,8 +1274804,8 @@
     },
     {
       "id": "CF331",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B2 Plain voice & tone - fmea worked example philippine bottling line · a signed-out visitor: B2 0% - marketese: \"Asset Hub's storage of FMEA output enabl\"",
       "pages": [
@@ -1274856,13 +1274898,20 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B2 graded clean on fmea worked example philippine bottling line for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B2 graded clean on fmea worked example philippine bottling line for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:03"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B2 (Plain voice & tone) on learn/fmea-worked-example-philippine-bottling-line/index.html as anon after the find of 2026-09-11 (fmea-worked-example-philippine-bottling-line: B2 0% - marketese: \"Asset Hub's storage of FMEA output enabl\") - tools/family_rubric_sweep.mjs --anon (learn/fmea-worked-example-philippine-bottling-line/index.html, 2026-11-11T14:03, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
       "id": "CF332",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - fmea worked example philippine bottling line · a signed-out visitor: B3 0% - sentences=105 · >20w=33 · passive=6 · grade>8=73 · worst(34w):",
       "pages": [
@@ -1274955,7 +1275004,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on fmea worked example philippine bottling line for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on fmea worked example philippine bottling line for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:03"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/fmea-worked-example-philippine-bottling-line/index.html as anon after the find of 2026-09-11 (fmea-worked-example-philippine-bottling-line: B3 0% - sentences=105 · >20w=33 · passive=6 · grade>8=73 · worst(34w): \"Fo) - tools/family_rubric_sweep.mjs --anon (learn/fmea-worked-example-philippine-bottling-line/index.html, 2026-11-11T14:03, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1275270,8 +1275326,8 @@
     },
     {
       "id": "CF336",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - loto procedures dole oshs template · a signed-out visitor: B3 0% - sentences=120 · >20w=41 · passive=17 · grade>8=88 · worst(39w)",
       "pages": [
@@ -1275360,7 +1275416,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on loto procedures dole oshs template for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on loto procedures dole oshs template for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:03"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/loto-procedures-dole-oshs-template/index.html as anon after the find of 2026-09-11 (loto-procedures-dole-oshs-template: B3 0% - sentences=120 · >20w=41 · passive=17 · grade>8=88 · worst(39w): \"For instanc) - tools/family_rubric_sweep.mjs --anon (learn/loto-procedures-dole-oshs-template/index.html, 2026-11-11T14:03, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1278536,8 +1278599,8 @@
     },
     {
       "id": "CF368",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - start digital logbook philippine factory · a signed-out visitor: B3 0% - sentences=210 · >20w=30 · passive=5 · grade>8=61 · worst(49w):",
       "pages": [
@@ -1278634,7 +1278697,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on start digital logbook philippine factory for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on start digital logbook philippine factory for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:03"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/start-digital-logbook-philippine-factory/index.html as anon after the find of 2026-09-11 (start-digital-logbook-philippine-factory: B3 0% - sentences=210 · >20w=30 · passive=5 · grade>8=61 · worst(49w): \"The di) - tools/family_rubric_sweep.mjs --anon (learn/start-digital-logbook-philippine-factory/index.html, 2026-11-11T14:03, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1278743,8 +1278813,8 @@
     },
     {
       "id": "CF370",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - tesda nc mapping to skill matrix · a signed-out visitor: B3 0% - sentences=121 · >20w=62 · passive=8 · grade>8=86 · worst(43w):",
       "pages": [
@@ -1278833,7 +1278903,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on tesda nc mapping to skill matrix for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on tesda nc mapping to skill matrix for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:03"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/tesda-nc-mapping-to-skill-matrix/index.html as anon after the find of 2026-09-11 (tesda-nc-mapping-to-skill-matrix: B3 0% - sentences=121 · >20w=62 · passive=8 · grade>8=86 · worst(43w): \"For instance, ) - tools/family_rubric_sweep.mjs --anon (learn/tesda-nc-mapping-to-skill-matrix/index.html, 2026-11-11T14:03, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1278912,8 +1278989,8 @@
     },
     {
       "id": "CF372",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - thermography for pm philippine plants · a signed-out visitor: B3 0% - sentences=130 · >20w=45 · passive=4 · grade>8=93 · worst(38w):",
       "pages": [
@@ -1279002,7 +1279079,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on thermography for pm philippine plants for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on thermography for pm philippine plants for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T14:01"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/thermography-for-pm-philippine-plants/index.html as anon after the find of 2026-09-11 (thermography-for-pm-philippine-plants: B3 0% - sentences=130 · >20w=45 · passive=4 · grade>8=93 · worst(38w): \"For insta) - tools/family_rubric_sweep.mjs --anon (learn/thermography-for-pm-philippine-plants/index.html, 2026-11-11T14:00, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
