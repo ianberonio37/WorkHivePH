@@ -1243140,8 +1243140,8 @@
     },
     {
       "id": "CF191",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - psme iiee piche which association to join · a signed-out visitor: B1 33% - marketese=1 verboseBlocks=24",
       "pages": [
@@ -1243232,7 +1243232,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on psme iiee piche which association to join for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on psme iiee piche which association to join for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T13:45"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/psme-iiee-piche-which-association-to-join/index.html as anon after the find of 2026-09-11 (psme-iiee-piche-which-association-to-join: B1 33% - marketese=1 verboseBlocks=24) - tools/family_rubric_sweep.mjs --anon (learn/psme-iiee-piche-which-association-to-join/index.html, 2026-11-11T13:44, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1277389,8 +1277396,8 @@
     },
     {
       "id": "CF357",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - psme iiee piche which association to join · a signed-out visitor: B3 0% - sentences=147 · >20w=41 · passive=4 · grade>8=100 · worst(39w)",
       "pages": [
@@ -1277481,7 +1277488,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on psme iiee piche which association to join for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on psme iiee piche which association to join for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T13:45"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/psme-iiee-piche-which-association-to-join/index.html as anon after the find of 2026-09-11 (psme-iiee-piche-which-association-to-join: B3 0% - sentences=147 · >20w=41 · passive=4 · grade>8=100 · worst(39w): \"By j) - tools/family_rubric_sweep.mjs --anon (learn/psme-iiee-piche-which-association-to-join/index.html, 2026-11-11T13:44, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {

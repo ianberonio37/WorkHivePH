@@ -5,11 +5,11 @@
     "ge90": 1,
     "ge85": 1,
     "pageErrors": 0,
-    "ranAt": "2026-11-11T00:38:58.707Z",
+    "ranAt": "2026-11-11T00:44:25.102Z",
     "identity": "pabloaguilar@auth.workhiveph.com"
   },
   "pages": {
-    "learn/power-plant-reliability-metrics-philippines/index.html": {
+    "learn/psme-iiee-piche-which-association-to-join/index.html": {
       "overall": 100,
       "counts": {
         "dims": 91,
@@ -28,13 +28,13 @@
       "n1": {
         "dataI": 0,
         "labelCovered": 0,
-        "labelTotal": 9,
+        "labelTotal": 10,
         "coverage": 0,
         "uncovered": [
           {
             "tag": "H1",
             "id": "",
-            "t": "Power Plant Reliability Metrics in the Phili"
+            "t": "PSME, IIEE, PIChE: Which Philippine Engineer"
           },
           {
             "tag": "H2",
@@ -43,28 +43,33 @@
           },
           {
             "tag": "H2",
-            "id": "introduction-to-reliability-metrics",
-            "t": "Introduction to Reliability Metrics"
+            "id": "overview",
+            "t": "Overview of Philippine Engineering Associati"
           },
           {
             "tag": "H2",
-            "id": "key-reliability-metrics",
-            "t": "Key Reliability Metrics for Power Plants"
+            "id": "membership-cost",
+            "t": "Membership Cost and Benefits"
           },
           {
             "tag": "H2",
-            "id": "erc-reporting-requirements",
-            "t": "ERC Reporting Requirements"
+            "id": "cpd-credits",
+            "t": "CPD Credits and Exam Pathways"
           },
           {
             "tag": "H2",
-            "id": "worked-example-mindanao-coal-fired-plant",
-            "t": "Worked Example: Mindanao Coal-Fired Plant"
+            "id": "networking-events",
+            "t": "Networking Events and Community"
           },
           {
             "tag": "H2",
-            "id": "conclusion-and-future-directions",
-            "t": "Conclusion and Future Directions"
+            "id": "chooser-matrix",
+            "t": "Chooser Matrix: Which Association is Right f"
+          },
+          {
+            "tag": "H2",
+            "id": "workhive-community",
+            "t": "Asking about associations in the WorkHive Co"
           },
           {
             "tag": "H2",
@@ -96,7 +101,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "headings=9 (sub-heads=8: h2/h3=8 + role=heading L2/L3=0) blocks=5"
+          "note": "headings=10 (sub-heads=9: h2/h3=9 + role=heading L2/L3=0) blocks=3"
         },
         {
           "dim": "A3",
@@ -104,7 +109,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "disclosures=6 longTables=0 · blocks=5 tabs=0 primaryCta=2/2"
+          "note": "disclosures=6 longTables=0 · blocks=3 tabs=0 primaryCta=2/2"
         },
         {
           "dim": "B1",
@@ -128,7 +133,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "sentences=114 · >20w=0 · passive=0 · grade>8=0"
+          "note": "sentences=94 · >20w=0 · passive=0 · grade>8=0"
         },
         {
           "dim": "C1",
@@ -141,16 +146,16 @@
         {
           "dim": "C5",
           "kind": "MEASURED",
-          "pass": 77,
-          "total": 77,
+          "pass": 71,
+          "total": 71,
           "pct": 100,
           "note": "all text meets its APCA Lc minimum for its size/weight"
         },
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 87,
-          "total": 87,
+          "pass": 83,
+          "total": 83,
           "pct": 100,
           "note": "all text >= its WCAG floor"
         },
@@ -184,7 +189,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 4ms"
+          "note": "click->paint 3ms"
         },
         {
           "dim": "D3",
@@ -237,8 +242,8 @@
         {
           "dim": "F1",
           "kind": "MEASURED",
-          "pass": 10,
-          "total": 10,
+          "pass": 11,
+          "total": 11,
           "pct": 100,
           "note": "all >= 44px"
         },
@@ -280,7 +285,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "10 controls, 2 primary CTA"
+          "note": "11 controls, 2 primary CTA"
         },
         {
           "dim": "H1",
@@ -320,7 +325,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 464ms OK · CLS 0.000 OK"
+          "note": "LCP 468ms OK · CLS 0.000 OK"
         },
         {
           "dim": "I2",
@@ -373,8 +378,8 @@
         {
           "dim": "L2",
           "kind": "MEASURED",
-          "pass": 10,
-          "total": 10,
+          "pass": 11,
+          "total": 11,
           "pct": 100,
           "note": "all link labels predict their destination"
         },
@@ -400,7 +405,7 @@
           "pass": null,
           "total": null,
           "pct": null,
-          "note": "descoped: Filipino and dictionary work are out of the roadmap (Ian, 2026-09-30 and 2026-10-06) · label coverage 0/9 recorded, not graded · overflow is graded by R2"
+          "note": "descoped: Filipino and dictionary work are out of the roadmap (Ian, 2026-09-30 and 2026-10-06) · label coverage 0/10 recorded, not graded · overflow is graded by R2"
         },
         {
           "dim": "O1",
@@ -432,7 +437,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "22 focusable control(s), none hidden-but-focusable"
+          "note": "24 focusable control(s), none hidden-but-focusable"
         },
         {
           "dim": "Q3",
@@ -520,7 +525,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "1 data-freshness claim"
+          "note": "no data-freshness claim"
         },
         {
           "dim": "B5",
@@ -621,10 +626,10 @@
         {
           "dim": "Z3",
           "kind": "MEASURED",
-          "pass": 21,
-          "total": 21,
+          "pass": 22,
+          "total": 22,
           "pct": 100,
-          "note": "all 21 targets clear the 24px + spacing floor"
+          "note": "all 22 targets clear the 24px + spacing floor"
         },
         {
           "dim": "X3",
@@ -632,7 +637,7 @@
           "pass": null,
           "total": null,
           "pct": null,
-          "note": "no substantial list on this page (1 items) — item-search not required"
+          "note": "no substantial list on this page (4 items) — item-search not required"
         },
         {
           "dim": "Y1",
