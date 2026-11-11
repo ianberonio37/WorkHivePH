@@ -5,11 +5,11 @@
     "ge90": 1,
     "ge85": 1,
     "pageErrors": 0,
-    "ranAt": "2026-11-11T00:49:31.633Z",
+    "ranAt": "2026-11-11T00:55:02.602Z",
     "identity": "pabloaguilar@auth.workhiveph.com"
   },
   "pages": {
-    "learn/bms-facilities-maintenance-peza-buildings/index.html": {
+    "learn/food-beverage-plant-maintenance-philippines/index.html": {
       "overall": 100,
       "counts": {
         "dims": 91,
@@ -34,7 +34,7 @@
           {
             "tag": "H1",
             "id": "",
-            "t": "BMS and Facilities Maintenance in PEZA Build"
+            "t": "Maintenance in Philippine Food and Beverage "
           },
           {
             "tag": "H2",
@@ -43,33 +43,33 @@
           },
           {
             "tag": "H2",
-            "id": "bms-scope",
-            "t": "BMS Scope in PEZA Buildings"
+            "id": "sanitary-design",
+            "t": "Sanitary Design and Regulatory Context"
           },
           {
             "tag": "H2",
-            "id": "tenant-sla-frameworks",
-            "t": "Tenant SLA Frameworks and Expectations"
+            "id": "haccp-intersection",
+            "t": "HACCP Intersection with Maintenance"
           },
           {
             "tag": "H2",
-            "id": "pm-cadence",
-            "t": "Monthly Preventive Maintenance Cadence"
+            "id": "cip-cycle-pm",
+            "t": "Cleaning-in-Place (CIP) Cycle Preventive Mai"
           },
           {
             "tag": "H2",
-            "id": "workhive-handle",
-            "t": "How WorkHive fits a facility team"
+            "id": "conveyor-filler-reliability",
+            "t": "Conveyor and Filler Reliability Targets"
           },
           {
             "tag": "H2",
-            "id": "peza-compliance",
-            "t": "PEZA-Specific Compliance Requirements"
+            "id": "regulatory-context",
+            "t": "Regulatory Context: FDA, BAFS, and BAI"
           },
           {
             "tag": "H2",
-            "id": "best-practices",
-            "t": "Best Practices for BMS and Facilities Mainte"
+            "id": "workhive-hive",
+            "t": "Splitting sanitary and utility work in the H"
           },
           {
             "tag": "H2",
@@ -117,7 +117,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "marketese=0 verboseBlocks=1"
+          "note": "marketese=0 verboseBlocks=0"
         },
         {
           "dim": "B2",
@@ -133,7 +133,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "sentences=96 · >20w=0 · passive=0 · grade>8=0"
+          "note": "sentences=109 · >20w=0 · passive=0 · grade>8=0"
         },
         {
           "dim": "C1",
@@ -146,16 +146,16 @@
         {
           "dim": "C5",
           "kind": "MEASURED",
-          "pass": 73,
-          "total": 73,
+          "pass": 71,
+          "total": 71,
           "pct": 100,
           "note": "all text meets its APCA Lc minimum for its size/weight"
         },
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 82,
-          "total": 82,
+          "pass": 80,
+          "total": 80,
           "pct": 100,
           "note": "all text >= its WCAG floor"
         },
@@ -325,7 +325,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 472ms OK · CLS 0.000 OK"
+          "note": "LCP 424ms OK · CLS 0.000 OK"
         },
         {
           "dim": "I2",

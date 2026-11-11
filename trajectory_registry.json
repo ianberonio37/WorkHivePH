@@ -1237663,8 +1237663,8 @@
     },
     {
       "id": "CF138",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - food beverage plant maintenance philippines · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=23",
       "pages": [
@@ -1237753,7 +1237753,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on food beverage plant maintenance philippines for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on food beverage plant maintenance philippines for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T13:55"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/food-beverage-plant-maintenance-philippines/index.html as anon after the find of 2026-09-11 (food-beverage-plant-maintenance-philippines: B1 67% - marketese=0 verboseBlocks=23) - tools/family_rubric_sweep.mjs --anon (learn/food-beverage-plant-maintenance-philippines/index.html, 2026-11-11T13:55, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1275059,8 +1275066,8 @@
     },
     {
       "id": "CF334",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - food beverage plant maintenance philippines · a signed-out visitor: B3 0% - sentences=125 · >20w=46 · passive=5 · grade>8=101 · worst(35w)",
       "pages": [
@@ -1275149,7 +1275156,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on food beverage plant maintenance philippines for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on food beverage plant maintenance philippines for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T13:55"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/food-beverage-plant-maintenance-philippines/index.html as anon after the find of 2026-09-11 (food-beverage-plant-maintenance-philippines: B3 0% - sentences=125 · >20w=46 · passive=5 · grade>8=101 · worst(35w): \"In) - tools/family_rubric_sweep.mjs --anon (learn/food-beverage-plant-maintenance-philippines/index.html, 2026-11-11T13:55, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
