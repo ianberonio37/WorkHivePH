@@ -1245209,8 +1245209,8 @@
     },
     {
       "id": "CF214",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B1 Microcopy / concision - what is workhive complete platform guide · a signed-out visitor: B1 67% - marketese=0 verboseBlocks=8",
       "pages": [
@@ -1245306,7 +1245306,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B1 graded clean on what is workhive complete platform guide for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B1 graded clean on what is workhive complete platform guide for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T13:23"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B1 (Microcopy / concision) on learn/what-is-workhive-complete-platform-guide/index.html as anon after the find of 2026-09-11 (what-is-workhive-complete-platform-guide: B1 67% - marketese=0 verboseBlocks=8) - tools/family_rubric_sweep.mjs --anon (learn/what-is-workhive-complete-platform-guide/index.html, 2026-11-11T13:22, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1279242,8 +1279249,8 @@
     },
     {
       "id": "CF376",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "B3 Readability (<=20 words, grade <=8, active) - what is workhive complete platform guide · a signed-out visitor: B3 0% - sentences=248 · >20w=54 · passive=9 · grade>8=73 · worst(64w):",
       "pages": [
@@ -1279339,7 +1279346,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "B3 graded clean on what is workhive complete platform guide for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "B3 graded clean on what is workhive complete platform guide for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T13:23"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): B3 (Readability (<=20 words, grade <=8, active)) on learn/what-is-workhive-complete-platform-guide/index.html as anon after the find of 2026-09-11 (what-is-workhive-complete-platform-guide: B3 0% - sentences=248 · >20w=54 · passive=9 · grade>8=73 · worst(64w): \"It ope) - tools/family_rubric_sweep.mjs --anon (learn/what-is-workhive-complete-platform-guide/index.html, 2026-11-11T13:22, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {
@@ -1279453,8 +1279467,8 @@
     },
     {
       "id": "CF378",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "CF-FOUND",
       "title": "X3 Findability & search (find a thing; no-results recovers) - what is workhive complete platform guide · a signed-out visitor: X3 0% - 47-item list with NO search/filter — a user cannot FIND a spec",
       "pages": [
@@ -1279550,7 +1279564,14 @@
           "desktop-1280"
         ],
         "instrument": "playwright-mcp + critic deepwalk (survey_ufai_rubric.js through tools/critic_walk_batch.mjs or tools/family_rubric_sweep.mjs --anon)",
-        "closes": "X3 graded clean on what is workhive complete platform guide for a signed-out visitor by a walk after the fix, at both viewports"
+        "closes": "X3 graded clean on what is workhive complete platform guide for a signed-out visitor by a walk after the fix, at both viewports",
+        "closed_at": "2026-11-11T13:23"
+      },
+      "basis": "[2026-11-11] LOCKING pct -> 60. WALKED LIVE (Playwright headless, the critic deepwalk survey_ufai_rubric.js): X3 (Findability & search (find a thing; no-results recovers)) on learn/what-is-workhive-complete-platform-guide/index.html as anon after the find of 2026-09-11 (what-is-workhive-complete-platform-guide: X3 0% - 47-item list with NO search/filter — a user cannot FIND a specific ite) - tools/family_rubric_sweep.mjs --anon (learn/what-is-workhive-complete-platform-guide/index.html, 2026-11-11T13:22, graded at 1280 and 390, the worse kept). Gate cf-rows-hold.",
+      "artifacts": {
+        "gates": [
+          "cf-rows-hold"
+        ]
       }
     },
     {

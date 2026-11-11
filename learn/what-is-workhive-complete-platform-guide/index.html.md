@@ -1,6 +1,6 @@
-# What is WorkHive? The free platform for Filipino industrial teams
+# What is WorkHive? Access your memory, free for every Filipino worker
 
-> WorkHive is a free, browser-based platform for every Filipino industrial worker, from the floor to management. See all 28 connected tools, the four gaps it closes, the growth path, and the AI helper, in one plain-language guide.
+> WorkHive helps every Filipino industrial worker access their memory. Every job you log stays searchable and under your name, and its AI answers from your own records. See all 28 tools, the growth path and the AI helper.
 
 Source: https://workhiveph.com/learn/what-is-workhive-complete-platform-guide/
 
@@ -10,12 +10,11 @@ By **WorkHive Editorial Team**
 ·
 Published 7 Jul 2026
 ·
-Updated 10 Nov 2026
+Updated 11 Nov 2026
 ·
 12 min read
 
-**Short answer:** WorkHive is a free platform for every Filipino industrial worker, from the technician on the floor to the plant manager. It opens in any phone browser, works offline, and puts a digital logbook, a maintenance planner, a spare-parts tracker, 60 engineering calculators, live team boards, reports, and an AI helper into one connected "hive." It does not replace the systems you already run (like SAP or IBM Maximo): it sits alongside them, and it makes every repair you log useful to the whole team. And it is genuinely free: no per-seat charge, no credit card.
- The price is the point: **₱0** at the worker tier, permanently, with the **60** engineering calculators and every tool included rather than tiered.
+**Short answer:** WorkHive helps Filipino industrial workers access their memory. It keeps every job you log and every skill you prove, searchable and under your name. Its AI answers from your own records, so you never start from zero. It costs **₱0** at the worker tier, with no credit card. That covers all **60** engineering calculators and every tool.
 
 Who this is for
 
@@ -28,181 +27,191 @@ Who this is for
 - IT and plant-systems managers
 - Students, new graduates, and workers upskilling for the AI era
 
-## What WorkHive is, in one page
+## Access your memory: what WorkHive is
 
-Most Philippine plants run on scattered notebooks, a shared spreadsheet, a group chat, and the memory of one or two senior people. When those people go on leave, retire, or move abroad, the plant loses knowledge it can never get back. WorkHive fixes that by giving your whole team one place to record work and one place to act on it.
+Every plant runs on what its workers know. Most of it lives in notebooks, group chats and people's heads. When someone goes on leave, retires or moves abroad, that knowledge goes too. The next fault starts from zero.
 
-It is a browser app, so there is nothing to install on a company server. Anyone can open it on the phone they already own. It is built for the **full range** of industrial workers, not just engineers: the technician logging a repair, the supervisor planning the shift, the manager reading the numbers, and the new graduate building a career. Each person signs in and sees the tools their role uses, and the AI helper speaks to each of them differently.
+WorkHive turns that knowledge into a memory you can reach. You log a job once, by typing or by speaking. From then on it is yours to find, reuse and prove. You can search it, ask the AI about it, and show it to a future employer.
 
-The core promise is simple: **every repair a worker logs makes the whole team smarter, makes the AI more useful, and makes that worker's own proof of skill stronger.** Your work stops disappearing and starts compounding.
+It is a browser app, so there is nothing to install on a company server. Open it on the phone you own. It is built for the whole crew, not just engineers. But it starts with the worker. Think of the technician logging a repair, or the operator on the night shift. Or the graduate building a first record.
 
-## Four gaps, one hive: the problem it solves
+The promise is simple. Every job you log makes your own memory stronger, and the team's too.
 
-WorkHive exists to close the four gaps that hold Philippine plants back. Every tool in the platform serves one of these four jobs.
+## What you get as a worker
 
-| The gap today | What WorkHive turns it into |
-| --- | --- |
-| **Chaos.** Work is fragmented and reactive: everyone fights the fire in front of them, and nobody sees the whole plant. | **Coordination.** One shared board shows open work, downtime, and what is due, so the crew pulls in the same direction. |
-| **Guesswork.** Jobs get handed to whoever is free, not whoever is right for the task. | **The right person.** A skill record and a planner match the right person, at the right time, to the right job. |
-| **Forgetting.** Expertise walks out the door when a senior technician retires, and the next fault starts from zero. | **Remembering.** Every fix is written down once and stays searchable forever, so the plant keeps its own memory. |
-| **No supply network.** When stock runs critical or a job needs a specialist, you start from a blank contact list. | **Finding a specialist.** A Philippine directory connects you to parts, training, and verified people when you need them. |
+WorkHive is free for workers, and it pays you back in five ways:
 
-These are not four separate apps. They are four sides of one hive, and the same records feed all of them.
+- **Your work is never lost.** Each logbook entry carries your name and the server's time. Search your history in seconds. Export your own entries to CSV whenever you want.
+- **Your own AI, with your context.** The AI helper answers from your logbook and your hive's documents. It shows where it found each answer. It remembers what you told it before, so you do not repeat yourself.
+- **Time saved on every shift.** Speak an entry instead of typing it, even with oily gloves on. The AI drafts the entry from what you said. Ask the AI where to log something, and it takes you there.
+- **Proof of what you can do.** Sit short skill exams and earn badges in five disciplines. The Resume / CV Builder turns your logged work into a resume. Your badges go on it too. That record goes with you to your next plant, or abroad.
+- **Your effort shows.** Closed entries, completed checks and helpful answers earn points, levels and badges. Your progress shows, not just your output.
 
-## How the hive works: the flywheel
+And it costs you nothing. The worker tier is ₱0, with no credit card. It runs on the phone you own, and the logbook keeps working offline.
 
-WorkHive is built as a loop, not a filing cabinet. Work moves through four stages, and the last stage feeds the first, so the system gets richer the more you use it. Think of it as a flywheel: hard to start, but once it turns, it keeps turning on its own.
+## How your memory grows
 
-**1. Capture** records the raw truth of the plant floor. Every repair, failure, part, reading, and skill is written down once, by typing or by speaking in your own language. Without this layer, everything after it is guesswork.
+WorkHive works as a loop. Each step feeds the next:
 
-**2. Plan** turns what you captured into who-does-what-next. The system schedules the right person for the right task, sets aside the parts a likely failure will need, and drops everything that needs a decision into one inbox.
+1. **Log.** Record each job once, by typing or speaking. Add the machine, the cause and the fix.
+2. **Recall.** Search it later, or ask the AI. The answer comes from your own records and shows where it came from.
+3. **Act.** Plan the next job, set aside the parts, and hand over the shift with the facts in front of you.
+4. **Prove.** Each finished job becomes part of your record, and the loop starts again.
 
-**3. Analyze** turns your growing pile of records into insight. Patterns in the logbook become the numbers that matter, risk rankings, and clear priorities, so you fix the riskiest machine first.
-
-**4. Act and Prove** is where the work gets done, handed over, benchmarked, audited, and supplied. And here is the important part: every action writes new records straight back into Capture, so the loop keeps turning and compounding.
-
-That is why a plant that logs faithfully for six months has predictions, benchmarks, and reports that a plant starting today does not. The work you did last month is still working for you this month.
+So a worker who logs faithfully for six months has a memory a new starter does not. The work you did last month still works for you this month.
 
 ## Every tool in WorkHive (the full catalog)
 
 WorkHive has **28 connected tools**. Below is the complete inventory, grouped by the flywheel stage each one serves. Every tool links to its own page, and every tool feeds the next.
 
+No tool matches that. Try a shorter word.
+
 Stage 1 · Capture (record the raw truth)
 
 | Tool | The one job it does |
 | --- | --- |
-| [Home / Landing](https://workhiveph.com/) | The front door: sign in or create a free account, install it on your phone like an app, pick your AI helper, and browse every tool grouped by your plant's growth stage. |
+| [Home / Landing](https://workhiveph.com/) | The front door. Sign in or create a free account, and install it on your phone like an app. Pick your AI helper, and browse every tool by your plant's stage. |
 | [Digital Maintenance Logbook](https://workhiveph.com/logbook.html) | Record every repair, failure, and fix by typing or speaking. The AI drafts the entry, and it feeds every other tool. |
-| [Voice Journal](https://workhiveph.com/voice-journal.html) | Speak your notes in your own language: eight Philippine languages plus English, and it writes them down and remembers them, so you can log even with oily gloves on. |
-| [Spare-Parts Inventory](https://workhiveph.com/inventory.html) | Track every spare part and get a warning before you run out, with a clear record of each use and restock. |
-| [Asset Hub](https://workhiveph.com/asset-hub.html) | Every machine's whole life in one view (failures, checks, parts, related machines), plus reliability tools and an AI that answers about that exact machine. |
-| [Skill Matrix](https://workhiveph.com/skillmatrix.html) | Track who can do what, set skill targets, take short exams, and earn badges that show who is ready for a job. |
+| [Voice Journal](https://workhiveph.com/voice-journal.html) | Speak your notes in your own language: eight Philippine languages plus English. It writes them down and remembers them. So you can log even with oily gloves on. |
+| [Spare-Parts Inventory](https://workhiveph.com/inventory.html) | Track every spare part and get a warning before you run out. Each use and restock stays on the record. |
+| [Asset Hub](https://workhiveph.com/asset-hub.html) | Every machine's whole life in one view: failures, checks, parts and related machines. It adds reliability tools. Its AI answers about that exact machine. |
+| [Skill Matrix](https://workhiveph.com/skillmatrix.html) | Track who can do what and set skill targets. Take short exams and earn badges that show who is ready for a job. |
 
 Stage 2 · Plan (decide who does what next)
 
 | Tool | The one job it does |
 | --- | --- |
-| [PM Scheduler](https://workhiveph.com/pm-scheduler.html) | Schedule preventive maintenance (planned upkeep) so failures are stopped before they happen, with a checklist for each machine and a record of every completed check. |
-| [Maintenance Day Planner](https://workhiveph.com/dayplanner.html) | Plan your day, week, month, or year on one timeline that pulls from your logbook and schedule, so planned jobs never pile up. |
+| [PM Scheduler](https://workhiveph.com/pm-scheduler.html) | Schedule preventive maintenance (planned upkeep) to stop failures before they happen. Each machine gets a checklist and a record of every completed check. |
+| [Maintenance Day Planner](https://workhiveph.com/dayplanner.html) | Plan your day, week, month or year on one timeline. It pulls from your logbook and schedule, so planned jobs never pile up. |
 | [Shift Brain](https://workhiveph.com/shift-brain.html) | The AI writes the next shift's plan before sign-on: top risks, checks due, carry-over jobs, and parts to set aside. The supervisor publishes it to the crew. |
-| [Project Manager](https://workhiveph.com/project-manager.html) | Run long jobs like overhauls and shutdowns from start to finish: scope, schedule, people, change orders, and lessons learned, all in one place. |
-| [Alert Hub](https://workhiveph.com/alert-hub.html) | One inbox for everything that needs action: risk spikes, overdue checks, low stock, and failure warnings. Acknowledge or resolve each one. |
+| [Project Manager](https://workhiveph.com/project-manager.html) | Run long jobs like overhauls and shutdowns from start to finish. Scope, schedule, people, change orders and lessons sit in one place. |
+| [Alert Hub](https://workhiveph.com/alert-hub.html) | One inbox for everything that needs action. Think risk spikes, overdue checks, low stock and failure warnings. Acknowledge or resolve each one. |
 
 Stage 3 · Analyze (turn records into insight)
 
 | Tool | The one job it does |
 | --- | --- |
-| [Analytics Engine](https://workhiveph.com/analytics.html) | Turns your logged work into the numbers that matter (like overall equipment effectiveness and time between breakdowns), from what happened to what to do next, at four levels of depth. |
-| [Predictive Maintenance](https://workhiveph.com/asset-hub.html) (inside Asset Hub) | Ranks every machine by failure risk with a health map and a trend, so you fix the riskiest machine first. Simple rules from day one, real learning once you have enough records. Lives in the Asset Hub reliability workbench. |
-| [PH Industrial Intelligence](https://workhiveph.com/ph-intelligence.html) | Compares your plant against other Philippine plants (time between breakdowns, top failure causes, typhoon and brownout patterns), so you see where you lead and where you lag. |
+| [Analytics Engine](https://workhiveph.com/analytics.html) | Turns your logged work into the numbers that matter. Think overall equipment effectiveness and time between breakdowns. It goes from what happened to what to do next, in four phases. |
+| [Predictive Maintenance](https://workhiveph.com/asset-hub.html) (inside Asset Hub) | Ranks every machine by failure risk, so you fix the riskiest machine first. Simple rules from day one, real learning once you have enough records. Lives in the Asset Hub reliability workbench. |
+| [PH Industrial Intelligence](https://workhiveph.com/ph-intelligence.html) | Compares your plant with other Philippine plants. It looks at time between breakdowns and top failure causes. So you see where you lead and where you lag. |
 | [AI Work Assistant](https://workhiveph.com/assistant.html) | An AI helper on every page that knows your hive, your role, and your history. Ask in plain language and get an answer from your own logbook. |
-| [AI Quality and ROI](https://workhiveph.com/ai-quality.html) | Shows whether the AI is actually helping: the value it saved in the last 30 days, worker thumbs-up and thumbs-down, and what each AI feature costs to run. |
+| [AI Quality and ROI](https://workhiveph.com/ai-quality.html) | Shows whether the AI is really helping. It tracks the value it saved in the last 30 days and workers' thumbs up or down. It also shows what each AI feature costs to run. |
 
 Stage 4 · Act and Prove (do it, share it, leave a trail)
 
 | Tool | The one job it does |
 | --- | --- |
-| [Hive Live Board](https://workhiveph.com/hive.html) | Your team's shared screen: open work, downtime, and check-completion rate live in one place, plus create or join a hive and hand over shifts. |
+| [Hive Live Board](https://workhiveph.com/hive.html) | Your team's shared screen. Open work, downtime and the check-completion rate show live in one place. You also create or join a hive here, and hand over shifts. |
 | [Community Forum](https://workhiveph.com/community.html) | Your hive's discussion board: ask questions, share fixes, and (if you choose) post to a plant-wide feed. The best answers feed the AI and the knowledge base. |
-| [Analytics Report](https://workhiveph.com/analytics-report.html) | A print-ready maintenance report: worst offenders, root causes, machine-health scores, and an AI action plan, saved as a PDF. |
-| [Project Report](https://workhiveph.com/project-report.html) | A print-ready report for a single project: summary, scope, progress, sign-off, and lessons, ready to hand to a contractor or client. |
-| [Audit Log and Compliance](https://workhiveph.com/audit-log.html) | A tamper-evident record of every power action (approvals, edits, deletes, member changes) with who did it and when, ready for an ISO or government review. |
-| [Engineering Design Calculator](https://workhiveph.com/engineering-design.html) | 55 calculators across 6 disciplines, each done to Philippine standards, each giving you a materials list, a scope of work, and a diagram. |
-| [Marketplace](https://workhiveph.com/marketplace.html) | A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no commission. Publishing a listing holds 10% of its price in credits. A live listing's hold shrinks by 2% a month. The rest comes back if the seller takes it down. If it sells, the buyer gets it as a reward. |
-| [Report Sender](https://workhiveph.com/report-sender.html) | Sends the shift handover and end-of-day summary to the right people by email. Add contacts by role and deliver a print-ready report. |
-| [CMMS Integration](https://workhiveph.com/integrations.html) | A two-way bridge to your current maintenance system (like SAP or IBM Maximo): import your data, sync jobs, and push completions without dropping what you already use. |
-| [Plant Connections](https://workhiveph.com/plant-connections.html) | A supervisor-only control panel for your plant's data plumbing: your current-system sync status, sensor list, company sign-in, and data-keeping settings in one place. |
-| [Resume / CV Builder](https://workhiveph.com/resume.html) | Turns your logged work and verified skills into a job-ready resume. Snap or upload an old CV, let the AI tidy it up, and save it as a PDF, Word, or file. |
-| [Achievements](https://workhiveph.com/achievements.html) | Levels, points, and badges earned for real work (closed logbook entries, completed checks, helpful answers), so progress feels visible. |
+| [Analytics Report](https://workhiveph.com/analytics-report.html) | A print-ready maintenance report. It has a summary and four headline figures. It also has an AI action plan and a sign-off block. Save it as a PDF. |
+| [Project Report](https://workhiveph.com/project-report.html) | A print-ready report for a single project. It holds the summary, scope, progress, sign-off and lessons. Hand it to a contractor or client. |
+| [Audit Log and Compliance](https://workhiveph.com/audit-log.html) | A record of every power action, with who did it and when. That covers approvals, edits, deletes and member changes. Members cannot edit it, and it is ready for an ISO or government review. |
+| [Engineering Design Calculator](https://workhiveph.com/engineering-design.html) | 55 calculators across 6 disciplines, each done to Philippine standards. Each gives you a materials list, a scope of work and a diagram. |
+| [Marketplace](https://workhiveph.com/marketplace.html) | A Philippine directory of parts, training and jobs from ID-verified sellers. Contact-only, with no commission. Publishing a listing holds 10% of its price in credits. A live listing's hold shrinks by 2% a month. The rest comes back if the seller takes it down. If it sells, the buyer gets it as a reward. |
+| [Report Sender](https://workhiveph.com/report-sender.html) | Sends the shift handover and day summary by email. It goes to the people you choose. Add contacts by role and deliver a print-ready report. |
+| [CMMS Integration](https://workhiveph.com/integrations.html) | A two-way bridge to the system you already run, like SAP or IBM Maximo. Import your data, sync jobs and push completions. You keep what you already use. |
+| [Plant Connections](https://workhiveph.com/plant-connections.html) | A supervisor-only control panel for your plant's data. It holds the sync status and the sensor list. It also sets company sign-in and how long data stays. |
+| [Resume / CV Builder](https://workhiveph.com/resume.html) | Turns your logged work and verified skills into a job-ready resume. Snap or upload an old CV, and let the AI tidy it up. Save it as a PDF or a Word file. |
+| [Achievements](https://workhiveph.com/achievements.html) | Levels, points and badges for real work. You earn them for closed entries, completed checks and helpful answers. |
 
-A few tools do double duty. The Asset Hub, for example, both records each machine (Capture) and runs the reliability workbench that studies failure modes (Analyze). That is by design: the same record is useful in more than one place.
+A few tools do double duty. The Asset Hub, for example, records each machine (Capture). It also runs the reliability workbench that studies failure modes (Analyze). That is by design: the same record is useful in more than one place.
 
 ### Every calculator also has its own page, no sign-up
 
-The engineering suite exists in two places: 55 calculators across 6 disciplines inside the hive, and 60 standalone pages you can open without an account. Each standalone page shows the formula, the Philippine standard it follows, and a fully worked example with real numbers, so you can check a figure in about 30 seconds, on a phone, at the machine, before you decide whether the rest of the platform is for you.
+The engineering suite lives in two places. Inside the hive, 55 calculators span 6 disciplines. Outside it, 60 standalone pages open without an account. Each standalone page shows the formula and its Philippine standard.
+
+It also gives a worked example with real numbers. So you can check a figure in about 30 seconds, on a phone, at the machine. Then decide if the rest of the platform is for you.
 
 They span eight disciplines:
 
 - **Electrical & power** (15): [voltage drop](https://workhiveph.com/tools/voltage-drop-calculator/), [transformer sizing](https://workhiveph.com/tools/transformer-sizing-calculator/), [short circuit](https://workhiveph.com/tools/short-circuit-calculator/)
 - **Plumbing & pumps** (14): [pump TDH](https://workhiveph.com/tools/pump-tdh-calculator/), [water supply pipe sizing](https://workhiveph.com/tools/water-supply-pipe-calculator/), [septic tank sizing](https://workhiveph.com/tools/septic-tank-calculator/)
 - **HVAC & cooling** (10): [cooling load](https://workhiveph.com/tools/hvac-cooling-load-calculator/), [duct sizing](https://workhiveph.com/tools/duct-sizing-calculator/), [chiller sizing](https://workhiveph.com/tools/chiller-sizing-calculator/)
-- **Mechanical & machine design** (10): [bearing life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [pressure vessel shell](https://workhiveph.com/tools/pressure-vessel-calculator/), [shaft design](https://workhiveph.com/tools/shaft-design-calculator/)
+- **Machine design** (10): [bearing life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [pressure vessels](https://workhiveph.com/tools/pressure-vessel-calculator/), [shafts](https://workhiveph.com/tools/shaft-design-calculator/)
 - **Fire protection** (5): [sprinkler hydraulics](https://workhiveph.com/tools/fire-sprinkler-calculator/), [fire pump sizing](https://workhiveph.com/tools/fire-pump-calculator/)
 - **Reliability & metrics** (2): [MTBF & MTTR](https://workhiveph.com/tools/mtbf-calculator/), [OEE](https://workhiveph.com/tools/oee-calculator/)
 - **Vertical transport** (2): [elevator traffic](https://workhiveph.com/tools/elevator-traffic-calculator/), [hoist capacity](https://workhiveph.com/tools/hoist-capacity-calculator/)
 - **Boiler & utilities** (2): [boiler / steam duty](https://workhiveph.com/tools/boiler-steam-calculator/), [boiler system sizing](https://workhiveph.com/tools/boiler-system-calculator/)
 
-The difference between these pages and the [Engineering Design workbench](https://workhiveph.com/engineering-design.html) is what happens after the number. A standalone page answers one question. The workbench keeps the job: it produces the materials list, the scope of work, and the diagram, and it saves the result against the asset it belongs to.
+What happens after the number is the difference. It sets these pages apart from the [Engineering Design workbench](https://workhiveph.com/engineering-design.html). A standalone page answers one question. The workbench keeps the job. It produces the materials list, the scope of work and the diagram. It saves the result against its asset.
 
 The platform this guide is about
 
 ### One free hive for your whole plant team
 
-28 connected tools, from the digital logbook to 60 engineering calculators to the AI helper, all in one browser app that works offline on any phone. No per-seat charge, no credit card. Sign up, start logging, and watch the intelligence build as your records grow.
+28 connected tools, from the digital logbook to the AI helper. That includes 60 engineering calculators. All in one browser app on any phone. The logbook keeps working offline. No per-seat charge, no credit card. Sign up, start logging, and watch the intelligence build as your records grow.
 
 Ready now? [Join the Hive](https://workhiveph.com/?signup=1) (free, takes about 30 seconds).
 
 ## The maturity stairs: five levels, 0 to 4
 
-No plant jumps straight to predictions and benchmarks. WorkHive grows with you up a set of stairs, and, importantly, **it will not fake numbers it has not earned.** A health score or a failure prediction only appears once there are enough real records behind it. From day one you get simple, honest rules; once you have built up history (about 500 records), the system starts learning your own plant's patterns. If it does not have the data for an answer, it says so.
+No plant jumps straight to predictions and benchmarks. WorkHive grows with you up a set of stairs, and, importantly, **it will not fake numbers it has not earned.** A health score appears only once enough real records back it.
+
+So does a failure prediction. From day one, you get simple, honest rules. Then you build up history, about 500 corrective records per type of machine. From there, the system learns your own plant's patterns. If it does not have the data for an answer, it says so.
 
 | Level | Stage | What it looks like | What unlocks here |
 | --- | --- | --- | --- |
-| **0** | Paper | Work lives on paper, whiteboards, and memory. Knowledge leaves when people do. | Nothing is captured yet. This is the starting line. |
-| **1** | Digital Logbook | Repairs are recorded digitally by typing or voice. Nothing is lost at shift-end. | The logbook, voice journal, and a searchable team feed. |
-| **2** | Disciplined | Planned checks happen on time, parts are tracked, records are consistent. | The scheduler, inventory alerts, day planner, and trustworthy basic numbers. |
+| **0** | Paper | Work lives on paper, whiteboards, and memory. Knowledge leaves when people do. | No records yet. This is the starting line. |
+| **1** | Digital Logbook | Workers record repairs digitally, by typing or voice. Nothing is lost at shift-end. | The logbook, voice journal, and a searchable team feed. |
+| **2** | Disciplined | Planned checks happen on time. The crew tracks parts, and records stay consistent. | The scheduler, inventory alerts, day planner, and trustworthy basic numbers. |
 | **3** | Predictive-Ready | Enough history exists for risk ranking, health maps, and failure trends. | Predictive maintenance and the AI shift plan start learning your patterns. |
 | **4** | Industry Leader | The plant runs on data: full analytics, peer benchmarks, and AI action plans. | Philippine benchmarks, audit-ready reports, and prescriptive advice. |
 
-You climb these stairs for free. There is no paid tier that unlocks the advanced tools: they unlock when your records earn them. That honesty is the whole point. A tool that invents a fake reliability score to look impressive would cost you a wrong repair decision. WorkHive would rather show you an honest blank and tell you what to log to fill it.
+You climb these stairs for free. There is no paid tier that unlocks the advanced tools: they unlock when your records earn them. That honesty is the whole point.
+
+Some tools invent a fake reliability score to look impressive. That would cost you a wrong repair decision. WorkHive would rather show you an honest blank and tell you what to log to fill it.
 
 ## The AI companion that sits over everything
 
-Across all 28 tools sits one AI helper. It is not a separate product you switch to: it lives on every page and knows your hive, your role, and your history. You can give it one of two expert personalities, and you can change which one you talk to at any time. There is a fuller walk-through in the [AI companion guide](https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/) and the [AI work assistant guide](https://workhiveph.com/learn/ai-work-assistant-maintenance-technicians/), but here is what it actually does for a worker, in plain terms:
+Across all 28 tools sits one AI helper. It is not a separate product you switch to. It lives on every page and knows your hive, your role and your history. You can give it one of two expert personalities. You can switch between them at any time.
 
-- **It answers from your own records.** Ask it a question and it replies from your own logbook and job history, and it shows you where it found the answer, so you can trust it.
-- **It reads what your hive has filed, and says so.** Besides your records, it is given the manuals and documents your hive has uploaded, facts drawn from past entries, and the industry standards library, all fetched under your own sign-in so it only sees what you may see. Under each answer a line lists what it was given, for example "Given with this answer: 2 team records (logbook ...) · 1 document (...) · 1 standard (...)".
-- **You can just talk to it.** Speak in English or Taglish and it writes down what you say, in English. Bisaya or Ilocano come through as an English rendering that can miss words, so for a note kept in your own language use the Voice Journal, which keeps your words as you spoke them. It can also read the answer back out loud, so you can keep both hands on the job.
+The [AI companion guide](https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/) and the [AI work assistant guide](https://workhiveph.com/learn/ai-work-assistant-maintenance-technicians/) go deeper. Here is what it does for a worker, in plain terms:
+
+- **It answers from your own records.** Ask it a question, and it replies from your own logbook and job history. It shows where it found the answer, so you can trust it.
+- **It reads what your hive has filed, and says so.** Besides your records, it gets your hive's manuals and documents. It also gets facts from past entries and the standards library. It fetches them under your own sign-in, so it sees only what you may see. Under each answer, a line lists what it read.
+- **You can just talk to it.** Speak in English or Taglish, and it writes down what you say in English. Bisaya or Ilocano come through in English, and words can go missing. For a note in your own language, use the Voice Journal. It keeps your words as you spoke them. It can also read answers out loud, so your hands stay on the job.
 - **It sends you to the right page.** Ask "where do I log this?" and it takes you straight there, instead of leaving you to hunt through menus.
-- **It remembers.** It remembers what you told it before, even days later, so you do not have to repeat yourself every morning.
-- **It will not pass off an invented number as one of yours.** If it does not have the figure, it says so and points you to the page where you can get it. Where it does offer an estimate, it is labelled as one rather than dressed up as a reading from your records.
-- **It knows each machine.** Ask about one machine and it pulls up that machine's whole history, not a generic textbook answer.
+- **It remembers.** It recalls what you told it, even days later. So you do not repeat yourself every morning.
+- **It will not pass off an invented number as one of yours.** If it lacks a figure, it says so. Then it points you to the page that has it. When it does give an estimate, it labels it as one. It never dresses it up as a reading from your records.
+- **It knows each machine.** Ask about one machine, and it pulls up that machine's whole history. You get its record, not a textbook answer.
 
-The more your team logs, the more useful this helper becomes, because it is answering from your plant's real work, not from the internet.
+The more your team logs, the more useful this helper becomes. It answers from your plant's real work, not from the internet.
 
 ## Free, offline-first, and built for Philippine plants
 
-Two things make WorkHive different from the imported systems most Philippine plants have tried and abandoned.
+Most Philippine plants have tried imported systems and given up. Two things make WorkHive different.
 
-**It is genuinely free.** There is no per-seat license. You do not pay per user, and you do not need a credit card to start. The whole crew can be on it tomorrow. Even the marketplace is contact-only, with no commission. A seller's listing holds 10% of its price in WorkHive Credits. While it is live, that hold shrinks by 2% a month. The rest comes back if the seller takes it down. If it sells, the buyer gets it as a reward. WorkHive earns its keep by being useful, not by charging you per head.
+**It is genuinely free.** There is no per-seat license. You do not pay per user, and you do not need a credit card to start. The whole crew can be on it tomorrow. Even the marketplace is contact-only, with no commission.
 
-**It is built for the way Philippine plants actually work.** It runs in a phone browser and works offline, so a brownout, a weak signal, or a tablet shared across a crew does not stop a repair from being recorded. It expects local conditions: the benchmarks account for typhoon season, brownouts, and salt air, and the engineering calculators use tropical constants instead of temperate defaults. The calculators, benchmarks, and safety references are anchored to Philippine standards, so the answers hold up for a local audit and a local reviewer.
+A seller's listing holds 10% of its price in WorkHive Credits. While it is live, that hold shrinks by 2% a month. The rest comes back if the seller takes it down. If it sells, the buyer gets it as a reward. WorkHive earns its keep by being useful, not by charging you per head.
 
-Here is how that plays out against a typical paid CMMS (computerized maintenance management system), feature by feature.
+**It is built for the way Philippine plants actually work.** It runs in a phone browser. The logbook keeps working offline. A brownout or a weak signal does not stop you recording a repair. The engineering calculators use tropical constants instead of temperate defaults. The calculators and safety references follow Philippine standards. So the answers hold up for a local audit.
+
+Here is how WorkHive compares, feature by feature. The other column is a typical paid CMMS. CMMS means computerized maintenance management system.
 
 | Capability | WorkHive (free) | Typical paid CMMS |
 | --- | --- | --- |
-| **Cost to run a plant** | Free to use, no per-seat fee. A whole crew (technicians, supervisors, engineers) can be on it without the headcount math. | Often around $20 to $50 per user per month, billed in USD. For a 20-person team that is a real PHP line item every month before you log a single repair. |
-| **Maintenance logbook** | Digital Maintenance Logbook is the foundation layer: every repair, failure and fix recorded, and it feeds the dashboard, handover, PM and AI assistant. | Work-order or logbook module included, but usually only on a paid tier and behind the per-seat license. |
-| **PM scheduling** | PM Checklist (PM Scheduler) plans preventive work so PMs do not pile up, and each completed PM flows back into the logbook and dashboard. | Preventive maintenance scheduling is a core feature, generally available only on higher-priced plans. |
-| **Engineering calculators** | Built-in Engineering Design Calculator runs calcs to Philippine engineering standards and saves each result as a permanent reference. Bundled at no cost. | Engineering and design calculators are rarely part of a CMMS. Teams reach for separate paid tools or spreadsheets. |
-| **Mobile and voice capture** | Log entries by typing or by voice straight from the plant floor (voice transcribe and voice command), so a technician with gloves and a phone can still record the fix. | Mobile apps exist on most paid platforms, but voice-to-text logging is uncommon and often an add-on. |
-| **Onboarding time** | Sign up and start logging the same day, with no implementation project. The free tier is the working product, not a trial. | Typically weeks of onboarding, data migration and configuration, sometimes a paid implementation package before go-live. |
-| **DOLE / ISO audit trail** | Audit Log and Compliance records every supervisor and worker action with timestamp and actor, ready for ISO or regulator review (DOLE OSHS, ISO audits). | Audit logging is usually reserved for enterprise tiers and priced accordingly. |
-| **Predictive and AI** | Predictive Analytics scores assets by failure risk (Weibull, P-F intervals, FMEA) with Auto-Staging of parts, plus an AI assistant that gets smarter as the logbook grows. Included free. | Predictive and AI modules are typically premium upsells on top of the base per-seat license. |
-| **Connect to existing CMMS** | CMMS Integrations offer two-way sync with SAP PM, IBM Maximo and Fiix, so a plant can adopt WorkHive without abandoning its current system. | Integrations are often professional-services work, billed as a separate paid project. |
+| **Cost to run a plant** | Free to use, no per-seat fee. A whole crew of technicians, supervisors and engineers can use it. Nobody counts heads. | Often around $20 to $50 per user per month, billed in USD. For a 20-person team that is a real PHP line item every month before you log a single repair. |
+| **Maintenance logbook** | The Digital Maintenance Logbook is the foundation. It records every repair, failure and fix. It feeds the dashboard, the handover, PM and the AI assistant. | A work-order or logbook module comes included. But it usually sits on a paid tier, behind the per-seat license. |
+| **PM scheduling** | PM Checklist (PM Scheduler) plans preventive work so PMs do not pile up. Each completed PM flows back into the logbook and dashboard. | Preventive maintenance scheduling is a core feature. Most vendors keep it for higher-priced plans. |
+| **Engineering calculators** | The built-in Engineering Design Calculator follows Philippine engineering standards. It saves each result for later reference. Bundled at no cost. | Engineering and design calculators are rarely part of a CMMS. Teams reach for separate paid tools or spreadsheets. |
+| **Mobile and voice capture** | Log entries by typing or by voice, straight from the plant floor. A technician with gloves and a phone can still record the fix. | Most paid platforms have mobile apps. Voice-to-text logging is rare, and often an add-on. |
+| **Onboarding time** | Sign up and start logging the same day, with no implementation project. The free tier is the working product, not a trial. | Usually weeks of onboarding, data migration and setup. Some vendors sell a paid setup package before go-live. |
+| **DOLE / ISO audit trail** | The Audit Log records every power action, with who did it and when. That covers approvals, edits, deletes and member changes. It is ready for a DOLE or ISO review. | Audit logging is usually reserved for enterprise tiers and priced accordingly. |
+| **Predictive and AI** | Predictive Analytics scores assets by failure risk. It uses Weibull, P-F intervals and FMEA. It stages parts ahead of a likely failure. The AI assistant gets smarter as the logbook grows. Included free. | Predictive and AI modules usually cost extra. You pay them on top of the per-seat license. |
+| **Connect to existing CMMS** | CMMS Integrations sync both ways. They work with SAP PM, IBM Maximo and other REST systems. So a plant can adopt WorkHive and keep its current system. | Integrations are often professional-services work, billed as a separate paid project. |
 
-Paid-CMMS figures are typical category ranges, not a quote from any single vendor.
+These paid-CMMS figures are typical ranges. No single vendor quoted them.
 
-**Why "complements, never replaces" matters:** If you already run SAP, IBM Maximo, or another system, you do not throw it out. WorkHive imports your data and syncs work back to it, so you keep your investment and simply gain the tools your current system does not give the people on the floor.
+**Why "complements, never replaces" matters.** You do not throw out the system you already run, like SAP or IBM Maximo. WorkHive imports your data and syncs work back to it. You keep your investment. You gain the tools your current system never gave the people on the floor.
 
 ## Getting started in four steps
 
 You do not need a project, a budget, or a consultant. You need one repair and five minutes.
 
-1. **Create your account and hive.** Open WorkHive in any phone browser, make a free account, then start a new hive or join your plant's hive with an invite code.
-2. **Log your first repair.** Record one real repair by typing it or speaking it in your own language. The AI drafts the entry for you.
-3. **Add your machines and parts.** Register your key machines and spare parts so every future entry links to the right equipment and the right stock.
+1. **Create your account and hive.** Open WorkHive in any phone browser and make a free account. Then start a new hive, or join your plant's hive with an invite code.
+2. **Log your first repair.** Record one real repair by typing it or speaking it. The AI drafts the entry for you.
+3. **Add your machines and parts.** Register your key machines and spare parts. Then every future entry links to the right equipment and stock.
 4. **Let the intelligence build.** As your records grow, the planners, dashboards, predictions, and reports fill in on their own. The more you log, the smarter the whole hive gets.
 
 New teams often start with the [digital logbook rollout guide](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/), which walks through the first two weeks in detail.
@@ -211,7 +220,7 @@ New teams often start with the [digital logbook rollout guide](https://workhivep
 
 ### What is WorkHive?
 
-WorkHive is a free platform for every Filipino industrial worker, from the technician on the floor to the plant manager. It puts a digital logbook, a maintenance planner, a spare-parts tracker, engineering calculators, reports, and an AI helper into one place that opens in any phone browser. It works offline, and it complements the systems you already run instead of replacing them.
+WorkHive helps Filipino industrial workers access their memory. It keeps every job you log, searchable and under your name, and its AI answers from your own records. It opens in any phone browser and is free at the worker tier. It works beside the systems you already run, instead of replacing them.
 
 ### Is WorkHive really free?
 
@@ -227,15 +236,15 @@ No. WorkHive is built to sit alongside what you already use. It can import your 
 
 ### Why do some advanced features only unlock later?
 
-WorkHive will not fake numbers it has not earned. Predictions, benchmarks, and health scores need real records first. From day one it uses simple rules; once you have built up enough logged history (about 500 records), it starts learning your plant's own patterns. This is the growth path from Paper all the way to Industry Leader.
+WorkHive will not fake numbers it has not earned. Predictions, benchmarks, and health scores need real records first. From day one it uses simple rules; once you have built up enough logged history (about 500 corrective records per type of machine), it starts learning your plant's own patterns. This is the growth path from Paper all the way to Industry Leader.
 
 ### What makes WorkHive right for Philippine plants?
 
-It works offline on any phone, so a brownout or a weak signal does not stop you recording work. Its engineering calculators, benchmarks, and safety references are anchored to Philippine standards and conditions like tropical heat, typhoons, and salt air. And it is built for the full range of Filipino industrial workers, not just engineers.
+Its logbook works offline on any phone, so a brownout or a weak signal does not stop you recording work. Its engineering calculators and safety references follow Philippine standards and tropical conditions. And it serves every Filipino industrial worker, not just engineers.
 
 ## Explore every WorkHive guide
 
-This page is the map. Each guide below goes deep on one tool or one job. They are grouped by the same four flywheel stages, so you can start wherever your plant is today.
+This page is the map. Each guide below goes deep on one tool or one job. We group them by the same four stages as the catalog. Start wherever your plant is today.
 
 ### Capture guides
 
@@ -299,7 +308,7 @@ Start with the AI helper
 
 ### Meet your AI work assistant
 
-The helper that sits over all 28 tools, answers from your own records, speaks your language, and will not pass off an invented number as one of yours. Open it and ask your first question in plain Taglish.
+The helper over all 28 tools. It answers from your own records and understands English and Taglish. It will not pass off an invented number as one of yours. Open it and ask your first question in plain Taglish.
 
 Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/).
 
@@ -316,4 +325,4 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: a7e59a049951f287 -->
+<!-- md-twin source-sha: 2b696952bf8d7e00 -->

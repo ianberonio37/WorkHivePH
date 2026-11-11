@@ -702,8 +702,12 @@
     const _uniq = [...new Map(_ctaPairs.map(([k, e2]) => [e2, [k, e2]])).values()];
     const _keyCount = _uniq.reduce((m, [k]) => { m[k] = (m[k] || 0) + 1; return m; }, {});
     const _ROWISH = /(^|[\s_-])(card|item|row|listing|inquiry|entry|result|record)([\s_-]|$)/i;
+    // ★The page's own <article> is not a row (2026-11-11). A guide is <main><article> around everything; once it held a
+    // "Find a tool" search box, _rowForm read the WHOLE PAGE as one record row with a field in it, and every CTA on it as a
+    // row action (what-is-workhive read A1 75% "cta=0"). An article that holds the page's h1 is the page, not a record.
+    const _rowOf = (e2) => { const r = e2.closest('li, tr, article'); return (r && r.tagName === 'ARTICLE' && r.querySelector('h1')) ? null : r; };
     const _inRowContainer = (e2) => {
-      if (e2.closest('li, tr, article')) return true;
+      if (_rowOf(e2)) return true;
       for (let a = e2.parentElement; a && a !== document.body; a = a.parentElement) {
         if (_ROWISH.test(typeof a.className === 'string' ? a.className : '')) return true;
       }
@@ -717,7 +721,7 @@
     // and the first cut read the page's one primary as a row action (J23, cta=0).
     const _RECORD_ROW = /(^|[\s_-])(inquiry|review|listing|comment|reply|message|result|record|item)([\s_-]|$)/i;
     const _rowForm = (e2) => {
-      let row = e2.closest('li, tr, article');
+      let row = _rowOf(e2);
       for (let a = e2.parentElement; !row && a && a !== document.body; a = a.parentElement) {
         if (_RECORD_ROW.test(typeof a.className === 'string' ? a.className : '')) row = a;
       }
