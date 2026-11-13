@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 11 Nov 2026
+Updated 13 Nov 2026
 ·
 9 min read
 
@@ -116,7 +116,7 @@ Plants with a lot of outside work ask about this first. So here is where it real
 
 When you close the job, WorkHive sends the completion back to SAP. That works once you connect SAP. It ends the retyping that makes contractor reports late. None of that requires giving anyone an ERP seat, which is the expensive part you were trying to avoid.
 
-**What does not exist yet, stated plainly.** No contractor login is limited to its own work orders. No supplier view is limited to its own parts. A hive member sees the whole hive. Anyone you invite sees its assets and records.
+**What does not exist yet, stated plainly.** A contractor cannot get a login limited to its own work orders. A supplier cannot get a view limited to its own parts. A hive member sees the whole hive. Anyone you invite sees its assets and records.
 
 The only higher role is supervisor. So if a vendor must not see the rest of your plant, do not invite them. Have your planner log the finished job against the asset. It takes a minute and keeps the line real.
 
@@ -128,7 +128,7 @@ The most important rule: do not connect until WorkHive has run 90 days of clean 
 
 The recommended sequence:
 
-1. **Months 1 to 3:** WorkHive Logbook + PM Scheduler only. No integration. Validate data quality.
+1. **Months 1 to 3:** use the WorkHive Logbook and PM Scheduler only, without the SAP link. Check your data quality first.
 2. **Month 4:** Enable one-way push of work-order completion only. Monitor SAP register for 30 days.
 3. **Month 5:** Add the scheduled pull of work orders from SAP. Load the asset master by CSV. Check the mapping for 30 days.
 4. **Months 6 to 9:** tune the field map. Re-import assets and PMs by CSV when your master data changes.
@@ -174,4 +174,4 @@ Trying to integrate everything before the WorkHive side has 90 days of stable da
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 3162064708975fde -->
+<!-- md-twin source-sha: abf629c2169bc106 -->

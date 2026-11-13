@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 7 Jul 2026
 ·
-Updated 11 Nov 2026
+Updated 13 Nov 2026
 ·
 12 min read
 
@@ -107,7 +107,7 @@ Stage 4 · Act and Prove (do it, share it, leave a trail)
 | [Project Report](https://workhiveph.com/project-report.html) | A print-ready report for a single project. It holds the summary, scope, progress, sign-off and lessons. Hand it to a contractor or client. |
 | [Audit Log and Compliance](https://workhiveph.com/audit-log.html) | A record of every power action, with who did it and when. That covers approvals, edits, deletes and member changes. Members cannot edit it, and it is ready for an ISO or government review. |
 | [Engineering Design Calculator](https://workhiveph.com/engineering-design.html) | 55 calculators across 6 disciplines, each done to Philippine standards. Each gives you a materials list, a scope of work and a diagram. |
-| [Marketplace](https://workhiveph.com/marketplace.html) | A Philippine directory of parts, training and jobs from ID-verified sellers. Contact-only, with no commission. Publishing a listing holds 10% of its price in credits. A live listing's hold shrinks by 2% a month. The rest comes back if the seller takes it down. If it sells, the buyer gets it as a reward. |
+| [Marketplace](https://workhiveph.com/marketplace.html) | A Philippine directory of parts, training and jobs from ID-verified sellers. Buyers contact sellers directly, and WorkHive takes no commission. Publishing a listing holds 10% of its price in credits. A live listing's hold shrinks by 2% a month. The rest comes back if the seller takes it down. If it sells, the buyer gets it as a reward. |
 | [Report Sender](https://workhiveph.com/report-sender.html) | Sends the shift handover and day summary by email. It goes to the people you choose. Add contacts by role and deliver a print-ready report. |
 | [CMMS Integration](https://workhiveph.com/integrations.html) | A two-way bridge to the system you already run, like SAP or IBM Maximo. Import your data, sync jobs and push completions. You keep what you already use. |
 | [Plant Connections](https://workhiveph.com/plant-connections.html) | A supervisor-only control panel for your plant's data. It holds the sync status and the sensor list. It also sets company sign-in and how long data stays. |
@@ -139,7 +139,7 @@ The platform this guide is about
 
 ### One free hive for your whole plant team
 
-28 connected tools, from the digital logbook to the AI helper. That includes 60 engineering calculators. All in one browser app on any phone. The logbook keeps working offline. No per-seat charge, no credit card. Sign up, start logging, and watch the intelligence build as your records grow.
+28 connected tools, from the digital logbook to the AI helper. That includes 60 engineering calculators. All in one browser app on any phone. The logbook keeps working offline. There is no per-seat charge, and you need no credit card. Sign up, start logging, and watch the intelligence build as your records grow.
 
 Ready now? [Join the Hive](https://workhiveph.com/?signup=1) (free, takes about 30 seconds).
 
@@ -151,7 +151,7 @@ So does a failure prediction. From day one, you get simple, honest rules. Then y
 
 | Level | Stage | What it looks like | What unlocks here |
 | --- | --- | --- | --- |
-| **0** | Paper | Work lives on paper, whiteboards, and memory. Knowledge leaves when people do. | No records yet. This is the starting line. |
+| **0** | Paper | Work lives on paper, whiteboards, and memory. Knowledge leaves when people do. | You have no records yet. This is the starting line. |
 | **1** | Digital Logbook | Workers record repairs digitally, by typing or voice. Nothing is lost at shift-end. | The logbook, voice journal, and a searchable team feed. |
 | **2** | Disciplined | Planned checks happen on time. The crew tracks parts, and records stay consistent. | The scheduler, inventory alerts, day planner, and trustworthy basic numbers. |
 | **3** | Predictive-Ready | Enough history exists for risk ranking, health maps, and failure trends. | Predictive maintenance and the AI shift plan start learning your patterns. |
@@ -224,7 +224,7 @@ WorkHive helps Filipino industrial workers access their memory. It keeps every j
 
 ### Is WorkHive really free?
 
-Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no commission. Publishing a listing holds 10% of its price in WorkHive Credits. While it is live, that hold shrinks by 2% a month. The rest comes back if you take it down, or goes to the buyer as a reward if it sells.
+Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. Buyers contact sellers directly, and WorkHive takes no commission. Publishing a listing holds 10% of its price in WorkHive Credits. While it is live, that hold shrinks by 2% a month. The rest comes back if you take it down, or goes to the buyer as a reward if it sells.
 
 ### What tools are inside WorkHive?
 
@@ -325,4 +325,4 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 2b696952bf8d7e00 -->
+<!-- md-twin source-sha: 301dea48c63ff996 -->

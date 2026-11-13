@@ -10,11 +10,11 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 10 Nov 2026
+Updated 13 Nov 2026
 ·
 9 min read
 
-**Short answer:** An asset register is the master list of all the assets in a plant. Each one gets its own ID, a location and a rank for how critical it is. It also links to its PM and fault history. Most Philippine plants do not have one (they have 3 contradictory spreadsheets). A clean register of 200 to 500 assets takes about 30 working days. It needs one supervisor and one technician. Spend 5 days walking and counting. Spend 3 on the hierarchy and names, and 5 on criticality. Then spend 7 loading it into WorkHive Asset Hub, and 10 filling gaps. No software budget needed; the discipline matters more than the tool.
+**Short answer:** An asset register is the master list of all the assets in a plant. Each one gets its own ID, a location and a rank for how critical it is. It also links to its PM and fault history. Most Philippine plants do not have one (they have 3 contradictory spreadsheets). A clean register of 200 to 500 assets takes about 30 working days. It needs one supervisor and one technician. Spend 5 days walking and counting. Spend 3 on the hierarchy and names, and 5 on criticality. Then spend 7 loading it into WorkHive Asset Hub, and 10 filling gaps. A clean register needs discipline more than a software budget.
 
 Who this is for
 
@@ -42,7 +42,7 @@ Budget is not the usual reason a plant here has no asset register. It is that no
 
 ## ISO 14224 hierarchy (and the simplified 5-level version)
 
-ISO 14224 is the world standard for collecting reliability and maintenance data. It started with oil, petrochemical and gas equipment. Other factories use it too. No other scheme lets plants compare data worldwide. The full standard defines a 9-level hierarchy:
+ISO 14224 is the world standard for collecting reliability and maintenance data. It started with oil, petrochemical and gas equipment. Other factories use it too, and it is the one scheme that lets plants compare data worldwide. The full standard defines a 9-level hierarchy:
 
 1. Industry (oil and gas, petrochemical, etc.)
 2. Business category (upstream, midstream, downstream)
@@ -109,9 +109,9 @@ The naming scheme is the most overlooked part of an asset register. Plants that 
 Rules that survive:
 
 - **Document it in one page** and post it where new assets get added.
-- **Single authority** to approve new asset names (usually the planner). No new asset gets a number without their sign-off.
+- **One person approves new asset names,** usually the planner. A new asset gets its number only after they sign off.
 - **Short codes** everyone uses, in a published list: PMP for pump, FAN for fan, MTR for motor, VLV for valve.
-- **No special characters** except dash. Spaces and slashes break URL parsing and CSV exports.
+- Use letters, numbers and dashes only. Spaces and slashes break URLs and CSV exports.
 - **Reserve numbers** by hundreds. Use 001 to 099 for main production and 100 to 199 for utilities. Use 200 to 299 for the warehouse, and so on. Makes the asset code self-describing.
 
 ## Criticality ranking on a 4-point scale
@@ -129,7 +129,7 @@ The split depends on how much backup equipment you have, and that is unique to y
 
 ## Contractors and outside work against the register
 
-A register earns its keep once you log outside work against it. Not against a job note in an email. Be clear about what WorkHive does today. Here it is easy to promise more than any small platform delivers:
+A register earns its keep once you log outside work against it, not in a job note in an email. Be clear about what WorkHive does today. Here it is easy to promise more than any small platform delivers:
 
 - **What exists now:** log outside work as a contractor project. Do it in the Project Manager. Its jobs point at the same asset IDs your own PMs use. So a vendor's overhaul sits in the asset's timeline, beside your team's work. Connect SAP in Integrations, and WorkHive can report back. Close a job on an asset imported from SAP, and the completion goes back to SAP.
 - **What does not exist yet:** a contractor login that sees only their own systems. A hive member sees the whole hive. Everyone you invite sees its assets. The only higher role is supervisor. If a vendor must not see the rest of your plant, do not invite them. Have your own planner log the finished job against the asset instead.
@@ -183,4 +183,4 @@ Selectively. A contractor doing PM on the cooling water system needs to see thos
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 7a1588cfd698f7c6 -->
+<!-- md-twin source-sha: a2b919ec019f66a1 -->

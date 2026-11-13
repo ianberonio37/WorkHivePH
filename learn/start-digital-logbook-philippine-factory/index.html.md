@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 16 May 2026
 ·
-Updated 11 Nov 2026
+Updated 13 Nov 2026
 ·
 11 min read
 
@@ -59,7 +59,7 @@ The five things that kill paper logbooks in Philippine plants are predictable:
 
 - **Lost notebooks during shift change.** Especially on 3-shift operations where the book travels.
 - **Illegible handwriting** after grease, water, or paint thinner exposure.
-- **No searchability** when a fault recurs months later. What the plant knows walks out with the technician who resigns.
+- **Search is missing:** you cannot search the past when a fault comes back months later. What the plant knows walks out with the technician who resigns.
 - **Supervisors only see entries on physical visits.** A problem on graveyard shift may not reach the day-shift supervisor for 16 hours.
 - **Auditors cannot sample electronically.** Every audit becomes a manual photocopy exercise.
 
@@ -71,9 +71,9 @@ A digital logbook for Philippine industrial use must:
 
 1. **Work offline.** Globe, Smart, and PLDT signals are inconsistent inside steel-walled production halls. The tool has to keep working when the bars disappear, and sync the moment they come back.
 2. **Install on the technician's existing Android phone.** Few Philippine factories can buy a tablet for every technician. The tool must run on the technician's own phone. That includes older ones on Android 8 or 9.
-3. **Time-stamp every entry server-side.** An auditor's first question is whether anyone can backdate an entry. The answer must be no. When an entry reaches the server, WorkHive stamps it with the server's time. No one can change that time later, and the CSV export shows it beside the phone's time.
+3. **Time-stamp every entry server-side.** An auditor's first question is whether anyone can backdate an entry. The answer must be no. When an entry reaches the server, WorkHive stamps it with the server's time. Members cannot change that time later, and the CSV export shows it beside the phone's time.
 4. **Be searchable in seconds.** If a supervisor cannot find "last failure on Pump 7" without scrolling, the tool dies.
-5. **Sync to the supervisor without printing.** No PDF emails, no daily report exports. The supervisor sees the entry on their dashboard the moment it syncs.
+5. **Sync to the supervisor without printing.** You do not email PDFs or export daily reports. The supervisor sees the entry on their dashboard the moment it syncs.
 6. **Survive turnover.** When a technician resigns or transfers, their entry history stays. This is the biggest gap with paper.
 
 ## The 3-step rollout that works (12 weeks)
@@ -239,4 +239,4 @@ The opposite is more likely. The technicians most at risk from AI keep their kno
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 36792e65612bed9b -->
+<!-- md-twin source-sha: a424fb7d822e2e64 -->

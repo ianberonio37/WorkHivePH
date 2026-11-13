@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-11-10",
+        "dateModified": "2026-11-13",
         "mainEntityOfPage": "https://workhiveph.com/learn/building-asset-register-zero-budget/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
@@ -334,13 +334,13 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-11-10">10 Nov 2026</time></span>
+      <span>Updated <time datetime="2026-11-13">13 Nov 2026</time></span>
       <span class="opacity-40">·</span>
       <span>9 min read</span>
     </div>
 
     <div class="answer-first">
-      <strong>Short answer:</strong> An asset register is the master list of all the assets in a plant. Each one gets its own ID, a location and a rank for how critical it is. It also links to its PM and fault history. Most Philippine plants do not have one (they have 3 contradictory spreadsheets). A clean register of 200 to 500 assets takes about 30 working days. It needs one supervisor and one technician. Spend 5 days walking and counting. Spend 3 on the hierarchy and names, and 5 on criticality. Then spend 7 loading it into WorkHive Asset Hub, and 10 filling gaps. No software budget needed; the discipline matters more than the tool.</div>
+      <strong>Short answer:</strong> An asset register is the master list of all the assets in a plant. Each one gets its own ID, a location and a rank for how critical it is. It also links to its PM and fault history. Most Philippine plants do not have one (they have 3 contradictory spreadsheets). A clean register of 200 to 500 assets takes about 30 working days. It needs one supervisor and one technician. Spend 5 days walking and counting. Spend 3 on the hierarchy and names, and 5 on criticality. Then spend 7 loading it into WorkHive Asset Hub, and 10 filling gaps. A clean register needs discipline more than a software budget.</div>
 
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
@@ -382,7 +382,7 @@
       <p>Budget is not the usual reason a plant here has no asset register. It is that nobody owned the project. The supervisor thought it was the engineer's job. The engineer thought it was the planner's job. The planner thought it was IT's job. After 5 years of mutual assumption, you have 3 spreadsheets and a problem.</p>
 
       <h2 id="iso-14224">ISO 14224 hierarchy (and the simplified 5-level version)</h2>
-      <p>ISO 14224 is the world standard for collecting reliability and maintenance data. It started with oil, petrochemical and gas equipment. Other factories use it too. No other scheme lets plants compare data worldwide. The full standard defines a 9-level hierarchy:</p>
+      <p>ISO 14224 is the world standard for collecting reliability and maintenance data. It started with oil, petrochemical and gas equipment. Other factories use it too, and it is the one scheme that lets plants compare data worldwide. The full standard defines a 9-level hierarchy:</p>
       <ol>
         <li>Industry (oil and gas, petrochemical, etc.)</li>
         <li>Business category (upstream, midstream, downstream)</li>
@@ -441,9 +441,9 @@ WHS-LGT-PNL-005    Warehouse, Lighting, Panel, instance 005</pre>
       <p>Rules that survive:</p>
       <ul>
         <li><strong>Document it in one page</strong> and post it where new assets get added.</li>
-        <li><strong>Single authority</strong> to approve new asset names (usually the planner). No new asset gets a number without their sign-off.</li>
+        <li><strong>One person approves new asset names,</strong> usually the planner. A new asset gets its number only after they sign off.</li>
         <li><strong>Short codes</strong> everyone uses, in a published list: PMP for pump, FAN for fan, MTR for motor, VLV for valve.</li>
-        <li><strong>No special characters</strong> except dash. Spaces and slashes break URL parsing and CSV exports.</li>
+        <li>Use letters, numbers and dashes only. Spaces and slashes break URLs and CSV exports.</li>
         <li><strong>Reserve numbers</strong> by hundreds. Use 001 to 099 for main production and 100 to 199 for utilities. Use 200 to 299 for the warehouse, and so on. Makes the asset code self-describing.</li>
       </ul>
 
@@ -461,7 +461,7 @@ WHS-LGT-PNL-005    Warehouse, Lighting, Panel, instance 005</pre>
       <p>The split depends on how much backup equipment you have, and that is unique to your site. Plants that treat all assets equally over-maintain non-critical and under-maintain critical.</p>
 
       <h2 id="contractors">Contractors and outside work against the register</h2>
-      <p>A register earns its keep once you log outside work against it. Not against a job note in an email. Be clear about what WorkHive does today. Here it is easy to promise more than any small platform delivers:</p>
+      <p>A register earns its keep once you log outside work against it, not in a job note in an email. Be clear about what WorkHive does today. Here it is easy to promise more than any small platform delivers:</p>
       <ul>
         <li><strong>What exists now:</strong> log outside work as a contractor project. Do it in the Project Manager. Its jobs point at the same asset IDs your own PMs use. So a vendor's overhaul sits in the asset's timeline, beside your team's work. Connect SAP in Integrations, and WorkHive can report back. Close a job on an asset imported from SAP, and the completion goes back to SAP.</li>
         <li><strong>What does not exist yet:</strong> a contractor login that sees only their own systems. A hive member sees the whole hive. Everyone you invite sees its assets. The only higher role is supervisor. If a vendor must not see the rest of your plant, do not invite them. Have your own planner log the finished job against the asset instead.</li>
@@ -542,7 +542,7 @@ WHS-LGT-PNL-005    Warehouse, Lighting, Panel, instance 005</pre>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-10">10 Nov 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-13">13 Nov 2026</time></p>
     <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>
