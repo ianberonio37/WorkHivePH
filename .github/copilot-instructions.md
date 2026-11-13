@@ -38,6 +38,9 @@ report file the brief names, even when you could not finish; then say what is le
   `UFAI_TRAJECTORY_ROADMAP.md`, `live_walk_manifest.json`, `public_page_stamps.json`, or the `*.html.md` twins of
   learn guides. Claude regenerates them.
 - Never skip a git hook or a check with a flag.
+- Never edit `nav-hub.js` (shared chrome on every page) or anything under `banks/` unless the brief names that file.
+  Two sessions on 2026-11-14 re-applied the same unrequested `nav-hub.js` edit, and one re-serialised a bank file.
+  Claude reverted both.
 
 ## Rules for public copy (learn guides, landing pages)
 

@@ -1679,7 +1679,7 @@
           // unapproved asset), and then found one-at-a-time buttons. Saying 'clear them' is true
           // whether or not a bulk control is ever built; naming one that is not there is the
           // same claim-versus-capability defect as a cadence nobody keeps.
-          text = _t(`${pending} pending asset submissions. Scroll to the Pending Approvals card and clear them: workers can't log breakdowns or PMs against assets that aren't approved.`,
+          text = _t(`${pending} pending asset submissions. Scroll to the Pending Approvals card and clear them. Workers can't log breakdowns or PMs against an asset you haven't approved.`,
                     `${pending} asset ang naghihintay ng approval. Pumunta sa Mga Asset na Naghihintay ng Approval at linisin ang mga ito. Hindi makakapag-log ng breakdown o PM ang mga worker sa asset na hindi pa approved.`);
           setCta(_t(`Approve ${pending} submissions →`, `Aprubahan ang ${pending} sumite →`), '#pending-assets-card');
         } else if (pending > 0) {
