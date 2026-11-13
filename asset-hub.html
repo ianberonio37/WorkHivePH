@@ -1750,7 +1750,7 @@
             // say so plainly rather than rendering an empty box.
             ? '<div style="font-size:var(--wh-fs-2xs, 0.75rem); color:var(--muted); border-left:1px solid var(--wh-red); padding-left:7px; margin-top:2px;">'
               + (n.rejection_reason
-                  ? '<strong style="color:var(--wh-red-text);">Why:</strong> ' + e(n.rejection_reason)
+                  ? '<strong style="color:var(--wh-red-text);">Why:</strong> <span data-user-content>' + e(n.rejection_reason) + '</span>'
                   : '<em>No reason recorded.</em>')
               + '</div>'
             : ''}
