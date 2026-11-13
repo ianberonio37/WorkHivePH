@@ -62,13 +62,29 @@ def blank_comments(html: str) -> str:
     return re.sub(r"<!--.*?-->", lambda m: " " * len(m.group(0)), html, flags=re.S)
 
 
+def blank_markup_non_content(html: str) -> str:
+    """Blank comments and script/style bodies while preserving markup offsets."""
+    masked = blank_comments(html)
+    for tag in ("script", "style"):
+        pattern = rf"(<{tag}\b[^>]*>)(.*?)(</{tag}\s*>)"
+        masked = re.sub(
+            pattern,
+            lambda m: m.group(1)
+            + re.sub(r"[^\r\n]", " ", m.group(2))
+            + m.group(3),
+            masked,
+            flags=re.I | re.S,
+        )
+    return masked
+
+
 def has_skip(html: str) -> bool:
-    return 'class="wh-skip-link"' in blank_comments(html)
+    return 'class="wh-skip-link"' in blank_markup_non_content(html)
 
 
 def main_tag(html: str):
     """(match, has_id) for the first <main> in real markup, or (None, False)."""
-    m = re.search(r"<main\b[^>]*>", blank_comments(html))
+    m = re.search(r"<main\b[^>]*>", blank_markup_non_content(html))
     if not m:
         return None, False
     real = html[m.start():m.end()]
@@ -78,7 +94,7 @@ def main_tag(html: str):
 def patch(path: str, html: str):
     """Returns (html, notes)."""
     notes = []
-    masked = blank_comments(html)
+    masked = blank_markup_non_content(html)
     tag = "learn-hub" if path.startswith("learn/") else "home"
 
     # 1. the landmark
@@ -102,7 +118,7 @@ def patch(path: str, html: str):
 
     # 2. the skip link, first thing inside the real <body>
     if not has_skip(html):
-        masked = blank_comments(html)
+        masked = blank_markup_non_content(html)
         b = re.search(r"<body\b[^>]*>", masked)
         if not b:
             return html, notes + ["NO ANCHOR: no <body> in real markup"]

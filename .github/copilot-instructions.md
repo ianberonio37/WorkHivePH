@@ -5,6 +5,11 @@ after you finish it reads your diff and runs the gates again. Do what the brief 
 nothing more. If the brief looks wrong, or a check disagrees with it, stop and say so in your report. Do not widen
 the scope to make something pass.
 
+**Never ask the user a question; nobody is watching the chat.** Claude hands you briefs from a script, and a question
+stalls the whole session until someone happens to look. If a brief is ambiguous, take the default it recommends, or the
+narrowest change that meets its acceptance check, and write what you chose and why in the report. Always write the
+report file the brief names, even when you could not finish; then say what is left.
+
 ## The project
 
 - **WorkHive** is a maintenance platform for Filipino industrial workers. The pages are plain HTML, CSS and vanilla
