@@ -149,7 +149,7 @@
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 131505
+          "offset": 131489
         }
       ],
       "drift": []
@@ -172,7 +172,7 @@
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 210175
+          "offset": 210153
         }
       ],
       "drift": []

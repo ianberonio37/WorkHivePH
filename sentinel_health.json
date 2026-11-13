@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-11-09T17:42:32.997859",
+  "timestamp": "2026-11-14T02:17:29.602586",
   "passed": 6,
   "failed": 0,
   "results": [
     {
       "id": "coverage-map",
       "status": "PASS",
-      "duration": 16.1,
+      "duration": 22.6,
       "stderr": ""
     },
     {
@@ -18,7 +18,7 @@
     {
       "id": "gap-proposer",
       "status": "PASS",
-      "duration": 0.1,
+      "duration": 0.2,
       "stderr": ""
     },
     {

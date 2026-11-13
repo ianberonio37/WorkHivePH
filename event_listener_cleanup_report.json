@@ -119,9 +119,9 @@
     },
     {
       "page": "assistant.html",
-      "add": 10,
+      "add": 11,
       "remove": 1,
-      "add_raw": 11,
+      "add_raw": 12,
       "rebuild_scoped": 1,
       "risky": false
     },

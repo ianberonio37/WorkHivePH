@@ -413,8 +413,8 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 2035,
-   "class_tokens": 121,
+   "harvested_tokens": 2058,
+   "class_tokens": 125,
    "bytes": 8780,
    "classes_in_sheet": 56,
    "non_utility_classes": [
@@ -458,6 +458,10 @@
     "stage-label",
     "toc",
     "tool-example",
+    "tool-find",
+    "tool-find-input",
+    "tool-find-label",
+    "tool-find-none",
     "wh-fb-actions",
     "wh-fb-body",
     "wh-fb-close",
@@ -530,8 +534,8 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 1264,
-   "class_tokens": 132,
+   "harvested_tokens": 1278,
+   "class_tokens": 135,
    "bytes": 10349,
    "classes_in_sheet": 89,
    "non_utility_classes": [
@@ -539,6 +543,7 @@
     "article-card",
     "breadcrumb",
     "card-title",
+    "cta-btn",
     "dti-badge",
     "dti-sub",
     "filled",
@@ -577,12 +582,14 @@
     "wh-fb-stars",
     "wh-fb-submit",
     "wh-fb-textarea",
+    "wh-help",
     "wh-skip-link",
     "wh-source-chip",
     "wh-sources",
-    "wh-sources-item"
+    "wh-sources-item",
+    "wh-tldr"
    ]
   }
  },
- "generated": "2026-11-06T15:50:57.869Z"
+ "generated": "2026-11-13T14:43:26.097Z"
 }

@@ -11543,6 +11543,22 @@
         "community.html"
       ],
       "called_by_edge_fns": []
+    },
+    "wh_pin_created_at": {
+      "defined_in": "20261111000001_a_record_keeps_the_time_it_was_made.sql",
+      "args": "",
+      "security_definer": false,
+      "comment": "BRH-AQ: a signed-in caller cannot move a record's created_at; the service role can. Attached as trg_pin_created_at ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "wh_server_time_on_change": {
+      "defined_in": "20261111000002_a_state_change_is_timed_by_the_server.sql",
+      "args": "",
+      "security_definer": false,
+      "comment": "BRH-AQ: when a signed-in caller sets or moves the state-change time named by TG_ARGV[0], it becomes now(); clearing ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -11568,7 +11584,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 45.5
+      "size_kb": 45.6
     },
     "ai-quality.html": {
       "tables_read": [],
@@ -11696,7 +11712,7 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 242.9
+      "size_kb": 244.1
     },
     "audit-log.html": {
       "tables_read": [
@@ -11921,7 +11937,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 37.2
+      "size_kb": 37.3
     },
     "logbook.html": {
       "tables_read": [
@@ -11964,7 +11980,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 560.2
+      "size_kb": 561.7
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -12051,7 +12067,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 304.0
+      "size_kb": 304.3
     },
     "marketplace.html": {
       "tables_read": [
@@ -12106,7 +12122,7 @@
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 429.4
+      "size_kb": 429.5
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -12330,7 +12346,7 @@
         "analytics-orchestrator",
         "shift-planner-orchestrator"
       ],
-      "size_kb": 120.7
+      "size_kb": 121.3
     },
     "skillmatrix.html": {
       "tables_read": [
@@ -13605,7 +13621,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 454
+      "loc": 455
     },
     "supervisor-reset-password": {
       "tables_read": [

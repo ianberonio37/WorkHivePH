@@ -118,39 +118,39 @@
     ],
     "index.html": [
       {
-        "line": 3557,
+        "line": 3599,
         "message_head": "Enter the email on your account for a reset link. No email on file (most field workers)? Ask your hive supervisor to reset your password for"
       },
       {
-        "line": 3565,
+        "line": 3607,
         "message_head": "Could not send the reset link right now. Please try again, or ask your supervisor to reset your password."
       },
       {
-        "line": 3570,
+        "line": 3612,
         "message_head": "Could not send the reset link. Ask your hive supervisor to reset your password."
       },
       {
-        "line": 3601,
+        "line": 3643,
         "message_head": "Type the new password once more."
       },
       {
-        "line": 3657,
+        "line": 3699,
         "message_head": "Set a new password (at least 8 characters):"
       },
       {
-        "line": 3660,
+        "line": 3702,
         "message_head": "Password must be at least 8 characters. Reopen the reset link to try again."
       },
       {
-        "line": 3664,
+        "line": 3706,
         "message_head": "That password has appeared in a public data breach. Reopen the reset link and choose a different one."
       },
       {
-        "line": 3800,
+        "line": 3842,
         "message_head": "Enter your company email domain (e.g. acmecorp.com):"
       },
       {
-        "line": 4410,
+        "line": 4452,
         "message_head": "Deactivate your account? Your name and email will be permanently anonymized and you will"
       }
     ],
@@ -350,11 +350,11 @@
     ],
     "shift-brain.html": [
       {
-        "line": 1435,
+        "line": 1441,
         "message_head": "Publish this shift plan to your crew? They will see it and work from it, released under your name."
       },
       {
-        "line": 1477,
+        "line": 1483,
         "message_head": "Archive this shift plan? It will be hidden from the active view but kept for history."
       }
     ],

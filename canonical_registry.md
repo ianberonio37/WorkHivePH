@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **184**
 - Views:         **69**
-- RPCs:          **431**
+- RPCs:          **433**
 - HTML surfaces: **59**
 - Edge fns:      **114**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -629,9 +629,11 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `wh_inline_photo_moved` | p_table text, p_id text, p_md5 text, p_path text, p_thumb te | yes | — | — |
 | `wh_inline_photos` | p_table text, p_after text DEFAULT '', p_limit integer DEFAU | yes | — | — |
 | `wh_listed_root_cause` | p_said text | no | — | — |
+| `wh_pin_created_at` |  | no | — | — |
 | `wh_recently_deleted` | p_table text default null, p_hive uuid default null | no | — | — |
 | `wh_restore` | p_table text, p_id text | no | community.html | — |
 | `wh_retention_days` | p_hive uuid | yes | — | — |
+| `wh_server_time_on_change` |  | no | — | — |
 | `wh_setting` | p_name text | yes | — | — |
 | `wh_trash` | p_table text, p_id text | no | community.html | — |
 | `wh_trash_scope` |  | no | — | — |

@@ -1,6 +1,6 @@
-# Flywheel Turn #508
+# Flywheel Turn #509
 
-_2026-11-09T17:25:42_
+_2026-11-14T01:59:23_
 
 ## Layer deltas
 
@@ -18,7 +18,7 @@ _2026-11-09T17:25:42_
 ## ⏫ Promotions — queued for one-pass approval
 
 - **13** rule candidate(s) (L-1→L0) · **2** sentinel candidate(s) (L0→L2)
-- 15 tracked · 0 still below the recurrence gate
-- top rule: `rule:html:loads_utils_js`
+- 17 tracked · 2 still below the recurrence gate
+- top rule: `rule:edge:sets_content_type_json`
 - top sentinel: `sentinel:user_facing_jargon`
 - See **[promotion_queue.md](promotion_queue.md)** for the full ranked queue + draft stubs.

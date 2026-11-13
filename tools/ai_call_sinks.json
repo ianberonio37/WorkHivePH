@@ -449,7 +449,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "cc379f456b9a9396"
+      "source_sha256": "4f8107ff31aa66da"
     },
     "engineering-calc-agent": {
       "calls_model": true,
@@ -886,7 +886,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "2e76791a4f332d67"
+      "source_sha256": "860c1e092dba998d"
     },
     "temporal-rag-orchestrator": {
       "calls_model": true,
@@ -1080,7 +1080,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "64705bbaa78f456f"
+      "source_sha256": "e1b9ccfcd118d44a"
     },
     "voice-logbook-entry": {
       "calls_model": true,
