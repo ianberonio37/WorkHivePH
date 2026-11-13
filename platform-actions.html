@@ -1367,8 +1367,8 @@
       const signedPeso = n => (n !== null && isFinite(Number(n)) && Number(n) < 0) ? '−' + peso(-Number(n)) : peso(n);
       const coverWhy = (cover !== null && cover < 1 && starter !== null && starter > 0 && liability > 0)
         ? (topups + starter >= liability
-            ? `Below 1.00 because ${peso(starter)} of what is owed is starter credit: free, once per verified seller, by policy, so no cash came in for it.`
-            : `Below 1.00: ${peso(starter)} of what is owed is starter credit no cash came in for, and the rest is not fully covered by top-ups.`)
+            ? `Below 1.00 because ${peso(starter)} of the liability is starter credit. Each verified seller gets it once, free, by policy. No cash came in for it.`
+            : `Below 1.00: ${peso(starter)} of the liability is starter credit, with no cash behind it. Top-ups do not fully cover the rest.`)
         : '';
 
       box.innerHTML =

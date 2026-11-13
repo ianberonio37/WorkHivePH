@@ -1023,8 +1023,8 @@
         </div>
         <div class="activity-xp">${xpText(g.xp)}</div>
       </div>`).join('');
-    const more = (!showAll && groups.length > 10)
-      ? '<button type="button" class="details-toggle" style="margin-top:8px" onclick="renderRecentActivity(true)">' + _t('Show all', 'Ipakita lahat') + ' (' + groups.length + ')</button>'
+    const more = groups.length > 10
+      ? '<button type="button" class="details-toggle" style="margin-top:8px" aria-expanded="' + (showAll ? 'true' : 'false') + '" aria-controls="recent-list" onclick="renderRecentActivity(' + (showAll ? 'false' : 'true') + ')">' + _t(showAll ? 'Show fewer' : 'Show all', showAll ? 'Ipakita ang mas kaunti' : 'Ipakita lahat') + ' (' + groups.length + ')</button>'
       : '';
     el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = head + rows + more;
   }

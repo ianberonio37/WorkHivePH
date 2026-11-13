@@ -133,7 +133,7 @@
   var CSS = '' +
     // the planner is its own size container: a row's layout follows the planner's width (a 700 px article column at
     // 1280, the full width of a suite panel), not the window's
-    '.wh-sp{--sp-line:rgba(255,255,255,0.10);--sp-muted:rgba(244,246,250,0.80);color:var(--wh-cloud,#F4F6FA);container-type:inline-size}' +
+    '.wh-sp{--sp-line:rgba(255,255,255,0.10);--sp-muted:var(--wh-text-faint, rgba(244,246,250,0.86));color:var(--wh-cloud,#F4F6FA);container-type:inline-size}' +
     '.wh-sp h3{margin:1.75rem 0 0.5rem;font-size:1.125rem;font-weight:700;line-height:1.35}' +
     '.wh-sp h3:first-child{margin-top:0.25rem}' +
     '.wh-sp p{margin:0 0 0.75rem}' +
