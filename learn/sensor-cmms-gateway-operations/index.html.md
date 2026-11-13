@@ -1,6 +1,6 @@
 # Sensor and CMMS gateway operations (for industrial plants)
 
-> How to operate the edge gateway that bridges OT sensors (OPC-UA, MQTT) and your existing CMMS (SAP, Maximo) to WorkHive. Covers daily health checks, sensor inventory, cybersecurity boundaries, and the OT/IT operating model.
+> How to run the edge gateway that sends OT sensor readings (OPC-UA, MQTT) to WorkHive, beside its cloud link to your CMMS (SAP, Maximo). Covers daily health checks, sensor inventory, cybersecurity boundaries, and the OT/IT operating model.
 
 Source: https://workhiveph.com/learn/sensor-cmms-gateway-operations/
 
@@ -10,11 +10,11 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 11 Nov 2026
+Updated 13 Nov 2026
 ·
 8 min read
 
-**Short answer:** The Plant Connections gateway links two networks. One is your plant's OT network: PLCs, SCADA, and IoT sensors over OPC-UA or MQTT. The other is your IT network: WorkHive, SAP and Maximo. Daily operations need three things. The first is a 5-minute health check on the edge gateway. The second is a current sensor list with each one's health. The third is a written OT/IT security boundary. The IT and reliability teams must both sign it off. Plants that run the gateway well get reliable Stage 3 PdM. Plants that install it and forget it get silent data gaps. Those show up as missing alerts. The daily five-minute health check is the whole discipline. Skip it, and gateway problems show up 6 to 18 hours late, as missing alerts.
+**Short answer:** An edge gateway links your plant's OT network to WorkHive. It reads PLCs and sensors over OPC-UA or MQTT. It sends the readings over HTTPS. Check its health for 5 minutes each shift, and keep the sensor list current. Skip the check, and a dead gateway can go unseen for a whole 8-hour shift.
 
 Who this is for
 
@@ -26,71 +26,80 @@ Who this is for
 - Sensor vendors and edge platform providers
 - New OT/IT graduates joining plants
 
-Operate the Plant Connections gateway daily, not install-and-forget. Three things keep it reliable. Run a 5-minute edge-gateway health check every day. Keep a current sensor list with each one's health. And set an OT/IT security boundary. Build it on ISA/IEC 62443, and have IT and reliability both sign it off. Skip the check and gateway problems surface 6 to 18 hours late, as missing alerts.
+Run the Plant Connections gateway every day; it is not install-and-forget. Three habits keep it healthy. Check it for 5 minutes each shift. Keep a current sensor list. And agree an OT/IT security boundary, built on ISA/IEC 62443. IT and reliability both sign it.
 
 ## What the Plant Connections gateway does
 
-The edge gateway is a small server, physical or virtual, on the plant network. It:
+The gateway is your own small server, physical or virtual, on the plant network. WorkHive does not supply the box. You run an edge runtime on it, such as Ignition Edge, AVEVA Edge or Node-RED. For MQTT sensors, WorkHive also gives you a subscriber template to run there.
 
-- Reads sensor data from your OT systems via OPC-UA (for PLCs and SCADA) or MQTT (for IoT sensors)
-- Pulls work orders from your CMMS (computerized maintenance management system). That covers SAP PM, IBM Maximo and other REST APIs
-- Sends condition summaries and running data to the WorkHive cloud. It uses secure HTTPS
-- Sends WorkHive completion data back to the CMMS. That keeps finance and the asset register in step
+The gateway does two jobs:
 
-The gateway runs on site. Sensitive plant data never leaves your network unencrypted. It sends only the condition-data summaries WorkHive needs. This matters for Philippine plants with strict security rules. Some limit direct cloud access from the OT network.
+- It reads your PLCs and SCADA over OPC-UA, or your IoT sensors over MQTT.
+- It sends the readings to WorkHive over HTTPS. The connection always starts from the plant side.
+
+WorkHive's topic map ties each topic to an asset and a parameter. It holds the unit and scale too. So each reading lands on the right machine.
+
+The CMMS link is separate, and it runs in WorkHive's cloud, not on the gateway. Its connectors reach SAP PM over OData, and Maximo over OSLC. Any other CMMS can link through a REST API. They pull work orders in, and can push completions back. CMMS means computerized maintenance management system.
 
 ## Daily 5-minute gateway health check
 
-At the start of shift, the OT engineer opens the Plant Connections console. They check five things:
+At the start of each shift, the OT engineer checks two places. First, the gateway host itself:
 
-1. **Gateway uptime.** Has the edge process been running continuously since last reboot? The log records each restart.
-2. **OPC-UA connection.** Are all subscribed nodes responding within their expected sample period?
-3. **MQTT broker.** Are all subscribed topics receiving messages at the expected cadence?
-4. **CMMS API connection.** Last successful sync timestamp; any failed sync attempts in the last 24 hours?
-5. **WorkHive cloud push.** Last successful push timestamp; any backlogged messages waiting?
+- **Uptime.** Has the edge process run without a restart since the last check?
+- **OPC-UA.** Are all subscribed tags answering on time?
+- **MQTT.** Are all topics getting messages at the expected rate?
+- **Backlog.** Is anything queued, waiting to send?
 
-5 minutes per shift, end of story. Plants that skip this check learn of gateway problems when alerts stop. That is usually 6 to 18 hours late.
+Then the Plant Connections page in WorkHive:
+
+- **Gateway audit.** What reached WorkHive in the last 7 days.
+- **External sync activity.** The CMMS syncs of the last 30 days, and any that failed.
+- **Sensor topic map.** Check that every topic you expect is there and switched on.
+
+Five minutes a shift is enough. Plants that skip it learn of a fault only when the alerts stop. That is often a shift or more later.
 
 ## Sensor inventory and health rotation
 
-Every sensor in the plant goes in the Plant Connections sensor list, with:
+The topic map in WorkHive holds the basics for each sensor. That is its topic, its asset, the parameter, the unit and the scale. You can switch a mapping off without deleting it.
 
-- Tag (OPC-UA node ID or MQTT topic)
-- Asset link (which Asset Hub asset this sensor belongs to)
-- Measurement type (vibration, temperature, pressure, etc.)
-- Expected sample period and value range
-- Last reading received timestamp
-- Calibration due date
-- Battery status (for wireless sensors)
+Keep the rest in your own sensor list:
 
-The dashboard shows three kinds of sensor. Some have not reported in the expected time; they likely failed, or their batteries are dying. Some report outside the expected range. They are likely off calibration, or the setting changed. And some are due for calibration in the next 30 days. The OT engineer rotates through the action list weekly.
+- the expected sample period and value range
+- the calibration due date
+- the battery status, for wireless sensors
+
+Put each calibration on the PM Scheduler as its own PM, so it comes due on a date. Then review the list weekly. Look for sensors that went quiet or read out of range. And check which calibrations fall due soon.
 
 ## OT/IT cybersecurity boundary
 
-The gateway sits on the OT/IT boundary. Three rules that work in Philippine plants:
+The gateway sits where the plant network meets the office network and the internet. Three rules keep that line safe:
 
-- **OT-initiated outbound only.** The gateway pushes to WorkHive cloud; WorkHive cloud does not push to the gateway. No inbound connection from the internet to the OT network.
-- **TLS everywhere.** OPC-UA security mode SignAndEncrypt, MQTT over TLS, HTTPS to WorkHive. No plaintext on any leg.
-- **Air-gap optionality.** Plants with strict policies can run the gateway offline. It batches data and uploads it from a DMZ host at set times. Latency goes up; security goes up.
+- **Outbound only.** The gateway starts every connection to WorkHive. WorkHive never connects in to it. Nothing from the internet reaches the OT network.
+- **Encrypt every leg.** Use OPC-UA's SignAndEncrypt mode, MQTT over TLS and HTTPS to WorkHive. Send nothing in plain text.
+- **Batch it, if policy demands.** A strict plant can keep the gateway offline. A host in the DMZ, the buffer network between plant and office, then uploads the stored readings at set times. WorkHive takes up to 200 readings per request, up to 365 days old. You trade speed for safety.
 
-Both teams sign off the boundary design during commissioning. That means the IT security team and the reliability team. Annual review keeps it current as threats and standards evolve.
+Write the boundary down at commissioning. The IT security team and the reliability team both sign it. Review it once a year, as threats and standards change.
 
 ## OT/IT operating model that works
 
-In Philippine plants, the most common failure is that no one clearly owns the gateway. The reliability engineer thinks IT owns it, because it talks to the cloud. IT thinks the OT team owns it, because it sits on the OT network. After 3 months, nobody runs the daily health check. Then the gateway fails without a sound.
+A common failure is that no one owns the gateway. The reliability engineer thinks IT owns it, because it talks to the cloud. IT thinks the OT team owns it, because it sits on the OT network. Within months, nobody runs the daily check. Then the gateway fails, and no one hears it.
 
-The model that works:
+Split the ownership four ways:
 
-- **OT team owns operational health** of the gateway. That is the daily check, restarts, and sensor list updates
-- **IT cybersecurity team owns the boundary**. That covers firewall rules, TLS certificates and audit log review
-- **Reliability engineer owns the data quality**. Are sensors calibrated? Are thresholds tuned? Does someone act on the alerts?
-- **Plant manager owns the cross-team coordination**. They hold a 30-minute review each month with all three
+- **The OT team owns the gateway's health:** the daily check, restarts and sensor list updates.
+- **IT security owns the boundary:** the firewall, TLS and audit logs.
+- **The reliability engineer owns the data.** Are sensors calibrated and limits tuned? Does someone act on alerts?
+- **The plant manager links the three:** a 30-minute review each month with all of them.
 
 The tool this guide is about
 
 ### WorkHive Plant Connections is the OT/IT operations console
 
-The console carries a sensor topic map. It lists the MQTT topics and OPC-UA tags your gateway publishes. Each one points to a parameter. The console also shows a gateway audit for the last 7 days. It shows external sync activity for the last 30. You get the CMMS integration list too. You can set a data-retention policy. And there is an SSO status card. Note who can see it before you plan around it. The page is supervisor-only. There are no separate OT and IT logins with different views. Whoever holds the supervisor account sees the gateway. Free at the worker tier. There is no view across several sites' gateways. A group with several plants runs a gateway and a hive per plant. It watches them one at a time.
+The console holds the sensor topic map. Each MQTT topic or OPC-UA tag maps to an asset and parameter. It shows the gateway audit for the last 7 days, and sync activity for the last 30.
+
+It also lists your CMMS links and shows SSO status. And you set a data-retention policy there.
+
+Know who can see it before you plan around it. The page is for supervisors only, with no separate OT and IT views. There is no view across several sites either. A group runs one gateway and one hive per plant, and checks each in turn.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -98,36 +107,36 @@ No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, take
 
 ### What is the Plant Connections gateway?
 
-A small server (physical or virtual) running on the plant network that bridges OT (PLCs, SCADA via OPC-UA; IoT sensors via MQTT) and IT (CMMS via API; WorkHive cloud via HTTPS). It runs on-premise so sensitive plant data never leaves the plant unencrypted; only condition summaries get pushed to WorkHive cloud. This matters for plants with cybersecurity policies that restrict direct OT-to-cloud access.
+Your own small server on the plant network, running an edge runtime such as Ignition Edge, AVEVA Edge or Node-RED. It reads PLCs and SCADA over OPC-UA, or sensors over MQTT, and sends readings to WorkHive over HTTPS. WorkHive's CMMS connectors run separately, in its cloud.
 
 ### How often should I check gateway health?
 
-Daily, 5 minutes, at start of shift. Verify gateway uptime, OPC-UA connection, MQTT broker, CMMS API sync, and WorkHive cloud push. Plants that skip this check find out about problems when alerts stop firing, typically 6 to 18 hours late. Daily check catches the same problems within 8 hours.
+Daily, 5 minutes, at the start of shift. Check the gateway host for uptime, OPC-UA, MQTT and any backlog. Then check Plant Connections for the gateway audit and the sync activity. Plants that skip this find out when alerts stop, often a shift or more later.
 
 ### Who owns the gateway in the plant organisation?
 
-Split ownership that works: OT team owns operational health (daily check, restarts, sensor inventory), IT cybersecurity owns the boundary (firewall, TLS, audit log), reliability engineer owns data quality (calibration, threshold tuning, alert acting), plant manager owns cross-team coordination via monthly 30-min review. Single-owner models (all to OT or all to IT) tend to fail because the skills do not overlap.
+Split it four ways. The OT team owns the gateway's health: the daily check, restarts and the sensor list. IT security owns the boundary: firewall, TLS and the audit log. The reliability engineer owns data quality: calibration, limits and acting on alerts. The plant manager runs a 30-minute review each month. One owner alone tends to fail, because the skills do not overlap.
 
 ### What are the cybersecurity rules for the gateway?
 
-Three rules: (1) OT-initiated outbound only (no inbound from internet to OT network); (2) TLS everywhere (OPC-UA SignAndEncrypt, MQTT over TLS, HTTPS to WorkHive); (3) air-gap optionality for strict-policy plants (batched upload from DMZ host during scheduled windows). IT cybersecurity and reliability teams both sign off during commissioning and review annually.
+Three rules. The gateway connects out only, so nothing from the internet reaches the OT network. Every leg is encrypted: OPC-UA SignAndEncrypt, MQTT over TLS and HTTPS to WorkHive. A strict plant can stay offline and upload batches from a DMZ host at set times. IT security and reliability both sign the design, and review it each year.
 
 ### Which sensors and protocols does it support?
 
-OPC-UA for traditional industrial automation (Siemens, Rockwell, Schneider PLCs and SCADA). MQTT for newer IoT sensors (wireless vibration, temperature, ultrasonic, energy meters). Edge gateway runtime options include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. For the CMMS side there are exactly three configured paths: SAP OData, Maximo OSLC, and a generic REST connector for anything else. A CMMS not on that list is reached through the generic connector rather than a purpose-built one, so budget integration time accordingly.
+OPC-UA reads PLCs and SCADA from makers such as Siemens, Rockwell and Schneider. MQTT carries newer IoT sensors: wireless vibration, temperature, ultrasonic and energy meters. Your edge runtime might be AVEVA Edge, Ignition Edge or Node-RED. For the CMMS, WorkHive has three paths: SAP OData, Maximo OSLC and a generic REST connector. Any other CMMS goes through the generic one, so budget time for it.
 
 ### What happens when the gateway loses internet?
 
-The gateway continues reading sensor and CMMS data locally and buffers it. Buffer size depends on disk space (typically 7 to 30 days). When internet is restored, the gateway pushes the backlog to WorkHive cloud in time order; the cloud accepts the late timestamps. This matters for plants with intermittent Globe/Smart/PLDT connectivity at remote sites.
+That depends on your edge runtime. Most can store and forward: they keep readings on disk and send the backlog when the link returns. WorkHive accepts late readings up to 365 days old, up to 200 per request, with their own timestamps. That matters at remote sites with patchy Globe, Smart or PLDT links. The CMMS sync never passes through the gateway; WorkHive's connectors run it.
 
 ## Sources
 
 - OPC Foundation, **OPC Unified Architecture Specification**, Parts 1 through 14.
 - OASIS, **MQTT Version 5.0** specification.
 - ISA / IEC 62443, **Industrial Automation and Control Systems Security**. Reference for OT cybersecurity architecture.
-- WorkHive platform positioning, "Four Gaps One Hive" with Plant Connections as the Stage 3 OT/IT bridge. [workhiveph.com](https://workhiveph.com/)
+- WorkHive platform positioning, "Four gaps. One hive." Plant Connections and the sensor ingest (HTTPS, up to 200 readings per request, up to 365 days old) as read from the product on 11 Nov 2026. [workhiveph.com](https://workhiveph.com/)
 - Related WorkHive guides: [CMMS Integration](https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/) · [Predictive on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 8b5ae47d0faf1f48 -->
+<!-- md-twin source-sha: 6a64ff1f9f2a6093 -->
