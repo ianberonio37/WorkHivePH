@@ -116,6 +116,11 @@ def fn_name(key: str) -> str:
     return key.split("(")[0].strip()
 
 
+def aq_walked_row_id(p: dict, got: dict) -> str | None:
+    walked_row_id = got.get("row_id")
+    return p.get("row_id") if walked_row_id is None else walked_row_id
+
+
 def plan_aq(rows: list[dict]) -> dict[str, dict]:
     from record_time_pins import measure
 
@@ -511,22 +516,39 @@ def verdict(p: dict, got: dict, state: dict) -> tuple[bool, str]:
         return ok, (f"its purge ({j.get('name')}) ran on {str(j.get('last_ok'))[:16]} (the catalog)" if ok
                     else "no purge job ran for it")
     if c == "AQ":
+        walked_row_id = aq_walked_row_id(p, got or {})
+        row_note = ""
+        if (got or {}).get("row_id") is not None and walked_row_id != p.get("row_id"):
+            row_note = (f"(the plan now names {p.get('row_id')}; "
+                        f"judged on the walked row {walked_row_id})")
+
+        def explain(reason: str) -> str:
+            return f"{reason} {row_note}" if row_note else reason
+
         row = state.get("AQ", {}).get(p["key"]) or {}
         pinned_value = row.get("pinned")
         pinned = pinned_value is True or str(pinned_value).lower() in ("true", "t", "1")
         if not pinned:
-            return False, f"the catalog does not say {p['key']} is pinned"
+            return False, explain(f"the catalog does not say {p['key']} is pinned")
+        if (p["kind"] == "backdate" and code == "42501"
+                and int((got or {}).get("rows") or 0) == 0):
+            message = str(e.get("message") or "")[:60]
+            return True, explain(
+                f"the member is refused outright (42501: {message}), so the time cannot be rewritten; "
+                f"the catalog shows {row.get('trigger_name')} on it")
         if p["kind"] == "none":
-            return True, f"the catalog pins {p['key']}; it was not called ({got.get('notCalled') if got else p.get('why')})"
+            return True, explain(
+                f"the catalog pins {p['key']}; it was not called ({got.get('notCalled') if got else p.get('why')})")
         if p["expect"] == "kept":
             snap = json.loads(AQ_SNAPSHOT.read_text(encoding="utf-8"))
-            before_row = snap.get("rows", {}).get(f"{p['target']}.{p['row_id']}")
+            before_row = snap.get("rows", {}).get(f"{p['target']}.{walked_row_id}")
             before = before_row.get(p["col"]) if isinstance(before_row, dict) else None
             value = (got or {}).get("value")
             has_before = isinstance(before_row, dict) and p["col"] in before_row
             ok = bool(not e and int((got or {}).get("rows") or 0) > 0 and has_before and value == before)
-            return ok, (f"the update kept {p['key']} at its snapshot value {before}; the catalog agrees"
-                        if ok else f"the update did not keep {p['key']} at its snapshot value; the catalog agrees")
+            return ok, explain(
+                f"the update kept {p['key']} at its snapshot value {before}; the catalog agrees"
+                if ok else f"the update did not keep {p['key']} at its snapshot value; the catalog agrees")
         if p["expect"] == "server-timed":
             value = (got or {}).get("value")
             ok = bool(not e and int((got or {}).get("rows") or 0) > 0 and value is not None
@@ -545,9 +567,10 @@ def verdict(p: dict, got: dict, state: dict) -> tuple[bool, str]:
                     ok = False
             else:
                 ok = False
-            return ok, (f"the record time stayed server-timed to the walk time; the catalog agrees" if ok
-                        else f"the update did not stay server-timed within 10 minutes; the catalog agrees")
-        return False, f"the AQ probe has an unknown expectation ({p.get('expect')}); the catalog agrees"
+            return ok, explain(
+                f"the record time stayed server-timed to the walk time; the catalog agrees" if ok
+                else f"the update did not stay server-timed within 10 minutes; the catalog agrees")
+        return False, explain(f"the AQ probe has an unknown expectation ({p.get('expect')}); the catalog agrees")
     st = state.get("STY", {}).get(fn_name(p["key"]))
     if p["expect"] == "pinned":
         ok = bool(st) and "search_path=" in str(st.get("config"))
@@ -661,14 +684,6 @@ def aq_post() -> int:
     active_sql = ", ".join(sql_lit(table) for table in active_tables) or "''"
     cleanup = (
         "begin;\nset session_replication_role = replica;\n"
-        + "do $$ declare r record; begin "
-          "create temp table aq_residue on commit drop as select table_name::text, row_count::bigint from (select '' as table_name, 0::bigint as row_count) x; "
-          "for r in select table_schema, table_name from information_schema.columns "
-          "where table_schema = 'public' and column_name = 'created_at' "
-          "and table_name not in ('hive_audit_log', 'embedding_outbox') group by table_schema, table_name loop "
-          "execute format('insert into aq_residue(table_name, row_count) values (%L, (select count(*) from %I.%I where created_at >= %L::timestamptz))', "
-          "r.table_name, 'public', r.table_name, " + t0 + "); "
-          "end loop; end $$;\n"
         + "create temp table aq_audit on commit drop as select action, target_type, target_id::text as target_id "
           "from public.hive_audit_log where created_at >= " + t0 + "::timestamptz "
           "and target_id::text in (" + ids_sql + ");\n"
@@ -679,11 +694,32 @@ def aq_post() -> int:
           "and row_id::text in (" + ids_sql + ") and done_at is null;\n"
         + (f"update public.embedding_registry set active = true where source_table in ({active_sql});\n"
            if active_tables else "")
+        + "create temp table aq_sign_in_residue (new_device bigint, client_errors bigint) on commit drop;\n"
+        + "do $$ declare joel_uid uuid; new_device_count bigint; client_error_count bigint; begin "
+          "select id into joel_uid from auth.users where email = 'joelcruz@auth.workhiveph.com' limit 1; "
+          "if joel_uid is null then raise exception 'Joel Cruz is missing from auth.users'; end if; "
+          "delete from public.hive_audit_log where created_at >= " + t0 + "::timestamptz "
+          "and action = 'new_device' and meta->>'actor_auth_uid' = joel_uid::text; "
+          "get diagnostics new_device_count = row_count; "
+          "delete from public.client_errors where created_at >= " + t0 + "::timestamptz "
+          "and message like 'Some of this page could not be shown%' and auth_uid = joel_uid; "
+          "get diagnostics client_error_count = row_count; "
+          "insert into aq_sign_in_residue values (new_device_count, client_error_count); end $$;\n"
+        + "do $$ declare r record; begin "
+          "create temp table aq_residue on commit drop as select table_name::text, row_count::bigint from (select '' as table_name, 0::bigint as row_count) x; "
+          "for r in select table_schema, table_name from information_schema.columns "
+          "where table_schema = 'public' and column_name = 'created_at' "
+          "and table_name not in ('hive_audit_log', 'embedding_outbox') group by table_schema, table_name loop "
+          "execute format('insert into aq_residue(table_name, row_count) values (%L, (select count(*) from %I.%I where created_at >= %L::timestamptz))', "
+          "r.table_name, 'public', r.table_name, " + t0 + "); "
+          "end loop; end $$;\n"
         + "set session_replication_role = origin;\n"
         + "select jsonb_build_object('audit', coalesce((select jsonb_agg(jsonb_build_object("
           "'action', action, 'target_type', target_type, 'target_id', target_id) order by target_id) from aq_audit), "
           "'[]'::jsonb), 'residue', coalesce((select jsonb_agg(jsonb_build_object('table', table_name, 'rows', row_count) "
-          "order by table_name) from (select table_name, row_count from aq_residue where row_count > 0) s), '[]'::jsonb))::text;\ncommit;\n"
+          "order by table_name) from (select table_name, row_count from aq_residue where row_count > 0) s), '[]'::jsonb), "
+          "'sign_in_residue', jsonb_build_object('new_device', coalesce((select new_device from aq_sign_in_residue), 0), "
+          "'client_errors', coalesce((select client_errors from aq_sign_in_residue), 0)))::text;\ncommit;\n"
     )
     output = psql_checked(cleanup)
     if not output:
@@ -706,7 +742,8 @@ def aq_post() -> int:
     status = f"RESTORED {restored}/{len(snapshot_rows)}"
     residue = cleanup_receipt.get("residue") or []
     receipt = {"t0": snapshot["t0"], "restored": status, "rows": details,
-               "audit": cleanup_receipt.get("audit") or [], "residue": residue}
+               "audit": cleanup_receipt.get("audit") or [], "residue": residue,
+               "sign_in_residue": cleanup_receipt.get("sign_in_residue") or {"new_device": 0, "client_errors": 0}}
     write_json(AQ_POST, receipt)
     print(status)
     if residue:
@@ -776,7 +813,10 @@ def bank_aq(dry: bool, ids: set | None = None) -> int:
             "overflowX": (walks[vp].get("home") or {}).get("overflowX", False),
             "cast": "Joel Cruz, worker",
             "as": "joelcruz",
-            "probe": {k: p.get(k) for k in ("kind", "target", "col", "row_id", "value", "expect")},
+            "probe": {
+                **{k: p.get(k) for k in ("kind", "target", "col", "row_id", "value", "expect")},
+                "row_id": aq_walked_row_id(p, (walks[vp].get("probes") or {}).get(p["id"]) or {}),
+            },
             "answer": (walks[vp].get("probes") or {}).get(p["id"]),
             "control": walks[vp]["probes"]["__control"],
             "verdict": per[vp][1],
@@ -975,6 +1015,11 @@ def main() -> int:
         probes = plan(classes)
         TMP.mkdir(parents=True, exist_ok=True)
         if classes == ("AQ",):
+            probe_mtime = AQ_PROBES.stat().st_mtime_ns if AQ_PROBES.exists() else None
+            walk_results = [RES / f"brh_aq_walk_{vp}.json" for vp in VPS]
+            if probe_mtime is not None and any(
+                    path.exists() and path.stat().st_mtime_ns > probe_mtime for path in walk_results):
+                print("--plan rewrites the probes the last walk ran with; bank before re-planning")
             write_json(AQ_PROBES, probes)
             js = AQ_WALK_JS.replace("@@PROBES@@", json.dumps(
                 [{k: p.get(k) for k in ("id", "kind", "target", "col", "row_id", "value", "expect", "why")}

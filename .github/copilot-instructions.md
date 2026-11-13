@@ -19,6 +19,11 @@ report file the brief names, even when you could not finish; then say what is le
   functions in `supabase/functions/`. Development runs against the LOCAL stack (Docker, `supabase_db_workhive`).
 - `tools/` holds the Python and Node scripts. The checks ("gates") are registered in `run_platform_checks.py`.
   Run one with `python run_platform_checks.py --only <id>[,<id>...]`, or run its script directly as the brief says.
+- Pages hard-code the production Supabase URL, but the local server at `http://127.0.0.1:5000/workhive/<page>`
+  rewrites every one of them to the local stack (`http://127.0.0.1:54321`) as it serves the page. A Playwright check
+  against that address is local and safe. Never open a page as a `file://` path.
+- Filipino is out of scope. When new copy needs a `_t(en, fil)` pair, pass the English text for both arguments; do not
+  write Filipino or edit `i18n/*.json`.
 
 ## Never do these
 
