@@ -2,7 +2,7 @@
 name: edge-fn-shift-planner-orchestrator
 type: edge-fn
 source: file:supabase/functions/shift-planner-orchestrator/index.ts
-source_sha: 2e76791a4f332d67
+source_sha: 860c1e092dba998d
 last_verified: 2026-07-13
 supersedes: null
 ---

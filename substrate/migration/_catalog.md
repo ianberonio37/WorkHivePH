@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:772
-source_sha: ff20837ba7c18cf9
+source: dir:supabase/migrations:774
+source_sha: f422cd448ea84b16
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (772 migrations)
+## migration · catalog (774 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260831000001_anon_cannot_read_post_author_uid` — (misc DDL/DML)
-- `20260831000002_hive_value_summary_view` — (misc DDL/DML)
 - `20260901000001_hive_fk_integrity` — policies:wh_traces_hive_read · tables:ai_user_rate_limits,alert_dismissals,analytics_events,analytics_snapshots,anomaly_alerts,automation_log
 - `20260901000002_push_digest_coalescing` — fns:enqueue_user_push
 - `20260901000003_revoke_write_on_community_posts_truth_view` — (misc DDL/DML)
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261106000013_a_quote_is_offered_only_by_who_can_take_the_job` — fns:select_quote,submit_service_quote
 - `20261106000014_the_public_board_reads_the_words_not_the_sender` — policies:anon,feedback · fns:my_feedback_votes,public_feedback_board,tg_platform_feedback_status_at · triggers:trg_platform_feedback_status_at · tables:platform_feedback
 - `20261106000015_a_report_the_supervisor_cannot_settle_reaches_workhive` — fns:escalate_reported_post,my_feedback_outcomes,my_moderation_news,tg_platform_feedback_tell_sender · tables:platform_feedback
+- `20261111000001_a_record_keeps_the_time_it_was_made` — fns:wh_pin_created_at · triggers:trg_pin_created_at
+- `20261111000002_a_state_change_is_timed_by_the_server` — fns:wh_server_time_on_change
 
 (showing last 200)
 

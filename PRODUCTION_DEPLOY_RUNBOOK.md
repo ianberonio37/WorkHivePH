@@ -60,6 +60,46 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
+# M13 release (2026-11-11) - the critic's signed-out finds, every guide checked against the code
+
+> **Prepared and verified locally on 2026-11-11.** M13 is the second Wave CF milestone (UFAI_TRAJECTORY_ROADMAP.md §CF):
+> every defect the critic deepwalk found on the signed-out face, fixed at its cause and graded clean again by a later
+> walk. 367/367 M13 rows locking; cf-rows-hold reads 417/417 across M12 and M13. The readability pass turned out to be a
+> claim audit: most guides promised things the product does not do, and one promise ("can the entry be backdated? the
+> answer must be no") was false in the database itself, which opened BRH-AQ. M13 ships what landed since M12
+> (`91827f97`, production serves `workhive-shell-v595`).
+>
+> | Leg | Payload | Measured how |
+> |---|---|---|
+> | **A · DB** | **2 migrations**: `20261111000001` pins `created_at` for signed-in callers on every public table where `authenticated` holds UPDATE on it (`wh_pin_created_at`); `20261111000002` makes a member-set or member-moved state-change time (completed_at, closed_at, approved_at, resolved_at, recorded_at) the server's `now()`, clearing still allowed (`wh_server_time_on_change`) | `git diff 91827f97..HEAD -- supabase/migrations`; gate `record-time-pins` and its rolled-back member probe (red before each migration, green after) |
+> | **B · Edge** | **3 functions**: `engineering-bom-sow` (prompt: Rules 1160 / 1170, the Sanitation Code), `shift-planner-orchestrator` and `voice-journal-agent` (comments only, deployed for parity) | `git diff 91827f97..HEAD -- supabase/functions`; `stamp_functions.py --write` before the deploy; `verify_function_builds.py --target prod` before and after |
+> | **C · Frontend** | ~70 learn guides rewritten to B3/B1 and checked against the code (batches 1-24); inventory and logbook photo pickers allow saved photos (ENH-G); logbook CSV gains Saved on Server; the retired predictive dashboard no longer described (index, assistant, companion-launcher); about/privacy/terms Sources at the foot; What is WorkHive leads with Access Your Memory and gains a Find a tool search; voice-journal's sign-in note; the sensor / CMMS gateway guide re-read against the product (batch 23: the gateway reads OPC-UA/MQTT and sends readings over HTTPS, the CMMS link is WorkHive's cloud, the topic map holds topic, asset, parameter, unit and scale, and nothing more); four guides lose the "No X." cadence the design detector counts (batch 24, written by GitHub Copilot from a brief); `.github/copilot-instructions.md`; `sw.js` v596 | the batch gate sets, the pre-push board, then smoke at v596 |
+>
+> **Order: A, B, C.** Legs A and B were applied and read back on production on 2026-11-11 (88 pin and 15 server-time
+> triggers, no CR in any body; 62/62 functions match the tree).
+>
+> **From batch 24 on, GitHub Copilot writes the code and Claude orchestrates** (Ian, 2026-11-13). Claude writes one brief
+> per unit in `.tmp/copilot/` and hands it to Copilot agent mode in VS Code with `code chat -m agent`. When Copilot is
+> done, Claude reads the diff, runs the gates, commits and runs this runbook. Copilot's standing rules are in
+> `.github/copilot-instructions.md`. A red on the push board becomes a brief, not a hand fix.
+>
+> **BRH-AQ walked before the push (2026-11-14):** a worker tried to backdate through the page's own client at both
+> viewports. Every `created_at` was kept, every domain time was server-timed or refused outright, and every touched row
+> was restored. 81 of 84 rows are banked; the 3 refused `approved_at` cells wait for brief 02c's verdict fix.
+
+### What a person using WorkHive will notice (release notes)
+
+> - You can attach a photo you already took to a spare part or a logbook entry. The picker no longer forces the camera.
+> - No member can move the time a record was made, and a PM completion, a close or an approval is timed by the server.
+>   Entries made in the app look the same; the change shows only when someone tries to backdate one.
+> - The logbook's CSV export has a new column, Saved on Server, beside Date Logged, so an auditor sees both clocks.
+> - The learn guides read more easily, and say only what WorkHive actually does: no invented case studies, no features
+>   that do not exist, and the regulations named correctly.
+> - What is WorkHive now starts with what the platform keeps for each worker, and you can search its tool catalog.
+> - The plant gateway guide now describes what the gateway really does, and what Plant Connections really shows.
+
+---
+
 # M12 release (2026-11-08) - what the critic found on signed-in screens ✅ DEPLOYED
 
 > **✅ M12 DEPLOYED 2026-11-09: the critic's signed-in finds, fixed at their causes, are in production.** Production serves

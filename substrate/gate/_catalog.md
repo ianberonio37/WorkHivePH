@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 4d22c37ddecd5835
+source_sha: 1d17f616ccf06c8b
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1524) — the 'what's already gated' brain
+## gate · registered validators (1532) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -416,7 +416,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1108)
+### Platform (1116)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1001,6 +1001,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `limit-says-when` ⚡ [fail] — A limit says when (SL RL2): the four sentence makers, called for real under node (tools/test_limit_says_when.mjs), answer 20 limit shapes - daily caps, hive quo
 - `link-target-existence` ⚡ [fail] — Link Target Existence (every <a href>/location.href to a .html target must exist on disk; T1 2026-08-24: roster DERIVED from the served root (42 pages, was a st
 - `listing-cost-transparency` ⚡ [regression] — T34: the listing composer tells the WHOLE cost truth at the commit point - the 10% credit reservation held at publish AND that it returns if the listing does no
+- `listing-hold-disclosed` ⚡ [fail] — marketplace copy names the monthly holding charge on a listing's credit hold, at the knob's real rate, and never says 'no platform fees' or 'comes back in full'
 - `listing-preview` [fail] — T100: see it as a buyer before it is a commitment. The walk found the AI listing assist SOUND - it names its own inputs and invented no specs from a bare title 
 - `live-off-polls` ⚡ [fail] — SL AV3 (2026-10-20): when a page's live channel cannot join (a firewall closing the websocket), the page re-reads on a timer and SAYS it is not live and how oft
 - `live-page-journeys-webkit` [fail] — SL CI2 (2026-10-15): the registered app-page jobs-to-be-done walked in WebKit (Safari's engine) - the same registry and oracles as live-page-journeys, artifacts
@@ -1119,6 +1120,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `optimistic-ui-reconciles` [fail] — Optimistic UI reconciles (marketplace's watchlist heart fills before the server answers, and a refused write takes the paint back AND says why; the optimism its
 - `order_totality` [fail] — Order totality (every paginated read ends in a tiebreaker the CATALOG confirms is unique; a lone .limit() cap is reported, not failed)
 - `orphan-kpi-tiles` ⚡ [fail] — Orphan KPI Tiles (every default-value tile must have a JS setter; forward-only ratchet)
+- `osh-rule-citations` ⚡ [fail] — a cited DOLE OSHS rule number sits beside its own subject (records 1050, boiler 1160, pressure vessel 1170, electrical 1210, ...), and PD 856 is cited only for 
 - `outbound-email-honesty` ⚡ [fail] — T111: comms held to the same bar as the glass. The DP manipulation-absence dims are measured on PAGES, so EMAIL escapes them entirely - and it is the one surfac
 - `outbox-delivery` [fail] — C12 (SERVICE_HAILING_ROADMAP §4b) durable side-effects: a boundary-crossing effect must survive a consumer that is down. 12 live invariants over `service_outbox
 - `own_anchor_back` [fail] — OWN anchor-back (public pages at 390 and 1280: after in-page jumps one Back leaves, and each jump still lands with focus)
@@ -1167,6 +1169,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `phone-fit-320` [fail] — Phone fit at 320 wide, signed in (a public page signed out): the narrowest phone over the SL roster (F2)
 - `phone-fit-320-fil` [fail] — Phone fit at 320 wide, signed out, Filipino, with the interaction sweep: occlusion + element overflow + the P-M lenses on the public funnel (10 pages)
 - `phone-fit-360` [fail] — Phone fit at 360 wide: the P-M lenses on the narrower phone class (the SL roster)
+- `photo-pickers-allow-gallery` ⚡ [fail] — every image picker on a production page lets a person take a photo or choose a saved one (no camera-only `capture` without a gallery-capable sibling)
 - `photo-survives-queue` [fail] — T14's LAST PROBE (LIVE Playwright): the dead-zone entry a worker most wants to keep is the one with the PICTURE on it — the cracked bearing, the leak, the burnt
 - `photos-in-storage` ⚡ [fail] — Photos in Storage (BRH 9 AB): no list read of logbook / inventory or their truth views ships the picture (select * or a list naming photo; utils.js whRowCols is
 - `pick-prefills-category` ⚡ [fail] — Critic-deepwalk T21 lock: pick-from-registered prefills the REQUIRED Category. Walked live: name/tag/location prefilled but Category stayed empty - TYPE_TO_CATE
@@ -1221,6 +1224,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `public-feed-walk` [fail] — The anon public-feed surface walked end to end - 11 pass / 0 fail / 0 ungraded. ★REGISTERED 2026-08-28 FROM THE ORPHAN SWEEP. It was on disk, runnable, and invo
 - `public-funnel-kicker-floor` ⚡ [fail] — no .pill or .cta-eyebrow on the public funnel renders below the 12px type floor
 - `public-journeys` [fail] — SL CI2 public half (2026-10-15): every public page, signed out, in Chromium and WebKit - arrive (200, an <h1>, readable <main>), a calculator's worked example, 
+- `public-markup-balance` ⚡ [fail] — every element a public page opens inside <main> is closed, in order (120 pages: landing, learn, calculators, legal)
 - `public-pages-chrome` ⚡ [fail] — the four public pages carry a main landmark, a skip link and 44px tap targets
 - `public-touch-action` ⚡ [fail] — every learn guide and public page sets touch-action: manipulation (no 300 ms tap delay on a phone)
 - `public_read_surface` [fail] — Public read surface (every table a client can SELECT must either consult the caller, inherit scoping through a subquery, deny by default, or be DECLARED public 
@@ -1265,6 +1269,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `realtime-payload-contract` ⚡ [fail] — Realtime Payload Consumer Contract (4-layer: subscribed table + payload columns + filter columns + channel name uniqueness)
 - `realtime-publication` ⚡ [fail] — Realtime Publication Coverage Validator (subscribed tables in supabase_realtime)
 - `realtime-subscription` ⚡ [fail] — Realtime Subscription Consistency (every postgres_changes table must be read by the page; forward-only ratchet)
+- `record-time-pins` [fail] — no record time a signed-in member can rewrite: every member-updatable created_at is pinned, domain times only shrink, and a member's backdate of their own logbo
 - `records-linked-is-true` [fail] — CF: the signup notice may only claim what was actually linked (2026-08-26). After creating an account index.html could announce 'Your existing records as <name>
 - `redundant-widgets` ⚡ [fail] — Redundant status-chrome + duplicate-action widgets (2026-07-22) — the LOCK for the redundant-widget consolidation (Ian: 'redundant displays on every page … onli
 - `reference-claims` [fail] — Reference pages paint the figure their source computes (validator-catalog, founder-console tech checks, design-system purity/keys, learn/index guides)
@@ -1287,6 +1292,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `render-contract` [fail] — Render contract: templates and tokens resolve, contrast holds, no markup as text (41 surfaces)
 - `rendered-i18n` ⚡ [fail] — English prose written by JS onto pages that CLAIM to be bilingual - the stamp survives, the translation does not (forward-only ratchet)
 - `repaint-spares-typing` [fail] — T142: a live update must not evict a typist. The recorded incident is precise - a 15-second poll rebuilt a region while somebody was typing in it and the repain
+- `reply-language-matches-persona` ⚡ [fail] — language claims match the code: no AI reply promised in the speaker's language while persona.ts says 'Always REPLY in English', and Speak to Fill is never said 
 - `report-clobber-guard` ⚡ [fail] — INSTRUMENT INTEGRITY: a spot-check must never destroy a full sweep's report (2026-08-27). MEASURED, not hypothesised — prove_retry_path.mjs wrote retry_path_rep
 - `report-grids-reflow` [fail] — ED R1: a report's fixed multi-column grid collapses on a phone (2026-11-02). Engineering reports lay out signature rows and summary tiles with INLINE grids (gri
 - `report-link-fidelity` ⚡ [fail] — T106's arrival-fidelity oracle for EMAIL. Every 'View in WorkHive' link in send-report-email pointed at a bare page root, so a PM Overdue report - a document wh
@@ -1299,6 +1305,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `resilience` ⚡ [fail] — Resilience Validator (Phase 1.10 reframe: offline queue + network-loss UI + fetchWithTimeout + shared-device sign-out)
 - `resume-review-sheet` [regression] — T33 (resume upload->extract->review->export): the extracted resume is a per-item REVIEW SHEET - accept/edit/reject affordances + per-item checkboxes - so the wo
 - `retention-matches-policy` [fail] — T137: a promise to KEEP is as checkable as a promise to delete. The privacy policy states that compliance records (DOLE OSHS, ISO audit logs) are retained 10 ye
+- `retired-predictive-not-described` ⚡ [fail] — no shipped page describes the retired predictive dashboard (Health Heatmap, 0-100 score, predictive.html as live) while predictive.html is not served
 - `retired_page_sole_control` ⚡ [fail] — Retired-page sole control (retiring a PAGE must not silently delete a capability: every write/RPC on an overlay-retired page must also be reachable from a live 
 - `return-promise-survives-reauth` [fail] — T8: re-authenticating costs one sign-in, not your place (2026-08-26). When a token expires, session-timeout.js sends the worker to index.html?signin=1&return=<w
 - `revenue-surfaces` ⚡ [fail] — Revenue Surfaces Validator (Phase 4: AI Quality Stair 2 gate + Anomaly Engine 2.0 Stair 3 gate + Knowledge Pipeline tile + canonical anchors)
@@ -1325,6 +1332,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `safety_field_provenance` ⚡ [fail] — Safety field provenance (LOTO / permit come from their COLUMN, never inferred from free text — an isolation record guessed from prose is true when the word appe
 - `sc-label-contrast` ⚡ [fail] — .sc-label text clears its contrast floor
 - `scenario-matrix` ⚡ [fail] — Scenario Matrix (T1.2 diversity guarantee: 72 device x auth x entry x intent cells — structure complete, no axis value living only as declared_na, every NA reas
+- `schedule-claims-match-cron` ⚡ [fail] — no shipped page says a job runs on a clock that no cron job runs (scheduler read from cron.job, else the migrations' schedule history)
 - `schedule_health_falsifiable` ⚡ [fail] — PJK2 - a number that decides what may slip, or what a CLIENT is told, must be falsifiable. Half of what this gate holds is that the ENGINE IS GOOD, asserted so 
 - `scheduled-claim-has-a-schedule` [fail] — T63/T66: a cadence promise needs a scheduler — cron.job is the oracle (2026-08-26). A page telling a reader something happens 'daily' or 'monthly' is making a c
 - `scheduled-work` [fail] — OWN scheduled-work lens (2026-10-26): a scheduled job fires, a double fire leaves one effect, and its failure reaches a person. Live, each probe rolled back: ev

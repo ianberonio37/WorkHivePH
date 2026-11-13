@@ -2,7 +2,7 @@
 name: edge-fn-voice-journal-agent
 type: edge-fn
 source: file:supabase/functions/voice-journal-agent/index.ts
-source_sha: 64705bbaa78f456f
+source_sha: e1b9ccfcd118d44a
 last_verified: 2026-07-13
 supersedes: null
 ---
