@@ -61,12 +61,12 @@ def static_findings(src: str) -> list[str]:
     return [name for name, rxs in STATIC.items() if not all(rx.search(src) for rx in rxs)]
 
 
-def report_findings(src: str, rep: dict | None) -> list[str]:
+def report_findings(src: str, rep: dict | None, nav_hub_sha: str | None = None) -> list[str]:
     if rep is None:
         return ["no hub_panel_on_screen_report.json - run: node tools/prove_hub_panel_on_screen.mjs (and --engine webkit)"]
     # the FILE's bytes, as the prover hashes them (readFileSync): a text read normalises CRLF, so on a Windows checkout
     # the two hashes never met and a fresh report read as stale (2026-10-27)
-    sha = hashlib.sha256((ROOT / "nav-hub.js").read_bytes()).hexdigest()[:12]
+    sha = nav_hub_sha or hashlib.sha256((ROOT / "nav-hub.js").read_bytes()).hexdigest()[:12]
     out = []
     if rep.get("nav_hub_sha") != sha:
         out.append(f"the report was taken against nav-hub.js {rep.get('nav_hub_sha')}, the file is now {sha} - re-run the prover")
@@ -97,7 +97,7 @@ def self_test() -> int:
     sha = hashlib.sha256(good.encode("utf-8")).hexdigest()[:12]
     rep_ok = {"nav_hub_sha": sha, "cases": [{"ok": True, "engine": "chromium"}, {"ok": True, "engine": "webkit"}]}
     rep_stale = {"nav_hub_sha": "000000000000", "cases": [{"ok": True, "engine": "chromium"}, {"ok": False, "engine": "webkit", "why": "x"}]}
-    ok = ok and not report_findings(good, rep_ok) and len(report_findings(good, rep_stale)) == 2 and len(report_findings(good, None)) == 1
+    ok = ok and not report_findings(good, rep_ok, sha) and len(report_findings(good, rep_stale, sha)) == 2 and len(report_findings(good, None)) == 1
     print(("PASS" if ok else "FAIL") + " hub-panel-on-screen self-test")
     return 0 if ok else 1
 

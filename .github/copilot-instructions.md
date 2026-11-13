@@ -69,4 +69,6 @@ report file the brief names, even when you could not finish; then say what is le
 When you finish, list:
 1. every file you changed, and what changed in each;
 2. each acceptance command from the brief, with its last lines of output (PASS or FAIL);
-3. anything the brief asked for that you could not do, and why.
+3. anything the brief asked for that you could not do, and why;
+4. any file you changed that the brief did NOT name, and why. Prefer not to: if a check outside the brief fails, report
+   it rather than fixing it. Claude found an unreported fix to `tools/validate_hub_panel_on_screen.py` on 2026-11-14.
