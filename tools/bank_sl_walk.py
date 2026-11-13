@@ -160,9 +160,13 @@ _BRH_DB_HOW = ("the home page opened as the platform admin through the product's
 for _c, _g in (("P", ["public_read_surface"]), ("Q", ["definer-doors"]), ("R", ["public_read_surface", "definer-doors",
                "view_security_invoker"]), ("S", ["definer-doors"]), ("T", ["definer-doors"]), ("V", ["public_read_surface"]),
                ("Y", ["definer-doors"]), ("X", ["api-grants-explicit"]), ("U", ["vector-search-recall"]),
-               ("AA", ["free-plan-budget"]), ("AE", ["free-plan-budget"])):
+               ("AA", ["free-plan-budget"]), ("AE", ["free-plan-budget"]), ("AQ", ["record-time-pins"])):
     GATES["BRH-" + _c] = _g
     CONDITION["BRH-" + _c] = _BRH_DB_HOW
+CONDITION["BRH-AQ"] = ("the home page opened as a worker through the product's sign-in form; from it, the page's own "
+                       "signed-in client tried to move each record time to 2020-01-01; every touched row was snapshotted "
+                       "and restored, the embedding surfaces paused, and the audit and outbox rows the updates wrote "
+                       "removed; the pin and server-time triggers were read through the postgres MCP")
 GATES["BRH-W"] = ["breached-password-check"]
 CONDITION["BRH-W"] = ("the sign-up form on index.html, signed out, filled the way a person would with a password from a public "
                       "breach list and submitted; the account request (/auth/v1/signup) blocked at the network so a failing "
@@ -414,7 +418,8 @@ BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4", "M": "AU1",   # BRH.2: L - a contr
                       # P..Y (§BRH.8): the database classes, walked live by tools/brh_db_walk.py - the platform admin on the
                       # home page, every probe made from a second in-page client holding only the public key (2026-10-22)
                       "P": "BRH-P", "Q": "BRH-Q", "R": "BRH-R", "S": "BRH-S", "T": "BRH-T", "V": "BRH-V", "Y": "BRH-Y",
-                      "X": "BRH-X", "U": "BRH-U", "AA": "BRH-AA", "AE": "BRH-AE", "W": "BRH-W", "AD": "BRH-AD"}                     # AB - a photo stored inside its row: walked as the cast, the reads read off the wire                         # K - design slop the detector ratchet held, fixed and walked in the live render                         # J - a live-as-a-user journey that was not live (pinned in live-page-journeys)
+                      "X": "BRH-X", "U": "BRH-U", "AA": "BRH-AA", "AE": "BRH-AE", "AQ": "BRH-AQ",
+                      "W": "BRH-W", "AD": "BRH-AD"}                     # AB - a photo stored inside its row: walked as the cast, the reads read off the wire                         # K - design slop the detector ratchet held, fixed and walked in the live render                         # J - a live-as-a-user journey that was not live (pinned in live-page-journeys)
 # which prover settles a contract sub-layer, and which of its readings: (condition or None, engines that must ALL be clean)
 PROVER_READS = {
     "H1": {"prover": PROVER, "gate": "page-survives-optional-failures", "condition": "as-served",
