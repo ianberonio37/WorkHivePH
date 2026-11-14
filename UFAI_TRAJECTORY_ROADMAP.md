@@ -6265,10 +6265,14 @@ changing the server:
 - **returning-after-30-days:** the page clock runs 30 days ahead.
 - **second-device:** stays refused until a second signed-in context exists to change the data.
 
-**Finding on the first slow-3g walks:** on a first visit, with no service-worker cache, every app page takes **39–51 s**
-to reach DOMContentLoaded (landing 39 s, hive 49–50 s, alert-hub 44 s, logbook 51 s). A field worker on a weak signal
-waits most of a minute per page before any content. This is the first M14 performance item. The fix is the critical
-path's weight (the inline script and CSS each page parses before content), and it is measured by the same walk.
+**The first slow-3g reading was mostly the instrument (corrected the same hour).** The walk measured 39–51 s per app page
+to DOMContentLoaded on a first visit. The local server sends pages uncompressed, though: logbook is 582 KB locally and
+177 KB as Brotli from production, about 3.3× smaller. Each page also pulls about 1.3 MB of external JS. At 400 kbps that
+uncompressed weight alone accounts for the 40-odd seconds. The same pages compressed come to roughly 10–15 s, which is
+still slow on a weak signal and is the M14 performance item to measure properly. Commit e9f4367d's message states the
+uncompressed figure as a finding; this paragraph supersedes it. **Before any slow-3g row banks a time,** the instrument
+must be served compressed, either through `tools/serve_vercel_headers.py` or against production's encoding, or the
+reading is labelled "uncompressed local".
 
 **Who learned the rows (in the change that seeds them):** `registry_io.py` (shard VX) · `seed_expansion_wave4.py`
 (`wave_vx_rows`, `--add-vx`) · `validate_trajectory_registry.py` (VX replayed after GJ) · `trajectory_priority.py`
