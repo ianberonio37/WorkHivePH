@@ -467,9 +467,9 @@ const RACES = [
     claim: "two members log the same PM task from the logbook the same day: each keeps their completion, and a repeat is told it already counts",
     // a task the panel offers: it lists what is due (overdue / due soon), not what is on track
     pick: async () => psql(`select v.scope_item_id || '|' || a.asset_name from v_pm_scope_items_truth v join pm_assets a on a.id = v.asset_id
-      where v.hive_id = '${HIVE}' and a.deleted_at is null and (v.is_overdue or v.is_due_soon) and not exists (select 1 from pm_completions c
-      where c.scope_item_id = v.scope_item_id and c.worker_name in ('Joel Cruz', 'Ana Reyes') and c.completed_at > now() - interval '1 day')
-      order by a.asset_name limit 1`),
+      where v.hive_id = '${HIVE}' and a.deleted_at is null and (v.is_overdue or v.is_due_soon)
+      and not exists (select 1 from pm_completions c where c.scope_item_id = v.scope_item_id and c.worker_name in ('Joel Cruz', 'Ana Reyes') and c.completed_at > now() - interval '1 day')
+      order by coalesce(v.next_due_date, '9999-12-31'::date), a.asset_name limit 1`),
     snapId: () => null,
     aOpen: async (A, v) => { await fillPmEntry(A, v); },
     bAct: async (B, v) => { await fillPmEntry(B, v); await B.page.evaluate(() => document.getElementById('log-form').requestSubmit()); await sleep(5000); },
@@ -905,6 +905,16 @@ async function fillPmEntry(s, v, problem = 'Scheduled PM - race walk') {
     set('f-action', 'Completed the PM task');
   }, [assetName, problem]);
   await s.page.evaluate(() => loadPMTasksForAsset());
+  // ★A TASK DONE TODAY IS ON TRACK, AND ON TRACK IS FOLDED (2026-11-14). The panel shows what is due and folds the rest under
+  // "N tasks on track". HS427's second visit comes after the person's own completion, which moves a Monthly task 30 days out,
+  // so the task sits in the fold: the walk read "not offered" for a task the page offers one tap away. It passed for weeks
+  // only because the pick had landed on tasks that recur within 14 days and so stayed "due soon". A person opens the fold
+  // (pressed in the page, like every other field this walk fills: the form is driven, not shown).
+  await s.page.evaluate((i) => {
+    if (document.querySelector(`.pm-task-check[data-item-id="${i}"]`)) return;
+    const fold = document.querySelector('#pm-tasks-list button[onclick="togglePMOnTrack()"]');
+    if (fold) fold.click();
+  }, sid);
   await s.page.waitForSelector(`.pm-task-check[data-item-id="${sid}"]`, { state: 'attached', timeout: 15000 })
     .catch(() => { throw new Error(`${s.person} @ ${s.vpName}: the PM task is not offered for ${assetName}`); });
   // the panel pre-ticks every task that is due; only the raced task stays ticked, so nothing else is written

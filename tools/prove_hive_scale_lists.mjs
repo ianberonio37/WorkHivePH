@@ -1245,11 +1245,17 @@ if (L5_GONE && psql(`select count(*) from engineering_calcs where project_name =
       values ('${HIVE}', '${L5_GONE}', 'Pipe Sizing', 'hs-l5 P-102 seal flush line', 'Mechanical', now() - interval '1 day');`);
 }
 // ...and the program he set up has one task, fallen overdue since he left: a program with no task sorts last ("no data"),
-// onto the list's second page, where no window a supervisor reads first could hold it
+// onto the list's second page, where no window a supervisor reads first could hold it.
+// ★DATED AGAINST THE HIVE, NOT AGAINST TODAY (2026-11-14). The page puts the most overdue first and shows ten. The anchor was
+// today - 40 (due today - 10), and the hive's own ten tasks are never re-dated, so they age a day every day: on 2026-11-14
+// two of them were 11 days overdue and this pump sorted 11th, out of the window, and HS285 read "nothing to judge". Monthly
+// is due 30 days after its anchor, so 31 days before the hive's earliest other due date puts it one day ahead of them all.
+const L5_PM_ANCHOR = `least(current_date - 40, (select min(v.next_due_date) from v_pm_scope_items_truth v join pm_assets a on a.id = v.asset_id
+  where v.hive_id = '${HIVE}' and a.tag_id is distinct from 'HSL5-P-210' and a.deleted_at is null) - 31)`;
 if (L5_GONE && psql(`select count(*) from pm_scope_items where hive_id = '${HIVE}' and item_text = 'hs-l5 Check the gland packing'`) === '0') {
   psql1(`set session_replication_role = replica;
     insert into pm_scope_items (asset_id, hive_id, item_text, frequency, anchor_date)
-      select id, hive_id, 'hs-l5 Check the gland packing', 'Monthly', current_date - 40 from pm_assets where hive_id = '${HIVE}' and tag_id = 'HSL5-P-210';`);
+      select id, hive_id, 'hs-l5 Check the gland packing', 'Monthly', ${L5_PM_ANCHOR} from pm_assets where hive_id = '${HIVE}' and tag_id = 'HSL5-P-210';`);
 }
 // ★THE FIXTURE IS RELATIVE TO THE WALK, NOT TO THE DAY IT WAS LAID (2026-11-08, M12 release). Every hs-l5 row above says
 // when it happened as an offset from now - "the day before he left", "150 minutes ago", "his last morning" - and was laid
@@ -1274,7 +1280,7 @@ if (L5_GONE) psql1(`set session_replication_role = replica;
   update marketplace_inquiries set created_at = now() - interval '1 day' where message = 'hs-l5 Is the spare seal kit still available?';
   update gateway_audit_log set created_at = now() - interval '150 minutes' where hive_id = '${HIVE}' and request_id = 'hs-l5-call';
   update pm_assets set created_at = now() - interval '40 days' where hive_id = '${HIVE}' and tag_id = 'HSL5-P-210';
-  update pm_scope_items set anchor_date = current_date - 40 where hive_id = '${HIVE}' and item_text = 'hs-l5 Check the gland packing';
+  update pm_scope_items set anchor_date = ${L5_PM_ANCHOR} where hive_id = '${HIVE}' and item_text = 'hs-l5 Check the gland packing';
   update engineering_calcs set created_at = now() - interval '1 day' where hive_id = '${HIVE}' and project_name = 'hs-l5 P-102 seal flush line';`);
 // the shift's voice actions (audit-log's fixture, marker hs l1) say "the last two hours" the same way - re-dated with them
 psql1(`set session_replication_role = replica;

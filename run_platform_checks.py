@@ -5325,7 +5325,7 @@ VALIDATORS = [
     # Wave HS (2026-10-30, Ian: "how they behave when they have a post, or lists of ... up to 30 hive members"): each
     # page's member lists read against the seeded thirty-member hive as a worker and a supervisor at 390 and 1280, and
     # every action an item's menu offers replayed as that person against the database. ~3 min per page, so skipped on --fast.
-    {"id":"hive-scale-lists","script":"tools/prove_hive_scale_lists.mjs","args":[],
+    {"id":"hive-scale-lists","script":"tools/prove_hive_scale_lists.mjs","args":[],"timeout":2400,  # ~1400s alone on this host; the 1200 cap killed it mid-walk (2026-11-14)
      "label":"Hive at thirty (HS L1/L2): each member list on the walked pages, read against a 30-member hive as a worker and a supervisor at phone-390 and desktop-1280 - every item says who and when, shows a count only when there is one, holds no line of unnamed controls, sits under nothing fixed and inside the screen; each action an item's menu offers is a write the database lets that person make, no permitted moderation action is missing, no supervisor action reaches a worker, and a relation a role must not read is neither drawn nor returned to it; teeth: --teeth flips an expectation and must FAIL",
      "group":"Platform","skip_if_fast":True},
     # Wave ED (2026-10-31, Ian: "there are many flops in engineering design calculator, in the guide"): every built
@@ -5401,7 +5401,7 @@ VALIDATORS = [
     {"id":"hive-scale-year","script":os.path.join("tools", "prove_hive_scale_year.py"),"args":[],
      "label":"Hive at thirty (HS L4): with a year of thirty members' work laid in, every capped list read pages, says more, or is proven never to bite",
      "group":"Platform","skip_if_fast":True},
-    {"id":"hive-scale-races","script":"tools/prove_hive_scale_races.mjs","args":[],
+    {"id":"hive-scale-races","script":"tools/prove_hive_scale_races.mjs","args":[],"timeout":2400,  # ~1550s alone on this host; the 1200 cap killed it mid-walk (2026-11-14)
      "label":"Hive at thirty (HS W1, the browser half): 31 two-person races through the page - the member who lost is told in the page's own words, the other's change is kept, an append keeps both, an owner's record has no teammate control",
      "group":"Platform","skip_if_fast":True},
     # HS (2026-10-30): project-manager's link picker did `data = data.slice(...)` on a `const { data }` - a runtime TypeError

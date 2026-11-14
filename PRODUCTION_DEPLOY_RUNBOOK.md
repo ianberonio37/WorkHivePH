@@ -84,6 +84,13 @@ Two full runs were needed; the other two were the wrong loop.
 >   smoke supervisor) and 146/146 read clean at 390. IndexNow: 54 changed URLs, HTTP 200.
 > - **Owed (fixture, not shipped code):** hive-scale-lists HS285 and hive-scale-races HS427 fail on the shared 30-member
 >   hive: a departed member's PM asset outside the drawn window, and B-801's PM task not offered. Reseed and re-prove.
+> - **Correction, 2026-11-14:** the M13 board did NOT pass these two gates; it SKIPPED them (`skip_if_fast`, elapsed 0).
+>   Their later `--only` runs were killed by the 1200 s cap (elapsed 1200.3), and the killed races run left two PM
+>   completions, two logbook rows and two audit lines behind (removed by id). Both causes were the prover, not the
+>   shipped pages: HS285's planted task was dated against today while the hive's own tasks kept ageing, so it fell
+>   11th, outside the 10-item window (now dated one day before the hive's earliest due date); HS427's second visit came
+>   after the person's own completion, which folds a Monthly task under "on track" (the walk now opens the fold, as a
+>   person does). Both gates now carry `"timeout": 2400`.
 >
 > **Prepared and verified locally on 2026-11-11.** M13 is the second Wave CF milestone (UFAI_TRAJECTORY_ROADMAP.md §CF):
 > every defect the critic deepwalk found on the signed-out face, fixed at its cause and graded clean again by a later
