@@ -63,8 +63,12 @@
        there (ENH-C E2, 2026-10-22 - the usage card's labels wore .mod-empty) */
     .mod-label { color:var(--muted); font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; }
     .updated { color:var(--muted); font-size: var(--wh-fs-2xs, 0.75rem); }
-    .gate { max-width:520px; margin:12vh auto; text-align:center; background:var(--card); border:1px solid var(--border);
-            border-radius:1rem; padding:2rem; }
+    .gate { max-width:520px; margin:var(--wh-space-8) auto; text-align:center; }
+    .gate-panel { display:flex; flex-direction:column; gap:var(--wh-space-4); background:var(--card); border:1px solid var(--border);
+                 border-radius:1rem; padding:var(--wh-space-8); }
+    .gate h1 { margin:0; }
+    .gate p { margin:0; }
+    .gate-actions { display:flex; justify-content:center; margin-top:var(--wh-space-2); }
     .gate a { color:var(--blue); }
     /* the refusal's ONE action was 125x21 (2026-10-13, the W45990 walk as a worker): class="btn" with no rule for it on
        this page - founder-console met the same bare .btn on 2026-07-29 and this is its rule, so the two consoles' gates
@@ -214,17 +218,21 @@
    onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
   <!-- Gate: not signed in or not admin -->
   <div id="no-access-gate" class="gate" data-wh-gate="no-access" hidden>
-    <!-- heading-allow: one of two mutually exclusive views (this gate shows instead of the console) -->
-    <h1 style="font-size:1.5em; margin:0.83em 0;">Platform Actions</h1>
-    <!-- The person who hits this screen is, by definition, NOT an admin — so a database table name is
-         the one thing they can do nothing with. Say who can let them in instead.
-         ★AND SAY WHAT THE PAGE IS, before saying who it is for (2026-10-21). A first-timer or a pasted link
-         landed on two lines of refusal (173 characters) that never said what Platform Actions does, so the
-         person could not tell whether they had the wrong page or the wrong account: W3-PG W31340 / W31343,
-         both locking, read BAD. One sentence answers it; the sign-in route serves an admin on another account. -->
-    <p>Platform Actions is where WorkHive's admins work. They check credit top-ups, review listings and sellers, and answer feedback. If you are an admin on another account, sign in with that one.</p>
-    <p data-i="p_thispageisforplatformadminso_4f0c">This page is for platform admins only. If you think you should have access, ask an existing platform admin to add you.</p>
-    <a data-i="p_backtoworkhive_9aff" href="index.html" class="btn">Back to WorkHive</a>
+    <div class="gate-panel">
+      <!-- heading-allow: one of two mutually exclusive views (this gate shows instead of the console) -->
+      <h1 style="font-size:1.5em;">Platform Actions</h1>
+      <!-- The person who hits this screen is, by definition, NOT an admin — so a database table name is
+           the one thing they can do nothing with. Say who can let them in instead.
+           ★AND SAY WHAT THE PAGE IS, before saying who it is for (2026-10-21). A first-timer or a pasted link
+           landed on two lines of refusal (173 characters) that never said what Platform Actions does, so the
+           person could not tell whether they had the wrong page or the wrong account: W3-PG W31340 / W31343,
+           both locking, read BAD. One sentence answers it; the sign-in route serves an admin on another account. -->
+      <p>Platform Actions is where WorkHive's admins work. They check credit top-ups, review listings and sellers, and answer feedback. If you are an admin on another account, sign in with that one.</p>
+      <p data-i="p_thispageisforplatformadminso_4f0c">This page is for platform admins only. If you think you should have access, ask an existing platform admin to add you.</p>
+      <div class="gate-actions">
+        <a data-i="p_backtoworkhive_9aff" href="index.html" class="btn">Back to WorkHive</a>
+      </div>
+    </div>
   </div>
   <div data-i="p_checkingaccess_c510" id="checking-gate" class="gate">Checking access…</div>
 
