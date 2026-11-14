@@ -17,6 +17,7 @@ Rolling-sphere radius45 m
 Mesh size15 m
 Protection efficiency90 %
 Computed by WorkHive's calculation engine when this page was built; standard: IEC 62305-1/2/3/4:2010, NSCP 2015 Vol.3 and PEC 2017 Art.280.
+Sources: [IEC](https://www.iec.ch/), [ASEP (publisher of the National Structural Code of the Philippines)](https://asep.org.ph/), [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/).
 How to use this calculator
 Read the worked example. It uses a 40 × 25 × 18 m building protected to LPL III in Manila and shows every number in the method.
 Follow the formula with your own figures: it returns Rolling-sphere radius, Mesh size, Protection efficiency, computed per IEC 62305-1/2/3/4:2010, NSCP 2015 Vol.3 and PEC 2017 Art.280.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 5e37e8d72cbe1ef5 -->
+<!-- md-twin source-sha: 24579dad6f5e27ce -->

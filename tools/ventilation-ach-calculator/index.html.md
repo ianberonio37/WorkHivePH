@@ -17,6 +17,7 @@ Required ACH6 /h
 Supply airflow3150 m³/h
 Supply airflow (CFM)1854 CFM
 Computed by WorkHive's calculation engine when this page was built; standard: ASHRAE 62.1:2022 Ventilation Rate Procedure.
+Sources: [ASHRAE](https://www.ashrae.org/).
 How to use this calculator
 Read the worked example. It uses a 150 m² office with 25 people and a 3.5 m ceiling and shows every number in the method.
 Follow the formula with your own figures: it returns Required ACH, Supply airflow, Supply airflow, computed per ASHRAE 62.1:2022 Ventilation Rate Procedure.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 6154fd05e2e907b9 -->
+<!-- md-twin source-sha: 383e5472b31c8209 -->

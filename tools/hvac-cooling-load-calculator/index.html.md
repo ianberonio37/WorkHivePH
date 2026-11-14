@@ -17,6 +17,7 @@ Cooling load38.87 kW
 Tons11.05 TR
 Recommended unit14.22 TR
 Computed by WorkHive's calculation engine when this page was built; standard: ASHRAE 62.1, ASHRAE 90.1, ASHRAE 55 and ASHRAE 2021 Ch.18.
+Sources: [ASHRAE](https://www.ashrae.org/).
 How to use this calculator
 Read the worked example. It uses a 150 m² space with 25 people, 15 kW of equipment, at 35 °C outdoor / 24 °C indoor, with a 10% design margin, 3.5 m ceiling height and shows every number in the method.
 Follow the formula with your own figures: it returns Cooling load, Tons, Recommended unit, computed per ASHRAE 62.1, ASHRAE 90.1, ASHRAE 55 and ASHRAE 2021 Ch.18.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: ba75be262162b985 -->
+<!-- md-twin source-sha: e5c2eabe104cc1e5 -->

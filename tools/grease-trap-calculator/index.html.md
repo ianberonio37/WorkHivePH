@@ -17,6 +17,7 @@ Design flow45 L/min
 Liquid capacity113.6 L
 Cleaning interval1 day
 Computed by WorkHive's calculation engine when this page was built; standard: PDI G-101 and DENR DAO 2016-08.
+Sources: [DENR](https://www.denr.gov.ph/).
 How to use this calculator
 Read the worked example. It uses a commercial kitchen with two 30 L/min fixtures serving 200 meals/day, at a 0.75 simultaneous-use factor and shows every number in the method.
 Follow the formula with your own figures: it returns Design flow, Liquid capacity, Cleaning interval, computed per PDI G-101 and DENR DAO 2016-08.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 903bec66754f7078 -->
+<!-- md-twin source-sha: 9a204988c15c702a -->

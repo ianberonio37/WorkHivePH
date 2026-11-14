@@ -17,6 +17,7 @@ Total DFU40 DFU
 Stack size100 mm
 Design flow5.42 L/s
 Computed by WorkHive's calculation engine when this page was built; standard: NSCP Vol.2, PSME Code, ASPE Vol.2 and IPC (as adopted by NSCP).
+Sources: [ASEP (publisher of the National Structural Code of the Philippines)](https://asep.org.ph/), [ICC (publisher of the International Plumbing Code)](https://www.iccsafe.org/).
 How to use this calculator
 Read the worked example. It uses a 3-floor building sanitary stack serving 10 water closets and shows every number in the method.
 Follow the formula with your own figures: it returns Total DFU, Stack size, Design flow, computed per NSCP | Philippine Plumbing Code.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 328d66ce907bbaa2 -->
+<!-- md-twin source-sha: f10def999f61c50d -->

@@ -40,6 +40,7 @@ User-agent: OAI-SearchBot
 User-agent: OAI-AdsBot
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /_fixtures/
 Disallow: /index.backup.html
 Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
@@ -58,6 +59,7 @@ User-agent: ClaudeBot
 User-agent: Claude-SearchBot
 User-agent: Claude-User
 Allow: /
+Disallow: /_fixtures/
 Disallow: /index.backup.html
 Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
@@ -72,6 +74,7 @@ Disallow: /*-output.txt$
 User-agent: Claude-Web
 User-agent: anthropic-ai
 Allow: /
+Disallow: /_fixtures/
 Disallow: /index.backup.html
 Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
@@ -86,6 +89,7 @@ Disallow: /*-output.txt$
 User-agent: Google-Extended
 User-agent: Google-CloudVertexBot
 Allow: /
+Disallow: /_fixtures/
 Disallow: /index.backup.html
 Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
@@ -100,6 +104,7 @@ Disallow: /*-output.txt$
 User-agent: PerplexityBot
 User-agent: Perplexity-User
 Allow: /
+Disallow: /_fixtures/
 Disallow: /index.backup.html
 Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
@@ -114,6 +119,7 @@ Disallow: /*-output.txt$
 User-agent: Applebot
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /_fixtures/
 Disallow: /index.backup.html
 Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
@@ -127,6 +133,7 @@ Disallow: /*-output.txt$
 # Common Crawl — feeds many downstream models
 User-agent: CCBot
 Allow: /
+Disallow: /_fixtures/
 Disallow: /index.backup.html
 Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
@@ -146,6 +153,7 @@ User-agent: MistralAI-User
 User-agent: cohere-ai
 User-agent: YouBot
 Allow: /
+Disallow: /_fixtures/
 Disallow: /index.backup.html
 Disallow: /index.backup2.html
 Disallow: /checklist.backup.html

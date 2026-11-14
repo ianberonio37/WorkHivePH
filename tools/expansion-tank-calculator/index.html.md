@@ -17,6 +17,7 @@ Required tank30.21 L
 Water expansion14.16 L
 Max pressure400 kPa
 Computed by WorkHive's calculation engine when this page was built; standard: ASHRAE 2023 HVAC Systems & Equipment Ch.12.
+Sources: [ASHRAE](https://www.ashrae.org/).
 How to use this calculator
 Read the worked example. It uses a 300 kW chilled-water system (≈2400 L) over a 7→35 °C swing, at 15 m static head and shows every number in the method.
 Follow the formula with your own figures: it returns Required tank, Water expansion, Max pressure, computed per ASHRAE 2023 HVAC Systems & Equipment Ch.12.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 79960b87b63bbad6 -->
+<!-- md-twin source-sha: be780d1f64d9b425 -->

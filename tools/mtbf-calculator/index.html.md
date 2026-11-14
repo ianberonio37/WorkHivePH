@@ -21,6 +21,7 @@ MTTR8 h
 Availability99 %
 Failures5
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 14224, IEC 60050-192 and SMRP.
+Sources: [ISO](https://www.iso.org/), [IEC](https://www.iec.ch/), [SMRP](https://www.smrp.org/).
 How to use this calculator
 Work out MTBF, MTTR and availability on this page: enter how long the asset ran, how many times it failed and the total repair hours, and read what to do about it.
 Read the worked example. It uses a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total and shows every number in the method.
@@ -41,4 +42,4 @@ Where these figures come from
 Worked example computed when this page was built · the calculator works on your device from what you enter · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 91e95f955439a1c0 -->
+<!-- md-twin source-sha: 5bfcba77bf4d453f -->

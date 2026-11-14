@@ -17,6 +17,7 @@ Shaft diameter45 mm
 Torque98.79 N·m
 Endurance limit177.39 MPa
 Computed by WorkHive's calculation engine when this page was built; standard: ASME B106.1M, ASME B17.1 and Shigley's MED 10th Ed.
+Sources: [ASME](https://www.asme.org/).
 How to use this calculator
 Read the worked example. It uses a 15 kW shaft at 1450 rpm over a 600 mm span under a 2 kN radial load, in AISI 1045 steel and shows every number in the method.
 Follow the formula with your own figures: it returns Shaft diameter, Torque, Endurance limit, computed per ASME B106.1M, ASME B17.1 and Shigley's MED 10th Ed.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 8f1829d8f846b53e -->
+<!-- md-twin source-sha: 3d8176dc99fc8bd6 -->

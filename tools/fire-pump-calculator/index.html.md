@@ -17,6 +17,7 @@ Recommended flow2840 L/min
 Rated pressure7.75 bar
 Motor75 kW
 Computed by WorkHive's calculation engine when this page was built; standard: NFPA 20:2022, NFPA 13:2022, NFPA 25 and BFP IRR RA 9514.
+Sources: [NFPA](https://www.nfpa.org/).
 How to use this calculator
 Read the worked example. It uses a 500 GPM / 100 psi fire-protection demand, with a 10% design margin and shows every number in the method.
 Follow the formula with your own figures: it returns Recommended flow, Rated pressure, Motor, computed per NFPA 20:2022, NFPA 13:2022, NFPA 25 and BFP IRR RA 9514.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 746314d417772fa7 -->
+<!-- md-twin source-sha: 3cad138e6727c8c3 -->

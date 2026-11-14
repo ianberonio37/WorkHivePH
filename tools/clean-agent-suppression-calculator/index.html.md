@@ -17,6 +17,7 @@ Agent mass118.77 kg
 Design concentration7 %
 Protected volume200 m³
 Computed by WorkHive's calculation engine when this page was built; standard: NFPA 2001:2022.
+Sources: [NFPA](https://www.nfpa.org/).
 How to use this calculator
 Read the worked example. It uses a 200 m³ hazard protected by FM-200 at 7% design concentration, with a 1.10 design safety factor, at a 25 °C design temperature, at sea level and shows every number in the method.
 Follow the formula with your own figures: it returns Agent mass, Design concentration, Protected volume, computed per NFPA 2001:2022.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 7bca0f72a1cb0cfd -->
+<!-- md-twin source-sha: ac497390a3e09705 -->

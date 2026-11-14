@@ -21,6 +21,7 @@ Voltage drop0.75 %
 Voltage-drop limit2 %
 Breaker125 A
 Computed by WorkHive's calculation engine when this page was built; standard: PEC 2017, NEC 2020, IEC 60364-5-52 and IEC 60228.
+Sources: [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/), [NFPA (publisher of the NEC, NFPA 70)](https://www.nfpa.org/), [IEC](https://www.iec.ch/).
 How to use this calculator
 Read the worked example. It uses a 50 kW 3-phase 400 V feeder, 40 m long, at 35 °C ambient, at 0.85 power factor and shows every number in the method.
 Follow the formula with your own figures: it returns Design current, Sizing current, Conductor size, Derated ampacity, Voltage drop, Voltage-drop limit, Breaker, computed per PEC 2017, NEC 2020, IEC 60364-5-52 and IEC 60228.
@@ -40,4 +41,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: b2feaa77e75296dc -->
+<!-- md-twin source-sha: 6ce81c3bb4716d42 -->

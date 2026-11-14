@@ -17,6 +17,7 @@ Boiler capacity422.5 kW
 Boiler HP43.1 BHP
 Fuel use49.9 L/h
 Computed by WorkHive's calculation engine when this page was built; standard: ASME BPVC Sec.I/IV and ASME B31.1.
+Sources: [ASME](https://www.asme.org/).
 How to use this calculator
 Read the worked example. It uses a steam boiler delivering 500 kg/h at 7 barg from 80 °C feedwater on diesel, at 85% boiler efficiency with a 1.25 design safety factor and shows every number in the method.
 Follow the formula with your own figures: it returns Boiler capacity, Boiler HP, Fuel use, computed per ASME BPVC Sec.I/IV and ASME B31.1.
@@ -35,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: cf7721491bd4f87d -->
+<!-- md-twin source-sha: b44711f51b52f774 -->

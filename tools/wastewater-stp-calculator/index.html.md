@@ -18,6 +18,7 @@ BOD load15 kg/day
 BOD removal88 %
 Aeration volume17.9 m³
 Computed by WorkHive's calculation engine when this page was built; standard: DENR DAO 2016-08.
+Sources: [DENR](https://www.denr.gov.ph/).
 How to use this calculator
 Read the worked example. It uses a 500-person facility at 120 L/person/day, BOD 250→30 mg/L and shows every number in the method.
 Follow the formula with your own figures: it returns Design flow, BOD load, BOD removal, Aeration volume, computed per DENR DAO 2016-08.
@@ -37,4 +38,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 3f554dcb8218559a -->
+<!-- md-twin source-sha: 29900f84fac912bb -->

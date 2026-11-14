@@ -17,6 +17,7 @@ Airflow7200 m³/h
 Critical-path drop12.2 Pa
 Friction rate (design target)0.8 Pa/m
 Computed by WorkHive's calculation engine when this page was built; standard: ASHRAE 2021 Ch.21, SMACNA and ASHRAE 62.1.
+Sources: [ASHRAE](https://www.ashrae.org/).
 How to use this calculator
 Read the worked example. It uses a supply-air main carrying 2 m³/s (7200 m³/h) at 0.8 Pa/m friction over 20 m and shows every number in the method.
 Follow the formula with your own figures: it returns Airflow, Critical-path drop, Friction rate, computed per ASHRAE 2021 Ch.21, SMACNA and ASHRAE 62.1.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 1b53af2ac10a09fa -->
+<!-- md-twin source-sha: fbd387a71009e6d7 -->

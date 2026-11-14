@@ -17,6 +17,7 @@ Sound pressure83 dB
 NC limit65 NC
 Source power95 dB
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 9613-2, OSHA 29 CFR 1910.95, DOLE D.O. 13, ASHRAE 2019 Ch.8 and IEC 61672-1.
+Sources: [ISO](https://www.iso.org/), [OSHA](https://www.osha.gov/), [DOLE](https://www.dole.gov.ph/), [ASHRAE](https://www.ashrae.org/), [IEC](https://www.iec.ch/).
 How to use this calculator
 Read the worked example. It uses a 95 dB machine in a 400 m² factory, measured 5 m away and shows every number in the method.
 Follow the formula with your own figures: it returns Sound pressure, NC limit, Source power, computed per ISO 9613-2, OSHA 29 CFR 1910.95, DOLE D.O. 13, ASHRAE 2019 Ch.8 and IEC 61672-1.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 83894d22d54c1f8c -->
+<!-- md-twin source-sha: 449b9e07828a77b3 -->

@@ -17,6 +17,7 @@ Current THD37.42 %
 TDD37.42 %
 TDD limit8 %
 Computed by WorkHive's calculation engine when this page was built; standard: IEEE 519-2022.
+Sources: [IEEE Standards Association](https://standards.ieee.org/).
 How to use this calculator
 Read the worked example. It uses a 200 A load with 30% / 20% / 10% 5th / 7th / 11th harmonics on a 400 V system, on an 8 kA short-circuit current and shows every number in the method.
 Follow the formula with your own figures: it returns Current THD, TDD, TDD limit, computed per IEEE 519-2022.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: b970e5be03169f73 -->
+<!-- md-twin source-sha: 7d37b37aa1f9ca56 -->

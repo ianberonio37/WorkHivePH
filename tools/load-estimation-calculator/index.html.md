@@ -17,6 +17,7 @@ Demand load36.75 kW
 Demand42.06 kVA
 Main breaker80 A
 Computed by WorkHive's calculation engine when this page was built; standard: PEC 2017 Art. 2.10 / 2.20 and IEC 60364.
+Sources: [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/), [IEC](https://www.iec.ch/).
 How to use this calculator
 Read the worked example. It uses a facility with 8 kW lighting, a 15 kW motor, and two 5 kW aircon units, on a 3-phase 4-wire 400/230 V supply and shows every number in the method.
 Follow the formula with your own figures: it returns Demand load, Demand, Main breaker, computed per PEC 2017 Art. 2.10 / 2.20 and IEC 60364.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 633744d7edff916a -->
+<!-- md-twin source-sha: 6e4caa8a4928cb68 -->

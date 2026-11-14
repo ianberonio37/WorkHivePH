@@ -20,6 +20,7 @@ Total panels252 panels
 Array size100.8 kWp
 Roof area629 m²
 Computed by WorkHive's calculation engine when this page was built; standard: IEC 62548:2016, IEC 61215, IEC 62109, PEC 2017 Art.6.90 and PAGASA.
+Sources: [IEC](https://www.iec.ch/), [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/).
 How to use this calculator
 Plan an off-grid station on this page: list the appliances, choose your nearest place and the days without sun, and read each step from the daily energy to the cost.
 Read the worked example. It uses a 100 kWp grid-tie solar array in Manila and shows every number in the method.
@@ -39,4 +40,4 @@ Where these figures come from
 Worked example computed when this page was built · the planner calculates on your device from what you enter · no live data
  /wh-sources
 
-<!-- md-twin source-sha: c02314da74972852 -->
+<!-- md-twin source-sha: 1ce5dda09bc6781b -->

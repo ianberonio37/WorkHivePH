@@ -17,6 +17,7 @@ Interval66.8 s
 Handling capacity15.6 %
 Round-trip time133.6 s
 Computed by WorkHive's calculation engine when this page was built; standard: CIBSE Guide D:2015.
+Sources: [CIBSE](https://www.cibse.org/).
 How to use this calculator
 Read the worked example. It uses a 10-floor office with 300 people served by two 13-person lifts at 1.5 m/s and shows every number in the method.
 Follow the formula with your own figures: it returns Interval, Handling capacity, Round-trip time, computed per CIBSE Guide D:2015.
@@ -35,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 6b5d4c8aee028302 -->
+<!-- md-twin source-sha: ca2b38341ae36fab -->

@@ -17,6 +17,7 @@ Earth resistance4.19 Ω
 Allowable limit10 Ω
 CompliancePASS
 Computed by WorkHive's calculation engine when this page was built; standard: PEC 2017 Art. 2.50 and IEC 60364-5-54.
+Sources: [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/), [IEC](https://www.iec.ch/).
 How to use this calculator
 Read the worked example. It uses four 3 m rods in 50 Ω·m soil for a TN-S system and shows every number in the method.
 Follow the formula with your own figures: it returns Earth resistance, Limit, Result, computed per PEC 2017 Art. 2.50 and IEC 60364-5-54.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 6536383555b6a066 -->
+<!-- md-twin source-sha: f6fe8320ec2958ec -->

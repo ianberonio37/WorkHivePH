@@ -18,6 +18,7 @@ Range5.5 °C
 Approach1.5 °C
 Effectiveness0.79
 Computed by WorkHive's calculation engine when this page was built; standard: CTI STD-201, ASHRAE 2021 Ch.39, ASHRAE 90.1 and ASME PTC 23.
+Sources: [Cooling Technology Institute](https://www.coolingtower.org/), [ASHRAE](https://www.ashrae.org/), [ASME](https://www.asme.org/).
 How to use this calculator
 Read the worked example. It uses a 500 kW heat-rejection duty at a 28 °C design wet-bulb and shows every number in the method.
 Follow the formula with your own figures: it returns Heat rejection, Range, Approach, Effectiveness, computed per CTI STD-201, ASHRAE 2021 Ch.39, ASHRAE 90.1 and ASME PTC 23.
@@ -37,4 +38,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: b87c5c1489432554 -->
+<!-- md-twin source-sha: a515580bbd9a3d05 -->

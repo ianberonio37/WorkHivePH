@@ -17,6 +17,7 @@ Water fixture units124 WSFU
 Peak flow275.9 L/min
 Storage tank1 m³
 Computed by WorkHive's calculation engine when this page was built; standard: PSME Code, ASPE Vol.2, PNS 65 and ASHRAE 2021 Ch.50.
+Sources: [Bureau of Philippine Standards](https://bps.dti.gov.ph/), [ASHRAE](https://www.ashrae.org/).
 How to use this calculator
 Read the worked example. It uses a 3-floor building (50 persons) with 10 flush-valve WCs, 8 lavatories, and 4 showers, an office occupancy and shows every number in the method.
 Follow the formula with your own figures: it returns Water fixture units, Peak flow, Storage tank, computed per PSME Code | Hunter's Curve.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: d1263329512bb8de -->
+<!-- md-twin source-sha: 493a1b6412044369 -->

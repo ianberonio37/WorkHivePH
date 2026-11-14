@@ -17,6 +17,7 @@ Demand load26.75 kW
 Demand30.95 kVA
 Feeder breaker60 A
 Computed by WorkHive's calculation engine when this page was built; standard: PEC 2017, NEC 2020 Art.220 + 430 and IEEE 141.
+Sources: [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/), [NFPA (publisher of the NEC, NFPA 70)](https://www.nfpa.org/), [IEEE Standards Association](https://standards.ieee.org/).
 How to use this calculator
 Read the worked example. It uses a 400 V 3-phase panel with 8 kW lighting and a 15 kW motor and shows every number in the method.
 Follow the formula with your own figures: it returns Demand load, Demand, Feeder breaker, computed per PEC 2017, NEC 2020 Art.220 + 430 and IEEE 141.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: b824bc6ecba4ad77 -->
+<!-- md-twin source-sha: 9fc6a8819c5b313b -->

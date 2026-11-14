@@ -17,6 +17,7 @@ Recommended compressor132 kW
 Recommended compressor (HP)177 HP
 Air receiver20.27 m³
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 1217, ISO 8573-1, ASME B31.3 and CAGI.
+Sources: [ISO](https://www.iso.org/), [ASME](https://www.asme.org/), [CAGI](https://www.cagi.org/).
 How to use this calculator
 Read the worked example. It uses a 10 m³/min plant demand at 7 barg and 60% duty, with a 1.25 design safety factor, at 88% compressor efficiency and shows every number in the method.
 Follow the formula with your own figures: it returns Recommended compressor, Recommended, Air receiver, computed per ISO 1217, ISO 8573-1, ASME B31.3 and CAGI.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 0026b7dda67fd3cd -->
+<!-- md-twin source-sha: 0f51f8a84bc58116 -->

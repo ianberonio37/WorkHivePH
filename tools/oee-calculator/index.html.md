@@ -22,6 +22,7 @@ Performance95 %
 Quality98 %
 TPM benchmark85 %
 Computed by WorkHive's calculation engine when this page was built; standard: Nakajima TPM and ISO 22400-2.
+Sources: [ISO](https://www.iso.org/).
 How to use this calculator
 Work out your own OEE on this page: enter one shift's planned time, stops and counts, or the three percentages, and read the result and what to do about it.
 Read the worked example. It uses a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles and shows every number in the method.
@@ -42,4 +43,4 @@ Where these figures come from
 Worked example computed when this page was built · the calculator works on your device from what you enter · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 96841f5e466f088d -->
+<!-- md-twin source-sha: d64f99fa66f1c8a7 -->

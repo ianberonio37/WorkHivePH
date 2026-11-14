@@ -17,6 +17,7 @@ Recommended genset250 kVA
 Steady demand129.41 kVA
 Peak during start215.16 kVA
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 8528-1:2018, ISO 3046-1, IEEE 446, PEC 2017 and NFPA 110.
+Sources: [ISO](https://www.iso.org/), [IEEE Standards Association](https://standards.ieee.org/), [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/), [NFPA](https://www.nfpa.org/).
 How to use this calculator
 Read the worked example. It uses a 100 kW load with a 20 HP DOL-started largest motor and shows every number in the method.
 Follow the formula with your own figures: it returns Recommended genset, Steady demand, Peak during start, computed per ISO 8528-1:2018, ISO 3046-1, IEEE 446, PEC 2017 and NFPA 110.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 5a80ea99f4b84d97 -->
+<!-- md-twin source-sha: 7ec743c0d0822ca9 -->

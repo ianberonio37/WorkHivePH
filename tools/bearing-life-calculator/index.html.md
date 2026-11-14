@@ -17,6 +17,7 @@ L10 life11111 h
 Dynamic equivalent load5 kN
 C/P ratio10
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 281:2007.
+Sources: [ISO](https://www.iso.org/).
 How to use this calculator
 Read the worked example. It uses a ball bearing (C = 50 kN) at 1500 rpm under a 5 kN radial + 1 kN axial load and shows every number in the method.
 Follow the formula with your own figures: it returns L10 life, Dynamic equivalent load, C/P ratio, computed per ISO 281:2007.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 2d2d1e512d498ce3 -->
+<!-- md-twin source-sha: 4b5e3b4185cd4111 -->

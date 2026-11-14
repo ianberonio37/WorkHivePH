@@ -17,6 +17,7 @@ Daily demand1650 L/day
 Storage tank750 L
 Heat energy61.3 kWh
 Computed by WorkHive's calculation engine when this page was built; standard: ASHRAE HVAC Applications Handbook Ch.50.
+Sources: [ASHRAE](https://www.ashrae.org/).
 How to use this calculator
 Read the worked example. It uses 50 office workers plus 100 restaurant meals per day and shows every number in the method.
 Follow the formula with your own figures: it returns Daily demand, Storage tank, Heat energy, computed per ASHRAE HVAC Applications Handbook Ch.50.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: bad7fecc1e1330d2 -->
+<!-- md-twin source-sha: 11a266acc8b02e70 -->

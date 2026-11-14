@@ -17,6 +17,7 @@ Selected tray width300 mm
 Actual fill28.14 %
 Load class8A
 Computed by WorkHive's calculation engine when this page was built; standard: NEMA VE 1-2017 and PEC 2017.
+Sources: [NEMA](https://www.nema.org/), [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/).
 How to use this calculator
 Read the worked example. It uses a ladder tray carrying ten 25 mm and twenty 15 mm cables over a 3 m span, at a 40% fill limit and shows every number in the method.
 Follow the formula with your own figures: it returns Selected tray width, Actual fill, Load class, computed per NEMA VE 1-2017 and PEC 2017.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 38aded81e59ca5ff -->
+<!-- md-twin source-sha: c85de9bfa9e6d589 -->

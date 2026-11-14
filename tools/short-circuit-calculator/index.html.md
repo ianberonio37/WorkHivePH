@@ -17,6 +17,7 @@ ResultValue
 Peak41.04 kA
 Fault level14.79 MVA
 Computed by WorkHive's calculation engine when this page was built; standard: IEC 60909-0:2016, PEC 2017 Art.2.40, IEEE 141 and IEEE 242.
+Sources: [IEC](https://www.iec.ch/), [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/), [IEEE Standards Association](https://standards.ieee.org/).
 How to use this calculator
 Read the worked example. It uses a 1000 kVA 5%-impedance transformer feeding a 400 V board via 30 m of 240 mm² cable, from a 250 MVA source and shows every number in the method.
 Follow the formula with your own figures: it returns 3-phase fault, Peak, Fault level, computed per IEC 60909-0:2016, PEC 2017 Art.2.40, IEEE 141 and IEEE 242.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 2392d77d41855393 -->
+<!-- md-twin source-sha: 12c3708498e32585 -->

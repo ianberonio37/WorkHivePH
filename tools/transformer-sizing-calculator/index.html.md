@@ -17,6 +17,7 @@ Rated size150 kVA
 Required capacity125 kVA
 Loading66.7 %
 Computed by WorkHive's calculation engine when this page was built; standard: PEC 2017 Art. 4.50 and IEC 60076-1:2011.
+Sources: [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/), [IEC](https://www.iec.ch/).
 How to use this calculator
 Read the worked example. It uses a 100 kVA load on a 13.8 kV / 400 V 3-phase supply with 25% spare and shows every number in the method.
 Follow the formula with your own figures: it returns Rated size, Required, Loading, computed per PEC 2017 Art. 4.50 and IEC 60076-1:2011.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 7d07bb16aec6b705 -->
+<!-- md-twin source-sha: 78cfedcf6e308de4 -->

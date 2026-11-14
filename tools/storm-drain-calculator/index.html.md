@@ -17,6 +17,7 @@ Design flow291.7 L/s
 Runoff coefficient0.7
 Time of concentration6.8 min
 Computed by WorkHive's calculation engine when this page was built; standard: DPWH Blue Book | Rational Method.
+Sources: [DPWH](https://www.dpwh.gov.ph/).
 How to use this calculator
 Read the worked example. It uses a 1 ha catchment (C = 0.7) at 150 mm/h, 10-year return and shows every number in the method.
 Follow the formula with your own figures: it returns Design flow, Runoff coefficient, Time of concentration, computed per DPWH Blue Book | Rational Method.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 43e47874db9f9f01 -->
+<!-- md-twin source-sha: 5562c625788e0f62 -->

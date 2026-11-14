@@ -17,6 +17,7 @@ Shell thickness5.24 mm
 MAWP12.08 bar
 Outer diameter1012 mm
 Computed by WorkHive's calculation engine when this page was built; standard: ASME BPVC Sec. VIII Div.1, ASME Sec. II Part D and DOLE OSHS Rule 1170.
+Sources: [ASME](https://www.asme.org/), [DOLE](https://www.dole.gov.ph/).
 How to use this calculator
 Read the worked example. It uses a 1000 mm ID cylindrical vessel at 10 bar / 150 °C in SA-516-70, with a 1.6 mm corrosion allowance and shows every number in the method.
 Follow the formula with your own figures: it returns Shell thickness, MAWP, Outer diameter, computed per ASME BPVC Sec. VIII Div.1, ASME Sec. II Part D and DOLE OSHS Rule 1170.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 6236ed822e6ee44b -->
+<!-- md-twin source-sha: d93004604daca5c7 -->

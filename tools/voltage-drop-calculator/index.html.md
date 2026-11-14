@@ -17,6 +17,7 @@ Voltage drop (%)0.98 %
 Voltage drop (V)3.92 V
 Allowable limit3 %
 Computed by WorkHive's calculation engine when this page was built; standard: PEC 2017 Art. 2.10.19 and NEC 210.19.
+Sources: [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/), [NFPA (publisher of the NEC, NFPA 70)](https://www.nfpa.org/).
 How to use this calculator
 Read the worked example. It uses a 60 A 3-phase feeder over 45 m of 25 mm² copper cable at 400 V and shows every number in the method.
 Follow the formula with your own figures: it returns Voltage drop, Drop, Limit, computed per PEC 2017 Art. 2.10.19 and NEC 210.19.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: ec0d8902f8e61534 -->
+<!-- md-twin source-sha: db9ce3c46e34764b -->

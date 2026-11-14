@@ -17,6 +17,7 @@ Tightening torque218.6 N·m
 Preload per bolt68.3 kN
 Stress utilisation75 %
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 898-1:2013 and VDI 2230.
+Sources: [ISO](https://www.iso.org/), [VDI](https://www.vdi.de/).
 How to use this calculator
 Read the worked example. It uses eight M16 grade-8.8 bolts torqued to 75% proof load under a 40 kN external load and shows every number in the method.
 Follow the formula with your own figures: it returns Tightening torque, Preload per bolt, Stress utilisation, computed per ISO 898-1:2013 and VDI 2230.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 4398718605374768 -->
+<!-- md-twin source-sha: 8c12ddc402b6ae7b -->

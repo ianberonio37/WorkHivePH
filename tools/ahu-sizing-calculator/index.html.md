@@ -17,6 +17,7 @@ Supply airflow9157.6 CFM
 Coil capacity29.18 TR
 Fan motor7.5 kW
 Computed by WorkHive's calculation engine when this page was built; standard: ASHRAE 62.1, ASHRAE 90.1, ASHRAE 2021 Ch.1 and SMACNA.
+Sources: [ASHRAE](https://www.ashrae.org/).
 How to use this calculator
 Read the worked example. It uses a 50 kW cooling load for a 300 m² space with 40 people, with a 10% design margin, at 24 °C indoor and 13 °C supply air and shows every number in the method.
 Follow the formula with your own figures: it returns Supply airflow, Coil capacity, Fan motor, computed per ASHRAE 62.1, ASHRAE 90.1, ASHRAE 2021 Ch.1 and SMACNA.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 01f300d4fe63ef9f -->
+<!-- md-twin source-sha: 7f9df12ba97714a3 -->

@@ -17,6 +17,7 @@ Recommended nominal size50 mm
 Velocity2.31 m/s
 Flow18 m³/h
 Computed by WorkHive's calculation engine when this page was built; standard: ASHRAE 2021 Ch.22, PSME Code and PNS ISO 4427.
+Sources: [ASHRAE](https://www.ashrae.org/), [Bureau of Philippine Standards](https://bps.dti.gov.ph/).
 How to use this calculator
 Read the worked example. It uses 300 L/min of water through 50 m of PVC pipe and shows every number in the method.
 Follow the formula with your own figures: it returns Recommended nominal size, Velocity, Flow, computed per ASHRAE 2021 Ch.22, PSME Code and PNS ISO 4427.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: d74db436cc93700b -->
+<!-- md-twin source-sha: 5e97ab5dbac385c5 -->

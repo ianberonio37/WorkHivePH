@@ -17,6 +17,7 @@ Recommended UPS100 kVA
 Load55.56 kVA
 Loading55.6 %
 Computed by WorkHive's calculation engine when this page was built; standard: IEEE 1184:2006, IEC 62040-3:2021, IEEE 446 and BICSI 002.
+Sources: [IEEE Standards Association](https://standards.ieee.org/), [IEC](https://www.iec.ch/).
 How to use this calculator
 Read the worked example. It uses a 50 kW critical load on an online double-conversion UPS with 15 min backup, at 0.9 power factor with a 25% design margin and shows every number in the method.
 Follow the formula with your own figures: it returns Recommended UPS, Load, Loading, computed per IEEE 1184:2006, IEC 62040-3:2021, IEEE 446 and BICSI 002.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 3d38be03ae48fcd6 -->
+<!-- md-twin source-sha: eae01324db8217bc -->

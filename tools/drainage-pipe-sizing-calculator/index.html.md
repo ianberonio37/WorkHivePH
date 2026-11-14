@@ -17,6 +17,7 @@ Total DFU68 DFU
 Recommended diameter100 mm
 Velocity1.34 m/s
 Computed by WorkHive's calculation engine when this page was built; standard: Philippine Plumbing Code and UPC Table 7-5.
+Sources: [IAPMO (publisher of the Uniform Plumbing Code)](https://www.iapmo.org/).
 How to use this calculator
 Read the worked example. It uses a building drain serving 10 water closets, 8 lavatories, and 5 urinals at 2% slope, in PVC and shows every number in the method.
 Follow the formula with your own figures: it returns Total DFU, Recommended diameter, Velocity, computed per Philippine Plumbing Code and UPC Table 7-5.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 16fb417321c10ef8 -->
+<!-- md-twin source-sha: 52104169561624d7 -->

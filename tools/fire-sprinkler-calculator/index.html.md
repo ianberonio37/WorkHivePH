@@ -18,6 +18,7 @@ Design density6.12 mm/min
 Remote area139 m²
 System flow923 L/min
 Computed by WorkHive's calculation engine when this page was built; standard: NFPA 13:2022, PNS NFPA 13 and BFP IRR RA 9514.
+Sources: [NFPA](https://www.nfpa.org/), [Bureau of Philippine Standards](https://bps.dti.gov.ph/).
 How to use this calculator
 Read the worked example. It uses an NFPA 13 wet-pipe sprinkler design at 3 m sprinkler spacing, to Ordinary Hazard Group 1 and shows every number in the method.
 Follow the formula with your own figures: it returns Hazard class, Design density, Remote area, System flow, computed per NFPA 13:2022, PNS NFPA 13 and BFP IRR RA 9514.
@@ -37,4 +38,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 429405ffb744fbb5 -->
+<!-- md-twin source-sha: 868b49f4197ef0a4 -->

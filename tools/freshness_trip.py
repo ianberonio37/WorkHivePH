@@ -218,8 +218,48 @@ def roster_trips() -> list[dict]:
             if tok not in UA_NOISE and len(tok) > 3:
                 named[tok] += 1
     missing = sorted(t for t, n in named.items() if n >= 2 and t not in have and t.lower() not in {h.lower() for h in have})
-    return [{"kind": "roster", "unit": tok, "detail": f"the harvested crawler roster names {tok} ({named[tok]}x) and robots.txt has no "
-             f"User-agent line for it - decide allow/disallow and record it", "age_days": None, "grace_days": GRACE_DAYS} for tok in missing]
+    out = [{"kind": "roster", "unit": tok, "detail": f"the harvested crawler roster names {tok} ({named[tok]}x) and robots.txt has no "
+            f"User-agent line for it - decide allow/disallow and record it", "age_days": None, "grace_days": GRACE_DAYS} for tok in missing]
+    return out + parity_trips()
+
+
+def parity_trips() -> list[dict]:
+    """★A NAMED GROUP DOES NOT INHERIT "*" (RFC 9309; Wave VX-X, 2026-11-15). robots.txt says so in its own comment, and
+    still the "*" group's `Disallow: /_fixtures/` was missing from all eight named AI-crawler groups, so GPTBot, ClaudeBot,
+    PerplexityBot, Google-Extended and the rest were told the test fixtures were open. (Vercel's ignore list kept them off
+    production; the file's promise was wrong all the same.) Every Disallow of "*" must appear in every named group."""
+    groups: list[tuple[list[str], set[str]]] = []
+    agents: list[str] = []
+    rules: set[str] = set()
+    for line in _rd(ROBOTS).splitlines():
+        line = line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        k, _, v = line.partition(":")
+        k, v = k.strip().lower(), v.strip()
+        if k == "user-agent":
+            if rules:
+                groups.append((agents, rules))
+                agents, rules = [], set()
+            agents.append(v)
+        elif k == "disallow" and v:
+            rules.add(v)
+        elif k == "allow":
+            rules.add("")  # a group with only Allow still counts as a group
+    if agents:
+        groups.append((agents, rules))
+    star = next((r for a, r in groups if "*" in a), set()) - {""}
+    out = []
+    for a, r in groups:
+        if "*" in a:
+            continue
+        lost = sorted(star - r)
+        if lost:
+            out.append({"kind": "roster", "unit": "+".join(a),
+                        "detail": f"robots.txt group {', '.join(a)} drops the \"*\" group's {', '.join(lost)} - a named group "
+                                  f"does not inherit \"*\", so these paths are open to it", "age_days": None,
+                        "grace_days": GRACE_DAYS})
+    return out
 
 
 # ─── the board, the push, the voice (KA-B, KA-S, KA-V) ────────────────────────────────────────────────────────────

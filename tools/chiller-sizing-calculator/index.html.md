@@ -17,6 +17,7 @@ Recommended capacity100.1 TR
 Capacity352 kW
 Efficiency0.64 kW/TR
 Computed by WorkHive's calculation engine when this page was built; standard: ASHRAE 90.1-2019 Table 6.8.1, AHRI 550/590 and ASHRAE 2021 Ch.2.
+Sources: [ASHRAE](https://www.ashrae.org/), [AHRI](https://www.ahrinet.org/).
 How to use this calculator
 Read the worked example. It uses a 300 kW cooling load on a water-cooled chiller (COP 5.5), with a 1.15 design safety factor and shows every number in the method.
 Follow the formula with your own figures: it returns Recommended capacity, Capacity, Efficiency, computed per ASHRAE 90.1-2019 Table 6.8.1, AHRI 550/590 and ASHRAE 2021 Ch.2.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: fb1afa828013aca7 -->
+<!-- md-twin source-sha: 830c3c3d059dc7b5 -->

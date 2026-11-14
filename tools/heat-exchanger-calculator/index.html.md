@@ -17,6 +17,7 @@ Corrected LMTD31.63 K
 Effectiveness0.5
 Correction factor F0.91
 Computed by WorkHive's calculation engine when this page was built; standard: TEMA 10th Ed., ASME Sec. VIII Div.1, Kern Process Heat Transfer and VDI Heat Atlas.
+Sources: [TEMA](https://www.tema.org/), [ASME](https://www.asme.org/), [VDI](https://www.vdi.de/).
 How to use this calculator
 Read the worked example. It uses a 500 kW counterflow duty cooling water 90→60 °C against 30→50 °C water, at 3.99 kg/s hot and 5.98 kg/s cold flow and shows every number in the method.
 Follow the formula with your own figures: it returns Corrected LMTD, Effectiveness, Correction factor F, computed per TEMA 10th Ed., ASME Sec. VIII Div.1, Kern Process Heat Transfer and VDI Heat Atlas.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 1d775ccb5f2944f6 -->
+<!-- md-twin source-sha: 2c50ed444c31b96a -->

@@ -20,6 +20,7 @@ Treated iron0.03 mg/L
 DisinfectionUV + Chlorination
 Filter diameter500 mm
 Computed by WorkHive's calculation engine when this page was built; standard: PNS 1998 / PNSDW.
+Sources: [Bureau of Philippine Standards](https://bps.dti.gov.ph/).
 How to use this calculator
 Read the worked example. It uses 200 people on deep-well water at 10 NTU turbidity and 0.5 mg/L iron, at 120 L/person/day and shows every number in the method.
 Follow the formula with your own figures: it returns Daily demand, Peak flow, Turbidity class, Treated iron, Disinfection, Filter diameter, computed per PNS 1998 / PNSDW.
@@ -39,4 +40,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 38150826efbeeec1 -->
+<!-- md-twin source-sha: 146905155d1954bd -->

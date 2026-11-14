@@ -83,6 +83,10 @@ OEE (Overall Equipment Effectiveness), MTBF (Mean Time Between Failures), MTTR (
 - [Best free CMMS software for Philippine plants](https://workhiveph.com/learn/best-free-cmms-software-philippines/): What each free tier actually caps. Coast, MaintainX, Limble, Fiix and Maintenance Care are freemium funnels; WorkHive is free at the worker tier as its model. Includes published entry pricing for UpKeep, Fiix (~$45), eMaint (~$69) and Tractian (~$60).
 - [CMMS vs Excel spreadsheet for maintenance](https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/): When a spreadsheet is genuinely fine (one person, under ~50 assets) and the four failure modes that force a switch (single owner, no triggers, concurrent edits, no audit trail). Preventive maintenance runs 12-18% cheaper than reactive per the US DOE O&M guide.
 
+## Roadmap and feedback
+
+- [Roadmap & Feedback](https://workhiveph.com/feedback/): see what plant workers are asking for next, vote on bug reports and feature ideas, and submit your own from any page.
+
 ## Free calculators (no signup, work offline)
 
 Every calculator below is a standalone page with the formula, a worked numeric example, and the standard it follows. Full index: [all 60 calculators](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/).
@@ -103,6 +107,50 @@ Every calculator below is a standalone page with the formula, a worked numeric e
 - [Power factor correction calculator](https://workhiveph.com/tools/power-factor-correction-calculator/): capacitor bank kVAR to reach a target power factor (IEEE 18).
 - [Compressed air calculator](https://workhiveph.com/tools/compressed-air-calculator/): compressor kW/HP and air receiver size (ISO 1217).
 - [Boiler steam duty calculator](https://workhiveph.com/tools/boiler-steam-calculator/): boiler heat duty in kW and boiler HP (ASME BPVC I).
+- [AHU Sizing Calculator](https://workhiveph.com/tools/ahu-sizing-calculator/): finds the supply airflow, coil capacity, and fan motor for an air-handling unit from its cooling load.
+- [RC Beam Design Calculator](https://workhiveph.com/tools/beam-design-calculator/): checks a reinforced-concrete beam&#x27;s moment capacity and demand-capacity ratio against NSCP/ACI.
+- [Boiler System Sizing Calculator](https://workhiveph.com/tools/boiler-system-calculator/): finds the boiler capacity (kW/BHP) and fuel consumption from steam demand, pressure, and feedwater temperature.
+- [Bolt Torque Calculator](https://workhiveph.com/tools/bolt-torque-calculator/): finds the tightening torque and clamp preload for a bolt from its size, grade, and target preload.
+- [Cable Tray Sizing Calculator](https://workhiveph.com/tools/cable-tray-sizing-calculator/): picks the tray width that keeps cable fill within the NEC/NEMA limit for a bundle of cables.
+- [Chiller Sizing Calculator](https://workhiveph.com/tools/chiller-sizing-calculator/): picks the chiller capacity (TR/kW) and efficiency for a cooling load with a design margin.
+- [Clean Agent Suppression Calculator](https://workhiveph.com/tools/clean-agent-suppression-calculator/): finds the agent mass (kg) needed to flood a hazard to its design concentration.
+- [Cooling Tower Sizing Calculator](https://workhiveph.com/tools/cooling-tower-calculator/): finds the tower range, approach, and effectiveness for a heat-rejection duty at a design wet-bulb.
+- [Domestic Water Demand Calculator](https://workhiveph.com/tools/domestic-water-demand-calculator/): finds peak water flow, tank size, and booster need from a building&#x27;s water-supply fixture units.
+- [Drainage Pipe Sizing Calculator](https://workhiveph.com/tools/drainage-pipe-sizing-calculator/): picks the drain pipe diameter from the total drainage fixture units (DFU) and slope.
+- [Earthing / Grounding Calculator](https://workhiveph.com/tools/earthing-grounding-calculator/): finds the earth-electrode resistance and grounding-conductor size for a system, checked against the limit.
+- [Elevator Traffic Calculator](https://workhiveph.com/tools/elevator-traffic-calculator/): finds the round-trip time, interval, and 5-minute handling capacity for a lift group.
+- [Expansion Tank Sizing Calculator](https://workhiveph.com/tools/expansion-tank-calculator/): finds the required tank volume for a hydronic system from its water volume and temperature swing.
+- [FCU Selection Calculator](https://workhiveph.com/tools/fcu-selection-calculator/): picks fan-coil units and chilled-water pipe size for a set of rooms from their cooling loads.
+- [Fire Alarm Battery Calculator](https://workhiveph.com/tools/fire-alarm-battery-calculator/): sizes the standby battery (Ah) for a fire alarm panel from its device load, standby hours, and alarm time.
+- [Grease Trap Sizing Calculator](https://workhiveph.com/tools/grease-trap-calculator/): finds the design flow, liquid capacity, and cleaning interval for a kitchen grease interceptor.
+- [Harmonic Distortion (THD/TDD) Calculator](https://workhiveph.com/tools/harmonic-distortion-calculator/): the Harmonic Distortion Calculator finds current THD and TDD and checks them against the IEEE 519 limit for the point of common coupling.
+- [Heat Exchanger LMTD Calculator](https://workhiveph.com/tools/heat-exchanger-calculator/): the Heat Exchanger Calculator finds the corrected LMTD, effectiveness, and NTU for a shell-and-tube exchanger duty.
+- [Hoist Capacity Calculator](https://workhiveph.com/tools/hoist-capacity-calculator/): finds the gross load, motor power, and safety margin for a lifting duty.
+- [Hot Water Demand Calculator](https://workhiveph.com/tools/hot-water-demand-calculator/): finds daily hot-water demand, peak-hour load, and storage tank size for a building.
+- [Hydraulic Cylinder Calculator](https://workhiveph.com/tools/hydraulic-cylinder-calculator/): finds the extend force, speed, and cycle time for a hydraulic cylinder from its bore, rod, pressure, and flow.
+- [Lighting Design Calculator](https://workhiveph.com/tools/lighting-design-calculator/): uses the lumen method to find the number of luminaires needed to hit a target illuminance.
+- [Lightning Protection Calculator](https://workhiveph.com/tools/lightning-protection-calculator/): finds the rolling-sphere radius, air-terminal mesh size, and protection level for a building.
+- [Electrical Load Estimation Calculator](https://workhiveph.com/tools/load-estimation-calculator/): totals connected and demand load for a facility and sizes the main breaker.
+- [Electrical Load Schedule Calculator](https://workhiveph.com/tools/load-schedule-calculator/): the Load Schedule Calculator totals connected and demand load for a panel and sizes the feeder breaker.
+- [Noise / Acoustics Calculator](https://workhiveph.com/tools/noise-acoustics-calculator/): finds the sound pressure level at a distance from a source and checks it against the room&#x27;s noise-criteria limit.
+- [Pipe Sizing Calculator](https://workhiveph.com/tools/pipe-sizing-calculator/): picks the smallest standard pipe that keeps velocity in the safe economical range for a given flow.
+- [Pressure Vessel Shell Calculator](https://workhiveph.com/tools/pressure-vessel-calculator/): finds the required shell thickness and MAWP for a cylindrical vessel per ASME.
+- [Refrigerant Pipe Sizing Calculator](https://workhiveph.com/tools/refrigerant-pipe-calculator/): picks the suction, liquid, and discharge line sizes for a refrigeration circuit.
+- [Roof Drain Sizing Calculator](https://workhiveph.com/tools/roof-drain-calculator/): picks the drain and leader size for a roof area at a design rainfall intensity.
+- [Septic Tank Sizing Calculator](https://workhiveph.com/tools/septic-tank-calculator/): finds the liquid volume and total tank size from occupancy, wastewater rate, and desludging interval.
+- [Sanitary Drainage Calculator](https://workhiveph.com/tools/sewer-drainage-calculator/): sizes the sanitary stack from the total drainage fixture units and design flow.
+- [Shaft Design Calculator](https://workhiveph.com/tools/shaft-design-calculator/): finds the minimum shaft diameter from transmitted power, speed, and load, with an endurance-limit check.
+- [Solar PV System Calculator](https://workhiveph.com/tools/solar-pv-calculator/): finds the panel count, array size, and roof area for a target PV capacity, with string sizing.
+- [Stairwell Pressurization Calculator](https://workhiveph.com/tools/stairwell-pressurization-calculator/): finds the design pressure differential and total leakage area for a pressurised stairwell.
+- [Storm Drain Calculator](https://workhiveph.com/tools/storm-drain-calculator/): uses the Rational Method to find the design stormwater flow for a catchment.
+- [UPS Sizing Calculator](https://workhiveph.com/tools/ups-sizing-calculator/): picks the UPS kVA rating and reports loading for a critical load and backup time.
+- [V-Belt Drive Calculator](https://workhiveph.com/tools/v-belt-drive-calculator/): finds the number of belts, pulley sizes, and belt length for a power-transmission duty.
+- [Ventilation / ACH Calculator](https://workhiveph.com/tools/ventilation-ach-calculator/): finds the required air changes per hour and supply airflow for a room from its function, area, and occupancy.
+- [Vibration Isolation Calculator](https://workhiveph.com/tools/vibration-isolation-calculator/): finds the natural frequency, frequency ratio, and resonance margin for a machine on isolators.
+- [Wastewater Treatment (STP) Calculator](https://workhiveph.com/tools/wastewater-stp-calculator/): finds the design flow, BOD load, and aeration tank volume for a sewage treatment plant.
+- [Water Softener Sizing Calculator](https://workhiveph.com/tools/water-softener-calculator/): finds the resin volume, tank size, and regeneration interval for a hardness-removal duty.
+- [Water Supply Pipe Sizing Calculator](https://workhiveph.com/tools/water-supply-pipe-calculator/): turns the water fixture units (WFU) into a peak flow, sizes the pipe on velocity, then checks the pressure left at the far fixture.
+- [Water Treatment Sizing Calculator](https://workhiveph.com/tools/water-treatment-calculator/): finds the design flow, the treatment the raw water needs (turbidity, iron, disinfection), and the filter size that delivers it.
 
 ## Markdown versions
 

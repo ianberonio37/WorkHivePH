@@ -19,6 +19,7 @@ Tank diameter356 mm
 Tank height1651 mm
 Regen interval3 days
 Computed by WorkHive's calculation engine when this page was built; standard: WQA, NSF/ANSI 44 and PNS 1998.
+Sources: [WQA](https://wqa.org/), [NSF](https://www.nsf.org/), [Bureau of Philippine Standards](https://bps.dti.gov.ph/).
 How to use this calculator
 Read the worked example. It uses a 50-person building (6 m³/day) softening water from 250 to 50 mg/L hardness, regenerating every 3 days and shows every number in the method.
 Follow the formula with your own figures: it returns Resin required, Tank resin charge, Tank diameter, Tank height, Regen interval, computed per WQA, NSF/ANSI 44 and PNS 1998.
@@ -38,4 +39,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: faaebd4447c84c01 -->
+<!-- md-twin source-sha: fa3643e9f2525d99 -->

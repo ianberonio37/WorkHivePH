@@ -17,6 +17,7 @@ Drain size75 mm
 Total flow12.5 L/s
 Leader size75 mm
 Computed by WorkHive's calculation engine when this page was built; standard: IPC 2021 and Philippine Plumbing Code.
+Sources: [ICC (publisher of the International Plumbing Code)](https://www.iccsafe.org/).
 How to use this calculator
 Read the worked example. It uses a 300 m² roof with 3 drains at 150 mm/h design rainfall and shows every number in the method.
 Follow the formula with your own figures: it returns Drain size, Total flow, Leader size, computed per IPC 2021 and Philippine Plumbing Code.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: ac8a7a57f05023d2 -->
+<!-- md-twin source-sha: 742f1d1e1c637342 -->

@@ -17,6 +17,7 @@ Suction line OD34.93 mm
 Liquid line OD15.88 mm
 Discharge line OD15.88 mm
 Computed by WorkHive's calculation engine when this page was built; standard: ASHRAE 2022 Refrig. Hbk Ch.1, ASTM B280, ASHRAE 90.1 and PSME.
+Sources: [ASHRAE](https://www.ashrae.org/).
 How to use this calculator
 Read the worked example. It uses a 30 kW R410A air-conditioning circuit (7 / 45 °C) and shows every number in the method.
 Follow the formula with your own figures: it returns Suction line OD, Liquid line OD, Discharge line OD, computed per ASHRAE 2022 Refrig. Hbk Ch.1, ASTM B280, ASHRAE 90.1 and PSME.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: f779b829f2318fbd -->
+<!-- md-twin source-sha: 99a59d2375bcc64c -->

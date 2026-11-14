@@ -18,6 +18,7 @@ Pipe velocity1.54 m/s
 Recommended motor1.1 kW
 NPSH available9.44 m
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 9906, PSME Code and ASHRAE 2021 Ch.22.
+Sources: [ISO](https://www.iso.org/), [ASHRAE](https://www.ashrae.org/).
 How to use this calculator
 Read the worked example. It uses a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe, at 30 °C fluid temperature, at 90% motor efficiency and shows every number in the method.
 Follow the formula with your own figures: it returns Total Dynamic Head, Pipe velocity, Recommended motor, NPSH available, computed per ISO 9906, PSME Code and ASHRAE 2021 Ch.22.
@@ -39,4 +40,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 1903715cc25f5497 -->
+<!-- md-twin source-sha: 4ed8ce3fd033bf91 -->

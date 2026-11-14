@@ -17,6 +17,7 @@ Natural frequency3.15 Hz
 Frequency ratio7.93
 Resonance margin693.1 %
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 10816-1 (class zones), ISO 20816-1, ISO 21940-11, ANSI S2.19 and Rao Mechanical Vibrations 6th Ed.
+Sources: [ISO](https://www.iso.org/).
 How to use this calculator
 Read the worked example. It uses a 500 kg machine at 1500 rpm on spring isolators and shows every number in the method.
 Follow the formula with your own figures: it returns Natural frequency, Frequency ratio, Resonance margin, computed per ISO 10816-1 (class zones), ISO 20816-1, ISO 21940-11, ANSI S2.19 and Rao Mechanical Vibrations 6th Ed.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 10cf753104f640dc -->
+<!-- md-twin source-sha: 8288c2df4ff62df5 -->

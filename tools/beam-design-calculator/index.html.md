@@ -17,6 +17,7 @@ Moment capacity φMn188.96 kN·m
 Demand/capacity0.79
 Steel area1256.6 mm²
 Computed by WorkHive's calculation engine when this page was built; standard: NSCP 2015 Vol.1, AISC 360-22, ACI 318-19 and ASCE 7-22.
+Sources: [ASEP (publisher of the National Structural Code of the Philippines)](https://asep.org.ph/), [American Concrete Institute](https://www.concrete.org/).
 How to use this calculator
 Read the worked example. It uses a 6 m RC beam under a 150 kN·m factored moment and shows every number in the method.
 Follow the formula with your own figures: it returns Moment capacity φMn, Demand/capacity, Steel area, computed per NSCP 2015 Vol.1, AISC 360-22, ACI 318-19 and ASCE 7-22.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 87229e16cfecab15 -->
+<!-- md-twin source-sha: 671b852f64dc43c6 -->

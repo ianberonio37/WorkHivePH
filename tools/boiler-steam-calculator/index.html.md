@@ -17,6 +17,7 @@ Boiler duty2441.32 kW
 Boiler HP248.9 BHP
 Saturation temp179.9 °C
 Computed by WorkHive's calculation engine when this page was built; standard: ASME BPVC Sec.I/IV, ASME B31.1, ASME PTC 4, IAPWS-IF97 and RA 8407 (PH).
+Sources: [ASME](https://www.asme.org/).
 How to use this calculator
 Read the worked example. It uses 1 kg/s of saturated steam at 10 bar from 80 °C feedwater and shows every number in the method.
 Follow the formula with your own figures: it returns Boiler duty, Boiler HP, Saturation temp, computed per ASME BPVC Sec.I/IV, ASME B31.1, ASME PTC 4, IAPWS-IF97 and RA 8407 (PH).
@@ -35,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 4e9fd13cbbf3911c -->
+<!-- md-twin source-sha: d5fccabb26540712 -->

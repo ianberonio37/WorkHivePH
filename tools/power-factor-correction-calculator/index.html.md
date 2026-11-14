@@ -17,6 +17,7 @@ kVAR required42.13 kVAR
 Selected bank50 kVAR
 Per phase16.67 kVAR
 Computed by WorkHive's calculation engine when this page was built; standard: IEEE 18-2012 and IEEE 1036-2010.
+Sources: [IEEE Standards Association](https://standards.ieee.org/).
 How to use this calculator
 Read the worked example. It uses a 100 kW load improving power factor from 0.80 to 0.95, three-phase and shows every number in the method.
 Follow the formula with your own figures: it returns kVAR required, Selected bank, Per phase, computed per IEEE 18-2012 and IEEE 1036-2010.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: d4222c8327c93eab -->
+<!-- md-twin source-sha: b86a7edf33726b54 -->

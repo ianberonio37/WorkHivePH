@@ -17,6 +17,7 @@ Selected FCUFCU-800
 Unit capacity5.6 kW
 Total connected capacity6.37 TR
 Computed by WorkHive's calculation engine when this page was built; standard: ARI 440, ASHRAE 62.1, ASHRAE 90.1 and PSME.
+Sources: [ASHRAE](https://www.ashrae.org/).
 How to use this calculator
 Read the worked example. It uses four office rooms at 5 kW cooling each on 7/12 °C chilled water and shows every number in the method.
 Follow the formula with your own figures: it returns Selected FCU, Unit capacity, Total load, computed per ARI 440, ASHRAE 62.1, ASHRAE 90.1 and PSME.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: ad74b7d46a4f1d13 -->
+<!-- md-twin source-sha: c6b42bb93eaf114c -->

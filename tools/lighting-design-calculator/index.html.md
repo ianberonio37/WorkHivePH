@@ -17,6 +17,7 @@ Fixtures needed25 fixtures
 Coefficient of utilisation0.6
 Room cavity ratio2.48
 Computed by WorkHive's calculation engine when this page was built; standard: IESNA 10th Ed., IES RP-1/7/28, ASHRAE 90.1-2019, PEC 2017 and DOLE D.O. 13.
+Sources: [Illuminating Engineering Society](https://www.ies.org/), [ASHRAE](https://www.ashrae.org/), [IIEE (publisher of the Philippine Electrical Code)](https://iiee.org.ph/), [DOLE](https://www.dole.gov.ph/).
 How to use this calculator
 Read the worked example. It uses a 10 × 8 m office targeting 500 lux with 40 W LED panels, at a 0.8 m work plane, in a 3 m high room and shows every number in the method.
 Follow the formula with your own figures: it returns Fixtures needed, Coefficient of utilisation, Room cavity ratio, computed per IESNA | PGBC.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 51ce9ccd8dd59f8e -->
+<!-- md-twin source-sha: 605e91e68ba0f214 -->

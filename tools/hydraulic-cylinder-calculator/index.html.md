@@ -17,6 +17,7 @@ Extend force80.42 kN
 Extend speed0.1 m/s
 Extend time4.02 s
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 4413:2010, NFPA T2.12.10, Bosch Rexroth Hydraulic Trainer and Parker Hydraulics.
+Sources: [ISO](https://www.iso.org/), [NFPA](https://www.nfpa.org/).
 How to use this calculator
 Read the worked example. It uses an 80 mm bore / 45 mm rod cylinder at 160 bar with 30 L/min flow, over a 400 mm stroke and shows every number in the method.
 Follow the formula with your own figures: it returns Extend force, Extend speed, Extend time, computed per ISO 4413:2010, NFPA T2.12.10, Bosch Rexroth Hydraulic Trainer and Parker Hydraulics.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 549b5afd3526b096 -->
+<!-- md-twin source-sha: 16351b4e641f3dda -->

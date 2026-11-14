@@ -17,6 +17,7 @@ Gross load2045 kg
 Motor7.5 HP
 Motor power5.59 kW
 Computed by WorkHive's calculation engine when this page was built; standard: ASME B30.2.
+Sources: [ASME](https://www.asme.org/).
 How to use this calculator
 Read the worked example. It uses a 2000 kg lift at 8 m/min on a 2-part rope line, with a 30 kg hook and shows every number in the method.
 Follow the formula with your own figures: it returns Gross load, Motor, Motor power, computed per ASME B30.2.
@@ -35,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: c41edd8b10d08e9f -->
+<!-- md-twin source-sha: 65c87432f4f1ebb4 -->

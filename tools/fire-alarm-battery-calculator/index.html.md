@@ -17,6 +17,7 @@ Selected battery4.5 Ah
 Required capacity3.67 Ah
 Standby period24 h
 Computed by WorkHive's calculation engine when this page was built; standard: NFPA 72:2022.
+Sources: [NFPA](https://www.nfpa.org/).
 How to use this calculator
 Read the worked example. It uses a 24 V panel with 40 smoke + 10 heat detectors, 6 pull stations, 12 horn/strobes, and 24 h standby, with 5 minutes in alarm and shows every number in the method.
 Follow the formula with your own figures: it returns Selected battery, Required, Standby, computed per NFPA 72:2022.
@@ -36,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 515ec03d315745dc -->
+<!-- md-twin source-sha: d4017eca0f8ca9c8 -->

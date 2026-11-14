@@ -830,6 +830,42 @@ def _answer_text(data: dict, r: dict, rows: list) -> str:
 _VOWEL_LETTER_NAMES = set("AEFHILMNORSX")
 
 
+# ★A STANDARD NAMED IS A SOURCE TO LINK (Wave VX-G, 2026-11-15). Every calculator page named the standard it follows and
+# linked to none, so a generative engine read a claim with no source behind it (GEO's "cite sources"). Each body below
+# links to its OWN site, never a guessed per-standard URL (a wrong deep link is a false citation). The domains were read
+# on 2026-11-15; a 403 there is a bot block on a real site. A body not listed here is named but not linked.
+STD_PUBLISHERS = [
+    ("ISO", "ISO", "https://www.iso.org/"), ("ASHRAE", "ASHRAE", "https://www.ashrae.org/"),
+    ("IEC", "IEC", "https://www.iec.ch/"), ("ASME", "ASME", "https://www.asme.org/"),
+    ("PEC", "IIEE (publisher of the Philippine Electrical Code)", "https://iiee.org.ph/"),
+    ("NEC", "NFPA (publisher of the NEC, NFPA 70)", "https://www.nfpa.org/"), ("NFPA", "NFPA", "https://www.nfpa.org/"),
+    ("IEEE", "IEEE Standards Association", "https://standards.ieee.org/"), ("SMRP", "SMRP", "https://www.smrp.org/"),
+    ("CIBSE", "CIBSE", "https://www.cibse.org/"), ("VDI", "VDI", "https://www.vdi.de/"), ("NEMA", "NEMA", "https://www.nema.org/"),
+    ("ACI", "American Concrete Institute", "https://www.concrete.org/"), ("AHRI", "AHRI", "https://www.ahrinet.org/"),
+    ("IES", "Illuminating Engineering Society", "https://www.ies.org/"), ("OSHA", "OSHA", "https://www.osha.gov/"),
+    ("DENR", "DENR", "https://www.denr.gov.ph/"), ("DPWH", "DPWH", "https://www.dpwh.gov.ph/"),
+    ("DOLE", "DOLE", "https://www.dole.gov.ph/"), ("TEMA", "TEMA", "https://www.tema.org/"),
+    ("NSF", "NSF", "https://www.nsf.org/"), ("IPC", "ICC (publisher of the International Plumbing Code)", "https://www.iccsafe.org/"),
+    ("UPC", "IAPMO (publisher of the Uniform Plumbing Code)", "https://www.iapmo.org/"), ("CAGI", "CAGI", "https://www.cagi.org/"),
+    ("CTI", "Cooling Technology Institute", "https://www.coolingtower.org/"), ("WQA", "WQA", "https://wqa.org/"),
+    ("NSCP", "ASEP (publisher of the National Structural Code of the Philippines)", "https://asep.org.ph/"),
+    ("PNS", "Bureau of Philippine Standards", "https://bps.dti.gov.ph/"),
+]
+
+
+def _std_sources(std: str) -> list[tuple[str, str]]:
+    """The publishers of the standards named, in the order named, each once."""
+    out, seen = [], set()
+    for part in str(std or "").split("|"):
+        part = part.strip()
+        for key, name, url in STD_PUBLISHERS:
+            if (part.upper().startswith(key) or f"/{key}" in part.upper()) and url not in seen:
+                seen.add(url)
+                out.append((name, url))
+                break
+    return out
+
+
 def _std_prose(std: str) -> str:
     """A standards string as a reader meets it in a sentence (2026-10-12, the copy lens): the engine reports
     "ASHRAE 62.1 | ASHRAE 90.1 | SMACNA", and pipes inside prose read as a data dump. "A, B and C"; one item stays
@@ -839,6 +875,14 @@ def _std_prose(std: str) -> str:
         return ""
     out = parts[0] if len(parts) == 1 else ", ".join(parts[:-1]) + " and " + parts[-1]
     return out.rstrip(".")
+
+
+def _sources_html(std: str, e) -> str:
+    src = _std_sources(std)
+    if not src:
+        return ""
+    links = ", ".join(f'<a href="{e(u)}" rel="noopener external">{e(n)}</a>' for n, u in src)
+    return "\n      " + f"<p><small>Sources: {links}.</small></p>"
 
 
 def _article(kw: str) -> str:
@@ -1136,7 +1180,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
         </tbody>
       </table>
       <!-- "live" was the untrue half: the engine is real, the timing was not. See the chip's note above. -->
-      <p><small>Computed by WorkHive's calculation engine when this page was built; standard: {e(_std_prose(std))}.</small></p>
+      <p><small>Computed by WorkHive's calculation engine when this page was built; standard: {e(_std_prose(std))}.</small></p>{_sources_html(std, e)}
     </section>
 
     <section aria-labelledby="howto">
