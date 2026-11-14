@@ -6255,6 +6255,21 @@ review found the rows would not hold. Each fix below is in the census or the see
 8. **Instruments:** the static search rows carry a `static` marker (self-added, disclosed in `live_walk_manifest.py`),
    and `cwv-390` carries the chrome-devtools instrument.
 
+**M14, first walks (2026-11-15).** The first batch of 40 width walks (landscape-844 and wide-1920 among them) banked 40
+of 40. The field conditions are emulated in the browser context only (`tools/lib/walk_conditions.mjs`), never by
+changing the server:
+- **offline-mid-task:** the network is cut after the journey's first page.
+- **slow-3g:** CDP at 600 ms latency and 400 kbps.
+- **rate-limited-429:** every edge call and every REST write answers 429 with Retry-After.
+- **session-expired:** the stored token is expired before the journey starts.
+- **returning-after-30-days:** the page clock runs 30 days ahead.
+- **second-device:** stays refused until a second signed-in context exists to change the data.
+
+**Finding on the first slow-3g walks:** on a first visit, with no service-worker cache, every app page takes **39–51 s**
+to reach DOMContentLoaded (landing 39 s, hive 49–50 s, alert-hub 44 s, logbook 51 s). A field worker on a weak signal
+waits most of a minute per page before any content. This is the first M14 performance item. The fix is the critical
+path's weight (the inline script and CSS each page parses before content), and it is measured by the same walk.
+
 **Who learned the rows (in the change that seeds them):** `registry_io.py` (shard VX) · `seed_expansion_wave4.py`
 (`wave_vx_rows`, `--add-vx`) · `validate_trajectory_registry.py` (VX replayed after GJ) · `trajectory_priority.py`
 (`vx.milestone`, blocks named from `wave_vx_census.VX_MILESTONES`) · `update_trajectory_scoreboard.py` (wave names from

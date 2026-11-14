@@ -23,6 +23,7 @@ const RUBRIC_SRC = readFileSync('survey_ufai_rubric.js', 'utf8');
 // the lens THIS run grades with, hashed from the same bytes it loaded - passed to the banker so a lens edited
 // mid-run can never be stamped onto rows the old lens graded (2026-10-13)
 import { createHash } from 'crypto';
+import { prepareCondition, onPage, conditionNote } from './lib/walk_conditions.mjs';   // Wave VX-J field conditions
 const LENS_SHA = createHash('sha256').update(readFileSync('survey_ufai_rubric.js')).digest('hex').slice(0, 12);
 // --manifest (Wave CF, 2026-11-08): an evidence walk reads its own manifest (critic_walk_manifest.py --ids .. --out ..)
 const MANIFEST = (() => { const a = process.argv.slice(2); const i = a.indexOf('--manifest'); return i >= 0 ? a[i + 1] : '.tmp/critic_walk_manifest.json'; })();
@@ -72,7 +73,9 @@ const VIEW = { 'phone-390': { width: 390, height: 854 }, 'narrow-320': { width: 
   // the receipt kept the row's device - a 1920 row "walked" at 390. It now refuses the walk instead.
   'landscape-844': { width: 844, height: 390 }, 'wide-1920': { width: 1920, height: 1080 } };
 // conditions this batch can actually emulate; any other refuses before a single survey (it would grade normal and bank it)
-const KNOWN_COND = new Set(['normal', 'dependency-down', 'offline-3g', 'release-mid-way']);
+// second-device has no emulation yet (it needs a second signed-in context changing the data) - it stays refused
+const KNOWN_COND = new Set(['normal', 'dependency-down', 'offline-3g', 'release-mid-way', 'offline-mid-task', 'slow-3g',
+  'rate-limited-429', 'session-expired', 'returning-after-30-days']);
 if (!KNOWN_COND.has(COND)) { console.error(`--condition ${COND} has no emulation here - refusing (it would survey normal)`); process.exit(2); }
 
 function pageIdOf(p) {
@@ -173,6 +176,7 @@ try {
     if (COND === 'dependency-down') {
       await ctx.route('**/functions/v1/**', (r) => r.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"dependency down (critic-walk probe)"}' }));
     }
+    await prepareCondition(ctx, COND);   // Wave VX-J: route stubs, clock shift, expired session - before any page
     let signErr = null;
     // one retry after a pause (2026-11-04): on a loaded host the first sign-ins of a run came back with an empty
     // retryable-fetch error while the same cast signed in a minute later - a transport hiccup, not a refused cast
@@ -218,9 +222,14 @@ try {
         continue;
       }
       const page = await ctx.newPage();
+      await onPage(page, ctx, COND, w.pages.indexOf(rel));   // Wave VX-J: slow-3g per page, offline after the first page
       const url = `${SEEDER}/workhive/${rel}${PAGE_QUERY[rel] || ''}`;
       try {
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        // slow-3g (Wave VX-J): a heavy page takes longer than 30 s to parse at 400 kbps - that time IS the reading,
+        // so the walk waits up to 120 s and records it rather than calling the instrument failed
+        const _t0 = Date.now();
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: COND === 'slow-3g' ? 120000 : 30000 });
+        if (COND === 'slow-3g') console.log(`    slow-3g ${rel}: DOMContentLoaded after ${Math.round((Date.now() - _t0) / 1000)} s`);
         await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
         await page.waitForTimeout(PAGE_SETTLE[rel] || 1500);
         // ★THE WORKED STATE, NOT THE SHELL (2026-10-13). The first batch graded project-report's empty state as the report
@@ -291,7 +300,7 @@ try {
         ? 'CONDITION offline-3g: SW cache primed by an online visit to each page, then network cut (context.setOffline) - the survey grades the OFFLINE-served experience (cached page / offline banner / fallback). SW confirmed to register + activate on localhost. '
         : COND === 'release-mid-way'
         ? 'CONDITION release-mid-way surveyed at present-state: the version-skew a release introduces is a JOURNEY-prover concern (does the in-flight journey survive an SW update); the critic RUBRIC dims (structure/copy/ergonomics) do not vary with it, so this grades the page as-is. '
-        : '';
+        : conditionNote(COND) ? `CONDITION ${COND}: ${conditionNote(COND)}. ` : '';
       const momentNote = (w.moment && w.moment !== 'present')
         ? `MOMENT ${w.moment} surveyed at the CURRENT fully-seeded state (the 5-year history is seeded; the moment is the trajectory-timeline label, already proven on the locked trajectory row). The critic rubric is largely moment-independent; data-volume-sensitive dims (empty-state X1, KPI density DD1/K2) reflect current data, not the ${w.moment} slice. `
         : '';
