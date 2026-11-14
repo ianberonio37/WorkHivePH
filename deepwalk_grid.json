@@ -1,7 +1,7 @@
 {
- "generated": "2026-11-08T07:42:20+00:00",
- "coverage_pct": 98.3,
- "page_pct": 99.2,
+ "generated": "2026-11-14T01:14:55+00:00",
+ "coverage_pct": 99.0,
+ "page_pct": 100.0,
  "ai_surface_pct": 94.1,
  "surfaces": {
   "pages": 95,
@@ -42,9 +42,9 @@
  ],
  "cells_total": 2259,
  "state_counts": {
-  "✅": 1210,
+  "✅": 1218,
   "🟡": 26,
-  "⬜": 8,
+  "⬜": 0,
   "n/a": 1015
  },
  "gate_floor": [
@@ -99,23 +99,10 @@
   "validate_sw_shell_membership",
   "validate_voice_router_honesty"
  ],
- "gates_failed": [
-  "validate_sw_shell_membership"
- ],
- "regressed_cells": [
-  "validate_sw_shell_membership"
- ],
- "next_target": {
-  "surface": "offline-fallback",
-  "kind": "page",
-  "dim": "CA",
-  "dim_label": "CA caching/PWA (page in the SW offline shell exists + is cache-versioned) [gate pass-list]",
-  "surface_pct": 94.1,
-  "open_dims": [
-   "CA"
-  ]
- },
- "drive_plan": "Playwright-walk `offline-fallback.html` for CA (CA caching/PWA (page in the SW offline shell exists + is cache-versioned) [gate pass-list]): operate the affordance live, assert at the DATA layer via mcp__postgres__query, flywheel any miss, then tag+lock a validator `# DEEPWALK-CELL: offline-fallback CA`.",
+ "gates_failed": [],
+ "regressed_cells": [],
+ "next_target": null,
+ "drive_plan": "grid DRY — nothing to drive",
  "orphan_oracles": [
   "ai_eval_gate",
   "aio_readiness_gate",
@@ -455,6 +442,7 @@
   "validate_list_cap_not_a_total",
   "validate_list_caps_say_more",
   "validate_listing_cost_transparency",
+  "validate_listing_hold_disclosed",
   "validate_listing_preview",
   "validate_live_mcp_bank",
   "validate_live_off_polls",
@@ -536,6 +524,7 @@
   "validate_operator_console_covers_surfaces",
   "validate_optimistic_input_restore",
   "validate_orchestrator_query_binding",
+  "validate_osh_rule_citations",
   "validate_outage_copy_honesty",
   "validate_outbound_email_honesty",
   "validate_outbox_delivery",
@@ -562,6 +551,7 @@
   "validate_persona_knowledge_wiring",
   "validate_persona_task_success",
   "validate_ph_intelligence_benchmark",
+  "validate_photo_pickers_allow_gallery",
   "validate_photo_survives_queue",
   "validate_photos_in_storage",
   "validate_pick_prefills_category",
@@ -599,6 +589,7 @@
   "validate_provider_availability_driven",
   "validate_psql_probe_suite",
   "validate_public_feed_dated",
+  "validate_public_markup_balance",
   "validate_public_read_surface",
   "validate_pull_help_coverage",
   "validate_push_dedupe_window",
@@ -637,6 +628,7 @@
   "validate_removal_tells_the_worker",
   "validate_rendered_i18n",
   "validate_repaint_spares_typing",
+  "validate_reply_language_matches_persona",
   "validate_report_clobber_guard",
   "validate_report_email_escaping",
   "validate_report_grids_reflow",
@@ -650,6 +642,7 @@
   "validate_retention_matches_policy",
   "validate_retired_page_inert",
   "validate_retired_page_sole_control",
+  "validate_retired_predictive_not_described",
   "validate_return_promise_survives_reauth",
   "validate_review_cadence_kept",
   "validate_revoke_actually_revoked",
@@ -666,6 +659,7 @@
   "validate_safety_field_provenance",
   "validate_safety_isolation_visible",
   "validate_scenario_matrix",
+  "validate_schedule_claims_match_cron",
   "validate_schedule_health_falsifiable",
   "validate_scheduled_claim_has_a_schedule",
   "validate_scheduled_work",
@@ -820,7 +814,7 @@
   ],
   "breaches": 0,
   "fresh": false,
-  "age_days": 26.0,
+  "age_days": 31.7,
   "proven_ever": 32,
   "this_run": 28
  },
@@ -1511,10 +1505,9 @@
    "locked": true
   },
   "asset-hub|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "asset-hub|A": {
    "state": "✅",
@@ -2203,10 +2196,9 @@
    "locked": true
   },
   "hive|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "hive|A": {
    "state": "✅",
@@ -2501,10 +2493,9 @@
    "state": "n/a"
   },
   "inventory|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "inventory|A": {
    "state": "n/a"
@@ -2700,10 +2691,9 @@
    "locked": true
   },
   "logbook|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "logbook|A": {
    "state": "✅",
@@ -3194,10 +3184,9 @@
    "state": "n/a"
   },
   "offline-fallback|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "offline-fallback|A": {
    "state": "n/a"
@@ -3587,10 +3576,9 @@
    "state": "n/a"
   },
   "pm-scheduler|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "pm-scheduler|A": {
    "state": "n/a"
@@ -4085,10 +4073,9 @@
    "locked": true
   },
   "report-sender|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "report-sender|A": {
    "state": "✅",
@@ -4288,10 +4275,9 @@
    "locked": true
   },
   "shift-brain|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "shift-brain|A": {
    "state": "✅",
@@ -10105,7 +10091,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": 2.4,
- "dry_streak": 0,
+ "delta_vs_last": 0.0,
+ "dry_streak": 1,
  "dry": false
 }

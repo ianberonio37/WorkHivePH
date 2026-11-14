@@ -524,7 +524,7 @@
         {
           "table": "worker_achievements",
           "allowed": false,
-          "offset": 84856
+          "offset": 85017
         }
       ],
       "drift": []
@@ -557,42 +557,42 @@
         {
           "table": "sensor_readings",
           "allowed": false,
-          "offset": 214246
+          "offset": 214284
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 312995
+          "offset": 313033
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 313545
+          "offset": 313583
         },
         {
           "table": "rcm_fmea_modes",
           "allowed": false,
-          "offset": 314218
+          "offset": 314256
         },
         {
           "table": "asset_risk_scores",
           "allowed": false,
-          "offset": 315394
+          "offset": 315432
         },
         {
           "table": "rcm_strategies",
           "allowed": false,
-          "offset": 316077
+          "offset": 316115
         },
         {
           "table": "weibull_fits",
           "allowed": true,
-          "offset": 316939
+          "offset": 316977
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 335327
+          "offset": 335365
         }
       ],
       "drift": []

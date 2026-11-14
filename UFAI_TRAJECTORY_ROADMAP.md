@@ -66,11 +66,11 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **BY PAGE CLASS** (rows · U/F/A/I): root 46716 · 15872/15019/8321/15020 · learn 7612 · 2793/2186/1833/2209 · calc 8437 · 2989/2432/2106/2480 · other 1030 · 434/274/216/247 · no page (edge functions, shared components) 637
 
-**REGISTRY: 53776 trajectories · 50593 in scope · 3183 descoped (out of the denominator, each with its reason in the row's basis)** — `trajectory_registry.json` (updated 2026-11-11). **Completion is the CLOSED/OPEN line above — the MCP-deepwalk measure — and nothing else.** A row's own pct (specced 5 · walked 25 · fixed 60 · locked 100) is in-flight bookkeeping cited by its basis, not a completion figure; 49100 locking · 3183 descoped · 1441 locked · 46 specced · 6 fixing.
+**REGISTRY: 53776 trajectories · 50593 in scope · 3183 descoped (out of the denominator, each with its reason in the row's basis)** — `trajectory_registry.json` (updated 2026-11-14). **Completion is the CLOSED/OPEN line above — the MCP-deepwalk measure — and nothing else.** A row's own pct (specced 5 · walked 25 · fixed 60 · locked 100) is in-flight bookkeeping cited by its basis, not a completion figure; 49100 locking · 3183 descoped · 1441 locked · 46 specced · 6 fixing.
 
-**↳ CRITIC DEEPWALK (UI/UX extension): 72.7% · 32 pending · 41436 critiqued · 9125 improving · 87819 receipted findings** — `UFAI_CRITIC_DEEPWALK_ROADMAP.md` / `critic_registry.json`; walk → critique → fix → gate, every trajectory, until 100%.
+**↳ CRITIC DEEPWALK (UI/UX extension): 72.8% · 32 pending · 40837 critiqued · 9724 improving · 87220 receipted findings** — `UFAI_CRITIC_DEEPWALK_ROADMAP.md` / `critic_registry.json`; walk → critique → fix → gate, every trajectory, until 100%.
 
-↳ **KEEP ABREAST** (Wave KA, `tools/freshness_trip.py`) — trips open 0 (0 past grace) · spine within TTL 66/66 · refresh queue 0 · last IndexNow push 2026-11-09 · last SOV never · scoreboard 2026-11-09
+↳ **KEEP ABREAST** (Wave KA, `tools/freshness_trip.py`) — trips open 54 (47 past grace) · spine within TTL 66/66 · refresh queue 0 · last IndexNow push 2026-11-09 · last SOV never · scoreboard 2026-11-09
 
 **PRIORITY QUEUE** (the open book in the order it is worked, the less important LAST - `tools/trajectory_priority.py`, derived from the registry's own facts, never typed; Ian, 2026-10-26: "reprioritize the open trajectories, with less important one to be on the last ... push to production when we achieve a considerable milestone"):
 - **T1 · defects a person meets today** — 12 open · next: BRH509 · BRH510 · BRH511 · BRH512 · BRH513 · OWN62 · BRH741 · BRH758

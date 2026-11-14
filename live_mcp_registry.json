@@ -164060,9 +164060,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164117,9 +164118,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164208,9 +164210,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164265,9 +164268,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164356,9 +164360,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164413,9 +164418,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164504,9 +164510,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164561,9 +164568,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164652,9 +164660,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164709,9 +164718,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164800,9 +164810,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164858,9 +164869,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -164949,9 +164961,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -165006,9 +165019,10 @@
      "seller",
      "tools/prove_a11y_states.mjs"
     ],
-    "sha": "8fa6dd0bcb415969",
+    "sha": "e5059a23a9e23741",
     "replay": "python run_platform_checks.py --only cl_a11y_states",
-    "fn_digests": {}
+    "fn_digests": {},
+    "restamped_at": "2026-11-14 \u2014 gate cl_a11y_states re-ran green against the current state (a11y_states_report.json); sha re-anchored, claim unchanged"
    }
   },
   {

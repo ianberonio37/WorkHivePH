@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1111-files
-source_sha: a2f6c861e4d3a57f
+source_sha: 7da7254103431f14
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -316,7 +316,7 @@ Entries (name · type · sha):
 - `feedback_content_that_waits_behind_identity` · feedback · 689997ed32019a08
 - `feedback_context_saturation_stop_disguise` · feedback · 4a17cb41b6c0a5c9
 - `feedback_contrast_is_not_computable_from_cssom_here` · feedback · 44c80db6b50ad7e4
-- `feedback_copilot_codes_claude_orchestrates` · feedback · 58b01e723ec857e1
+- `feedback_copilot_codes_claude_orchestrates` · feedback · c876c8a797664059
 - `feedback_could_not_ask_is_not_no` · feedback · 72db9f3c79e447b5
 - `feedback_count_before_and_after_with_the_same_eyes` · feedback · 903b9cf5e491a41e
 - `feedback_coverage_improved_by_deleting_obligations` · feedback · dd378d4ba395ad6c
@@ -387,7 +387,7 @@ Entries (name · type · sha):
 - `feedback_full_audience_spectrum` · feedback · 8033eab32bc196cd
 - `feedback_full_suite_live_gates_flake_under_load` · feedback · 5954bd7353da458c
 - `feedback_fullpage_capture_dpr_two_thirds_artifact` · feedback · c36dfd79548edf85
-- `feedback_gate_green_is_part_of_done` · feedback · 7993d8ff6dd0822d
+- `feedback_gate_green_is_part_of_done` · feedback · 81bd1007b4742d1a
 - `feedback_gate_inside_gate_false_fails_use_median` · feedback · cb361d6eb4711b40
 - `feedback_gate_notnull_query_must_exempt_identity_generated` · feedback · 6e947f2fd15b2c46
 - `feedback_gate_parsed_text_not_the_db_false_green` · feedback · fadba3421d2c3d8e
@@ -447,7 +447,7 @@ Entries (name · type · sha):
 - `feedback_local_runtime_verify_no_deploy` · feedback · 5c13ccf3a3b6b9c5
 - `feedback_local_supabase_rewrite` · feedback · a970d46ace63fba7
 - `feedback_local_triggers_called_prod_with_service_key` · feedback · 23f78e4991fb72c6
-- `feedback_low_memory_free_it_dont_wait` · feedback · a8e9573618a332a0
+- `feedback_low_memory_free_it_dont_wait` · feedback · 1a92b284f6cbff64
 - `feedback_lower_cards_rubric_applied_and_verified` · feedback · 071ce814e4717d4c
 - `feedback_make_it_earnable_not_coming_soon` · feedback · 580fc6fddab6aee8
 - `feedback_manufactured_ender_approval_fork_and_pct_gerrymander` · feedback · be016bcea85d4313
