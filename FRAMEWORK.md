@@ -79,6 +79,10 @@ Night Crawler:
 
 ## Step 0 · TRIAGE / ROUTER — pick the path before doing the work
 
+> **Then route the work (2026-11-15):** any multi-step request gets a task breakdown table with a model per task
+> (Haiku mechanical · Sonnet standard implementation · Opus coding and integration · Fable architecture and system-wide
+> review), shown before execution. SOP: `workflows/orchestrate_and_route.md`.
+
 The one motion our old list was missing: an explicit classifier. Before touching anything, route:
 
 | The request is… | Route to | Because |

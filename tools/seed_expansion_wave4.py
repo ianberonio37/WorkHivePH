@@ -2670,6 +2670,144 @@ def group_journey_rows(existing: list[dict], replay: bool = False) -> list[dict]
     return rows
 
 
+# ═══ Wave VX (2026-11-14) ═════════════════════════════════════════════════════════════════════════════════════════════
+# Ian: "add more trajectories ... based on the ufai ui ux, group of personas, full stack architectural layers, diverse
+# journey scenarios, view ports, llm, seo aeo geo xeo." One row per EMPTY cell of tools/wave_vx_census.py (the one place
+# that decides the size). Lives in its own shard (registry_io.SHARDS["VX"]).
+VX_PREFIX = "VX"
+VX_MILESTONE = {"VX-V": "M14", "VX-J": "M14", "VX-L": "M15", "VX-S": "M16", "VX-A": "M16", "VX-G": "M16", "VX-X": "M16"}
+VX_INSTRUMENT = {
+    "VX-V": "playwright-mcp at the cell's width (critic_walk_batch.mjs --device), the page read top to bottom",
+    "VX-J": "playwright-mcp + postgres-mcp, the scenario lived start to end under the condition (route / offline / clock)",
+    "VX-L": "playwright-mcp + lm_walk.js with the no-model header (X-WH-No-Model), the answer read as the persona",
+    "VX-S": "static read of the served page + lighthouse at 390 for cwv",
+    "VX-A": "static read of the served page and its markdown twin",
+    "VX-G": "static read of the served page, its markdown twin and llms.txt",
+    "VX-X": "static read of robots.txt, sitemap, llms.txt and IndexNow receipts against the engine's crawler names",
+}
+
+
+def _vx_route(page: str, cls: str, persona: str) -> tuple[list[str], str]:
+    """The cube's own route rule (cube_rows): public or anon by search arrival, oversight direct to a surface the hub
+    offers nobody, everyone else by their own hub path. Branches on the page's CLASS, so privacy and terms are public."""
+    if cls == "public" or persona == "anon":
+        return (["index.html", page] if page != "index.html" else [page]), "search-arrival"
+    if persona in ("oversight", "machine-client") and page != "index.html" and not _hub_roles().get(page):
+        return [page], "direct"
+    return _path(_start(page), page, [], cast=_cast_of(persona)), ("direct" if page == "index.html" else "hub-nav")
+
+
+def wave_vx_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per EMPTY cell of the Wave VX census, family-major. replay=True returns what was SEEDED, in id order.
+    The census skips cells a VX row already carries, so a second run adds only new cells (Fable review, 2026-11-15)."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("vx") or {}).get("kind") == "wave-vx"),
+                        key=lambda x: int(str(x["id"])[len(VX_PREFIX):] or 0))
+        wave_vx_rows.arithmetic = {}
+        return [{"wave": t["wave"], "vx": t["vx"]} for t in seeded]
+    import wave_vx_census as vc
+    c = vc.census(existing)
+    cls_of = {p: k for k, ps in c["classes"].items() for p in ps}
+    admitted = c["admitted"]
+    rows: list[dict] = []
+    for fam, f in c["families"].items():
+        for cell in f["rows"]:
+            persona = cell.get("persona") or "anon"
+            dev = cell.get("device") or "any"
+            vertical, pair, extra = "", "", {}
+            if fam == "VX-J":
+                arche = f"VX-J:{cell['scenario']}"
+                if cell["kind"] == "solo":
+                    # a solo journey is walked exactly as its source row walks it: pages, entry, pair, sign-in, vertical
+                    pages, entry = list(cell["pages"]) or ["index.html"], cell.get("entry") or "hub-nav"
+                    pair, vertical = cell.get("pair") or "", cell.get("vertical") or ""
+                    if cell.get("signed_in_as"):
+                        extra["signed_in_as"] = cell["signed_in_as"]
+                    # the gate reads one path per archetype, cast from the source's pair and sign-in: the condition row
+                    # walks the same journey, so it shares the source's archetype (and the path the gate already accepts)
+                    if cell.get("archetype"):
+                        arche = cell["archetype"]
+                else:
+                    # a group scenario: this persona's own route to the last hop page it is admitted on
+                    # the last hop page whose route the journey-paths gate accepts for this persona (cube admission is
+                    # per page; the gate also reads each HOP of the route, e.g. hive -> project-manager for a field cast)
+                    ok = [pg for pg in cell["pages"] if persona in admitted.get(pg, []) or cls_of.get(pg) == "public"]
+                    pages, entry = None, None
+                    for target in reversed(ok or cell["pages"][:1]):
+                        cand, ent = _vx_route(target, cls_of.get(target, "production"), persona)
+                        if _gate_checked_route(target, persona, cand):
+                            pages, entry = cand, ent
+                            break
+                    if pages is None:
+                        target = (ok or cell["pages"])[-1]
+                        pages, entry = [target], "deep-link"
+                    vertical = (cell.get("where") or [""])[0]
+                what = f"{cell['title'][:70]} under {cell['condition']}"
+                ask = (f"the scenario {cell['scenario']} ({cell['title']}) is lived start to end at {dev} while "
+                       f"{cell['condition'].replace('-', ' ')}: every step either completes or tells the person exactly "
+                       f"what is held, what is lost and what to do; nothing is written twice and nothing silently dropped")
+            elif fam == "VX-X":
+                arche = f"VX-X:{cell['engine']}"
+                pages, entry = ([cell["pages"][0]] if cell["pages"] else ["index.html"]), "direct"
+                what = f"{cell['cluster']} read by {cell['engine']}"
+                ask = (f"XEO: every page in {cell['cluster']} ({len(cell['pages'])} pages) is reachable and quotable by "
+                       f"{cell['engine']} - its crawlers ({', '.join(cell['crawlers'])}) are allowed where intended, the "
+                       f"sitemap and IndexNow carry the pages, and the page states its answer in the form that engine lifts")
+            else:
+                page = cell["page"]
+                cls = cell.get("cls") or cls_of.get(page, "production")
+                pages, entry = _vx_route(page, cls, persona)
+                arche = f"{fam}:{persona}"
+                if fam in ("VX-S", "VX-A", "VX-G"):
+                    what = f"{cell['check']} · {_short(page)}"
+                    ask = f"{fam[3]}EO check '{cell['check']}' holds on {_short(page)} at {dev}, read from the served page"
+                elif fam == "VX-L":
+                    what = f"{cell['mode']} for {cell['group']} at {dev} · {_short(page)}"
+                    ask = (f"the page's AI answers a {cell['group']} person ({persona}) in mode '{cell['mode']}' at {dev}: "
+                           f"grounded in what this person may see, honest when it cannot answer, never leaking another hive")
+                else:
+                    what = f"{cell['group']} at {dev} · {_short(page)}"
+                    ask = (f"{_short(page)} read top to bottom at {dev} by a {cell['group']} person ({persona}): every "
+                           f"control reachable and tappable, nothing clipped or overlapping, the primary task doable")
+            # a hive member is cast from journey.vertical (critic_walk_manifest); an empty one drops the walk
+            if not vertical:
+                key = cell.get("page") or cell.get("cluster") or cell.get("scenario") or ""
+                vertical = HIVES[len(key) % len(HIVES)]
+            instrument = VX_INSTRUMENT[fam]
+            if fam == "VX-S" and cell.get("check") == "cwv-390":
+                instrument = "chrome-devtools-mcp lighthouse at 390 (performance), the served page"
+            rows.append(dict({
+                "wave": fam, "title": f"{fam} {what}", "pages": list(pages), "layers": list(cell.get("layers") or ["F"]),
+                "ufai": list(cell.get("ufai") or ["U"]), "persona": persona, "device": dev, "entry": entry,
+                "framing": "person", "story": ask,
+                "journey": {"archetype": arche, "stage": "operate", "vertical": vertical, "pair": pair, "language": "en",
+                            "moment": "present", "condition": cell.get("condition", "normal"), "tier": "A",
+                            "pages": list(pages)},
+                "axis": {"device": dev, "language": "en"},
+                "vx": {"kind": "wave-vx", "family": fam, "cell": {k: v for k, v in cell.items() if k not in ("layers", "ufai")},
+                       "milestone": VX_MILESTONE[fam], "instrument": instrument,
+                       "closes": f"{what}, walked with a receipt at {dev}"},
+            }, **extra))
+    # ★THE JOURNEY-PATHS GATE READS ONE PATH PER ARCHETYPE (Fable review, 2026-11-15): ask it now, with its own
+    # functions, about the first path of every new archetype; main() refuses to write while any hit stands.
+    from check_journey_paths import broken_hops, hub_offered_and_parented, link_graph, role_blocked_hops
+    # an archetype the registry already holds is read on ITS first path (the source row's), which the gate already passes
+    known = {(x.get("journey") or {}).get("archetype") for x in existing}
+    first: dict[str, dict] = {}
+    for r in rows:
+        if r["journey"]["archetype"] not in known:
+            first.setdefault(r["journey"]["archetype"], r)
+    paths = {a: r["pages"] for a, r in first.items()}
+    links = link_graph()
+    offered, parented = hub_offered_and_parented()
+    bad = [("role", h) for h in role_blocked_hops(paths, {a: _cast_of(r["persona"]) for a, r in first.items()}, links)]
+    bad += [("broken", h) for h in broken_hops(paths, offered, parented, links)]
+    wave_vx_rows.refused = bad
+    wave_vx_rows.arithmetic = {"population": Counter(r["wave"] for r in rows),
+                               "by_lens": Counter(r["vx"]["milestone"] for r in rows)}
+    return rows
+
+
 # ★WHAT THE CRITIC FOUND IS ROADMAP WORK (CF1..; Ian, 2026-11-07: "what we find in critic program should be added
 # appropriate numbers of trajectories in trajectories roadmap so that we have a common framework working on this"). One row
 # per DISTINCT defect the critic deepwalk has found - (page, persona, rubric dimension), measured by
@@ -2811,6 +2949,9 @@ def main() -> int:
                     help="OD (2026-11-03): one row per cell of tools/open_design_census.py - Penpot comps, token drift, system tokens")
     ap.add_argument("--add-critic-findings", action="store_true",
                     help="CF (2026-11-07): one row per distinct defect the critic deepwalk found (tools/critic_findings_census.py)")
+    ap.add_argument("--add-vx", action="store_true",
+                    help="VX (2026-11-14): one row per EMPTY cell of tools/wave_vx_census.py - viewports, journeys under "
+                         "field conditions, a page's AI per persona group, and the SEO/AEO/GEO/XEO face, milestones M14-M16")
     ap.add_argument("--add-group-journeys", action="store_true",
                     help="GJ (2026-11-04): one row per cell of tools/group_journey_census.py - the hand-offs between the "
                          "people of one scenario, per layer, per pillar, per member, cut into milestones M7-M11")
@@ -2985,8 +3126,16 @@ def main() -> int:
         seed_missing()
         print("\n" + f"  wrote {len(created)} CF row(s) into {REGISTRY.name} (registry now {doc['count']})")
         return 0
-    if args.add_cube or args.add_own or args.add_hive_scale or args.add_engineering_design or args.add_open_design             or args.add_group_journeys:
-        if args.add_group_journeys:
+    if args.add_cube or args.add_own or args.add_hive_scale or args.add_engineering_design or args.add_open_design             or args.add_group_journeys or args.add_vx:
+        if args.add_vx:
+            rows, label, prefix = wave_vx_rows(existing), "VX wave", VX_PREFIX
+            a = wave_vx_rows.arithmetic
+            for kind, h in getattr(wave_vx_rows, "refused", []):
+                print(f"    REFUSED ({kind} hop): {h}")
+            if getattr(wave_vx_rows, "refused", []) and not args.dry_run:
+                print("  refused: the journey-paths gate would read a bad hop - nothing written")
+                return 1
+        elif args.add_group_journeys:
             rows, label, prefix = group_journey_rows(existing), "GJ group journeys", GJ_PREFIX
             a = group_journey_rows.arithmetic
         elif args.add_cube:

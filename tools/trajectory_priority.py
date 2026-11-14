@@ -197,7 +197,7 @@ def tier_of(r: dict, classes: dict, trip_units: set) -> tuple[int, str]:
 
 def milestone_of(r: dict, tier: int) -> str:
     """The block a row closes in: its wave's declared milestone (GJ: gj.milestone), else its tier's (M1..M6)."""
-    return (r.get("gj") or {}).get("milestone") or (r.get("cf") or {}).get("milestone") or f"M{tier}"
+    return (r.get("gj") or {}).get("milestone") or (r.get("cf") or {}).get("milestone")         or (r.get("vx") or {}).get("milestone") or f"M{tier}"
 
 
 def _gj_blocks() -> dict:
@@ -211,6 +211,12 @@ def _gj_blocks() -> dict:
     try:
         from critic_findings_census import CF_MILESTONES
         out.update({m: v["name"] for m, v in CF_MILESTONES.items()})
+    except Exception:
+        pass
+    # Wave VX (2026-11-14): M14..M16
+    try:
+        from wave_vx_census import VX_MILESTONES
+        out.update({m: v["name"] for m, v in VX_MILESTONES.items()})
     except Exception:
         pass
     return out

@@ -20,6 +20,7 @@ trajectory's structured device/persona axes in the bank's own vocabulary (`devic
 from __future__ import annotations
 
 import io
+import re
 import json
 import os
 import sys
@@ -47,7 +48,10 @@ def _cell(t: dict) -> tuple[str, int]:
         device = DEVICE_DEFAULT
     if persona == "any":
         persona = PERSONA_DEFAULT
-    return f"{device}|{persona}|browser-ui|operate", (390 if device in NARROW else 1920)
+    # the width is the device's own suffix (Wave VX, 2026-11-15: 768 / 844 / 1280 rows were recorded as 1920)
+    m = re.search(r"(\d{3,4})$", device)
+    px = int(m.group(1)) if m else (390 if device in NARROW else 1920)
+    return f"{device}|{persona}|browser-ui|operate", px
 
 
 def build_missing(critic: dict, traj: dict) -> list[dict]:

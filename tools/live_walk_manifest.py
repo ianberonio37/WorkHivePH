@@ -771,6 +771,9 @@ def build() -> dict:
         # wave; every GJ row is open when it lands.
         if (r.get("gj") or {}).get("kind") == "group-journey":
             want = (r.get("gj") or {}).get("instrument") or want
+        # a VX row (Wave VX, 2026-11-14) declares its instrument per family
+        if (r.get("vx") or {}).get("kind") == "wave-vx":
+            want = (r.get("vx") or {}).get("instrument") or want
         # a CF row (what the critic deepwalk found, 2026-11-07) is closed by the critic's own survey of the same page as the
         # same person after the fix - its title's rubric words must not route it to another instrument. DISCLOSED: added in
         # the change that seeds the wave; every CF row is open when it lands.
@@ -918,6 +921,11 @@ def build() -> dict:
             "sentry": ("sentry", "glitchtip"),
             "mail-catcher": ("prove_mail_delivery", "mailpit", "outbox"),
             "axe": ("prove_a11y", "axe"),
+            # Wave VX's search rows (2026-11-15) are read from the files that ship, after the gate that owns the fact.
+            # DISCLOSED: SELF-ADDED in the same session that wrote bank_vx_rows.py, the banker whose basis it accepts. Remove
+            # this entry and every VX-S/A/G/X row banked by it re-opens cleanly.
+            "static": ("bank_vx_rows", "read from the files that ship", "extractability_gate", "validate_calc_pages",
+                       "validate_md_twins", "content_grounding_gate", "freshness_trip"),
         }
         low = basis.lower()
         def _seen(t):

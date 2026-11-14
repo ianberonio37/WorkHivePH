@@ -1856,6 +1856,19 @@
    "at": "2026-11-07T23:25",
    "source": "batch-held",
    "evidence": "predictive-alert-thresholds-plants: B3 0%: sentences=70 · >20w=14 · passive=3 · grade>8=23 · worst(51w): \"What it does is the part that is tedious by hand: it collect…\""
+  },
+  {
+   "page": "marketplace-admin",
+   "persona": "buyer",
+   "dim": "SCREEN",
+   "severity": 2,
+   "walk": "JS24",
+   "critic_ids": [
+    "JS24"
+   ],
+   "at": "2026-11-15T08:53",
+   "source": "batch-held",
+   "evidence": "marketplace-admin: SCREEN - the page sent buyer to refusal screen: Marketplace Admin has moved into the operator console | Your instead of its own screen"
   }
  ]
 }

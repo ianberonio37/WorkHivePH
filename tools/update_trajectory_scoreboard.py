@@ -157,6 +157,12 @@ try:
                        for cls, w in _GJ_WAVE.items()})
 except Exception:
     WAVE_NAMES.update({w: f"Group journeys: {w}" for w in ("GJ-PROD", "GJ-FND", "GJ-PUB", "GJ-UX")})
+# Wave VX (2026-11-14): named from the census's own labels, registered in the change that seeds it
+try:
+    from wave_vx_census import LABEL as _VX_LABEL
+    WAVE_NAMES.update({w: f"Wave VX, {t}" for w, t in _VX_LABEL.items()})
+except Exception:
+    pass
 # what the critic deepwalk FOUND (CF, 2026-11-07), registered in the change that seeds it
 WAVE_NAMES["CF-FOUND"] = ("Critic finds: each distinct defect the critic deepwalk found (page x persona x rubric class), "
                           "fixed at its cause and graded clean by a later walk")

@@ -67,7 +67,13 @@ const MOMENT = (() => { const i = args.indexOf('--moment'); return i >= 0 ? args
 
 const VIEW = { 'phone-390': { width: 390, height: 854 }, 'narrow-320': { width: 320, height: 854 },
   'tablet-768': { width: 768, height: 854 }, 'desktop-1280': { width: 1280, height: 900 },
-  'fixed-kiosk-print': { width: 1280, height: 900 } };
+  'fixed-kiosk-print': { width: 1280, height: 900 },
+  // Wave VX (2026-11-15): a phone turned sideways and a wide desktop. An unknown device used to fall back to 390 while
+  // the receipt kept the row's device - a 1920 row "walked" at 390. It now refuses the walk instead.
+  'landscape-844': { width: 844, height: 390 }, 'wide-1920': { width: 1920, height: 1080 } };
+// conditions this batch can actually emulate; any other refuses before a single survey (it would grade normal and bank it)
+const KNOWN_COND = new Set(['normal', 'dependency-down', 'offline-3g', 'release-mid-way']);
+if (!KNOWN_COND.has(COND)) { console.error(`--condition ${COND} has no emulation here - refusing (it would survey normal)`); process.exit(2); }
 
 function pageIdOf(p) {
   const parts = String(p).replace(/\\/g, '/').split('/');
@@ -156,7 +162,8 @@ let banked = 0, surveyed = 0, failed = 0;
 try {
   for (const w of walks) {
     if (DEVICE) w.device = DEVICE;
-    const view = VIEW[w.device] || VIEW['phone-390'];
+    const view = VIEW[w.device] || ((!w.device || w.device === 'any') ? VIEW['phone-390'] : null);
+    if (!view) { console.log(`  REFUSED ${w.critic_id || w.id}: device ${w.device} has no viewport here`); failed++; continue; }
     // offline-3g needs the SW ALLOWED (it serves the cache when the network is cut); every other mode
     // blocks it (a stray SW would serve stale markup and mask a real regression).
     const ctx = await browser.newContext({ viewport: view, serviceWorkers: COND === 'offline-3g' ? 'allow' : 'block' });
