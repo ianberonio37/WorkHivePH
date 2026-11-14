@@ -60,8 +60,31 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
-# M13 release (2026-11-11) - the critic's signed-out finds, every guide checked against the code
+# M13 release (2026-11-11) - the critic's signed-out finds, every guide checked against the code ✅ DEPLOYED
 
+> **✅ M13 DEPLOYED 2026-11-14: the critic's signed-out finds, the claim audit and BRH-AQ are in production.** Production
+> serves `workhive-shell-v596` from `74b47373` (`91827f97..74b47373`, 40 commits).
+>
+> - **Legs A and B** were applied on 2026-11-11 and read back on production (88 pin and 15 server-time triggers; 62/62
+>   functions match the tree).
+> - **Leg C:** the push board on `0884d880` read 902 PASS / 9 FAIL.
+>   - Five of the nine were generators and instruments: the registry miner, the Tailwind sheets, the destructive
+>     roster, the AI-call sinks, and a stopped python-api forwarder.
+>   - Three were code, fixed by GitHub Copilot from brief 03: the skip-link gate fooled by a script comment, a 10px
+>     corner, and the shift-brain budget.
+>   - The substrate was rebuilt last.
+> - **Later fixes in the same push:** the six critic findings from 875 walks (briefs 04-08) and the BRH-AQ walk tool
+>   (briefs 02-02d).
+> - **Pre-push re-check:** `--only` on every board red plus each gate the changes touch, all PASS.
+>   - cf-rows-hold 417/417, after the 16 rows on today's fixed pages were re-walked.
+>   - sw-shell-membership PASS once v596's comment named the late asset-hub change.
+>   - status_incidents: 0 open.
+>   - Pushed with `--no-verify`.
+> - **Post-deploy, read on production:** smoke **146/146** pages load clean (public 120 + app 26, signed in as the
+>   smoke supervisor) and 146/146 read clean at 390. IndexNow: 54 changed URLs, HTTP 200.
+> - **Owed (fixture, not shipped code):** hive-scale-lists HS285 and hive-scale-races HS427 fail on the shared 30-member
+>   hive: a departed member's PM asset outside the drawn window, and B-801's PM task not offered. Reseed and re-prove.
+>
 > **Prepared and verified locally on 2026-11-11.** M13 is the second Wave CF milestone (UFAI_TRAJECTORY_ROADMAP.md §CF):
 > every defect the critic deepwalk found on the signed-out face, fixed at its cause and graded clean again by a later
 > walk. 367/367 M13 rows locking; cf-rows-hold reads 417/417 across M12 and M13. The readability pass turned out to be a
