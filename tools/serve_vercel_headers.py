@@ -152,8 +152,19 @@ class Handler(SimpleHTTPRequestHandler):
                 for cloud, local in self._pairs:
                     data = data.replace(cloud, local)
             if data is not None:
+                # ★--compress: THE EDGE COMPRESSES, SO A TIMING MUST TOO (Wave VX-J, 2026-11-15). The first slow-3g walk read
+                # 39-51 s per page off an uncompressed local server; production sends Brotli (logbook 582 KB -> 177 KB).
+                # gzip here (stdlib) runs ~10-20% larger than Brotli, so timings taken through it are slightly conservative.
+                enc = None
+                if (getattr(self, "compress", False) and "gzip" in (self.headers.get("Accept-Encoding") or "")
+                        and c.endswith((".html", ".js", ".mjs", ".css", ".json", ".svg", ".txt", ".md", ".xml"))):
+                    import gzip
+                    data, enc = gzip.compress(data, 6), "gzip"
                 self.send_response(200)
                 self.send_header("Content-Type", self.guess_type(c))
+                if enc:
+                    self.send_header("Content-Encoding", enc)
+                    self.send_header("Vary", "Accept-Encoding")
                 self.send_header("Content-Length", str(len(data)))
                 self.end_headers()
                 return io.BytesIO(data)
@@ -183,6 +194,7 @@ def main() -> int:
     ap.add_argument("--root", default=str(ROOT))
     ap.add_argument("--ref", help="serve every file as it was at this git commit (and that commit's vercel.json rules)")
     ap.add_argument("--local-supabase", action="store_true", help="let the CSP's connect-src reach the local stack")
+    ap.add_argument("--compress", action="store_true", help="gzip text responses when the client accepts it, as the edge does (with --local-stack); a timing through an uncompressed server overstates load ~3x")
     ap.add_argument("--local-stack", action="store_true",
                     help="serve HTML/JS with the production Supabase URL and key rewritten to the local stack (implies --local-supabase)")
     ap.add_argument("--resolve", nargs="+", metavar="PATH",
@@ -193,6 +205,7 @@ def main() -> int:
     Handler.trailing = load_trailing(root, a.ref)
     Handler.ref, Handler.local_supabase = a.ref, a.local_supabase or a.local_stack
     Handler.local_stack, Handler._pairs = a.local_stack, (_local_stack_pairs() if a.local_stack else [])
+    Handler.compress = a.compress
     if a.local_stack and not Handler._pairs:
         print('--local-stack: could not read the cloud/local pairs from test-data-seeder/app.py - refusing to serve production URLs')
         return 1
