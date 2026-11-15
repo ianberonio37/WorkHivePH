@@ -62,4 +62,4 @@ For partnerships, press, association memberships, or general inquiries: [admin@w
 
 Have a question about the platform? Ask the AI Work Assistant in your hive, or email the same address.
 
-<!-- md-twin source-sha: d0832d42a7485755 -->
+<!-- md-twin source-sha: f2a9e16a390de925 -->

@@ -91,8 +91,9 @@ def check(fam: str, cell: dict, pub: list[str], ctx: dict) -> tuple[bool, str]:
     if chk == "cwv-390":
         return False, "needs a Lighthouse run at 390 (walked, never read from the file)"
     if chk == "answer-first":
-        ok = ("answer-first" in src) or (page.startswith("learn/") and ctx["extractability_ok"])
-        return ok, "an answer-first block (class answer-first, or extractability_gate on a learn article)"
+        # the legal pages' "In short" card (class wh-tldr, M13) is the answer-first block under its own name
+        ok = ("answer-first" in src) or ('class="wh-tldr"' in src) or (page.startswith("learn/") and ctx["extractability_ok"])
+        return ok, "an answer-first block (class answer-first, the wh-tldr 'In short' card, or extractability_gate on a learn article)"
     if chk == "extractable-figure":
         ok = page.startswith(("learn/", "tools/")) and (ctx["extractability_ok"] if page.startswith("learn/") else ctx["calc_ok"])
         return ok, "a statistic an engine can lift (extractability_gate / validate_calc_pages)"

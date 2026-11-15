@@ -13,6 +13,9 @@
 //                            (handled by the caller: it needs the sign-in helper) - here only the marker
 //   returning-after-30-days  the page clock is moved 30 days ahead (Date only; the server's clock is untouched)
 
+// conditions whose walk needs the service worker ALLOWED (the batch blocks it otherwise)
+export const WANTS_SW = new Set(['offline-mid-task']);
+
 export const VX_CONDITIONS = ['offline-mid-task', 'slow-3g', 'rate-limited-429', 'session-expired', 'second-device',
   'returning-after-30-days'];
 
@@ -58,7 +61,14 @@ export async function onPage(page, ctx, cond, index) {
     await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 600,
       downloadThroughput: (400 * 1024) / 8, uploadThroughput: (400 * 1024) / 8 });
   }
-  if (cond === 'offline-mid-task' && index === 1) await ctx.setOffline(true);
+  // ★A PHONE THAT LOSES SIGNAL STILL HAS ITS SERVICE WORKER (2026-11-15): the first run blocked the worker, so 47 of 58
+  // walks failed on ERR_INTERNET_DISCONNECTED - a reading of no app a person could have. The worker installs on the first
+  // page (it precaches the shell); the network goes only after it is running.
+  if (cond === 'offline-mid-task' && index === 1) {
+    if (!ctx.serviceWorkers().length) await ctx.waitForEvent('serviceworker', { timeout: 15000 }).catch(() => {});
+    await new Promise((r) => setTimeout(r, 3000));   // let the install precache the shell
+    await ctx.setOffline(true);
+  }
 }
 
 export function conditionNote(cond) {

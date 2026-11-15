@@ -23,7 +23,7 @@ const RUBRIC_SRC = readFileSync('survey_ufai_rubric.js', 'utf8');
 // the lens THIS run grades with, hashed from the same bytes it loaded - passed to the banker so a lens edited
 // mid-run can never be stamped onto rows the old lens graded (2026-10-13)
 import { createHash } from 'crypto';
-import { prepareCondition, onPage, conditionNote } from './lib/walk_conditions.mjs';   // Wave VX-J field conditions
+import { prepareCondition, onPage, conditionNote, WANTS_SW } from './lib/walk_conditions.mjs';   // Wave VX-J field conditions
 const LENS_SHA = createHash('sha256').update(readFileSync('survey_ufai_rubric.js')).digest('hex').slice(0, 12);
 // --manifest (Wave CF, 2026-11-08): an evidence walk reads its own manifest (critic_walk_manifest.py --ids .. --out ..)
 const MANIFEST = (() => { const a = process.argv.slice(2); const i = a.indexOf('--manifest'); return i >= 0 ? a[i + 1] : '.tmp/critic_walk_manifest.json'; })();
@@ -169,7 +169,7 @@ try {
     if (!view) { console.log(`  REFUSED ${w.critic_id || w.id}: device ${w.device} has no viewport here`); failed++; continue; }
     // offline-3g needs the SW ALLOWED (it serves the cache when the network is cut); every other mode
     // blocks it (a stray SW would serve stale markup and mask a real regression).
-    const ctx = await browser.newContext({ viewport: view, serviceWorkers: COND === 'offline-3g' ? 'allow' : 'block' });
+    const ctx = await browser.newContext({ viewport: view, serviceWorkers: (COND === 'offline-3g' || WANTS_SW.has(COND)) ? 'allow' : 'block' });
     // dependency-down: fail every edge-function call so the survey grades the DEGRADED state (does the
     // page show a legible fallback, not a crash). Browser-side only - no DB mutation. The local deno
     // functions stay untouched; only THIS context's requests to them are stubbed to 503.
