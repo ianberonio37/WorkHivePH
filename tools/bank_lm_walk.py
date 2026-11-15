@@ -290,9 +290,17 @@ def main() -> int:
     # the UNION (registry_io): a Wave VX-L row lives in its own shard and carries vx, not lx (2026-11-15)
     sys.path.insert(0, str(ROOT / "tools"))
     from registry_io import load_doc, save_doc
-    reg0 = {t["id"]: t for t in load_doc()["trajectories"]}
-    _r0 = reg0.get(rid) or {}
-    instrument = ((_r0.get("lx") or _r0.get("vx") or {}).get("instrument")) or "playwright-mcp + postgres-mcp"
+    # ★BATCH MODE (LM_BANK_BATCH=1, 2026-11-15): loading the 75 MB union, saving it and rebuilding the manifest cost ~4 min
+    # per row, so a 400-row wave would bank for a day. In a batch the instrument comes from the row's own args and the
+    # registry update is queued to .tmp/lm_bank_pending.jsonl; tools/vx_lm_step.py --flush applies the queue in one
+    # load, one save and one manifest build. Everything that decides WHETHER a row banks still runs here, per row.
+    BATCH = os.environ.get("LM_BANK_BATCH") == "1"
+    if BATCH:
+        instrument = P.get("instrument") or "playwright-mcp + postgres-mcp"
+    else:
+        reg0 = {t["id"]: t for t in load_doc()["trajectories"]}
+        _r0 = reg0.get(rid) or {}
+        instrument = ((_r0.get("lx") or _r0.get("vx") or {}).get("instrument")) or "playwright-mcp + postgres-mcp"
     cmd = [sys.executable, "tools/record_mcp_walk.py", "--id", rid, "--instrument", instrument,
            "--layer", "LM", "--sublayer", sub, "--as-persona", P.get("persona"), "--viewports", "phone-390,desktop-1280",
            "--cast", P.get("castName") or "", "--steps", sp, "--witness", witness[:1900], "--note", note[:1500]]
@@ -306,6 +314,15 @@ def main() -> int:
     if r.returncode != 0 or "refused" in out.lower() or "ok=True" not in out or not res.get("ok"):
         print(f"{rid}: NOT banked ({'walk verdict: ' + '; '.join(res.get('problems') or []) if not res.get('ok') else 'recorder refused'})")
         return 1
+    if BATCH:
+        how = (f"live model: {live}" if live else "no model call")
+        upd = {"id": rid, "gates": GATES[sub],
+               "basis_tail": (f"WALKED LIVE {today} via {instrument} (tools/lm_walk.js, {how}): {note} "
+                              f"Witness: {witness[:1200]} Receipt .tmp/mcp_walks/{rid}.json."), "today": today}
+        with io.open(ROOT / ".tmp" / "lm_bank_pending.jsonl", "a", encoding="utf-8") as f:
+            f.write(json.dumps(upd, ensure_ascii=False) + "\n")
+        print(f"{rid}: RECORDED (registry update queued for --flush)")
+        return 0
     reg = load_doc()
     hit = False
     for t in reg["trajectories"]:

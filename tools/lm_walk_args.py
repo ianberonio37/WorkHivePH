@@ -220,7 +220,8 @@ def build(rid: str) -> dict:
         # grounded-answer / no-data walk the G sublayer (a real machine / none); refusal, provider-down (every model call
         # is stubbed 503, which is what an outage looks like to the page) and long-input walk X
         sub = {"grounded-answer": "G", "no-data": "G"}.get(cell["mode"], "X")
-        t = dict(t, lx=dict(src, persona=t["persona"], page=cell["page"], mode=cell["mode"], sublayer=sub))
+        t = dict(t, lx=dict(src, persona=t["persona"], page=cell["page"], mode=cell["mode"], sublayer=sub,
+                            instrument=t["vx"].get("instrument") or "playwright-mcp + postgres-mcp"))
     lx = t["lx"]
     persona, vertical = lx["persona"], (t.get("journey") or {}).get("vertical")
     hives = [h for h in psql("select name from hives where name in (select distinct h2.name from hives h2 join "
@@ -287,7 +288,7 @@ def build(rid: str) -> dict:
                         if m not in _own_names][:5]
     page = lx["page"]
     return {
-        "id": rid, "sublayer": lx["sublayer"], "vxMode": lx.get("mode"), "persona": persona, "surface": lx["surface"], "page": page,
+        "id": rid, "sublayer": lx["sublayer"], "vxMode": lx.get("mode"), "instrument": lx.get("instrument"), "persona": persona, "surface": lx["surface"], "page": page,
         "path": (t.get("journey") or {}).get("pages") or t.get("pages") or [page],
         "user": user, "pass": PASSWORD, "castName": name, "ownHive": own, "rowHive": row_hive, "rowHiveName": vertical,
         "foreignHive": foreign_id, "foreignHiveName": foreign_name, "markers": [foreign_name] + _markers(foreign_id),
