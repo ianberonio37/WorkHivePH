@@ -37,6 +37,11 @@ def psql(sql: str) -> str:
 def bank(rid: str) -> int:
     recs = json.loads((ROOT / ".tmp" / "w4_steps" / f"{rid}.records.json").read_text(encoding="utf-8"))
     res, P = recs.get("result") or {}, recs.get("args") or {}
+    # ★AN ASK THAT SENT NOTHING PROVES NOTHING (VX2936, 2026-11-15): the 1280 page loaded half (893 chars) and sent no
+    # request, and the walker still said ok. A width with sent=0 is re-walked, never banked.
+    if any(" sent=0 " in f" {s} " for s in (res.get("steps") or [])):
+        print(f"{rid}: NOT banked - a width sent no request ({'; '.join(s for s in res['steps'] if 'sent=0' in s)}); re-walk it")
+        return 1
     cast, started = (P.get("castName") or "").replace("'", "''"), res.get("started")
     ai = psql(f"select count(*) from ai_audit_log where worker_name='{cast}' and created_at > '{started}'")
     lb = psql(f"select count(*) from logbook where worker_name='{cast}' and created_at > '{started}'")
