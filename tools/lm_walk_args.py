@@ -227,7 +227,9 @@ def build(rid: str) -> dict:
     hives = [h for h in psql("select name from hives where name in (select distinct h2.name from hives h2 join "
                              "hive_members m on m.hive_id=h2.id where m.status='active') order by name")]
     row_hive = _hive(vertical)
-    if persona in ("supervisor", "fleet-supervisor"):
+    # oversight on a field page is a hive supervisor - the critic manifest's rule (PERSONA_ROLE), 2026-11-15:
+    # without it a VX-L oversight row signed in as a worker and would have banked a reading of the wrong person
+    if persona in ("supervisor", "fleet-supervisor", "oversight"):
         c = _member(vertical, "supervisor")
     elif persona == "solo-owner":
         c = (SOLO["name"], SOLO["user"], "")
@@ -287,6 +289,15 @@ def build(rid: str) -> dict:
                                          "order by count(*) desc limit 12" % foreign_id) if foreign_id else [])
                         if m not in _own_names][:5]
     page = lx["page"]
+    # a machine is named by its tag as often as its name (VX2816: "three recent brake jobs on DCF-TRK-01"); the oracle
+    # accepts either, so the walker carries each asset's name -> tag for the cast's hives (2026-11-15)
+    ground_aliases = {}
+    if hive_ids:
+        for ln in psql("select name || '|' || tag from asset_nodes where deleted_at is null and name is not null and tag is not null "
+                       "and hive_id in (%s)" % ",".join("'%s'" % h for h in hive_ids)):
+            if "|" in ln:
+                n0, t0 = ln.split("|", 1)
+                ground_aliases[n0.strip()] = t0.strip()
     return {
         "id": rid, "sublayer": lx["sublayer"], "vxMode": lx.get("mode"), "instrument": lx.get("instrument"), "persona": persona, "surface": lx["surface"], "page": page,
         "path": (t.get("journey") or {}).get("pages") or t.get("pages") or [page],
@@ -295,7 +306,7 @@ def build(rid: str) -> dict:
         "agent": GATEWAY_AGENT.get(lx["surface"]), "functions": fns, "profile": prof,
         # report-sender: its own boxes sit beside a real Send (Resend email) - the person asks the companion instead
         "launcherOnly": lx["surface"] in ("companion", "report-sender.html"),
-        "groundSubject": ground, "absentSubject": "ZQX 9471", "foreignMachines": foreign_machines, "groundFacts": facts, "groundNewestAgeDays": newest_age, "groundByHive": ground_by_hive, "groundByTag": ground_by_tag,
+        "groundSubject": ground, "absentSubject": "ZQX 9471", "foreignMachines": foreign_machines, "groundFacts": facts, "groundNewestAgeDays": newest_age, "groundByHive": ground_by_hive, "groundByTag": ground_by_tag, "groundAliases": ground_aliases,
         "viewports": [{"name": "phone-390", "width": 390, "height": 844, "mobile": True},
                       {"name": "desktop-1280", "width": 1280, "height": 800, "mobile": False}],
         "origin": "http://localhost:5000/workhive", "api": "http://127.0.0.1:54321",

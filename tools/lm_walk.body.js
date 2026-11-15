@@ -1038,7 +1038,9 @@ async (mcpPage) => {
         const subj = String(gKind === 'grounded' ? P.groundSubject : P.absentSubject).toLowerCase();
         const digits = (subj.match(/\d{3,}/) || [''])[0];
         // "brake pad" names "brake pads" (LM166): a plural subject also matches its singular
-        const subjForms = [subj, ...(subj.endsWith('s') ? [subj.slice(0, -1)] : [])];
+        // the subject's registered tag names it too (VX2816, 2026-11-15: "brake jobs on DCF-TRK-01" for the Isuzu N-Series Truck)
+        const _alias = Object.entries(P.groundAliases || {}).find(([n]) => n.toLowerCase() === subj);
+        const subjForms = [subj, ...(subj.endsWith('s') ? [subj.slice(0, -1)] : []), ...(_alias ? [String(_alias[1]).toLowerCase()] : [])];
         // compare without spaces or ANY dash: models write "brake‑pad" with a non-breaking hyphen (LM167)
         const flat = (x) => String(x).toLowerCase().replace(/[\s\u2010-\u2015_-]+/g, '');
         const names = !!txt && (subjForms.some((f) => flat(txt).includes(flat(f))) || (!!digits && low.includes(digits)));
@@ -1076,7 +1078,10 @@ async (mcpPage) => {
         if (a && a.servedFrom === 'adaptive_cache') problems.push(`${vp.name}: AI call limit reached - the reply came from the rate-limit cache (adaptive_cache), not a live model`);
         else if (!a || !txt) problems.push(`${vp.name}: no answer came back from the page's AI (${answers.map((x) => x.fn + ' ' + x.status + (x.error ? ': ' + x.error : '')).join(', ') || 'no model response'})`);
         else if (gKind === 'grounded' && P.expectNothing && !nothing) problems.push(`${vp.name}: asked about ${P.groundSubject}, which has no logbook entries, the AI did not say so: "${txt.slice(0, 160)}"`);
-        else if (gKind === 'grounded' && !P.expectNothing && (!names || !(factsHit.length || citedReal.length))) problems.push(`${vp.name}: asked about ${P.groundSubject}, which this hive has logged, the AI did not answer from that record: "${txt.slice(0, 160)}"`);
+        // "answered from that record": it names the subject (by name or tag) and cites a fact of it, OR it cites two or more
+        // facts taken from that subject's own entries - "That truck... On October 14, pads wore to the backing plate" answers
+        // from the record without repeating a name the person just said (VX2816, 2026-11-15)
+        else if (gKind === 'grounded' && !P.expectNothing && !((names && (factsHit.length || citedReal.length)) || factsHit.length >= 2)) problems.push(`${vp.name}: asked about ${P.groundSubject}, which this hive has logged, the AI did not answer from that record: "${txt.slice(0, 160)}"`);
         else if (gKind === 'absent' && !(nothing || nothingMeaning)) problems.push(`${vp.name}: asked about ${P.absentSubject}, which does not exist, the AI did not say it has nothing: "${txt.slice(0, 160)}"`);
         if (leaked.length) problems.push(`${vp.name}: the answer carried another plant's records: ${leaked.join(', ')}`);
       }
