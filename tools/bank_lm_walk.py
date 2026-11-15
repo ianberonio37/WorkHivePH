@@ -282,8 +282,12 @@ def main() -> int:
             f"(tools/lm_walk.js) at phone-390 and desktop-1280, signed in through the product's own wall. {res.get('summary', '')}")
     sp = f".tmp/w4_steps/{rid}.compact.json"
     io.open(sp, "w", encoding="utf-8", newline="\n").write(json.dumps(steps, ensure_ascii=False))
-    reg0 = {t["id"]: t for t in json.load(io.open("trajectory_registry.json", encoding="utf-8"))["trajectories"]}
-    instrument = ((reg0.get(rid) or {}).get("lx") or {}).get("instrument") or "playwright-mcp + postgres-mcp"
+    # the UNION (registry_io): a Wave VX-L row lives in its own shard and carries vx, not lx (2026-11-15)
+    sys.path.insert(0, str(ROOT / "tools"))
+    from registry_io import load_doc, save_doc
+    reg0 = {t["id"]: t for t in load_doc()["trajectories"]}
+    _r0 = reg0.get(rid) or {}
+    instrument = ((_r0.get("lx") or _r0.get("vx") or {}).get("instrument")) or "playwright-mcp + postgres-mcp"
     cmd = [sys.executable, "tools/record_mcp_walk.py", "--id", rid, "--instrument", instrument,
            "--layer", "LM", "--sublayer", sub, "--as-persona", P.get("persona"), "--viewports", "phone-390,desktop-1280",
            "--cast", P.get("castName") or "", "--steps", sp, "--witness", witness[:1900], "--note", note[:1500]]
@@ -297,7 +301,7 @@ def main() -> int:
     if r.returncode != 0 or "refused" in out.lower() or "ok=True" not in out or not res.get("ok"):
         print(f"{rid}: NOT banked ({'walk verdict: ' + '; '.join(res.get('problems') or []) if not res.get('ok') else 'recorder refused'})")
         return 1
-    reg = json.load(io.open("trajectory_registry.json", encoding="utf-8"))
+    reg = load_doc()
     hit = False
     for t in reg["trajectories"]:
         if t["id"] != rid:
@@ -314,9 +318,7 @@ def main() -> int:
         break
     if not hit:
         print(f"{rid}: not in the registry"); return 1
-    fd, tmp = tempfile.mkstemp(dir=str(ROOT), suffix=".tmp"); os.close(fd)
-    io.open(tmp, "w", encoding="utf-8", newline="\n").write(json.dumps(reg, ensure_ascii=False, indent=1) + "\n")
-    os.replace(tmp, "trajectory_registry.json")
+    save_doc(reg)   # routes each row to its shard; the main file keeps its own format
     import live_walk_manifest as lm
     bm = lm.build(); rows = bm["rows"] if isinstance(bm, dict) else bm
     row = next(x for x in rows if x["id"] == rid)

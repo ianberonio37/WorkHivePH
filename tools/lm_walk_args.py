@@ -204,8 +204,23 @@ def ground_for(hive_id, name, machine=None):
 
 
 def build(rid: str) -> dict:
-    reg = {t["id"]: t for t in json.load(io.open("trajectory_registry.json", encoding="utf-8"))["trajectories"]}
+    # the UNION (registry_io): a Wave VX-L row lives in its own shard (2026-11-15)
+    sys.path.insert(0, str(ROOT / "tools"))
+    from registry_io import load_doc
+    reg = {t["id"]: t for t in load_doc()["trajectories"]}
     t = reg[rid]
+    if "lx" not in t and (t.get("vx") or {}).get("family") == "VX-L":
+        # a VX-L cell is (page, persona group, mode, width): it is walked with the surface and functions the page's own
+        # LM rows already name, cast as the cell's persona; the mode decides what the walker asks (vx.cell.mode)
+        cell = t["vx"]["cell"]
+        src = next((x["lx"] for x in reg.values() if (x.get("lx") or {}).get("kind") == "llm"
+                    and x["lx"].get("page") == cell["page"]), None)
+        if not src:
+            raise SystemExit(f"NO LM SURFACE for {rid}: no LM row names {cell['page']}")
+        # grounded-answer / no-data walk the G sublayer (a real machine / none); refusal, provider-down (every model call
+        # is stubbed 503, which is what an outage looks like to the page) and long-input walk X
+        sub = {"grounded-answer": "G", "no-data": "G"}.get(cell["mode"], "X")
+        t = dict(t, lx=dict(src, persona=t["persona"], page=cell["page"], mode=cell["mode"], sublayer=sub))
     lx = t["lx"]
     persona, vertical = lx["persona"], (t.get("journey") or {}).get("vertical")
     hives = [h for h in psql("select name from hives where name in (select distinct h2.name from hives h2 join "
@@ -272,7 +287,7 @@ def build(rid: str) -> dict:
                         if m not in _own_names][:5]
     page = lx["page"]
     return {
-        "id": rid, "sublayer": lx["sublayer"], "persona": persona, "surface": lx["surface"], "page": page,
+        "id": rid, "sublayer": lx["sublayer"], "vxMode": lx.get("mode"), "persona": persona, "surface": lx["surface"], "page": page,
         "path": (t.get("journey") or {}).get("pages") or t.get("pages") or [page],
         "user": user, "pass": PASSWORD, "castName": name, "ownHive": own, "rowHive": row_hive, "rowHiveName": vertical,
         "foreignHive": foreign_id, "foreignHiveName": foreign_name, "markers": [foreign_name] + _markers(foreign_id),

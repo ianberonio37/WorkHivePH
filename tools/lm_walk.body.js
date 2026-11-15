@@ -974,7 +974,9 @@ async (mcpPage) => {
       const nAns0 = answers.length;   // only a response that arrives AFTER the ask can be its answer (LM123: shift-brain's own page-load analytics summary was read as the reply)
       let gQuestion = null, gKind = null;
       if (P.sublayer === 'G') {
-        gKind = vp.name === 'phone-390' ? 'grounded' : 'absent';
+        // a Wave VX-L row names its mode (2026-11-15): grounded-answer asks about a real machine, no-data about none
+        gKind = P.vxMode === 'no-data' ? 'absent' : P.vxMode === 'grounded-answer' ? 'grounded'
+          : (vp.name === 'phone-390' ? 'grounded' : 'absent');
         // the subject of the hive the page OPENED (a person can belong to several - LM111)
         const gb = (P.groundByHive || {})[st.hive || 'none'] || (P.groundByHive || {}).none;
         if (gb) { P.groundSubject = gb.subject; P.groundFacts = gb.facts; P.groundNewestAgeDays = gb.newestAgeDays; }
