@@ -73,9 +73,8 @@ const VIEW = { 'phone-390': { width: 390, height: 854 }, 'narrow-320': { width: 
   // the receipt kept the row's device - a 1920 row "walked" at 390. It now refuses the walk instead.
   'landscape-844': { width: 844, height: 390 }, 'wide-1920': { width: 1920, height: 1080 } };
 // conditions this batch can actually emulate; any other refuses before a single survey (it would grade normal and bank it)
-// second-device has no emulation yet (it needs a second signed-in context changing the data) - it stays refused
 const KNOWN_COND = new Set(['normal', 'dependency-down', 'offline-3g', 'release-mid-way', 'offline-mid-task', 'slow-3g',
-  'rate-limited-429', 'session-expired', 'returning-after-30-days']);
+  'rate-limited-429', 'session-expired', 'returning-after-30-days', 'second-device']);
 if (!KNOWN_COND.has(COND)) { console.error(`--condition ${COND} has no emulation here - refusing (it would survey normal)`); process.exit(2); }
 
 function pageIdOf(p) {
@@ -186,6 +185,18 @@ try {
       if (!s.ok) signErr = s.err || 'sign-in failed';
     }
     if (signErr) { failed++; console.log(`  FAIL ${w.ids[0]} sign-in: ${signErr}`); await ctx.close(); continue; }
+    // second-device (Wave VX-J, 2026-11-15): the same person is signed in on a second device, which stays open on the
+    // journey's first page for the whole walk (two live sessions of one account: session handling, realtime, last-write).
+    // The survey grades the FIRST device. An anonymous walk has no second session to hold, so it is refused.
+    let ctx2 = null;
+    if (COND === 'second-device') {
+      if (isAnon(w)) { failed++; console.log(`  REFUSED ${w.ids[0]}: second-device needs a signed-in cast`); await ctx.close(); continue; }
+      ctx2 = await browser.newContext({ viewport: VIEW['phone-390'], serviceWorkers: 'block' });
+      const s2 = await signIn(ctx2, w);
+      if (!s2.ok) { failed++; console.log(`  FAIL ${w.ids[0]} second-device sign-in: ${s2.err || '?'}`); await ctx2.close(); await ctx.close(); continue; }
+      const p2 = await ctx2.newPage();
+      await p2.goto(`${SEEDER}/workhive/${w.pages[0]}${PAGE_QUERY[w.pages[0]] || ''}`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+    }
 
     // offline-3g: PRIME the SW cache by visiting every page ONLINE first (each page caches on first
     // visit; SHELL_FILES precache on SW install), then cut the network. The survey then grades the
@@ -265,6 +276,7 @@ try {
       } catch (e) { pageErr = `${rel}: ${String(e).slice(0, 80)}`; }
       await page.close();
     }
+    if (ctx2) await ctx2.close().catch(() => {});
     await ctx.close();
 
     if (pageErr || files.length !== w.pages.length) { failed++; console.log(`  FAIL ${w.ids[0]}: ${pageErr || 'page count mismatch'}`); continue; }

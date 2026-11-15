@@ -77,7 +77,7 @@ export function conditionNote(cond) {
     'slow-3g': 'graded under CDP slow-3g (600 ms latency, 400 kbps)',
     'rate-limited-429': 'graded with every edge call and REST write answering 429 + Retry-After',
     'session-expired': 'graded with the stored session expired before the journey began',
-    'second-device': 'graded after a second session of the same person changed the data',
+    'second-device': 'graded on the first device while the same person stays signed in on a second device',
     'returning-after-30-days': 'graded with the page clock 30 days ahead',
   }[cond] || '';
 }
