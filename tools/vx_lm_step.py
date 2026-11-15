@@ -74,11 +74,20 @@ def next_row() -> str | None:
     """The next open VX-L row, from a cached list (reading the 75 MB union per row cost minutes)."""
     if not OPEN.exists():
         from registry_io import load_doc
-        OPEN.write_text(json.dumps([t["id"] for t in load_doc()["trajectories"]
+        OPEN.write_text(json.dumps([[t["id"], t["vx"]["cell"].get("mode")] for t in load_doc()["trajectories"]
                                     if (t.get("vx") or {}).get("family") == "VX-L" and t.get("status") == "specced"]),
                         encoding="utf-8")
     done = _queued()
-    return next((i for i in json.loads(OPEN.read_text(encoding="utf-8")) if i not in done), None)
+    # --x-only: while the free model chain is rate-limited, walk only the rows whose model calls are stubbed
+    x_only = "--x-only" in sys.argv
+    for item in json.loads(OPEN.read_text(encoding="utf-8")):
+        i, mode = (item if isinstance(item, list) else [item, None])
+        if i in done:
+            continue
+        if x_only and mode in ("grounded-answer", "no-data"):
+            continue
+        return i
+    return None
 
 
 def flush() -> int:
@@ -117,6 +126,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--bank")
     ap.add_argument("--next", action="store_true")
+    ap.add_argument("--x-only", action="store_true", help="skip G rows (live model) while the free chain is rate-limited")
     ap.add_argument("--flush", action="store_true", help="apply every queued bank in one registry write")
     ap.add_argument("--gates", action="store_true", help="run the G and X gates and record their PASS lines")
     a = ap.parse_args()
