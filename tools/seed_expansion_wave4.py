@@ -2679,7 +2679,7 @@ VX_MILESTONE = {"VX-V": "M14", "VX-J": "M14", "VX-L": "M15", "VX-S": "M16", "VX-
 VX_INSTRUMENT = {
     "VX-V": "playwright-mcp at the cell's width (critic_walk_batch.mjs --device), the page read top to bottom",
     "VX-J": "playwright-mcp + postgres-mcp, the scenario lived start to end under the condition (route / offline / clock)",
-    "VX-L": "playwright-mcp + lm_walk.js with the no-model header (X-WH-No-Model), the answer read as the persona",
+    "VX-L": "playwright-mcp + postgres-mcp",   # tools/lm_walk.js through the Playwright MCP; the postgres-MCP witness
     "VX-S": "static read of the served page + lighthouse at 390 for cwv",
     "VX-A": "static read of the served page and its markdown twin",
     "VX-G": "static read of the served page, its markdown twin and llms.txt",

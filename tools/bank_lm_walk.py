@@ -52,9 +52,14 @@ def served_in_window(started: str, finished: str) -> tuple[list[str], int, int]:
     own log (`[ai-chain] served by <provider> / <model> (tokens N)`, 2026-10-07). An outside witness: the walk cannot
     write this line, only the chain can."""
     import re as _re
-    r = subprocess.run(["docker", "logs", "-t", "--since", started, "--until", finished, "supabase_edge_runtime_workhive"],
+    # ★--since RETURNS NOTHING ON THIS HOST (2026-11-15): `docker logs --since <t>` (absolute, relative or epoch) gave 0
+    # lines while the same window held "served by" lines - a VX-L walk the live model DID answer was refused as "no model
+    # served". The window is applied here instead, on each line's own -t timestamp (ISO, sorts as text).
+    r = subprocess.run(["docker", "logs", "-t", "--tail", "40000", "supabase_edge_runtime_workhive"],
                        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
-    lines = [ln for ln in ((r.stdout or "") + (r.stderr or "")).splitlines() if "[ai-chain" in ln and "served by" in ln]
+    lo, hi = str(started or "")[:19], str(finished or "")[:19]
+    lines = [ln for ln in ((r.stdout or "") + (r.stderr or "")).splitlines()
+             if "[ai-chain" in ln and "served by" in ln and lo <= ln[:19] <= hi]
     models, tokens, unreported = [], 0, 0
     for ln in lines:
         m = _re.search(r"served by (\S+) / (\S+)(?: \(tokens (\w+)\))?", ln)
