@@ -392,8 +392,15 @@ function correctFalseRegistrationDenial(text: string, userBlock: string): string
   if (!text || !m) return text;
   const reg = m[1].replace(/\.\s*$/, "").split(/\s*,\s*/).map((s) => s.trim()).filter(Boolean);
   const norm = (s: string) => s.toLowerCase().replace(/[\s_-]+/g, "");
+  // ★A TRUE DENIAL NAMES A CODE THAT IS NOT ON THE LIST (Wave VX-L, VX2761, 2026-11-15). Asked about ZQX 9471, which
+  // does not exist, the model wrote one sentence denying it and pointing at TDV 1101; this guard saw the listed TDV 1101
+  // in a denial and replaced the whole sentence with "TDV 1101 is one of this hive's registered assets." - deleting the
+  // true "not registered". A sentence that also names an asset-like code absent from the list is that code's denial.
+  const regN = new Set(reg.map(norm));
+  const _CODE_RE = /\b[A-Z]{2,5}[\s-]?\d{2,5}\b/g;
   return text.split(/(?<=[.!?])\s+/).map((s) => {
     if (!_REG_DENIAL_RE.test(s)) return s;
+    if ((s.match(_CODE_RE) || []).some((c) => !regN.has(norm(c)))) return s;
     const hit = reg.find((t) => norm(s).includes(norm(t)));
     return hit ? `${hit} is one of this hive's registered assets.` : s;
   }).join(" ").replace(/\s+/g, " ").trim();

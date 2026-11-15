@@ -22,6 +22,10 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 GATES_FILE = ROOT / ".tmp" / "vx_lm_gates.json"
 DB = "supabase_db_workhive"
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 
 def psql(sql: str) -> str:
@@ -142,6 +146,17 @@ def main() -> int:
         r = subprocess.run([sys.executable, "tools/lm_walk_args.py", rid], capture_output=True, text=True,
                            encoding="utf-8", errors="replace", cwd=str(ROOT))
         print("NEXT", ((r.stdout or "") + (r.stderr or "")).strip().splitlines()[-1][:200])
+        # ★EACH WALK STARTS WITH NO COMPANION MEMORY (2026-11-15). The companion keeps the last turns per person in
+        # agent_memory; walk after walk asked the same cast about ZQX 9471, and it began answering "you're asking about
+        # ZQX 9471 again" - a reading of the walk's own history, not of the page. The cast's local memory is cleared here.
+        try:
+            user = json.loads((ROOT / ".tmp" / "lm_args.json").read_text(encoding="utf-8")).get("user") or ""
+            if user:
+                n = psql(f"with d as (delete from agent_memory where auth_uid in (select id from auth.users where "
+                         f"split_part(email,'@',1)='{user}') returning 1) select count(*) from d")
+                print(f"cleared {n} companion memory row(s) for {user}")
+        except Exception as e:  # the walk can still run; its receipt will show any carried memory
+            print(f"memory not cleared: {e}")
     return rc
 
 

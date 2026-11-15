@@ -591,20 +591,28 @@ function _msgMatchesKeywords(msg: string, keywords: string[] | undefined): boole
 // registered tags (spaces/hyphens ignored), that machine's own newest entries are read from v_logbook_truth, hive-
 // scoped. A read that succeeds with no rows says so in words; a read that FAILS says nothing, because "no entries"
 // derived from a read that never ran is a claim with no evidence ([[feedback_the_refused_read_is_the_fourth_state]]).
-async function buildAssetHistory(client: SupabaseClient, hiveId: string, msg: string, tags: string[]): Promise<string> {
+// ★THE LOGBOOK NAMES THE MACHINE, NOT ITS TAG (Wave VX-L, 2026-11-15). Asked "What maintenance has been done on Isuzu
+// N-Series Truck recently?", the companion said it had no detailed log - while the hive held 204 entries for it. The
+// match was on the registered TAG only (DCF-TRK-01), and every one of the hive's 1,611 entries carries the machine's NAME
+// with asset_tag empty. Four different models gave the same wrong answer from the same empty context. A machine is now
+// named by its tag OR its name, and its entries are read under either.
+async function buildAssetHistory(client: SupabaseClient, hiveId: string, msg: string,
+  assets: Array<{ tag: string; name: string }>): Promise<string> {
   try {
     const norm = (s: string) => (s || "").toLowerCase().replace(/[\s_-]+/g, "");
     const m = norm(msg);
     if (!m) return "";
-    const named = tags.filter((t) => t && norm(t).length >= 3 && m.includes(norm(t))).slice(0, 2);
+    const named = assets.filter((a) => (a.tag && norm(a.tag).length >= 3 && m.includes(norm(a.tag)))
+      || (a.name && norm(a.name).length >= 5 && m.includes(norm(a.name)))).slice(0, 2);
     if (!named.length) return "";
     type Row = { created_at?: string; category?: string; problem?: string; action?: string; status?: string;
       maintenance_type?: string; root_cause?: string; downtime_hours?: number | null };
-    const blocks = await Promise.all(named.map(async (tag) => {
+    const blocks = await Promise.all(named.map(async ({ tag, name }) => {
+      const label = name ? `${tag} (${name})` : tag;
       // two plain .eq() reads rather than one .or(): a tag with a space or comma would need quoting inside or()
       const sel = "created_at,category,problem,action,status,maintenance_type,root_cause,downtime_hours";
       const [byMachine, byTag] = await Promise.all([
-        client.from("v_logbook_truth").select(sel).eq("hive_id", hiveId).eq("machine", tag)
+        client.from("v_logbook_truth").select(sel).eq("hive_id", hiveId).in("machine", [tag, name].filter(Boolean))
           .order("created_at", { ascending: false }).limit(5),
         client.from("v_logbook_truth").select(sel).eq("hive_id", hiveId).eq("asset_tag", tag)
           .order("created_at", { ascending: false }).limit(5),
@@ -615,7 +623,7 @@ async function buildAssetHistory(client: SupabaseClient, hiveId: string, msg: st
         .filter((r) => { const k = `${r.created_at}|${r.problem}`; if (seen.has(k)) return false; seen.add(k); return true; })
         .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
         .slice(0, 5);
-      if (!rows.length) return `Logbook history for ${tag}: no entries are recorded for this asset in this hive.`;
+      if (!rows.length) return `Logbook history for ${label}: no entries are recorded for this asset in this hive.`;
       const clip = (s?: string, n = 80) => { const t = String(s || "").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : t; };
       // many real entries carry only a type and a date (a closed PM, an inspection); that IS history, so the type
       // leads and every other field appears only when it holds something - never a "(none recorded)" placeholder
@@ -627,7 +635,7 @@ async function buildAssetHistory(client: SupabaseClient, hiveId: string, msg: st
       const items = rows.map((r) => `${String(r.created_at || "").slice(0, 10)}${age(r.created_at)} — ${clip(r.maintenance_type, 30) || clip(r.category, 30) || "entry"}` +
         `${r.problem ? `: ${clip(r.problem)}` : ""}${r.root_cause ? ` (cause: ${clip(r.root_cause, 50)})` : ""}` +
         `${r.action ? ` → ${clip(r.action)}` : ""}${r.downtime_hours ? `, ${r.downtime_hours}h down` : ""}${r.status ? ` [${r.status}]` : ""}`);
-      return `Logbook history for ${tag} (from v_logbook_truth, newest first, ${rows.length} shown): ${items.join("; ")}.`;
+      return `Logbook history for ${label} (from v_logbook_truth, newest first, ${rows.length} shown): ${items.join("; ")}.`;
     }));
     return blocks.filter(Boolean).join("\n");
   } catch (_) { return ""; }   // best-effort, like every other snapshot block
@@ -690,7 +698,7 @@ async function buildOpsSnapshot(client: SupabaseClient, hiveId: string, message 
       // canonical-allow: the ops snapshot needs the raw registered-asset TAG list straight from
       // asset_nodes (the source of truth for "which tags exist in this hive"); v_asset_truth is a
       // derived/scoped view, not the canonical tag registry for the existence check.
-      client.from("asset_nodes").select("tag").is("deleted_at", null).eq("hive_id", hiveId).not("tag", "is", null),
+      client.from("asset_nodes").select("tag,name").is("deleted_at", null).eq("hive_id", hiveId).not("tag", "is", null),
     ]);
     const topRows = (alertsTopRes.data ?? []) as Array<{ machine?: string; severity?: string; title?: string }>;
     const activeAlerts = alertsCountRes.count ?? topRows.length;
@@ -702,6 +710,8 @@ async function buildOpsSnapshot(client: SupabaseClient, hiveId: string, message 
     const tags = Array.from(new Set(
       ((assetsRes.data ?? []) as Array<{ tag?: string }>).map((a) => a.tag).filter(Boolean) as string[],
     )).sort();
+    const assetPairs = ((assetsRes.data ?? []) as Array<{ tag?: string; name?: string }>)
+      .filter((a) => a.tag).map((a) => ({ tag: String(a.tag), name: String(a.name || "") }));
 
     let overdue: number | null = null;
     try {
@@ -744,7 +754,7 @@ async function buildOpsSnapshot(client: SupabaseClient, hiveId: string, message 
     const knowledge = isKnowledgeQuestion(msg) ? await buildKnowledgeContext(client, hiveId, message) : "";
     // Asset-scoped history: a question that NAMES one of this hive's registered tags gets that machine's own
     // newest logbook entries. See buildAssetHistory for the walk that found the gap.
-    const assetHistory = await buildAssetHistory(client, hiveId, msg, tags);
+    const assetHistory = await buildAssetHistory(client, hiveId, msg, assetPairs);
     const lines = [
       "=== LIVE OPERATIONS SNAPSHOT (verified from this hive's records, right now) ===",
       `Active alerts (the open jobs needing attention): ${activeAlerts}${top.length ? ` — top: ${top.join("; ")}` : ""}.`,

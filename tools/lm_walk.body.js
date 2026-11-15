@@ -974,6 +974,13 @@ async (mcpPage) => {
       const nAns0 = answers.length;   // only a response that arrives AFTER the ask can be its answer (LM123: shift-brain's own page-load analytics summary was read as the reply)
       let gQuestion = null, gKind = null;
       if (P.sublayer === 'G') {
+        // ★EACH WIDTH IS A FIRST QUESTION (VX2767, 2026-11-15): the walk asks the same person at 390 and then at 1280, and
+        // the companion's memory made the second answer "I just covered that for you" - true, and an instrument artefact.
+        // The person's own memory is cleared before each width's ask, as that person (agent_memory_delete: own rows).
+        await page.evaluate(async () => {
+          try { const u = (await db.auth.getUser()).data.user; if (u) await db.from('agent_memory').delete().eq('auth_uid', u.id); }
+          catch (_) { /* memory not cleared: the answer may refer back, and the receipt shows it */ }
+        }).catch(() => {});
         // a Wave VX-L row names its mode (2026-11-15): grounded-answer asks about a real machine, no-data about none
         gKind = P.vxMode === 'no-data' ? 'absent' : P.vxMode === 'grounded-answer' ? 'grounded'
           : (vp.name === 'phone-390' ? 'grounded' : 'absent');
@@ -1024,7 +1031,9 @@ async (mcpPage) => {
         const replies = () => answers.slice(nAns0).filter((x) => askFns().has(x.fn));
         for (let i = 0; i < 30 && !replies().some((x) => x.answer); i++) await page.waitForTimeout(2000);
         const a = replies().find((x) => x.answer) || replies()[0] || null;
-        const txt = (a && a.answer) || '';
+        // a model writes U+2011 non-breaking hyphens ("2026‑10‑14", "DCF‑TRK‑01"); the record's dates and tags use '-',
+        // so a grounded answer read as ungrounded (VX2767, 2026-11-15). Every Unicode hyphen reads as '-'.
+        const txt = ((a && a.answer) || '').replace(/[‐-―−]/g, '-');
         const low = txt.toLowerCase();
         const subj = String(gKind === 'grounded' ? P.groundSubject : P.absentSubject).toLowerCase();
         const digits = (subj.match(/\d{3,}/) || [''])[0];
