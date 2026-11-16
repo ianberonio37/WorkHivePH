@@ -611,11 +611,17 @@ async function buildAssetHistory(client: SupabaseClient, hiveId: string, msg: st
       const label = name ? `${tag} (${name})` : tag;
       // two plain .eq() reads rather than one .or(): a tag with a space or comma would need quoting inside or()
       const sel = "created_at,category,problem,action,status,maintenance_type,root_cause,downtime_hours";
-      const [byMachine, byTag] = await Promise.all([
+      // ★FIVE SHOWN READ AS FIVE TOTAL (VX3143, 2026-11-16). The block listed the newest 5 entries and the model answered
+      // "five corrective events in the last 32 days" at one width and "four breakdowns and two inspections" at the other -
+      // counting a sample, over a window that was only the oldest sample's age. The 30-day count is computed here.
+      const since30 = new Date(Date.now() - 30 * 86400000).toISOString();
+      const [byMachine, byTag, count30] = await Promise.all([
         client.from("v_logbook_truth").select(sel).eq("hive_id", hiveId).in("machine", [tag, name].filter(Boolean))
           .order("created_at", { ascending: false }).limit(5),
         client.from("v_logbook_truth").select(sel).eq("hive_id", hiveId).eq("asset_tag", tag)
           .order("created_at", { ascending: false }).limit(5),
+        client.from("v_logbook_truth").select("created_at", { count: "exact", head: true }).eq("hive_id", hiveId)
+          .in("machine", [tag, name].filter(Boolean)).gte("created_at", since30),
       ]);
       if (byMachine.error && byTag.error) return "";   // the read never ran: say nothing rather than "none"
       const seen = new Set<string>();
@@ -635,7 +641,9 @@ async function buildAssetHistory(client: SupabaseClient, hiveId: string, msg: st
       const items = rows.map((r) => `${String(r.created_at || "").slice(0, 10)}${age(r.created_at)} — ${clip(r.maintenance_type, 30) || clip(r.category, 30) || "entry"}` +
         `${r.problem ? `: ${clip(r.problem)}` : ""}${r.root_cause ? ` (cause: ${clip(r.root_cause, 50)})` : ""}` +
         `${r.action ? ` → ${clip(r.action)}` : ""}${r.downtime_hours ? `, ${r.downtime_hours}h down` : ""}${r.status ? ` [${r.status}]` : ""}`);
-      return `Logbook history for ${label} (from v_logbook_truth, newest first, ${rows.length} shown): ${items.join("; ")}.`;
+      const n30 = count30.error ? null : (count30.count ?? null);
+      const total = n30 == null ? "" : ` Entries in the last 30 days: ${n30} (use this count; the list above is only the newest ${rows.length}).`;
+      return `Logbook history for ${label} (from v_logbook_truth, newest first, ${rows.length} shown): ${items.join("; ")}.${total}`;
     }));
     return blocks.filter(Boolean).join("\n");
   } catch (_) { return ""; }   // best-effort, like every other snapshot block
