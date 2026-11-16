@@ -46,6 +46,26 @@ def _rd(p: Path) -> str:
         return ""
 
 
+# ★READ WHAT THE RUNNING SERVER SERVES, NOT THE FILE ON DISK (2026-11-17). 1,183 banked search rows read 0 CLOSED because
+# their basis said "read from the files that ship": the closed rule asks for evidence from the running system, and a
+# file read is not that. Every page, robots.txt, sitemap.xml and llms.txt is now fetched from the local server.
+LIVE_BASE = "http://127.0.0.1:5000/workhive/"
+_LIVE_CACHE: dict = {}
+
+
+def _live(rel: str) -> str:
+    if rel in _LIVE_CACHE:
+        return _LIVE_CACHE[rel]
+    import urllib.request
+    try:
+        with urllib.request.urlopen(LIVE_BASE + rel, timeout=20) as r:
+            body = r.read().decode("utf-8", errors="replace") if r.status == 200 else ""
+    except Exception:
+        body = ""
+    _LIVE_CACHE[rel] = body
+    return body
+
+
 def _url(page: str) -> str:
     return SITE + page.replace("index.html", "")
 
@@ -53,7 +73,7 @@ def _url(page: str) -> str:
 def _linked_from_elsewhere(page: str, pages: list[str]) -> bool:
     href = "/" + page.replace("index.html", "")
     for other in pages:
-        if other != page and href in _rd(ROOT / other):
+        if other != page and href in _live(other):
             return True
     return False
 
@@ -73,7 +93,7 @@ def check(fam: str, cell: dict, pub: list[str], ctx: dict) -> tuple[bool, str]:
         return True, (f"robots.txt lets {', '.join(cell['crawlers'])} read all {len(cl_pages)} pages of {cell['cluster']} "
                       f"(every named group repeats the '*' rules), and sitemap.xml lists them")
     page = cell["page"]
-    src = _rd(ROOT / page)
+    src = _live(page)
     chk = cell["check"]
     if chk == "title-meta":
         ok = bool(re.search(r"<title>[^<]{10,}", src) and re.search(r'<meta name="description" content="[^"]{50,}', src))
@@ -112,6 +132,7 @@ def check(fam: str, cell: dict, pub: list[str], ctx: dict) -> tuple[bool, str]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry", action="store_true")
+    ap.add_argument("--rebank", action="store_true", help="also re-read rows already banked from the files, appending the live reading")
     a = ap.parse_args()
     from registry_io import load_doc, save_doc
     import sublayer_inventory as si
@@ -120,7 +141,7 @@ def main() -> int:
         res = [bsw._run_gate(str(ROOT / g[0]), *g[1:]) for g in gates]
         gate_ok[fam] = all(ok for ok, _ in res)
         print(f"  {fam} gates: " + " · ".join(f"{Path(g[0]).name} {'PASS' if ok else 'FAIL'}" for g, (ok, _) in zip(gates, res)))
-    robots = _rd(ROOT / "robots.txt")
+    robots = _live("robots.txt")
 
     groups, agents, rules = [], [], set()
     for line in robots.splitlines():
@@ -142,14 +163,14 @@ def main() -> int:
         g = next((r for a_, r in groups if bot.lower() in a_), None) or next((r for a_, r in groups if "*" in a_), set())
         return ("disallow", "/") in g
 
-    ctx = {"sitemap": _rd(ROOT / "sitemap.xml"), "llms": _rd(ROOT / "llms.txt"), "robots_blocks": robots_blocks,
+    ctx = {"sitemap": _live("sitemap.xml"), "llms": _live("llms.txt"), "robots_blocks": robots_blocks,
            "parity": "; ".join(t["unit"] for t in ft.parity_trips()),
            "extractability_ok": gate_ok["VX-A"], "calc_ok": gate_ok["VX-S"], "twins_ok": gate_ok["VX-G"]}
     classes = si.page_classes()
     pub = classes["public"]
     ctx["all_pages"] = sorted({p for ps in classes.values() for p in ps})
     doc = load_doc()
-    rows = [t for t in doc["trajectories"] if (t.get("vx") or {}).get("family") in GATES and t.get("status") == "specced"]
+    rows = [t for t in doc["trajectories"] if (t.get("vx") or {}).get("family") in GATES and (t.get("status") == "specced" or (a.rebank and t.get("status") == "locking" and "measured live" not in (t.get("basis") or "")))]
     banked, left = 0, []
     for t in rows:
         fam = t["vx"]["family"]
@@ -160,7 +181,7 @@ def main() -> int:
         if not ok:
             left.append(f"{t['id']} {t['title'][:70]}: {what}")
             continue
-        basis = (f"[{date.today().isoformat()}] pct -> {{pct}}. Read from the files that ship (bank_vx_rows.py): {what}. "
+        basis = (f"[{date.today().isoformat()}] pct -> {{pct}}. Measured live from the running server ({LIVE_BASE}, bank_vx_rows.py): {what}. "
                  f"Gates {', '.join(Path(g[0]).name for g in GATES[fam])} PASS.")
         if not a.dry:
             bsw._bank(doc, t["id"], basis, [Path(g[0]).stem for g in GATES[fam]])
