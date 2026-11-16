@@ -1,6 +1,6 @@
 {
   "_doc": "Trajectory registry — the 500-arc program's status SSOT. pct rules: specced=5, walked=25, fixed=60, locked=100; in-flight trajectories carry an explicit basis. The roadmap header scoreboard is GENERATED from this file (tools/update_trajectory_scoreboard.py) and validate_trajectory_registry.py fails on any drift between the two — the anti-drift discipline Ian asked for (2026-08-24).",
-  "updated": "2026-11-14",
+  "updated": "2026-11-17",
   "next": "§BRH.11 banked on hive (BRH624/625/579 locking); next: the other 28 hosts' AN/AM rows by MCP walk in batches, KA-E's first slice (the cited SEO sources re-fetched, changed sources re-opening their rows), the 10 overdue pillar/comparison refreshes for real, then SE/OUT/JS seeded from tools/trajectory_outcome_gaps.py",
   "trajectories": [
     {
