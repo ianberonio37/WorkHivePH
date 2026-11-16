@@ -60,7 +60,7 @@
   <main class="card" data-offline-banner="true"><!-- Y1 (2026-09-05): this page IS the offline-state affordance; the lens looks for [data-offline-banner] -->
     <div><span class="dot" aria-hidden="true"></span><strong data-i="p_youreoffline_f4d9">You're offline</strong></div>
     <h1 data-i="p_thispageisntavailableoffline_4964">This page isn't available offline yet</h1>
-<p class="wh-back" style="margin:.25rem 0 0; font-size:.8rem;"><a data-i="p_backtoworkhive_13cc" href="index.html" style="color:inherit; opacity:.85; text-decoration:underline;">&#8592; Back to WorkHive</a></p><!-- W1 (rubric 2026-09-05): an in-layout way back; the floating hub is not one -->
+<p class="wh-back" style="margin:.25rem 0 0; font-size:.8rem;"><a data-i="p_backtoworkhive_13cc" href="index.html" style="color:inherit; opacity:.85; text-decoration:underline; display:inline-flex; align-items:center; min-height:44px; padding:0 12px;">&#8592; Back to WorkHive</a></p><!-- W1 (rubric 2026-09-05): an in-layout way back; the floating hub is not one -->
     <p data-i="p_yourconnectiondroppedanythin_2f4d">Your connection dropped. Anything you've already saved is safe. Writes you make on cached pages queue up and sync on their own once you're back online.</p>
     <h2 data-i="p_whatyoucandonow_d415" style="font-size:1rem;margin:1.2rem 0 .5rem;">What you can do now</h2><!-- A2 (2026-09-05) -->
     <details style="margin:0 0 1rem;font-size:.85rem;"><summary data-i="p_whythispageappears_5c88" style="cursor:pointer;min-height:44px;display:flex;align-items:center;">Why this page appears</summary><p data-i="p_pagesyouhaveopenedbeforeares_6f3d" class="hint" style="margin:.3rem 0 0;">Pages you have opened before are stored on this device and keep working offline. This one has not been opened on this device yet, so there is no copy to show.</p></details><!-- O2 (2026-09-05) -->
@@ -83,6 +83,12 @@
       window.addEventListener('online', function onOnline() {
         if (busy) return;
         busy = true;
+        // ★A WAIT OF UP TO FIVE SECONDS NEEDS A SAY (VX-J offline-mid-task, 2026-11-16: PP1 "async ops give NO working
+        // indicator"). The check below can take 5 s on a weak line, and the page sat unchanged. The status line says what
+        // is happening, marks itself busy, and puts its old sentence back if the site does not answer.
+        const _h = document.getElementById('net-hint');
+        const _was = _h ? _h.textContent : '';
+        if (_h) { _h.textContent = 'Your connection is back · checking that WorkHive answers…'; _h.setAttribute('aria-busy', 'true'); }
         const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
         const t = setTimeout(() => { if (ctl) ctl.abort(); }, 5000);
         // fetch-error-allow: a refused or timed-out probe is answered by .then's second argument (false)
@@ -90,6 +96,7 @@
           .then((r) => r.status < 500, () => false)
           .then((ok) => {
             clearTimeout(t); busy = false;
+            if (_h) { _h.removeAttribute('aria-busy'); if (!ok) _h.textContent = _was; }
             if (!ok) return;
             try {
               const last = JSON.parse(sessionStorage.getItem('wh_fallback_reload') || 'null');
