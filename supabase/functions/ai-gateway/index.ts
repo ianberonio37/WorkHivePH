@@ -693,20 +693,29 @@ async function buildOpsSnapshot(client: SupabaseClient, hiveId: string, message 
     const [alertsCountRes, alertsTopRes, assetsRes] = await Promise.all([
       client.from("v_alert_truth").select("alert_id", { count: "exact", head: true })
         .eq("hive_id", hiveId).eq("status", "active"),
-      client.from("v_alert_truth").select("machine,severity,title")
+      client.from("v_alert_truth").select("machine,severity,title,detected_at")
         .eq("hive_id", hiveId).eq("status", "active").limit(60),
       // canonical-allow: the ops snapshot needs the raw registered-asset TAG list straight from
       // asset_nodes (the source of truth for "which tags exist in this hive"); v_asset_truth is a
       // derived/scoped view, not the canonical tag registry for the existence check.
       client.from("asset_nodes").select("tag,name").is("deleted_at", null).eq("hive_id", hiveId).not("tag", "is", null),
     ]);
-    const topRows = (alertsTopRes.data ?? []) as Array<{ machine?: string; severity?: string; title?: string }>;
+    const topRows = (alertsTopRes.data ?? []) as Array<{ machine?: string; severity?: string; title?: string; detected_at?: string }>;
+    // ★AN ALERT WITH NO AGE GETS ONE INVENTED (VX3143, 2026-11-16). The line listed the top alerts with no date, and the
+    // companion called a 20-day-old alert "one of your top alerts this week". Code states each alert's age; the model
+    // repeats it rather than guessing a time frame.
+    const ageOf = (iso?: string) => {
+      const t = iso ? Date.parse(iso) : NaN;
+      if (!Number.isFinite(t)) return "";
+      const d = Math.max(0, Math.floor((Date.now() - t) / 86_400_000));
+      return d === 0 ? ", raised today" : d === 1 ? ", raised 1 day ago" : `, raised ${d} days ago`;
+    };
     const activeAlerts = alertsCountRes.count ?? topRows.length;
     const rank: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
     const top = topRows.slice()
       .sort((a, b) => (rank[String(a.severity || "").toLowerCase()] ?? 9) - (rank[String(b.severity || "").toLowerCase()] ?? 9))
       .slice(0, 4)
-      .map((a) => `${a.machine || "?"} (${String(a.severity || "?").toLowerCase()}: ${String(a.title || "").slice(0, 44)})`);
+      .map((a) => `${a.machine || "?"} (${String(a.severity || "?").toLowerCase()}: ${String(a.title || "").slice(0, 44)}${ageOf(a.detected_at)})`);
     const tags = Array.from(new Set(
       ((assetsRes.data ?? []) as Array<{ tag?: string }>).map((a) => a.tag).filter(Boolean) as string[],
     )).sort();
