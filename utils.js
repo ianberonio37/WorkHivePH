@@ -2122,9 +2122,13 @@ function _whSettleStuckLoaders() {
     // block with room for a 44px button, and drops the pointer where it cannot (an inline stat value, a chip).
     // Reload, as the skeleton pass below does: this pass cannot know which page function re-runs the read.
     var _retryLbl = _tP('Retry', 'Subukan ulit');
+    // ★SAY IT ONCE (VX-J offline-mid-task, 2026-11-16). Offline, alert-hub read "Not loaded - you are offline. It will
+    // load when your connection is back." six times, once per panel - the same sentence the person had already read.
+    // The first stuck region carries the whole sentence; the rest carry a short label (each still gets its Retry).
+    var _shortMsg = _offline ? _tP('Not loaded - offline.', 'Hindi na-load - offline.') : _failMsg;
     for (var j = 0; j < hits.length; j++) {
       var _pe = hits[j].parentElement;
-      hits[j].textContent = _failMsg;
+      hits[j].textContent = j === 0 ? _failMsg : _shortMsg;
       _pe.setAttribute('data-wh-read-failed', '1');
       // ★THE LINE SAID "NOT LOADED" AND THE SHAPES BESIDE IT KEPT SHIMMERING (SL A4 walk, 2026-10-19): skill-matrix draws its
       // own skeleton (.skeleton.skel-chart / .skel-card) under its loading line, and this pass rewrote the line while the
