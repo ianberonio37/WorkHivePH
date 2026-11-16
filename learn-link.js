@@ -126,7 +126,10 @@
          ~58px after the first paint (the CLS gate refused it); at the end of <main> it still moved the footer on a page
          whose list had not loaded yet (alert-hub 0.08 -> 0.125, A/B against the floating chip). Appended last in <body>
          there is nothing after it to move - an arrival there is no layout shift at all. */
-      var mq = window.matchMedia && window.matchMedia('(max-width: 767px)');
+      /* ★A PHONE TURNED SIDEWAYS IS STILL A PHONE (VX-V landscape-844, 2026-11-16). At 844x390 the width query said
+         "not a phone", so the floating chip came back at bottom:132px - and on a 390px-tall screen that is the middle of
+         the screen, inside the analytics card on 46 of the walked index readings. A short screen gets the in-flow form too. */
+      var mq = window.matchMedia && window.matchMedia('(max-width: 767px), (max-height: 500px)');
       var phone = !!(mq && mq.matches);
       /* ★THE FORM WAS CHOSEN ONCE, AT LOAD (M4 post-deploy smoke, 2026-10-31). A page opened wide gets the floating chip;
          turned narrow - a phone opened in landscape and turned upright, a window dragged narrow - it stayed a floating
