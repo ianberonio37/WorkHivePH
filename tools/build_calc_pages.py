@@ -852,7 +852,7 @@ STD_PUBLISHERS = [
     ("PNS", "Bureau of Philippine Standards", "https://bps.dti.gov.ph/"),
     # the Revised National Plumbing Code was adopted by the PRC Board for Master Plumbers (Resolution 04-99, 1999);
     # septic-tank and water-supply-pipe named it with no source (VX4074, VX4104)
-    ("PHILIPPINE PLUMBING", "PRC Board for Master Plumbers (adopted the Revised National Plumbing Code)", "https://www.prc.gov.ph/"),
+    ("PHILIPPINE PLUMBING", "PRC (Revised National Plumbing Code)", "https://www.prc.gov.ph/"),
 ]
 
 
@@ -884,7 +884,9 @@ def _sources_html(std: str, e) -> str:
     src = _std_sources(std)
     if not src:
         return ""
-    links = ", ".join(f'<a href="{e(u)}" rel="noopener external">{e(n)}</a>' for n, u in src)
+    # ★A ONE-LINK "SOURCES: ISO." IS NOT RUNNING TEXT (VX-V, 2026-11-16): the link measured 23x15 and 56x15, under the 44px target,
+    # on every calculator page. The rubric's WCAG 2.5.8 inline exception needs a sentence around the link, so the link owns its target.
+    links = ", ".join(f'<a href="{e(u)}" rel="noopener external" style="display:inline-block;box-sizing:border-box;min-width:44px;min-height:44px;line-height:1.3;padding:14px 6px;text-align:center">{e(n)}</a>' for n, u in src)
     return "\n      " + f"<p><small>Sources: {links}.</small></p>"
 
 

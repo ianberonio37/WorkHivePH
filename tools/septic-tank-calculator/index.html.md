@@ -17,7 +17,7 @@ Liquid volume22500 L
 Daily flow7500 L/day
 Sludge storage6000 L
 Computed by WorkHive's calculation engine when this page was built; standard: Philippine Plumbing Code §P-1101.
-Sources: [PRC Board for Master Plumbers (adopted the Revised National Plumbing Code)](https://www.prc.gov.ph/).
+Sources: [PRC (Revised National Plumbing Code)](https://www.prc.gov.ph/).
 How to use this calculator
 Read the worked example. It uses a 50-person residential septic tank at 150 L/person/day, at 3 days retention and shows every number in the method.
 Follow the formula with your own figures: it returns Liquid volume, Daily flow, Sludge storage, computed per Philippine Plumbing Code §P-1101.
@@ -37,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: f3b626616ac1083d -->
+<!-- md-twin source-sha: 5d69766a3c74c69b -->

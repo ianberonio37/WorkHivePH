@@ -20,7 +20,7 @@ Velocity2.24 m/s
 Residual pressure306.1 kPa
 Minimum residual70 kPa
 Computed by WorkHive's calculation engine when this page was built; standard: Philippine Plumbing Code Table A-2/A-3.
-Sources: [PRC Board for Master Plumbers (adopted the Revised National Plumbing Code)](https://www.prc.gov.ph/).
+Sources: [PRC (Revised National Plumbing Code)](https://www.prc.gov.ph/).
 How to use this calculator
 Read the worked example. It uses a flush-valve supply serving 10 WCs and 8 lavatories over 40 m, on a 350 kPa supply and shows every number in the method.
 Follow the formula with your own figures: it returns Total WFU, Peak flow, Recommended diameter, Velocity, Residual pressure, Minimum residual, computed per Philippine Plumbing Code Table A-2/A-3.
@@ -40,4 +40,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 6eb1f42307243604 -->
+<!-- md-twin source-sha: aaf163f2551b252a -->
