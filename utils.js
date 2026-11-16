@@ -516,7 +516,13 @@ if (typeof window !== 'undefined') window.whToldIfFailure = whToldIfFailure;
     var st = document.createElement('style');
     st.id = 'wh-toast-fit';
     st.textContent = 'html body #toast{width:max-content;max-width:min(calc(100vw - 32px),560px);box-sizing:border-box;'
-      + 'white-space:normal;overflow-wrap:anywhere;}';
+      + 'white-space:normal;overflow-wrap:anywhere;}'
+      // ★A BOTTOM TOAST MET THE HUB BUTTON (VX-J rate-limited-429, 2026-11-16). On a phone the toast is nearly the full width
+      // and sits at bottom:24px, exactly where the 56px hub FAB lives (bottom-right, 16px in) - 91 walk readings of
+      // "widgets overlap: toast x wh-hub" on logbook/inventory/hive, and the error sentence read under the button. A toast
+      // anchored to the bottom (Tailwind bottom-6) now sits above the FAB's top edge; the top-anchored ones are not touched.
+      + '@media (max-width:480px){html body #toast.bottom-6,html body #hive-toast.bottom-6{'
+      + 'bottom:calc(max(16px,env(safe-area-inset-bottom)) + 68px);}}';
     (document.head || document.documentElement).appendChild(st);
   } catch (e) { /* empty-catch-allow: a toast that cannot be capped still shows */ }
 })();
