@@ -61,6 +61,15 @@ def _width_of_device(dev: str) -> int:
 def surveys() -> list:
     """Every batch survey that says who was walked: page, persona, width, time, failing dims, lens, file."""
     out = []
+    # ★A SURVEY OF A FORCED FAILURE IS NOT THE PAGE THE FIND WAS CLOSED ON (2026-11-17). VX-J and Wave JS walk pages with
+    # the network cut, 429s, an expired session or a month-off clock; their surveys reopened CF11 and CF41. Those readings
+    # stay on their own critic rows; the page-at-rest find is judged by page-at-rest surveys. Same rule as
+    # enhancement_inventory._condition_walks (one definition).
+    try:
+        import enhancement_inventory as _ei
+        _cond = _ei._condition_walks()
+    except Exception:
+        _cond = set()
     for g in SURVEY_GLOBS:
         for f in glob.glob(str(ROOT / g), recursive=True):
             try:
@@ -69,6 +78,9 @@ def surveys() -> list:
                 continue
             cast = s.get("_cast") or {}
             if not cast.get("persona") or s.get("_denied"):
+                continue
+            _ids = cast.get("ids") or [os.path.basename(f).split("_")[0]]
+            if any(i in _cond for i in _ids):
                 continue
             vp = (s.get("viewport") or {}).get("w") or _width_of_device(cast.get("device", ""))
             dims = [d for d in (s.get("dims") or []) if isinstance(d, dict)]
@@ -89,8 +101,13 @@ def surveys() -> list:
 def bank_evidence(critic_rows: list) -> list:
     """The critic bank's own later rows as evidence: persona, the page on its path, graded dims, findings per page."""
     out = []
+    try:   # a forced-condition walk is not evidence about the page at rest (see surveys() above)
+        import enhancement_inventory as _ei
+        _cond = _ei._condition_walks()
+    except Exception:
+        _cond = set()
     for r in critic_rows:
-        if r.get("status") not in ("critiqued", "improving") or not r.get("banked_at"):
+        if r.get("status") not in ("critiqued", "improving") or not r.get("banked_at") or r.get("id") in _cond:
             continue
         cell = (r.get("cell") or "").split("|")
         persona = cell[1] if len(cell) > 1 else ""

@@ -59,67 +59,67 @@
         {
           "table": "hive_readiness",
           "allowed": true,
-          "offset": 268809
+          "offset": 269412
         },
         {
           "table": "hive_adoption_score",
           "allowed": true,
-          "offset": 283678
+          "offset": 284281
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 396349
+          "offset": 396952
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 396766
+          "offset": 397369
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 397891
+          "offset": 398494
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 398846
+          "offset": 399449
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 400787
+          "offset": 401390
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 450443
+          "offset": 451046
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 450898
+          "offset": 451501
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 451892
+          "offset": 452495
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 452355
+          "offset": 452958
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 453949
+          "offset": 454552
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 454476
+          "offset": 455079
         }
       ],
       "drift": []
