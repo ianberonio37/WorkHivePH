@@ -850,6 +850,9 @@ STD_PUBLISHERS = [
     ("CTI", "Cooling Technology Institute", "https://www.coolingtower.org/"), ("WQA", "WQA", "https://wqa.org/"),
     ("NSCP", "ASEP (publisher of the National Structural Code of the Philippines)", "https://asep.org.ph/"),
     ("PNS", "Bureau of Philippine Standards", "https://bps.dti.gov.ph/"),
+    # the Revised National Plumbing Code was adopted by the PRC Board for Master Plumbers (Resolution 04-99, 1999);
+    # septic-tank and water-supply-pipe named it with no source (VX4074, VX4104)
+    ("PHILIPPINE PLUMBING", "PRC Board for Master Plumbers (adopted the Revised National Plumbing Code)", "https://www.prc.gov.ph/"),
 ]
 
 
