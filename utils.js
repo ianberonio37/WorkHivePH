@@ -5470,7 +5470,9 @@ function _whReadErrorText(err, what) {
   }
   if (whIsRateLimited(err)) {
     var secs = (msg + ' ' + hint).match(/(\d+)\s*(s|sec|secs|seconds?)\b/i);
-    return T('Too many requests, so ' + thing + ' could not be loaded. Try again in '
+    // ★ACTIVE, NOT "COULD NOT BE LOADED" (VX-J rate-limited-429, 2026-11-16): this one sentence is the passive that B3
+    // flagged on every page in the 429 walks (349 readings) - a sentence with no one doing the loading. WorkHive does it.
+    return T('Too many requests, so WorkHive could not load ' + thing + '. Try again in '
            + (secs ? secs[1] + ' seconds' : 'a moment') + '.',
              'Masyadong maraming request, kaya hindi ma-load ang ' + thingFil + '. Subukan muli sa '
            + (secs ? secs[1] + ' segundo' : 'ilang sandali') + '.');
