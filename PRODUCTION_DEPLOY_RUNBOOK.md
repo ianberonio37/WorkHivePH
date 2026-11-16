@@ -98,6 +98,17 @@ through `critic_lock_promote.py`. VX-A/G/S/X: 861 search rows re-read from the r
   readings on their own critic rows. Hive also gained a heading in its loading placeholder (no h1 offline).
 - pwa L6: sw.js bumped to v597 and committed with the shell files.
 
+### The push's board (fast, 908 PASS / 3 FAIL) and the re-check (`--rerun-failed`, 151 PASS / 1 FAIL)
+- critic-registry R3: the 7 descoped VX rows' critic rows moved verbatim to `critic_registry_descoped_archive.json`.
+- sw-shell-membership: hive.html changed after v597 (the loading placeholder now carries a heading) - bumped to v598.
+- cf-rows-hold: CF11 and CF41 were "found again" only by forced-condition walks (VX2612 offline, JS15 offline-3g);
+  `bank_cf_rows.py` now judges a closed find on page-at-rest surveys only, using the same definition.
+- layer_invariants `layer_cron audit_trail_complete`: 5 local cron runs failed at one instant, 2026-11-14 18:26 UTC,
+  all "job startup timeout" - the 8 GB host stalled under walk load three days before this release. The release
+  touches no cron job. It stays red until the local database restarts; not cleared by restarting it to pass the gate.
+- **The push's board is FAST, so `critic_lock_promote.py` locks nothing on it** ("board mode is 'fast', not full").
+  The VX-V/VX-J locks need a separate full board.
+
 ---
 
 # M13 release (2026-11-11) - the critic's signed-out finds, every guide checked against the code ✅ DEPLOYED

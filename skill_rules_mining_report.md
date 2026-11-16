@@ -140,7 +140,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `a11y_img_has_alt` | qa-tester | 100% (38/38) | html_pages | anti_pattern |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | 100% (34/34) | html_pages | convention |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (0/0) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (772/772) | migrations | anti_pattern |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (774/774) | migrations | anti_pattern |
 | `frontend_detail_toggle_uses_shared_helper` | frontend | 100% (17/17) | html_pages | convention |
 | `frontend_calm_dashboard_has_verdict` | frontend | 100% (13/13) | html_pages | convention |
 | `frontend_calm_dashboard_uses_details_disclosure` | frontend | 100% (13/13) | html_pages | convention |
