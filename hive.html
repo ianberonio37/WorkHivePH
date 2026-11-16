@@ -4177,7 +4177,8 @@ function renderAdoptionCard(row) {
   // stopped). E2 below already tells the two apart for the summary line; the badge, read first, still claimed the
   // empty state. Same flag, same answer.
   const style = (!row && window._adoptionErr)
-    ? { bg: ADOPTION_TIER_STYLE.nodata.bg, fg: ADOPTION_TIER_STYLE.nodata.fg, label: _t('Not loaded', 'Hindi na-load') }
+    // text: carried over too - this rebuilt object dropped it, so a failed read drew the slate fill colour at 4.1:1 (VX-J 429)
+    ? { bg: ADOPTION_TIER_STYLE.nodata.bg, fg: ADOPTION_TIER_STYLE.nodata.fg, text: ADOPTION_TIER_STYLE.nodata.text, label: _t('Not loaded', 'Hindi na-load') }
     : (ADOPTION_TIER_STYLE[tier] || ADOPTION_TIER_STYLE.nodata);
 
   const badge = document.getElementById('adoption-tier-badge');
