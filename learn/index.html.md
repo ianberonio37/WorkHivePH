@@ -248,6 +248,8 @@ Show more guides
 
 ## Where these figures come from
 
+Laws these guides follow: RA 11285 (Energy Efficiency and Conservation Act) and RA 11058 (occupational safety and health), published in the [Official Gazette](https://www.officialgazette.gov.ph/); safety rules are issued by [DOLE](https://www.dole.gov.ph/).
+
 Static · the Learn library index, rendered as of this page load · articles link to their own sources
 
-<!-- md-twin source-sha: 49eeb1c01594c7f8 -->
+<!-- md-twin source-sha: d990ae625779c47d -->
