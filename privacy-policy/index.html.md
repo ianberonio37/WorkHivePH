@@ -68,7 +68,7 @@ You have the right to:
 - **Correct** inaccurate data.
 - **Delete** your account and all associated personal data.
 - **Object** to specific uses of your data.
-- **Complain** to the National Privacy Commission if you think we broke these rights.
+- **Complain** to the [National Privacy Commission](https://privacy.gov.ph/) if you think we broke these rights.
 
 To use any of these rights, email [admin@workhiveph.com](mailto:admin@workhiveph.com). Put "Data Rights Request" in the subject line.
 
@@ -96,4 +96,4 @@ Email [admin@workhiveph.com](mailto:admin@workhiveph.com) for any privacy questi
 
 [Join the Hive](https://workhiveph.com/?signup=1)
 
-<!-- md-twin source-sha: 07028c7daf2f90ae -->
+<!-- md-twin source-sha: 2dc1451a53e4e340 -->
