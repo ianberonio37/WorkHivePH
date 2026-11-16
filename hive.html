@@ -4084,7 +4084,9 @@ const ADOPTION_TIER_STYLE = {
   healthy:  { bg: 'rgba(74,222,128,0.18)',  fg: '#4ade80', label: 'Healthy'  },
   at_risk:  { bg: 'rgba(247,162,27,0.18)',  fg: '#F7A21B', text: 'var(--wh-orange-text)', label: 'At Risk'  },
   critical: { bg: 'rgba(248,113,113,0.18)', fg: '#f87171', text: 'var(--wh-red-text)', label: 'Critical' },
-  nodata:   { bg: 'rgba(148,163,184,0.18)', fg: '#94a3b8', label: 'No data yet' }, // no adoption snapshot — must NOT read as green "Healthy"
+  // text: the badge's neutral grey (#94a3b8) measured 4.1:1 on its own tint at 12px (VX-V, 3 of 100 hive readings) - the same
+  // fix At Risk and Critical already carry; --wh-text-muted is the neutral pm-scheduler's "No Data" badge reads in.
+  nodata:   { bg: 'rgba(148,163,184,0.18)', fg: '#94a3b8', text: 'var(--wh-text-muted, rgba(255,255,255,0.8))', label: 'No data yet' }, // no adoption snapshot — must NOT read as green "Healthy"
 };
 
 async function loadAdoptionCard() {
