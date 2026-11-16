@@ -5598,15 +5598,54 @@ function whClockSkew(opts) {
       if (Math.abs(deltaMs) < tolMs) return;
       var mins = Math.round(Math.abs(deltaMs) / 60000);
       var fast = deltaMs > 0;
+      // ★"ABOUT 43200 MINUTES" AND A BAR OVER THE NAV (VX-J returning-after-30-days, 2026-11-16). With the device clock a
+      // month off, this strip was fixed at the BOTTOM above everything (z 2147483000) and covered the bottom nav and the
+      // FAB on every page, with no way to close it, and it spoke in minutes. It now sits at the TOP through the offline
+      // banner's offset (--wh-offline-banner-h + html.wh-offline-banner-open push the body, fixed navs, wayfinding and the
+      // assistant down - one mechanism, not a second one), states days or hours, and closes with "Got it". The two never
+      // collide in practice: this check needs the network, so it cannot fire while the offline banner is up.
+      var amount = mins >= 2880 ? Math.round(mins / 1440) + ' days'
+        : mins >= 120 ? Math.round(mins / 60) + ' hours'
+        : mins + ' minute' + (mins === 1 ? '' : 's');
       var d = document.createElement('div');
       d.id = 'wh-clock-skew';
       d.setAttribute('role', 'alert');
-      d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:2147483000;'
-        + 'background:#7c2d12;color:#fff;padding:10px 14px;font:12px/1.45 system-ui,Arial,sans-serif;text-align:center;';
-      d.textContent = 'This device’s clock is about ' + mins + ' minute' + (mins === 1 ? '' : 's') + ' '
+      d.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:9999;display:flex;align-items:center;gap:10px;'
+        + 'background:#7c2d12;color:#fff;padding:6px 10px 6px 14px;padding-top:max(6px,env(safe-area-inset-top));'
+        + 'font:12px/1.45 system-ui,Arial,sans-serif;';
+      var msg = document.createElement('span');
+      msg.style.flex = '1';
+      msg.textContent = 'This device’s clock is about ' + amount + ' '
         + (fast ? 'ahead of' : 'behind') + ' real time. Times you see (and times recorded when you approve '
         + 'or complete work) will be off by that much until you fix the date and time in your device settings.';
-      if (document.body) document.body.appendChild(d);
+      var ok = document.createElement('button');
+      ok.type = 'button';
+      ok.textContent = 'Got it';
+      ok.style.cssText = 'min-height:44px;min-width:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.6);'
+        + 'background:transparent;color:#fff;font:600 12px system-ui,Arial,sans-serif;cursor:pointer;flex:none;';
+      var root = document.documentElement;
+      var setOffset = function (px) {
+        try {
+          root.style.setProperty('--wh-offline-banner-h', px + 'px');
+          root.classList.toggle('wh-offline-banner-open', px > 0);
+        } catch (_) { /* empty-catch-allow: the offset is best-effort */ }
+      };
+      ok.addEventListener('click', function () { if (d.parentNode) d.parentNode.removeChild(d); setOffset(0); });
+      d.appendChild(msg);
+      d.appendChild(ok);
+      if (document.body) {
+        // offline-banner.js injects its push rules only when it first shows, so this banner carries the same two
+        // (identical selectors: whichever sheet is present, the result is the same)
+        if (!document.getElementById('wh-clock-skew-style')) {
+          var st = document.createElement('style');
+          st.id = 'wh-clock-skew-style';
+          st.textContent = 'html.wh-offline-banner-open body{margin-top:var(--wh-offline-banner-h,0px)}'
+            + 'html.wh-offline-banner-open nav.fixed,html.wh-offline-banner-open header.fixed{top:var(--wh-offline-banner-h,0px)}';
+          document.head.appendChild(st);
+        }
+        document.body.appendChild(d);
+        setOffset(Math.round(d.getBoundingClientRect().height));
+      }
     }, function () { /* offline or blocked: no reading, so no claim */ });
   } catch (_) { /* empty-catch-allow: a clock check must never break a page */ }
 }
