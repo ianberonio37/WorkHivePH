@@ -60,6 +60,46 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
+# M14 + M15 release (2026-11-17) - Wave VX: every width, every field condition, each persona group's AI answer
+
+**What closed.** VX-L (M15) 404/404 walked and banked. VX-V 2,287 widths and VX-J 464 field-condition journeys walked and
+banked onto the critic shard, then lifted to `walked` by `tools/bank_vx_walks.py`; they lock on this release's full board
+through `critic_lock_promote.py`. VX-A/G/S/X: 861 search rows re-read from the running server (not the files) and closed;
+7 not-applicable rows descoped with reasons; 119 cwv-390 rows still need Lighthouse. Header: 94.6% closed before the board.
+
+### What a person using WorkHive will notice (release notes)
+- Error messages on a phone are readable: the logbook and inventory notices sat half off the right edge on every phone,
+  and sat on top of the hub button. They are centred and clear of it now.
+- When the network drops, a page says "you are offline" once, not on every panel.
+- A device whose clock is wrong is told so at the top of the screen, in days or hours, and can dismiss the notice. It
+  used to cover the bottom navigation.
+- The AI companion states each alert's real age and the true count of recent entries instead of guessing "this week".
+- The privacy page links the National Privacy Commission; the calculators and the Learn library link the bodies whose
+  standards and laws they follow.
+- On a phone held sideways, the page-guide chip sits at the end of the page instead of over the content.
+- The offline page's "Back to WorkHive" link is a full-size target, and it says when it is checking the connection.
+
+### Leg B - Edge: functions to deploy
+- `ai-gateway` (alert age; 30-day entry count) and `voice-journal-agent`, plus every function bundling
+  `_shared/persona.ts` (amc-orchestrator, analytics-orchestrator, asset-brain-query, engineering-calc-agent,
+  project-orchestrator, shift-planner-orchestrator, tts-speak, visual-defect-capture, voice-action-router).
+
+### Leg C - Frontend: `workhive-shell-v597`
+- Shell files changed: utils.js, wh-tw.css, hive.html, learn-link.js, offline-fallback.html; plus 60 calculator pages,
+  learn/index.html, privacy-policy, about, feedback, robots.txt, llms.txt and their markdown twins.
+
+### The touched-gate check (2026-11-17, `--rerun-failed --fast`, 658 gates) - 9 reds, each at its cause
+- Stale derived files (regenerated): function-stamps (`stamp_functions.py --write`), ai_call_sinks, the destructive
+  roster, the live-walk manifest, the substrate (rebuilt last).
+- token-fallbacks-agree: one fallback in solar-planner.js disagreed with tokens.css - `fix_token_fallbacks.py --apply`.
+- tw-public-sheets: about and feedback carried `answer-first`, not in their compiled sheets - rebuilt both families.
+- critic-cells: four closed at-rest cells were reopened by walks under a FORCED condition (VX-J offline/429 and Wave JS
+  offline-3g). A failure state is a different screen; `enhancement_inventory._condition_walks()` now keeps those
+  readings on their own critic rows. Hive also gained a heading in its loading placeholder (no h1 offline).
+- pwa L6: sw.js bumped to v597 and committed with the shell files.
+
+---
+
 # M13 release (2026-11-11) - the critic's signed-out finds, every guide checked against the code ✅ DEPLOYED
 
 > **✅ M13 DEPLOYED 2026-11-14: the critic's signed-out finds, the claim audit and BRH-AQ are in production.** Production

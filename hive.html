@@ -2448,7 +2448,12 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     w.setAttribute('aria-live', 'polite');
     w.setAttribute('aria-busy', 'true');
     w.style.cssText = 'padding:18px 16px;';
-    w.innerHTML = '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72); margin:0 0 12px;">'
+    // ★OFFLINE, THE PAGE HAD NO HEADING (VX-J offline-mid-task, 2026-11-17: A1 "h1=0" on 3 walks, ENH306 reopened). With
+    // the network gone no view ever wins, so this placeholder is all a person (and a screen reader) gets. It carries the
+    // page's own title; showView() removes it before either view's h1 is shown, so two h1s are never on screen.
+    // heading-allow: boot placeholder, removed by showView() before #view-board or #view-onboard shows its h1
+    w.innerHTML = '<h1 style="font-size:var(--wh-fs-2xl, 1.5rem); font-weight:900; color:var(--wh-white, #fff); margin:0 0 6px;">Your Hive</h1>'
+      + '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72); margin:0 0 12px;">'
       + 'Loading your hive board&hellip;</p>';
     host.prepend(w);
     if (typeof whListSkeleton === 'function') {

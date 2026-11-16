@@ -278,7 +278,7 @@
       ],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "f339c21304b46e38"
+      "source_sha256": "5c9aec187629d0cc"
     },
     "ai-orchestrator": {
       "calls_model": true,
@@ -1080,7 +1080,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "e1b9ccfcd118d44a"
+      "source_sha256": "7c3861f2f02bca44"
     },
     "voice-logbook-entry": {
       "calls_model": true,

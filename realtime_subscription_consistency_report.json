@@ -64,62 +64,62 @@
         {
           "table": "hive_adoption_score",
           "allowed": true,
-          "offset": 283214
+          "offset": 283678
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 395885
+          "offset": 396349
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 396302
+          "offset": 396766
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 397427
+          "offset": 397891
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 398382
+          "offset": 398846
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 400323
+          "offset": 400787
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 449979
+          "offset": 450443
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 450434
+          "offset": 450898
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 451428
+          "offset": 451892
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 451891
+          "offset": 452355
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 453485
+          "offset": 453949
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 454012
+          "offset": 454476
         }
       ],
       "drift": []

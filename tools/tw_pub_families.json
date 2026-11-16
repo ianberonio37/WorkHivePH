@@ -149,12 +149,13 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 2870,
-   "class_tokens": 120,
+   "harvested_tokens": 2871,
+   "class_tokens": 121,
    "bytes": 9990,
    "classes_in_sheet": 74,
    "non_utility_classes": [
     "active",
+    "answer-first",
     "arrow",
     "count",
     "fb-card",
@@ -534,12 +535,13 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 1278,
-   "class_tokens": 135,
+   "harvested_tokens": 1279,
+   "class_tokens": 136,
    "bytes": 10349,
    "classes_in_sheet": 89,
    "non_utility_classes": [
     "active",
+    "answer-first",
     "article-card",
     "breadcrumb",
     "card-title",
@@ -591,5 +593,5 @@
    ]
   }
  },
- "generated": "2026-11-13T14:43:26.097Z"
+ "generated": "2026-11-16T19:20:43.963Z"
 }

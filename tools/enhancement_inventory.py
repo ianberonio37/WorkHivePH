@@ -219,6 +219,23 @@ def _filipino_walks() -> set:
             or (t.get("journey") or {}).get("language") == "fil"}
 
 
+def _condition_walks() -> set:
+    """★A PAGE UNDER A FORCED FAILURE IS A DIFFERENT SCREEN (2026-11-17). Wave VX-J walks each journey with the network
+    cut, every write answering 429, the session expired, the clock a month ahead or a second device signed in. Those
+    walks reopened four closed at-rest cells (ENH306 hive A1, ENH315 inventory R4, ENH327/330 shift-brain A1/E3): each
+    reading is of the failure state, not of the page the cell was built and closed on. The finding stays open on its own
+    VX-J critic row, which is where it is worked; it does not reopen the page-at-rest cell. Wave JS (offline-3g, a 3G
+    line that keeps dropping) is the same class: JS1/JS10/JS15/JS18 reopened the same four cells. Read across the whole
+    registry union, every shard, so a condition walk in any wave is recognised."""
+    try:
+        sys.path.insert(0, str(ROOT / "tools"))
+        from registry_io import load_doc
+        rows = load_doc().get("trajectories", [])
+    except Exception:
+        return set()
+    return {t["id"] for t in rows if (t.get("journey") or {}).get("condition") not in (None, "", "normal")}
+
+
 def _critic(prod: list[str], rows: list | None = None, fil: set | None = None) -> list[dict]:
     if rows is None:
         if not CRITIC.exists():
@@ -232,7 +249,7 @@ def _critic(prod: list[str], rows: list | None = None, fil: set | None = None) -
     # same cast, the dim passed (2026-10-22 probes: alert-hub X1, assistant T8, community Z3, platform-actions W1,
     # project-report C3, shift-brain X1). A Filipino walk's findings stay on its critic row as the record; they no
     # longer make an English enhancement cell.
-    fil = _filipino_walks() if fil is None else fil
+    fil = (_filipino_walks() | _condition_walks()) if fil is None else fil
     cells: dict[tuple, Counter] = {}
     for x in rows:
         if x.get("status") != "critiqued" or x.get("id") in fil:

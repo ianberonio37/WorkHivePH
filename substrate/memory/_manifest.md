@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1111-files
-source_sha: 7da7254103431f14
+source: memory-curated:1115-files
+source_sha: 7ab27bea57489a3b
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1111 durable topic files)
+## memory · curated auto-memory (1115 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=711 · project=307 · reference=93
+**By type:** feedback=714 · project=308 · reference=93
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -28,6 +28,7 @@ Entries (name · type · sha):
 - `feedback_42501_told_a_signed_in_buyer_to_sign_in` · feedback · e6bf2d7684259756
 - `feedback_87pct_of_entries_could_not_be_edited_by_their_authors` · feedback · 0a7626785c7a31ff
 - `feedback_a_backtick_in_a_comment_broke_the_page` · feedback · dd06367dad4e9dba
+- `feedback_a_banked_walk_did_not_move_the_row_the_roadmap_reads` · feedback · 301a8756e7758318
 - `feedback_a_base_layer_injected_late_beats_the_page` · feedback · a120dcb2029cc5ee
 - `feedback_a_baseline_page_must_be_served_like_the_page` · feedback · 3da261006cc1b31c
 - `feedback_a_basis_must_describe_the_page_in_its_own_receipt` · feedback · 1fce6d5fc53aa694
@@ -316,7 +317,7 @@ Entries (name · type · sha):
 - `feedback_content_that_waits_behind_identity` · feedback · 689997ed32019a08
 - `feedback_context_saturation_stop_disguise` · feedback · 4a17cb41b6c0a5c9
 - `feedback_contrast_is_not_computable_from_cssom_here` · feedback · 44c80db6b50ad7e4
-- `feedback_copilot_codes_claude_orchestrates` · feedback · c876c8a797664059
+- `feedback_copilot_codes_claude_orchestrates` · feedback · 1e6d1f416a7068ad
 - `feedback_could_not_ask_is_not_no` · feedback · 72db9f3c79e447b5
 - `feedback_count_before_and_after_with_the_same_eyes` · feedback · 903b9cf5e491a41e
 - `feedback_coverage_improved_by_deleting_obligations` · feedback · dd378d4ba395ad6c
@@ -445,6 +446,7 @@ Entries (name · type · sha):
 - `feedback_local_first_never_push_prod` · feedback · 659c63babe61b7b8
 - `feedback_local_only_tester` · feedback · 89db0250b1703035
 - `feedback_local_runtime_verify_no_deploy` · feedback · 5c13ccf3a3b6b9c5
+- `feedback_local_server_is_uncompressed` · feedback · b01b48fdb394c7e3
 - `feedback_local_supabase_rewrite` · feedback · a970d46ace63fba7
 - `feedback_local_triggers_called_prod_with_service_key` · feedback · 23f78e4991fb72c6
 - `feedback_low_memory_free_it_dont_wait` · feedback · 1a92b284f6cbff64
@@ -504,6 +506,7 @@ Entries (name · type · sha):
 - `feedback_open_w_truncates_before_write_use_atomic` · feedback · 410a67474ddb00b3
 - `feedback_operate_at_full_capability` · feedback · 187c49ce68044fd2
 - `feedback_ops_views_over_granted_to_anon` · feedback · 6f422d53c4a320f5
+- `feedback_orchestrate_and_route` · feedback · 312fdd81e8beb338
 - `feedback_outlasting_the_guard_is_not_an_ender` · feedback · da646f1097d9bcf6
 - `feedback_over_driving_8gb_host_crashed_docker_and_session` · feedback · 3baf6c685821c88f
 - `feedback_overflow_clip_hides_real_content_loss` · feedback · a8c2bb93234f31af
@@ -513,9 +516,6 @@ Entries (name · type · sha):
 - `feedback_page_scoped_symbols_defeat_probes` · feedback · 1d1e87ed62680076
 - `feedback_paginated_order_must_be_total` · feedback · 1635a366ddf63c13
 - `feedback_pandas_iso8601_silent_99pct_data_loss` · feedback · e33cd3b6a8e29c62
-- `feedback_pasted_keys_in_docs_leak_scanner_blindspot` · feedback · f48a9c2ba719f44c
-- `feedback_pdda_page_deep_arc` · feedback · f5ff12390b2bea42
-- `feedback_pending_rendered_as_empty` · feedback · a73916016ce794f8
-- … +611 more (all included in the fingerprint)
+- … +615 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

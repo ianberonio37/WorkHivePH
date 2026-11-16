@@ -2,7 +2,7 @@
 name: doc-FRAMEWORK
 type: doc
 source: file:FRAMEWORK.md
-source_sha: af6c54b09e11eaea
+source_sha: 2cc4293731ade41d
 last_verified: 2026-07-13
 supersedes: null
 ---

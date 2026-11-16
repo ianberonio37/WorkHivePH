@@ -68,7 +68,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **REGISTRY: 57921 trajectories · 54731 in scope · 3190 descoped (out of the denominator, each with its reason in the row's basis)** — `trajectory_registry.json` (updated 2026-11-17). **Completion is the CLOSED/OPEN line above — the MCP-deepwalk measure — and nothing else.** A row's own pct (specced 5 · walked 25 · fixed 60 · locked 100) is in-flight bookkeeping cited by its basis, not a completion figure; 50366 locking · 3190 descoped · 2751 walked · 1441 locked · 167 specced · 6 fixing.
 
-**↳ CRITIC DEEPWALK (UI/UX extension): 72.7% · 3 pending · 44842 critiqued · 9893 improving · 87790 receipted findings** — `UFAI_CRITIC_DEEPWALK_ROADMAP.md` / `critic_registry.json`; walk → critique → fix → gate, every trajectory, until 100%.
+**↳ CRITIC DEEPWALK (UI/UX extension): 72.7% · 3 pending · 44842 critiqued · 9893 improving · 87791 receipted findings** — `UFAI_CRITIC_DEEPWALK_ROADMAP.md` / `critic_registry.json`; walk → critique → fix → gate, every trajectory, until 100%.
 
 ↳ **KEEP ABREAST** (Wave KA, `tools/freshness_trip.py`) — trips open 0 (0 past grace) · spine within TTL 66/66 · refresh queue 0 · last IndexNow push 2026-11-14 · last SOV never · scoreboard 2026-11-09
 

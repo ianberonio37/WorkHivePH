@@ -76,43 +76,43 @@
         "message_head": "Copy this invite link:"
       },
       {
-        "line": 3108,
+        "line": 3113,
         "message_head": "Deactivate your account? Your name and email will be permanently anonymized and you will lose"
       },
       {
-        "line": 3122,
+        "line": 3127,
         "message_head": "Your account has been deactivated and your personal data anonymized."
       },
       {
-        "line": 3284,
+        "line": 3289,
         "message_head": "${_coSups[0]}${_coSups.length > 1 ? ' and others' : ''} also supervise${_coSups.length > 1 ? '' : 's'} this hive, so it keeps a supervisor w"
       },
       {
-        "line": 3299,
+        "line": 3304,
         "message_head": "Leave this hive? You'll lose access to its board and can't post here anymore. Your past logbook entries stay in the hive's records."
       },
       {
-        "line": 3337,
+        "line": 3342,
         "message_head": "You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it ca"
       },
       {
-        "line": 3527,
+        "line": 3532,
         "message_head": "Copy this invite link and send it to your team:"
       },
       {
-        "line": 3615,
+        "line": 3620,
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 5313,
+        "line": 5321,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. When they sign in, WorkHive asks them to set their ow"
       },
       {
-        "line": 5340,
+        "line": 5348,
         "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. When they sign in"
       },
       {
-        "line": 6689,
+        "line": 6697,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],
@@ -266,27 +266,27 @@
     ],
     "platform-actions.html": [
       {
-        "line": 892,
+        "line": 900,
         "message_head": "Verify this top-up? Credits are minted into the provider’s wallet immediately"
       },
       {
-        "line": 1211,
+        "line": 1219,
         "message_head": "A line both parties will read with the outcome (optional)"
       },
       {
-        "line": 1583,
+        "line": 1591,
         "message_head": "Remove ${_who}'s ${_isCert ? 'certification badge' : 'ID Verified badge'}?"
       },
       {
-        "line": 1610,
+        "line": 1618,
         "message_head": "Unpublish \"${btn.dataset.title || 'this listing'}\". Tell the seller why:"
       },
       {
-        "line": 1646,
+        "line": 1654,
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1995,
+        "line": 2003,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
@@ -360,11 +360,11 @@
     ],
     "utils.js": [
       {
-        "line": 7137,
+        "line": 7188,
         "message_head": "Delete X?"
       },
       {
-        "line": 7140,
+        "line": 7191,
         "message_head": "Enter name"
       }
     ]

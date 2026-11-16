@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 0,
+ "open": 10,
  "resolved": 1,
  "incidents": [
   {
@@ -15,6 +15,96 @@
    "started_at": "2026-10-28 21:03:36.632147+00",
    "ended_at": "2026-10-30 21:04:09.367083+00",
    "status": "resolved"
+  },
+  {
+   "id": "gate-tw-public-sheets",
+   "source": "gate",
+   "title": "tw-public-sheets",
+   "severity": "major",
+   "started_at": "2026-11-13T14:38:54.529255+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-live-walk-manifest",
+   "source": "gate",
+   "title": "live-walk-manifest",
+   "severity": "major",
+   "started_at": "2026-11-13T14:38:54.529255+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-destructive-proportional-confirm",
+   "source": "gate",
+   "title": "destructive-proportional-confirm",
+   "severity": "major",
+   "started_at": "2026-11-13T14:38:54.529255+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-ai_call_sinks",
+   "source": "gate",
+   "title": "ai_call_sinks",
+   "severity": "major",
+   "started_at": "2026-11-13T14:38:54.529255+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-pwa",
+   "source": "gate",
+   "title": "pwa",
+   "severity": "major",
+   "started_at": "2026-11-13T14:38:54.529255+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-hive-scale-races",
+   "source": "gate",
+   "title": "hive-scale-races",
+   "severity": "major",
+   "started_at": "2026-11-13T14:38:54.529255+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-hive-scale-lists",
+   "source": "gate",
+   "title": "hive-scale-lists",
+   "severity": "major",
+   "started_at": "2026-11-13T14:38:54.529255+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-critic-cells",
+   "source": "gate",
+   "title": "critic-cells",
+   "severity": "major",
+   "started_at": "2026-11-13T14:38:54.529255+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-substrate-freshness",
+   "source": "gate",
+   "title": "substrate-freshness",
+   "severity": "major",
+   "started_at": "2026-11-13T14:38:54.529255+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-function-stamps",
+   "source": "gate",
+   "title": "function-stamps",
+   "severity": "major",
+   "started_at": "2026-11-13T14:38:54.529255+00:00",
+   "ended_at": null,
+   "status": "open"
   }
  ]
 }
